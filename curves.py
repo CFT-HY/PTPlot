@@ -34,10 +34,12 @@ class PowerSpectrum:
         # self.alpha = 0.084
         self.alpha = alpha
 
-        self.hstar = 16.5e-6*(Tstar/100)*np.power(gstar/100,1.0/6.0)
+        self.hstar = 16.5e-6*(self.Tstar/100.0) \
+                     *np.power(self.gstar/100.0,1.0/6.0)
 
         # self.kturb = 1.97/65.0
-
+        self.kturb = kturb
+        
     def fsw(self, f):
     
         return (8.9e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.zp/10.0) \

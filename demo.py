@@ -16,18 +16,88 @@ import cgi
 import curves
 
 form = cgi.FieldStorage()
-if "vw" not in form:
-    print("""<html><body>
-    <form action="demo.py">
-    Wall velocity: <input type="text" name="vw" value="0.44">
+
+def print_start():
+    print("""<html>
+    <head>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript" async
+    src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_SVG'></script>
+    </head>
+    <body>
+    <h1>PTPlot</h1>""")
+
+def print_end():
+    print("""
+    <p><em><a href="https://bitbucket.org/dweir/ptplot">PTPlot</a></em>
+    by
+    <a href="http://www.helsinki.fi/~weir/">David Weir</a></p>
+    </body></html>""")
+
+def print_form():
+    print("""<form action="demo.py" method="post">
+    Wall velocity $v_\mathrm{w}$: <input type="text" name="vw" value="0.44">
+    <br/>
+    Phase transition temperature $T_*$: <input type="text" name="Tstar" value="180"> GeV
     <input type="submit" value="Submit">
     </form>
-    </body></html>""")
+    """)
+
+def print_parameter_error(what):
+    print("""
+    <p>There is an error in your parameters:</p>
+    <blockquote>%s</blockquote>""" % what)
+    
+
+print_start()
+    
+if "vw" not in form:
+    print_form()
+    print_end()
     sys.exit(0)
 
 
-vw = float(form["vw"].value)
-curves_ps = curves.PowerSpectrum(vw)
+try:
+    vw = float(form["vw"].value)
+except ValueError:
+    print_parameter_error("""
+    <p>vw must be a floating point number
+    between 0 and 1</p>""")
+    print_form()
+    print_end()
+    sys.exit(0)
+
+if vw <= 0 or vw > 1:
+    print_parameter_error("""
+    <p>vw must be a floating point number
+    between 0 and 1</p>""")
+    print_form()
+    print_end()
+    sys.exit(0)
+
+try:
+    Tstar = float(form["Tstar"].value)
+except ValueError:
+    print_parameter_error("""
+    <p>Tstar must be a floating point number
+    between 0 and 1000</p>""")
+    print_form()
+    print_end()
+    sys.exit(0)
+
+if Tstar <= 0 or Tstar > 1000:
+    print_parameter_error("""
+    <p>Tstar must be a floating point number
+    between 0 and 1000</p>""")
+    print_form()
+    print_end()
+    sys.exit(0)
+
+    
+    
+curves_ps = curves.PowerSpectrum(vw=vw, Tstar=Tstar)
 
 # setup latex plotting
 plt.rc('text', usetex=True)
@@ -67,11 +137,10 @@ imgStr = "data:image/png;base64,"
 
 imgStr += base64.b64encode(sio.read()).decode()
 
-print("""<html><body>
+print("""
     <img src="%s"></img>
-<form action="demo.py">
-  Wall velocity: <input type="text" name="vw" value="0.44">
-  <input type="submit" value="Submit">
-</form>
-    </body></html>
-""" % imgStr)
+""" % (imgStr))
+
+
+print_form()
+print_end()
