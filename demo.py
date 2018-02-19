@@ -1,13 +1,31 @@
+#!/usr/bin/env python3
+# enable debugging
+import cgitb
+cgitb.enable()
+print("Content-type: text/html\n")
 
 import math, sys, string
 
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import io, base64
 import scipy.optimize as spopt
-
+import cgi
 import curves
+
+form = cgi.FieldStorage()
+if "vw" not in form:
+    print("""<html><body>
+    <form action="demo.py">
+    Wall velocity: <input type="text" name="vw" value="0.44">
+    <input type="submit" value="Submit">
+    </form>
+    </body></html>""")
+    sys.exit(0)
+                  
+curves.vw = float(form["vw"].value)
 
 # setup latex plotting
 plt.rc('text', usetex=True)
@@ -32,4 +50,26 @@ plt.yscale('log', nonposy='clip')
 plt.xscale('log', nonposx='clip')
 plt.legend(loc='upper right')
 plt.tight_layout()
-plt.savefig('demo.pdf')
+
+sio = io.BytesIO()
+plt.savefig(sio, format="png")
+sio.seek(0)
+
+# Build your matplotlib image in a iostring here
+# ......
+#
+
+# Initialise the base64 string
+#
+imgStr = "data:image/png;base64,"
+
+imgStr += base64.b64encode(sio.read()).decode()
+
+print("""<html><body>
+    <img src="%s"></img>
+<form action="demo.py">
+  Wall velocity: <input type="text" name="vw" value="0.44">
+  <input type="submit" value="Submit">
+</form>
+    </body></html>
+""" % imgStr)
