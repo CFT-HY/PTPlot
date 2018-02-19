@@ -24,8 +24,10 @@ if "vw" not in form:
     </form>
     </body></html>""")
     sys.exit(0)
-                  
-curves.vw = float(form["vw"].value)
+
+
+vw = float(form["vw"].value)
+curves_ps = curves.PowerSpectrum(vw)
 
 # setup latex plotting
 plt.rc('text', usetex=True)
@@ -39,9 +41,9 @@ f, sensitivity \
     = np.loadtxt('Sens_L6A2M5N2P2D28.txt',usecols=[0,3],unpack=True)
 
 plt.fill_between(f,sensitivity,1,alpha=0.3, label=r'LISA sensitivity')
-plt.plot(f, curves.power_spectrum_sw(f), 'r', label=r'$\Omega_\mathrm{sw}$')
-plt.plot(f, curves.power_spectrum_turb(f), 'b', label=r'$\Omega_\mathrm{turb}$')
-plt.plot(f, curves.power_spectrum(f), 'k', label=r'Total')
+plt.plot(f, curves_ps.power_spectrum_sw(f), 'r', label=r'$\Omega_\mathrm{sw}$')
+plt.plot(f, curves_ps.power_spectrum_turb(f), 'b', label=r'$\Omega_\mathrm{turb}$')
+plt.plot(f, curves_ps.power_spectrum(f), 'k', label=r'Total')
 plt.xlabel(r'$f\,\mathrm{(Hz)}$')
 plt.ylabel(r'$h^2 \, \Omega_\mathrm{GW}(f)$')
 plt.xlim([1e-5,0.1])
