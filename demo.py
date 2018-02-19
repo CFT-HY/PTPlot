@@ -21,7 +21,7 @@ def print_start():
     print("""<html>
     <head>
     <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
     </script>
     <script type="text/javascript" async
     src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_SVG'></script>
@@ -37,12 +37,22 @@ def print_end():
     </body></html>""")
 
 def print_form():
-    print("""<form action="demo.py" method="post">
+    print(r"""<form action="demo.py" method="post">
     Wall velocity $v_\mathrm{w}$: <input type="text" name="vw" value="0.44">
     <br/>
     Phase transition temperature $T_*$: <input type="text" name="Tstar" value="180"> GeV
     <input type="submit" value="Submit">
     </form>
+    <p>(all other parameters have 'reasonable' defaults; in particular,
+    $\alpha_{T_*} \approx 0.1$, and $H_*/\beta =0.1$ - these will be adjustable soon)</p>
+    <p>Todo:
+    <ul>
+    <li>SNR plot</li>
+    <li>Adjust all parameters</li>
+    <li>Download PDF</li>
+    <li>Change sensitivity curve/mission profile</li>
+    <li>Preselect benchmark points</li>
+    </ul>
     """)
 
 def print_parameter_error(what):
