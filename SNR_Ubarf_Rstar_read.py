@@ -12,7 +12,7 @@ import numpy as np
 import io
 
 
-def get_SNR_image():
+def get_SNR_image(Tstar=100, vw=0.95):
     config = 'L6A2M5N2P2D28'
 
     red = np.array([1,0,0])
@@ -44,6 +44,8 @@ def get_SNR_image():
     hstar = 100    # d.o.f.
     AdInd = 4./3.  # Adiabatic index
 
+    Tn = Tstar
+    
     # Hubble rate redshifted to now
     Hn0 = 16.5e-6 * (Tn/100) * (hstar/100)**(1./6) # Hz
 
@@ -103,10 +105,15 @@ def get_SNR_image():
     #    plt.grid()
 
 
-    alpha_list = [0.09,0.12,0.17,0.20]
-    beta_list = [47.35,29.96,12.54,6.42]
-    vw_list = [0.95,0.95,0.95,0.95]
+    #    alpha_list = [0.09,0.12,0.17,0.20]
+    #    beta_list = [47.35,29.96,12.54,6.42]
+    #    vw_list = [0.95,0.95,0.95,0.95]
 
+    alpha_list = [0.1]
+    beta_list = [10]
+    vw_list = [vw]
+    
+    
     from espinosa import kappav, ubarf
 
     Rstar_list = [math.log(math.pow(8.0*math.pi,1.0/3.0)*vel/beta) \
@@ -120,7 +127,7 @@ def get_SNR_image():
 
     singlet = plt.plot(ubarf_list, Rstar_list, '-o')
 
-    legends.append('Singlet benchmark points')
+    legends.append('Your point')
 
     proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0])
              for pc in collections] + singlet
@@ -128,17 +135,17 @@ def get_SNR_image():
     leg = plt.legend(proxy, legends, loc='lower left', framealpha=0.9)
     #    leg.get_frame().set_alpha(0.9)
 
-    plt.annotate('A', xy=(ubarf_list[0], Rstar_list[0]), xycoords='data',
-                 xytext=(5, -5), textcoords='offset points')
+#    plt.annotate('A', xy=(ubarf_list[0], Rstar_list[0]), xycoords='data',
+#                 xytext=(5, -5), textcoords='offset points')
 
-    plt.annotate('B', xy=(ubarf_list[1], Rstar_list[1]), xycoords='data',
-                 xytext=(5, -5), textcoords='offset points')
+#    plt.annotate('B', xy=(ubarf_list[1], Rstar_list[1]), xycoords='data',
+#                 xytext=(5, -5), textcoords='offset points')
 
-    plt.annotate('C', xy=(ubarf_list[2], Rstar_list[2]), xycoords='data',
-                 xytext=(5, -10), textcoords='offset points')
+#    plt.annotate('C', xy=(ubarf_list[2], Rstar_list[2]), xycoords='data',
+#                 xytext=(5, -10), textcoords='offset points')
 
-    plt.annotate('D', xy=(ubarf_list[3], Rstar_list[3]), xycoords='data',
-                 xytext=(5, 0), textcoords='offset points')
+#    plt.annotate('D', xy=(ubarf_list[3], Rstar_list[3]), xycoords='data',
+#                 xytext=(5, 0), textcoords='offset points')
 
 
     #    plt.arrow(-2.9,-1.8, -0.5, 0.2,

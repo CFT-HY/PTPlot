@@ -43,9 +43,9 @@ def print_end():
 
 def print_form():
     print(r"""<form action="demo.py" method="post">
-    Wall velocity $v_\mathrm{w}$: <input type="text" name="vw" value="0.44">
+    Wall velocity $v_\mathrm{w}$: <input type="text" name="vw" value="0.9">
     <br/>
-    Phase transition temperature $T_*$: <input type="text" name="Tstar" value="180"> GeV
+    Phase transition temperature $T_*$: <input type="text" name="Tstar" value="120"> GeV
     <input type="submit" value="Submit">
     </form>
     <p>(all other parameters have 'reasonable' defaults; in particular,
@@ -143,7 +143,7 @@ plt.savefig(sio, format="png")
 sio.seek(0)
 plt.close()
 
-sio_SNR = SNR_Ubarf_Rstar_read.get_SNR_image()
+sio_SNR = SNR_Ubarf_Rstar_read.get_SNR_image(Tstar=Tstar, vw=vw)
 
 
 

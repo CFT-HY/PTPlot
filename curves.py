@@ -12,7 +12,7 @@ class PowerSpectrum:
                  vw = 0.44,
                  adiabaticRatio = 4.0/3.0,
                  zp = 6.9,
-                 alpha = 0.084,
+                 alpha = 0.1,
                  kturb = 1.97/65.0):
         
         # # Not sure about these
