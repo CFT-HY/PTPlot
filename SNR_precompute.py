@@ -24,7 +24,7 @@ def GWSpecAcoustic(s, OmMax) :
 
 ## Info for Loading sensitivity data
 
-sens_file_path = 'StochBkgdSNR_Cfgv1.1/'
+sens_file_path = './'
 
 config_list = ['L6A2M5N2P2D28'] #,
 #               'L6A5M5N2P2D40']
