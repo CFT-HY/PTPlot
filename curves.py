@@ -56,7 +56,6 @@ class PowerSpectrum:
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.HoverBeta*self.Ssw(f)
 
-
     def fturb(self, f):
         return (27e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.Tstar/100.0) \
             *np.power(self.gstar/100,1.0/6.0)

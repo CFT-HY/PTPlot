@@ -34,7 +34,7 @@ def print_end():
     <p><em><a href="https://bitbucket.org/dweir/ptplot">PTPlot</a></em>
     by
     <a href="http://www.helsinki.fi/~weir/">David Weir</a></p>
-    </body></html>""")
+    </body> on behalf of the LISA Cosmology Working Group</html>""")
 
 def print_form():
     print(r"""<form action="demo.py" method="post">
