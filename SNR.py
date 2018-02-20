@@ -163,7 +163,7 @@ def get_SNR_image(Tstar=100, vw=0.95):
     plt.yticks(ytickpos, yticklabels)
 
     sio = io.BytesIO()
-    plt.savefig(sio, format="png")
+    plt.savefig(sio, format="svg")
     sio.seek(0)
     # figfilename = "/tmp/SNR-Ubarf-Rstar-" + config + "-contour-cgi.png"
     # plt.savefig(figfilename, format="png")

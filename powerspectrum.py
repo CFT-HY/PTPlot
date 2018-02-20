@@ -37,7 +37,7 @@ def get_PS_image(vw=0.95, Tstar=100):
     plt.tight_layout()
 
     sio = io.BytesIO()
-    plt.savefig(sio, format="png")
+    plt.savefig(sio, format="svg")
     sio.seek(0)
     plt.close()
     return sio

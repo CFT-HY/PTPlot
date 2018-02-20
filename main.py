@@ -64,7 +64,7 @@ def print_form():
     <!-- <li>SNR plot</li> -->
     <li>Tidy up backend</li>
     <li>Adjust all parameters</li>
-    <li>Download PDF</li>
+    <!-- <li>Download PDF</li> -->
     <!-- <li>Change sensitivity curve/mission profile</li> -->
     <li>Preselect benchmark points</li>
     </ul>
@@ -128,7 +128,7 @@ if Tstar <= 0 or Tstar > 1000:
 
 def inline_image(image_sio):
 
-    imgStr = "data:image/png;base64,"
+    imgStr = "data:image/svg+xml;base64,"
 
     imgStr += base64.b64encode(image_sio.read()).decode()
 
@@ -137,9 +137,8 @@ def inline_image(image_sio):
     """ % (imgStr))
 
 sio_PS = powerspectrum.get_PS_image(Tstar=Tstar, vw=vw)
-sio_SNR = SNR.get_SNR_image(Tstar=Tstar, vw=vw)
-    
 inline_image(sio_PS)
+sio_SNR = SNR.get_SNR_image(Tstar=Tstar, vw=vw)
 inline_image(sio_SNR)
 
 print_form()
