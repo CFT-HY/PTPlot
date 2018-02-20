@@ -63,6 +63,7 @@ def print_form():
     <ul>
     <!-- <li>SNR plot</li> -->
     <li>Tidy up backend</li>
+    <li>Align power spectra used for PS plot and SNR plot</li>
     <li>Adjust all parameters</li>
     <!-- <li>Download PDF</li> -->
     <!-- <li>Change sensitivity curve/mission profile</li> -->
