@@ -21,6 +21,7 @@ form = cgi.FieldStorage()
 def print_start():
     print("""<html>
     <head>
+    <title>PTPlot</title>
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
     </script>
@@ -34,8 +35,11 @@ def print_end():
     print("""
     <p><em><a href="https://bitbucket.org/dweir/ptplot">PTPlot</a></em>
     by
-    <a href="http://www.helsinki.fi/~weir/">David Weir</a></p>
-    </body> on behalf of the LISA Cosmology Working Group</html>""")
+    <a href="http://www.helsinki.fi/~weir/">David Weir</a>
+    on behalf of the LISA Cosmology Working Group
+    </p>
+    </body>
+    </html>""")
 
 def print_form():
     print(r"""<form action="demo.py" method="post">
@@ -154,7 +158,8 @@ def plot_image(image_sio):
     <img src="%s"></img>
     """ % (imgStr))
 
-
+sio_SNR = SNR_Ubarf_Rstar_read.get_SNR_image()
+    
 plot_image(sio)
 plot_image(sio_SNR)
 
