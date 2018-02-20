@@ -141,6 +141,11 @@ plt.tight_layout()
 sio = io.BytesIO()
 plt.savefig(sio, format="png")
 sio.seek(0)
+plt.close()
+
+sio_SNR = SNR_Ubarf_Rstar_read.get_SNR_image()
+
+
 
 # Build your matplotlib image in a iostring here
 # ......
@@ -158,7 +163,6 @@ def plot_image(image_sio):
     <img src="%s"></img>
     """ % (imgStr))
 
-sio_SNR = SNR_Ubarf_Rstar_read.get_SNR_image()
     
 plot_image(sio)
 plot_image(sio_SNR)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
 # \-> Broken power law (Mark Hindmarsh Sep 2015)
@@ -158,16 +158,19 @@ def get_SNR_image():
     sio = io.BytesIO()
     plt.savefig(sio, format="png")
     sio.seek(0)
+    # figfilename = "/tmp/SNR-Ubarf-Rstar-" + config + "-contour-cgi.png"
+    # plt.savefig(figfilename, format="png")
+    plt.close()
     return sio
     
-    #figfilename = "SNR-Ubarf-Rstar-" + config + "-contour.pdf"
+    
     #print "Saving figfile " + figfilename
-    #plt.savefig(figfilename)
+    
     
     #plt.show()
-    #plt.close()
 
 
 
-
+if __name__ == '__main__':
+    get_SNR_image()
 
