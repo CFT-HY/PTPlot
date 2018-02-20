@@ -14,6 +14,7 @@ import io, base64
 import scipy.optimize as spopt
 import cgi
 import curves
+import SNR_Ubarf_Rstar_read
 
 form = cgi.FieldStorage()
 
@@ -141,16 +142,21 @@ sio.seek(0)
 # ......
 #
 
-# Initialise the base64 string
-#
-imgStr = "data:image/png;base64,"
+def plot_image(image_sio):
 
-imgStr += base64.b64encode(sio.read()).decode()
+    # Initialise the base64 string
+    #
+    imgStr = "data:image/png;base64,"
 
-print("""
+    imgStr += base64.b64encode(image_sio.read()).decode()
+
+    print("""
     <img src="%s"></img>
-""" % (imgStr))
+    """ % (imgStr))
 
+
+plot_image(sio)
+plot_image(sio_SNR)
 
 print_form()
 print_end()
