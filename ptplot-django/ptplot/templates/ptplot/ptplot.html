@@ -1,0 +1,25 @@
+{% extends 'ptplot/base.html' %}
+
+{% block content %}
+<form action="/ptplot/" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+<p>(all other parameters have 'reasonable' defaults;
+  in particular, $\alpha_{T_*} \approx 0.1$,
+  and $H_*/\beta =0.1$ - these will be adjustable soon)</p>
+<p>Todo:
+  <ul>
+    <!-- <li>SNR plot</li> -->
+    <li>Tidy up backend</li>
+    <li>Select transition type</li>
+    <li>Align power spectra used for PS plot and SNR plot</li>
+    <li>Adjust all parameters</li>
+    <!-- <li>Download PDF</li> -->
+    <!-- <li>Change sensitivity curve/mission profile</li> -->
+    <li>Preselect benchmark points</li>
+  </ul>
+</p>
+  
+{% endblock %}
