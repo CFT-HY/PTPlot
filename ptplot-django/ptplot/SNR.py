@@ -14,7 +14,9 @@ import os.path
 import io
 import sys
 
-from lisa.settings import BASE_DIR
+from django.conf import settings
+
+BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot')
 
 def get_SNR_image(Tstar=100, vw=0.95, usetex=False):

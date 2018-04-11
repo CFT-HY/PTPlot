@@ -8,10 +8,14 @@ import io, base64
 import cgi
 from .curves import PowerSpectrum
 import os.path
+import sys
 
-from lisa.settings import BASE_DIR
+from django.conf import settings
+
+BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot')
-    
+# sys.stderr.write('root = ' + root + '\n')
+
 def get_PS_image(vw=0.95, Tstar=100, usetex=False):
     curves_ps = PowerSpectrum(vw=vw, Tstar=Tstar)
 
