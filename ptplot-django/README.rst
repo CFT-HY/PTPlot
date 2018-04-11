@@ -17,9 +17,15 @@ If deploying to Elastic Beanstalk, use the following in
 
     packages:
       yum:
-         texlive: []
-         texlive-dvipng-bin: []
+        texlive: []
+        texlive-dvipng-bin: []
 
+    option_settings:
+      aws:elasticbeanstalk:container:python:
+        WSGIPath: ebdjango/wsgi.py
+      aws:elasticbeanstalk:container:python:staticfiles:
+        /static/: "ptplot/static/"
+	 
   
 Quick start
 -----------
