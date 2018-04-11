@@ -8,7 +8,7 @@
 import math
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import os.path
 import io
@@ -60,8 +60,8 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     Fgw0 = 2 * 1.64e-5 * (Tn/100) * (hstar/100)**(1./6)
 
 
-    plt.rc('text', usetex=usetex)
-    plt.rc('font', family='serif')
+    matplotlib.rc('text', usetex=usetex)
+    matplotlib.rc('font', family='serif')
 
     
     precomputed_filehandle = open(os.path.join(root, 'snr_' + config + '_precomputed.npz'), 'rb')
@@ -91,28 +91,31 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     locs = [find_place(snr, -3.2, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
 
-    CS = plt.contour(snr, levels, linewidths=1,colors=color_tuple,
+    fig = mathtplotlib.figure.Figure()
+    ax = fig.add_subplot(111)
+    
+    CS = ax.contour(snr, levels, linewidths=1,colors=color_tuple,
                      extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
-    CStsh = plt.contour(tshHn, levels_tsh, linewidths=1, linestyles='dashed', colors='k',
+    CStsh = ax.contour(tshHn, levels_tsh, linewidths=1, linestyles='dashed', colors='k',
                         extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
 
     legends = []
     collections = []
 
 
-    CSturb = plt.contourf(tshHn, [1,100], colors=('gray'), alpha=0.5,
+    CSturb = ax.contourf(tshHn, [1,100], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
 
     legends.append(r'Turbulence never develops')
     collections = collections + CSturb.collections
 
     
-    plt.clabel(CS, inline=1, fontsize=10, fmt="%.0f", manual=locs)
-    plt.clabel(CStsh, inline=1, fontsize=10, fmt="%g",manual=locs_tsh)
+    ax.clabel(CS, inline=1, fontsize=10, fmt="%.0f", manual=locs)
+    ax.clabel(CStsh, inline=1, fontsize=10, fmt="%g",manual=locs_tsh)
     #    plt.title(r'SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs')
     #    plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
-    plt.ylabel(r'$H_{\rm n} R_* $',fontsize=16)
-    plt.xlabel(r'$\bar{U}_{\rm f}$',fontsize=16)
+    ax.ylabel(r'$H_{\rm n} R_* $',fontsize=16)
+    ax.xlabel(r'$\bar{U}_{\rm f}$',fontsize=16)
     #    plt.grid()
 
 
@@ -136,14 +139,14 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
 
     #    print kappav(0.92,0.0046)
 
-    singlet = plt.plot(ubarf_list, Rstar_list, '-o')
+    singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 
     legends.append('Your point')
 
-    proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0])
+    proxy = [ax.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0])
              for pc in collections] + singlet
 
-    leg = plt.legend(proxy, legends, loc='lower left', framealpha=0.9)
+    leg = ax.legend(proxy, legends, loc='lower left', framealpha=0.9)
     #    leg.get_frame().set_alpha(0.9)
 
 #    plt.annotate('A', xy=(ubarf_list[0], Rstar_list[0]), xycoords='data',
@@ -170,16 +173,16 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     #    plt.annotate(r'\textbf{Easier to detect}',
     #                 xy=(-2.25,-0.32), xycoords='data')
 
-    plt.xticks(xtickpos, xticklabels)
-    plt.yticks(ytickpos, yticklabels)
+    ax.xticks(xtickpos, xticklabels)
+    ax.yticks(ytickpos, yticklabels)
 
     
     sio = io.BytesIO()
-    plt.savefig(sio, format="svg")
+    fig.savefig(sio, format="svg")
     sio.seek(0)
     # figfilename = "/tmp/SNR-Ubarf-Rstar-" + config + "-contour-cgi.png"
     # plt.savefig(figfilename, format="png")
-    plt.close()
+    fig.close()
 
 
     
