@@ -1,3 +1,4 @@
+
 ======
 PTPlot
 ======
@@ -11,6 +12,15 @@ Prerequisites
 - matplotlib
 - texlive
 
+If deploying to Elastic Beanstalk, use the following in
+.ebextensions/django.config::
+
+    packages:
+      yum:
+         texlive: []
+         texlive-dvipng-bin: []
+
+  
 Quick start
 -----------
 
