@@ -11,6 +11,9 @@ setup(
     name='ptplot',
     version='0.1',
     packages=find_packages(),
+    install_requires=[
+        'matplotlib',
+    ],
     include_package_data=True,
     license='BSD License',  # example license
     description='PTPlot tool for plotting phase transitions',
