@@ -35,13 +35,13 @@ def ptplot_form(request):
         if form.is_valid():
             vw = form.cleaned_data['vw']
             tstar = form.cleaned_data['tstar']
-            usetex = form.cleaned_data['usetex']
+#            usetex = form.cleaned_data['usetex']
 
             start = time.time()
             
-            sio_PS = get_PS_image(Tstar=tstar, vw=vw, usetex=usetex)
+            sio_PS = get_PS_image(Tstar=tstar, vw=vw) # , usetex=usetex)
             ps = inline_image(sio_PS)
-            sio_SNR = get_SNR_image(Tstar=tstar, vw=vw, usetex=usetex)
+            sio_SNR = get_SNR_image(Tstar=tstar, vw=vw) # , usetex=usetex)
             snr = inline_image(sio_SNR)
 
             took = "{0:0.1f}".format(time.time() - start)

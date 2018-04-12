@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 # ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
@@ -60,9 +61,11 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     Fgw0 = 2 * 1.64e-5 * (Tn/100) * (hstar/100)**(1./6)
 
 
-    matplotlib.rc('text', usetex=usetex)
+    
+    # matplotlib.rc('text', usetex=usetex)
     matplotlib.rc('font', family='serif')
-
+    matplotlib.rc('mathtext', fontset='dejavuserif')
+    
     
     precomputed_filehandle = open(os.path.join(root, 'snr_' + config + '_precomputed.npz'), 'rb')
     npz_result = np.load(precomputed_filehandle)
@@ -91,7 +94,7 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     locs = [find_place(snr, -3.2, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
 
-    fig = mathtplotlib.figure.Figure()
+    fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
     
     CS = ax.contour(snr, levels, linewidths=1,colors=color_tuple,
@@ -100,22 +103,24 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
                         extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
 
     legends = []
-    collections = []
 
 
     CSturb = ax.contourf(tshHn, [1,100], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
 
-    legends.append(r'Turbulence never develops')
-    collections = collections + CSturb.collections
+    # proxy
+#    for pc in CSturb.collections:
+#        matplotlib.patches.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0])
+
+
 
     
-    ax.clabel(CS, inline=1, fontsize=10, fmt="%.0f", manual=locs)
-    ax.clabel(CStsh, inline=1, fontsize=10, fmt="%g",manual=locs_tsh)
+    ax.clabel(CS, inline=1, fontsize=8, fmt="%.0f", manual=locs)
+    ax.clabel(CStsh, inline=1, fontsize=8, fmt="%g",manual=locs_tsh)
     #    plt.title(r'SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs')
     #    plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
-    ax.ylabel(r'$H_{\rm n} R_* $',fontsize=16)
-    ax.xlabel(r'$\bar{U}_{\rm f}$',fontsize=16)
+    ax.set_ylabel(r'$H_{\rm n} R_* $',fontsize=14)
+    ax.set_xlabel(r'$\overline{U}_{\rm f}$',fontsize=14)
     #    plt.grid()
 
 
@@ -141,12 +146,10 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
 
     singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 
-    legends.append('Your point')
+    legends.append(r'Your point')
 
-    proxy = [ax.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0])
-             for pc in collections] + singlet
-
-    leg = ax.legend(proxy, legends, loc='lower left', framealpha=0.9)
+    leg = ax.legend(legends, loc='lower left', framealpha=0.9)
+    
     #    leg.get_frame().set_alpha(0.9)
 
 #    plt.annotate('A', xy=(ubarf_list[0], Rstar_list[0]), xycoords='data',
@@ -173,16 +176,25 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     #    plt.annotate(r'\textbf{Easier to detect}',
     #                 xy=(-2.25,-0.32), xycoords='data')
 
-    ax.xticks(xtickpos, xticklabels)
-    ax.yticks(ytickpos, yticklabels)
+    ax.set_xticks(xtickpos)
+    ax.set_xticklabels(xticklabels)
+    ax.set_yticks(ytickpos)
+    ax.set_yticklabels(yticklabels)
 
     
     sio = io.BytesIO()
+
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    canvas = FigureCanvas(fig)
+    
     fig.savefig(sio, format="svg")
+
     sio.seek(0)
+    
+
+    
     # figfilename = "/tmp/SNR-Ubarf-Rstar-" + config + "-contour-cgi.png"
     # plt.savefig(figfilename, format="png")
-    fig.close()
 
 
     
