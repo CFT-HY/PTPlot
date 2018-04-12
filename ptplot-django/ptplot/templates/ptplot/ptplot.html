@@ -1,8 +1,9 @@
+
 {% extends 'ptplot/base.html' %}
 
 {% block content %}
-<form action="/ptplot/" method="post">
-    {% csrf_token %}
+<form action="/ptplot/" method="get">
+<!--    {% csrf_token %} -->
     {{ form }}
     <input type="submit" value="Submit" />
 </form>
