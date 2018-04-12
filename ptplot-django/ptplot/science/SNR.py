@@ -18,7 +18,7 @@ import sys
 from django.conf import settings
 
 BASE_DIR = getattr(settings, "BASE_DIR", None)
-root = os.path.join(BASE_DIR, 'ptplot')
+root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     config = 'L6A2M5N2P2D28'

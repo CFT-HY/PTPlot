@@ -2,6 +2,10 @@
 {% extends 'ptplot/base.html' %}
 
 {% block content %}
+
+{% block results %}
+{% endblock results %}
+
 <form action="/ptplot/" method="get">
 <!--    {% csrf_token %} -->
     {{ form }}
@@ -23,4 +27,4 @@
   </ul>
 </p>
   
-{% endblock %}
+{% endblock content %}

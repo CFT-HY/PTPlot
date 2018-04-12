@@ -14,7 +14,7 @@ from .curves import PowerSpectrum
 from django.conf import settings
 
 BASE_DIR = getattr(settings, "BASE_DIR", None)
-root = os.path.join(BASE_DIR, 'ptplot')
+root = os.path.join(BASE_DIR, 'ptplot', 'science')
 # sys.stderr.write('root = ' + root + '\n')
 
 
