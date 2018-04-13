@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env python
 # Broken power law (Mark Hindmarsh Sep 2015)
 #
@@ -11,15 +13,9 @@ import math, sys
 from eLISATools import *
 
 
-############################## Functions ##############################
+from curves import PowerSpectrum
 
-def GWSpecAcoustic(s, OmMax) :
-    """Function returning the spectrum corresponding to a causal broken
-        power spectrum OmMax * s**3 (7/(4 + 3 * s**2))**(3.5)
-    """
-    
-    GW = OmMax * s**3 * (7./(4. + 3.*s**2))**3.5
-    return GW
+############################## Functions ##############################
 
 
 def main(sensitivity_curve):
@@ -63,10 +59,10 @@ def main(sensitivity_curve):
             OmMax = 3. * AdInd**2 * Ubarf**4 * Omtil * HnRstar
             fp = (zp/(2*np.pi*HnRstar)) * Hn0
             s = fS/fp # frequency scaled to peak
-            OmGW0 = Fgw0*GWSpecAcoustic(s, OmMax)
+            OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
             snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
             tshHn[i,j] = HnRstar/Ubarf
-        print 'Rstar number', i, "/", len(log10HnRstar)
+        print('Rstar number', i, "/", len(log10HnRstar))
 
     destination = sensitivity_curve + '_precomputed.npz'
         

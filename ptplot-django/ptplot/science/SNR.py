@@ -1,4 +1,5 @@
 
+
 #!/usr/bin/env python3
 
 # ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
@@ -17,10 +18,13 @@ import sys
 
 from django.conf import settings
 
+
+from .espinosa import kappav, ubarf
+
 BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
-def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
+def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
     config = 'L6A2M5N2P2D28'
 
     red = np.array([1,0,0])
@@ -48,7 +52,7 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     Omtil = 1.2e-2 # GW efficiency parameter
     zp = 10        # Peak kR*
 
-    Tn = 100.      # Nucleation temp in GeV
+#    Tn = 100.      # Nucleation temp in GeV
     hstar = 100    # d.o.f.
     AdInd = 4./3.  # Adiabatic index
 
@@ -128,12 +132,10 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     #    beta_list = [47.35,29.96,12.54,6.42]
     #    vw_list = [0.95,0.95,0.95,0.95]
 
-    alpha_list = [0.1]
-    beta_list = [10]
+    alpha_list = [alpha]
+    beta_list = [1.0/HoverBeta]
     vw_list = [vw]
     
-    
-    from .espinosa import kappav, ubarf
 
     Rstar_list = [math.log(math.pow(8.0*math.pi,1.0/3.0)*vel/beta) \
                   for vel, beta in zip(vw_list, beta_list)]
@@ -142,8 +144,8 @@ def get_SNR_image(Tstar=100, vw=0.95, usetex=False):
     ubarf_list = [math.log(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
-    #    print kappav(0.92,0.0046)
-
+    sys.stderr.write('ubarf is %g, vw %g, alpha %g\n' % (math.exp(ubarf_list[0]), vw, alpha))
+    
     singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 
     legends.append(r'Your point')

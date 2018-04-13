@@ -1,4 +1,6 @@
 
+
+
 import math, sys, string
 
 import matplotlib
@@ -20,8 +22,11 @@ root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 import matplotlib.figure
 
-def get_PS_image(vw=0.95, Tstar=100, usetex=False):
-    curves_ps = PowerSpectrum(vw=vw, Tstar=Tstar)
+def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
+    curves_ps = PowerSpectrum(vw=vw,
+                              Tstar=Tstar,
+                              alpha=alpha,
+                              HoverBeta=HoverBeta)
 
     # setup latex plotting
     # matplotlib.rc('text', usetex=usetex)
