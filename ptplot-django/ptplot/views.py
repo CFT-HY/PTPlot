@@ -10,6 +10,8 @@ from .forms import PTPlotForm
 from .science.SNR import get_SNR_image
 from .science.powerspectrum import get_PS_image
 
+import sys
+
 # Image views
 def ps_image(request):
     if request.method == 'GET':
@@ -17,9 +19,13 @@ def ps_image(request):
 
         if form.is_valid():
             vw = form.cleaned_data['vw']
-            tstar = form.cleaned_data['tstar']
+#            tstar = form.cleaned_data['tstar']
+            alpha = form.cleaned_data['alpha']
+            HoverBeta = form.cleaned_data['HoverBeta']
 
-            sio_PS = get_PS_image(Tstar=tstar, vw=vw) # , usetex=usetex)
+            sys.stderr.write('passing alpha %g\n' % alpha)
+            sio_PS = get_PS_image(Tstar=100.0, vw=vw,
+                                  alpha=alpha, HoverBeta=HoverBeta) # , usetex=usetex)
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
 def snr_image(request):
@@ -28,9 +34,12 @@ def snr_image(request):
 
         if form.is_valid():
             vw = form.cleaned_data['vw']
-            tstar = form.cleaned_data['tstar']
+#            tstar = form.cleaned_data['tstar']
+            alpha = form.cleaned_data['alpha']
+            HoverBeta = form.cleaned_data['HoverBeta']
 
-            sio_SNR = get_SNR_image(Tstar=tstar, vw=vw) # , usetex=usetex)
+            sio_SNR = get_SNR_image(Tstar=100.0, vw=vw,
+                                    alpha=alpha, HoverBeta=HoverBeta) # , usetex=usetex)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     
 def ptplot_form(request):
@@ -41,8 +50,6 @@ def ptplot_form(request):
 
         # check whether it's valid:
         if form.is_valid():
-            vw = form.cleaned_data['vw']
-            tstar = form.cleaned_data['tstar']
             querystring = request.GET.urlencode()
 #            usetex = form.cleaned_data['usetex']
 
