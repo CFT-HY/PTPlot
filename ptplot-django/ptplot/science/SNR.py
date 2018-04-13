@@ -35,12 +35,12 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
     # print color_tuple
 
     ## Values of log10 Ubarf to scan
-    log10Ubarf = np.arange(-2,0.025,0.025)
-    #log10Ubarf = np.arange(-2,0.025,0.2)
+#    log10Ubarf = np.arange(-2,0.025,0.025)
+#    log10Ubarf = np.arange(-2,0.025,0.1)
 
     ## Values of log10 HnRstar to scan
-    log10HnRstar = np.arange(-4,0.025,0.025)
-    #log10HnRstar = np.arange(-4,0.025,0.2)
+#    log10HnRstar = np.arange(-4,0.025,0.025)
+#    log10HnRstar = np.arange(-4,0.025,0.1)
 
     xtickpos = [-2, -1, 0]
     xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
@@ -48,21 +48,21 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
     ytickpos = [-4, -3, -2, -1, 0]
     yticklabels = [r'$10^{-4}$', r'$10^{-3}$', r'$10^{-2}$', r'$10^{-1}$', r'$1$']
 
-    # Model parameters
-    Omtil = 1.2e-2 # GW efficiency parameter
-    zp = 10        # Peak kR*
+    # Model parameters -- all used in precomputation!
+#    Omtil = 1.2e-2 # GW efficiency parameter
+#    zp = 10        # Peak kR*
 
 #    Tn = 100.      # Nucleation temp in GeV
-    hstar = 100    # d.o.f.
-    AdInd = 4./3.  # Adiabatic index
+#    hstar = 100    # d.o.f.
+#    AdInd = 4./3.  # Adiabatic index
 
-    Tn = Tstar
+#    Tn = Tstar
     
     # Hubble rate redshifted to now
-    Hn0 = 16.5e-6 * (Tn/100) * (hstar/100)**(1./6) # Hz
+#    Hn0 = 16.5e-6 * (Tn/100) * (hstar/100)**(1./6) # Hz
 
     # GW dilution factor now
-    Fgw0 = 2 * 1.64e-5 * (Tn/100) * (hstar/100)**(1./6)
+#    Fgw0 = 2 * 1.64e-5 * (Tn/100) * (hstar/100)**(1./6)
 
 
     
@@ -133,18 +133,19 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
     #    vw_list = [0.95,0.95,0.95,0.95]
 
     alpha_list = [alpha]
-    beta_list = [1.0/HoverBeta]
+    hoverbeta_list = [HoverBeta]
     vw_list = [vw]
     
 
-    Rstar_list = [math.log(math.pow(8.0*math.pi,1.0/3.0)*vel/beta) \
-                  for vel, beta in zip(vw_list, beta_list)]
+    # H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
+    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw*hoverbeta) \
+                  for vw, hoverbeta in zip(vw_list, hoverbeta_list)]
 
 
-    ubarf_list = [math.log(ubarf(vw, alpha)) \
+    ubarf_list = [math.log10(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
-    sys.stderr.write('ubarf is %g, vw %g, alpha %g\n' % (math.exp(ubarf_list[0]), vw, alpha))
+    sys.stderr.write('ubarf is %g, HoverRstar %g, vw %g, alpha %g, x axis %g, y axis %g\n' % (10.0**(ubarf_list[0]), 10.0**(Rstar_list[0]), vw, alpha, ubarf_list[0], Rstar_list[0]))
     
     singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 

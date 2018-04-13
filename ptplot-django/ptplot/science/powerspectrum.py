@@ -22,6 +22,9 @@ root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 import matplotlib.figure
 
+# eLISATools from Antoine
+from .eLISATools import *
+
 def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
@@ -37,7 +40,8 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     # but make legend smaller
     # matplotlib.rcParams.update({'legend.fontsize': 14})
 
-    sens_filehandle = open(os.path.join(root,'Sens_L6A2M5N2P2D28.txt'))
+    sensitivity_curve = os.path.join(root,'Sens_L6A2M5N2P2D28.txt')
+    sens_filehandle = open(sensitivity_curve)
     f, sensitivity \
         = np.loadtxt(sens_filehandle,usecols=[0,3],unpack=True)
 
@@ -45,6 +49,12 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
 
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
+
+
+    fS, OmEff = LoadFile(sensitivity_curve, 2)
+    duration = 5*yr
+    snr, frange = StockBkg_ComputeSNR(fS, OmEff, fS, curves_ps.power_spectrum(fS), duration, 1.e-6, 1)
+    sys.stderr.write('snr = %g\n' % snr)
     
     ax.fill_between(f,sensitivity,1,alpha=0.3, label=r'LISA sensitivity')
     ax.plot(f_more, curves_ps.power_spectrum_sw(f_more), 'r', label=r'$\Omega_\mathrm{sw}$')
