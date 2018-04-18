@@ -7,13 +7,15 @@
 {% endblock results %}
 
 <form action="/ptplot/" method="get">
-<!--    {% csrf_token %} -->
-    {{ form }}
+  <!--    {% csrf_token %}  -->
+<table>
+{{ form.as_table}}
+</table>
     <input type="submit" value="Submit" />
 </form>
-<p>This computation assumes a nucleation temperaure $T_* = 100 \,
+<!-- <p>This computation assumes a nucleation temperaure $T_* = 100 \,
   \mathrm{GeV}$, and $h = 100$ degrees of freedom at the time of
-  transition.</p>
+  transition.</p> -->
 <p>Todo:
   <ul>
     <!-- <li>SNR plot</li> -->

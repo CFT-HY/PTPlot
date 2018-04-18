@@ -24,8 +24,9 @@ from .espinosa import kappav, ubarf
 BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
-def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
-    config = 'L6A2M5N2P2D28'
+def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100,
+                  SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_hstar_100.0_precomputed.npz', usetex=False):
+#    config = 'L6A2M5N2P2D28'
 
     red = np.array([1,0,0])
     darkgreen = np.array([0,0.7,0])
@@ -71,7 +72,7 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100, usetex=False):
     matplotlib.rc('mathtext', fontset='dejavuserif')
     
     
-    precomputed_filehandle = open(os.path.join(root, 'snr_' + config + '_precomputed.npz'), 'rb')
+    precomputed_filehandle = open(os.path.join(root, SNRcurve), 'rb')
     npz_result = np.load(precomputed_filehandle)
 
     

@@ -3,14 +3,18 @@
 
 {% block results %}
 
-<p>
-  <img alt="embedded" src="snr?{{querystring}}"  width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
-</p>
+<p>Results for $v_\mathrm{w} = {{vw}}$, $\alpha = {{alpha}}$, $H/\beta
+  = {{HoverBeta}}$, $h_* ={{hstar}}$, $T_n = {{Tn}} \, \mathrm{GeV}$</p>
 <p>
   <img alt="embedded" src="ps?{{querystring}}" width="600px"
   height="450px" style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"/>
+</p>
+<p>
+  (note that the SNR curves are for fixed $h_* ={{hstar}}$, $T_n =
+  {{Tn}} \, \mathrm{GeV}$)
+  <img alt="embedded" src="snr?{{querystring}}"  width="600px"
+  height="450px" style="background-color: #dddddd; border: 10px;
+  padding: 15px; background-clip: content-box"/>
 </p>
 <!--  <p><em>Rendering took {{took}} seconds.</em></p> -->
 

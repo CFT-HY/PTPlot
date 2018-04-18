@@ -6,7 +6,8 @@ try:
     from .espinosa import ubarf
 except ValueError:
     from espinosa import ubarf
-    
+except ImportError:
+    from espinosa import ubarf
 
 
 class PowerSpectrum:
