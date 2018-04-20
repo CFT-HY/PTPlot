@@ -1,3 +1,4 @@
+
 # Django core stuff
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -80,7 +81,7 @@ def ptplot_form(request):
                        'querystring': querystring,
                        'vw': vw,
                        'alpha': alpha,
-                       'hoverBeta': HoverBeta,
+                       'HoverBeta': HoverBeta,
                        'Tn': Tn,
                        'hstar': hstar}
             return HttpResponse(template.render(context, request))
