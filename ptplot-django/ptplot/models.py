@@ -4,7 +4,7 @@ from django.db import models
 
 class Theory(models.Model):
     theory_name = models.CharField(max_length=200)
-    theory_description = models.TextField()
+    theory_description = models.TextField(null=True)
     
 class ParameterChoice(models.Model):
     theory = models.ForeignKey(Theory, on_delete=models.CASCADE)
