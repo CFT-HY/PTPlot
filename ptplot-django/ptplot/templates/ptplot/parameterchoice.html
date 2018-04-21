@@ -1,0 +1,28 @@
+
+
+{% extends 'ptplot/base.html' %}
+
+{% block content %}
+
+{% if point_list %}
+
+<h4>{{ theory }}</h4>
+
+<ul>
+  {% for point in point_list %}
+  <li>$v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
+    = {{point.HoverBeta}}$, $h_* = xx$, $T_n = xx \, \mathrm{GeV}$</li>
+  {% endfor %}
+</ul>
+
+{% endif %}
+
+<form action="/ptplot/" method="get">
+  <!--    {% csrf_token %}  -->
+<table>
+{{ form.as_table}}
+</table>
+    <input type="submit" value="Submit" />
+</form>
+  
+{% endblock content %}

@@ -1,0 +1,18 @@
+
+
+
+{% extends 'ptplot/base.html' %}
+
+{% block content %}
+
+{% if theories_list %}
+
+<ul>
+  {% for theory in theories_list %}
+  <li><a href="theories/{{ theory.id }}">{{theory.theory_name}}</a></li>
+  {% endfor %}
+</ul>
+
+{% endif %}
+  
+{% endblock content %}

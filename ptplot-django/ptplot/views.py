@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 
 # Django app stuff
-from .forms import PTPlotForm
+from .forms import *
 
 # Science
 from .science.SNR import get_SNR_image
@@ -55,8 +55,50 @@ def snr_image(request):
                                     HoverBeta_list=[HoverBeta],
                                     SNRcurve=SNRfilename)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
+def theory(request):
+
+    theories_list = Theory.objects.all()
     
-def ptplot_form(request):
+    template = loader.get_template('ptplot/theories.html')
+    
+    context = {'theories_list': theories_list}
+    return HttpResponse(template.render(context, request))
+
+def theory_detail(request, theory_id):
+    
+    theory = Theory.objects.get(pk=theory_id)
+
+    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+
+    
+    template = loader.get_template('ptplot/theory_detail.html')
+    
+    context = {'theory': theory,
+               'point_list': point_list}
+    return HttpResponse(template.render(context, request))
+
+
+
+        
+def parameterchoice_form(request):
+    
+    theory = Theory.objects.all()[0]
+    
+    point_list = ParameterChoice.objects.filter(theory__theory_name=theory.theory_name)
+
+    
+    template = loader.get_template('ptplot/parameterchoice.html')
+    form = ParameterChoiceForm()
+    
+    context = {'theory': theory.theory_name,
+               'form': form,
+               'point_list': point_list}
+    return HttpResponse(template.render(context, request))
+
+    
+
+def single(request):
     # if this is a POST request we need to process the form data
     if request.method == 'GET':
         # create a form instance and populate it with data from the request:
@@ -76,7 +118,7 @@ def ptplot_form(request):
             hstar = precomputed_hstar[SNRcurve]
 
                                             
-            template = loader.get_template('ptplot/ptplotresult.html')
+            template = loader.get_template('ptplot/single_result.html')
 
             context = {'form': form,
                        'querystring': querystring,
@@ -89,9 +131,14 @@ def ptplot_form(request):
 
         
     # Form not valid or not filled out
-    template = loader.get_template('ptplot/ptplot.html')
+    template = loader.get_template('ptplot/single.html')
     form = PTPlotForm()
     context = {'form': form}
     return HttpResponse(template.render(context, request))
 
+    
+
+def index(request):
+    template = loader.get_template('ptplot/index.html')
+    return HttpResponse(template.render({}, request))
     
