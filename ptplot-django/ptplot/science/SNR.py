@@ -10,7 +10,6 @@
 import math
 import matplotlib
 matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
 import numpy as np
 import os.path
 import io
@@ -24,24 +23,15 @@ from .espinosa import kappav, ubarf
 BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
-def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100,
-                  SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_hstar_100.0_precomputed.npz', usetex=False):
-#    config = 'L6A2M5N2P2D28'
+def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
+                  SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_hstar_100.0_precomputed.npz',
+                  usetex=False):
 
     red = np.array([1,0,0])
     darkgreen = np.array([0,0.7,0])
     color_tuple = tuple([tuple(0.5*(np.tanh((0.5-f)*10)+1)*red
                                + f**0.5*darkgreen)  for f in (np.arange(6)*0.2)])
 
-    # print color_tuple
-
-    ## Values of log10 Ubarf to scan
-#    log10Ubarf = np.arange(-2,0.025,0.025)
-#    log10Ubarf = np.arange(-2,0.025,0.1)
-
-    ## Values of log10 HnRstar to scan
-#    log10HnRstar = np.arange(-4,0.025,0.025)
-#    log10HnRstar = np.arange(-4,0.025,0.1)
 
     xtickpos = [-2, -1, 0]
     xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
@@ -102,16 +92,21 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100,
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
     
-    CS = ax.contour(snr, levels, linewidths=1,colors=color_tuple,
-                     extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
-    CStsh = ax.contour(tshHn, levels_tsh, linewidths=1, linestyles='dashed', colors='k',
-                        extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
+    CS = ax.contour(snr, levels, linewidths=1,
+                    colors=color_tuple,
+                     extent=(log10Ubarf[0], log10Ubarf[-1],
+                             log10HnRstar[0], log10HnRstar[-1]))
+    CStsh = ax.contour(tshHn, levels_tsh, linewidths=1,
+                       linestyles='dashed', colors='k',
+                       extent=(log10Ubarf[0], log10Ubarf[-1],
+                               log10HnRstar[0], log10HnRstar[-1]))
 
     legends = []
 
 
-    CSturb = ax.contourf(tshHn, [1,100], colors=('gray'), alpha=0.5,
-                          extent=(log10Ubarf[0], log10Ubarf[-1], log10HnRstar[0], log10HnRstar[-1]))
+    CSturb = ax.contourf(tshHn, [1, 100], colors=('gray'), alpha=0.5,
+                          extent=(log10Ubarf[0], log10Ubarf[-1],
+                                  log10HnRstar[0], log10HnRstar[-1]))
 
     # proxy
 #    for pc in CSturb.collections:
@@ -121,11 +116,11 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100,
 
     
     ax.clabel(CS, inline=1, fontsize=8, fmt="%.0f", manual=locs)
-    ax.clabel(CStsh, inline=1, fontsize=8, fmt="%g",manual=locs_tsh)
+    ax.clabel(CStsh, inline=1, fontsize=8, fmt="%g", manual=locs_tsh)
     #    plt.title(r'SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs')
     #    plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
-    ax.set_ylabel(r'$H_{\rm n} R_* $',fontsize=14)
-    ax.set_xlabel(r'$\overline{U}_{\rm f}$',fontsize=14)
+    ax.set_ylabel(r'$H_{\rm n} R_* $', fontsize=14)
+    ax.set_xlabel(r'$\overline{U}_{\rm f}$', fontsize=14)
     #    plt.grid()
 
 
@@ -133,24 +128,24 @@ def get_SNR_image(Tstar=100, vw=0.95, alpha=0.1, HoverBeta=100,
     #    beta_list = [47.35,29.96,12.54,6.42]
     #    vw_list = [0.95,0.95,0.95,0.95]
 
-    alpha_list = [alpha]
-    hoverbeta_list = [HoverBeta]
-    vw_list = [vw]
+#    alpha_list = [alpha]
+#    HoverBeta_list = [HoverBeta]
+#    vw_list = [vw]
     
 
     # H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
-    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw*hoverbeta) \
-                  for vw, hoverbeta in zip(vw_list, hoverbeta_list)]
+    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw*HoverBeta) \
+                  for vw, HoverBeta in zip(vw_list, HoverBeta_list)]
 
 
     ubarf_list = [math.log10(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
-    sys.stderr.write('ubarf is %g, HoverRstar %g, vw %g, alpha %g, x axis %g, y axis %g\n' % (10.0**(ubarf_list[0]), 10.0**(Rstar_list[0]), vw, alpha, ubarf_list[0], Rstar_list[0]))
+#    sys.stderr.write('ubarf is %g, HoverRstar %g, vw %g, alpha %g, x axis %g, y axis %g\n' % (10.0**(ubarf_list[0]), 10.0**(Rstar_list[0]), vw, alpha, ubarf_list[0], Rstar_list[0]))
     
     singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 
-    legends.append(r'Your point')
+    legends.append(r'Your parameters')
 
     leg = ax.legend(legends, loc='lower left', framealpha=0.9)
     

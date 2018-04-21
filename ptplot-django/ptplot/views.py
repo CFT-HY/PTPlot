@@ -50,8 +50,9 @@ def snr_image(request):
             Tstar = precomputed_Tn[SNRcurve]
             hstar = precomputed_hstar[SNRcurve]
 
-            sio_SNR = get_SNR_image(Tstar=Tstar, vw=vw,
-                                    alpha=alpha, HoverBeta=HoverBeta,
+            sio_SNR = get_SNR_image(vw_list=[vw],
+                                    alpha_list=[alpha],
+                                    HoverBeta_list=[HoverBeta],
                                     SNRcurve=SNRfilename)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     
