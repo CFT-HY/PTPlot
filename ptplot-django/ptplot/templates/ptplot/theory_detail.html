@@ -8,11 +8,11 @@
 
 <h4>{{ theory.theory_name }}</h4>
 
-<p>{{ theory.description }}</p>
+<p>{{ theory.theory_description }}</p>
 
 <ul>
   {% for point in point_list %}
-  <li>$v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
+  <li>({{point.point_shortlabel}}): $v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
     = {{point.HoverBeta}}$, $h_* = xx$, $T_n = xx \, \mathrm{GeV}$
     [<a href="theories/{{ theory.id }}/{{ point.id }}/edit">edit</a>]
     [<a href="theories/{{ theory.id }}/{{ point.id }}/delete">delete</a>]

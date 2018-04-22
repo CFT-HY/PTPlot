@@ -9,7 +9,7 @@
 
 <ul>
   {% for theory in theories_list %}
-  <li><a href="theories/{{ theory.id }}">{{theory.theory_name}}</a></li>
+  <li><a href="theories/{{ theory.id }}">{{theory.theory_name}}</a> - {{theory.theory_description}}</li>
   {% endfor %}
 </ul>
 
