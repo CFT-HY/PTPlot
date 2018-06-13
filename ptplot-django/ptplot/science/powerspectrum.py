@@ -69,6 +69,11 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     ax.legend(loc='upper right')
 #    plt.tight_layout()
 
+    # position bottom right
+    fig.text(0.95, 0.05, 'LISACosWG',
+             fontsize=50, color='gray',
+             ha='right', va='bottom', alpha=0.5)
+
     sio = io.BytesIO()
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas

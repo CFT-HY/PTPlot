@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python3
 
 # ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
@@ -180,6 +178,11 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
 
+    # position bottom right
+    fig.text(0.95, 0.05, 'LISACosWG',
+             fontsize=50, color='gray',
+             ha='right', va='bottom', alpha=0.5)
+    
     
     sio = io.BytesIO()
 
