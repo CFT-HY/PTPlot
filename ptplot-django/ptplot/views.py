@@ -82,6 +82,45 @@ def theory_detail(request, theory_id):
 
 
 
+def theory_detail_plot(request, theory_id):
+    
+    theory = Theory.objects.get(pk=theory_id)
+    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+
+    for i in range(len(point_list)):
+        point_list[i].update_snrchoice()
+
+        
+    template = loader.get_template('ptplot/theory_detail_plot.html')
+    
+    context = {'theory': theory,
+               'point_list': point_list}
+    return HttpResponse(template.render(context, request))
+
+
+
+def theory_snr(request, theory_id):
+
+
+    theory = Theory.objects.get(pk=theory_id)
+
+    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+
+    title = theory.theory_name
+    vw_list = [point.vw for point in point_list]
+    alpha_list = [point.alpha for point in point_list]
+    HoverBeta_list = [point.HoverBeta for point in point_list]
+    label_list = [point.point_shortlabel for point in point_list]
+    SNRfilename = precomputed_filenames[point_list[0].SNRcurve]
+    
+    sio_SNR = get_SNR_image(vw_list,
+                            alpha_list,
+                            HoverBeta_list,
+                            SNRfilename,
+                            label_list,
+                            title)
+    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
         
 def parameterchoice_form(request):
     

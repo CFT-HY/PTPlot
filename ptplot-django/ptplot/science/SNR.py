@@ -23,6 +23,8 @@ root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
                   SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_gstar_100.0_precomputed.npz',
+                  label_list=None,
+                  title=None,
                   usetex=False):
 
     red = np.array([1,0,0])
@@ -143,8 +145,14 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     
     singlet = ax.plot(ubarf_list, Rstar_list, '-o')
 
-    legends.append(r'Your parameters')
+    if title:
+        legends.append(title)
 
+    if label_list:
+        for x,y,label in zip(ubarf_list, Rstar_list, label_list):
+            ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
+                        textcoords='offset points')
+    
     leg = ax.legend(legends, loc='lower left', framealpha=0.9)
     
     #    leg.get_frame().set_alpha(0.9)

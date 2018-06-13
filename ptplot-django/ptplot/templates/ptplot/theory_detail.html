@@ -15,15 +15,15 @@
   <li>({{point.point_shortlabel}}): $v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
     = {{point.HoverBeta}}$, $g_* = {{ point.gstar }} $, $T_n =
     {{ point.Tn }} \, \mathrm{GeV}$
-    [<a href="theories/{{ theory.id }}/{{ point.id }}/plot">plot</a>]
-    [<a href="theories/{{ theory.id }}/{{ point.id }}/edit">edit</a>]
-    [<a href="theories/{{ theory.id }}/{{ point.id }}/delete">delete</a>]
+    [<a href="{{ theory.id }}/{{ point.id }}/plot">plot</a>]
+    [<a href="{{ theory.id }}/{{ point.id }}/edit">edit</a>]
+    [<a href="{{ theory.id }}/{{ point.id }}/delete">delete</a>]
 </li>
   {% endfor %}
 </ul>
 {% endif %}
 
-<p>[<a href="theories/{{ theory.id }}/add">add</a>]</p>
-<p>[<a href="theories/{{ theory.id }}/plot">plot</a>]</p>
+<p>[<a href="{{ theory.id }}/add">add</a>]</p>
+<p>[<a href="{{ theory.id }}/plot">plot</a>]</p>
 
 {% endblock content %}
