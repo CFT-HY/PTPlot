@@ -2,7 +2,7 @@ from django import forms
 
 from .models import *
 
-from .science.precomputed import precomputed_hstar, precomputed_Tn, precomputed_filenames
+from .science.precomputed import precomputed_gstar, precomputed_Tn, precomputed_filenames
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +17,7 @@ def validate_velocity(value):
             )
 
 class PTPlotForm(forms.Form):
-    precomputed_choices = [(i, r'$h_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (hstar,Tn)) for i, (hstar, Tn) in enumerate(zip(precomputed_hstar, precomputed_Tn))]
+    precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
    
     vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                           min_value=0.0, max_value=1.0,
@@ -48,7 +48,7 @@ class ParameterChoiceForm(forms.Form):
     underlying_theory = forms.ChoiceField(label=r'Theory',
                                           choices=[(theory.id,theory.theory_name) for theory in theories])
 
-    precomputed_choices = [(i, r'$h_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (hstar,Tn)) for i, (hstar, Tn) in enumerate(zip(precomputed_hstar, precomputed_Tn))]
+    precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
    
     vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                           min_value=0.0, max_value=1.0,

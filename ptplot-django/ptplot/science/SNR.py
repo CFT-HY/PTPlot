@@ -24,7 +24,7 @@ BASE_DIR = getattr(settings, "BASE_DIR", None)
 root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
-                  SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_hstar_100.0_precomputed.npz',
+                  SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_gstar_100.0_precomputed.npz',
                   usetex=False):
 
     red = np.array([1,0,0])
@@ -44,16 +44,16 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
 #    zp = 10        # Peak kR*
 
 #    Tn = 100.      # Nucleation temp in GeV
-#    hstar = 100    # d.o.f.
+#    gstar = 100    # d.o.f.
 #    AdInd = 4./3.  # Adiabatic index
 
 #    Tn = Tstar
     
     # Hubble rate redshifted to now
-#    Hn0 = 16.5e-6 * (Tn/100) * (hstar/100)**(1./6) # Hz
+#    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
 
     # GW dilution factor now
-#    Fgw0 = 2 * 1.64e-5 * (Tn/100) * (hstar/100)**(1./6)
+#    Fgw0 = 2 * 1.64e-5 * (Tn/100) * (gstar/100)**(1./6)
 
 
     

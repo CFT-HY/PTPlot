@@ -28,7 +28,7 @@ def ps_image(request):
             
             SNRfilename = precomputed_filenames[SNRcurve]
             Tstar = precomputed_Tn[SNRcurve]
-            hstar = precomputed_hstar[SNRcurve]
+            gstar = precomputed_gstar[SNRcurve]
             
             sys.stderr.write('passing alpha %g\n' % alpha)
             sio_PS = get_PS_image(Tstar=Tstar, vw=vw,
@@ -48,7 +48,7 @@ def snr_image(request):
 
             SNRfilename = precomputed_filenames[SNRcurve]
             Tstar = precomputed_Tn[SNRcurve]
-            hstar = precomputed_hstar[SNRcurve]
+            gstar = precomputed_gstar[SNRcurve]
 
             sio_SNR = get_SNR_image(vw_list=[vw],
                                     alpha_list=[alpha],
@@ -115,7 +115,7 @@ def single(request):
             HoverBeta = form.cleaned_data['HoverBeta']
             SNRcurve = int(form.cleaned_data['SNRcurve'])
             Tn = precomputed_Tn[SNRcurve]
-            hstar = precomputed_hstar[SNRcurve]
+            gstar = precomputed_gstar[SNRcurve]
 
                                             
             template = loader.get_template('ptplot/single_result.html')
@@ -126,7 +126,7 @@ def single(request):
                        'alpha': alpha,
                        'HoverBeta': HoverBeta,
                        'Tn': Tn,
-                       'hstar': hstar}
+                       'gstar': gstar}
             return HttpResponse(template.render(context, request))
 
         

@@ -18,7 +18,7 @@ from curves import PowerSpectrum
 ############################## Functions ##############################
 
 
-def main(sensitivity_curve, Tn, hstar):
+def main(sensitivity_curve, Tn, gstar):
     duration = 5*yr
     
     ## Values of log10 Ubarf to scan
@@ -32,11 +32,11 @@ def main(sensitivity_curve, Tn, hstar):
     zp = 10        # Peak kR*
 
 #    Tn = 100.      # Nucleation temp in GeV
-#    hstar = 100    # d.o.f.
+#    gstar = 100    # d.o.f.
     AdInd = 4./3.  # Adiabatic index
 
     # Hubble rate redshifted to now - equation 42
-    Hn0 = 16.5e-6 * (Tn/100) * (hstar/100)**(1./6) # Hz
+    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
 
 
 
@@ -54,10 +54,10 @@ def main(sensitivity_curve, Tn, hstar):
             # Peak amplitude and peak frequency, equation 45
             OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
             # GW dilution factor now - equation 44
-            Fgw0 = 3.57e-5* (100.0/hstar)**(1./3)
+            Fgw0 = 3.57e-5* (100.0/gstar)**(1./3)
             
             # equation 43, peak frequency
-            fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (hstar/100)**(1.0/6.0)
+            fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
 
             s = fS/fp # frequency scaled to peak
             OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
@@ -66,7 +66,7 @@ def main(sensitivity_curve, Tn, hstar):
         print('Rstar number', i, "/", len(log10HnRstar))
 
     dest_head = os.path.splitext(sensitivity_curve)[0]
-    destination = f'{dest_head}_Tn_{Tn}_hstar_{hstar}_precomputed.npz'
+    destination = f'{dest_head}_Tn_{Tn}_gstar_{gstar}_precomputed.npz'
         
     np.savez(destination,
              tshHn=tshHn,
@@ -81,10 +81,10 @@ def main(sensitivity_curve, Tn, hstar):
 if __name__ == '__main__':
 
     if not len(sys.argv) == 4:
-        sys.stderr.write("Usage: %s <sensitivity curve> <Tn> <hstar>\n"
+        sys.stderr.write("Usage: %s <sensitivity curve> <Tn> <gstar>\n"
                          "\n"
                          "Where: <Tn> is the nuleation temperature\n"
-                         "       <hstar> is the number of relativistic dofs\n"
+                         "       <gstar> is the number of relativistic dofs\n"
                          "Note: duration defaults to 5 years\n"
                          % sys.argv[0])
         sys.exit(1)
