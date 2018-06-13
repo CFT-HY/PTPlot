@@ -1,5 +1,7 @@
 from django.db import models
 
+from .science.precomputed import precomputed_gstar, precomputed_Tn
+
 # Create your models here.
 
 class Theory(models.Model):
@@ -13,3 +15,8 @@ class ParameterChoice(models.Model):
     alpha = models.FloatField()
     HoverBeta = models.FloatField()
     SNRcurve = models.IntegerField(default=0)
+
+
+    def update_snrchoice(self):
+        self.gstar = precomputed_gstar[self.SNRcurve]
+        self.Tn = precomputed_Tn[self.SNRcurve]

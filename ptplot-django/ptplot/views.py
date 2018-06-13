@@ -71,6 +71,8 @@ def theory_detail(request, theory_id):
 
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
+    for i in range(len(point_list)):
+        point_list[i].update_snrchoice()
     
     template = loader.get_template('ptplot/theory_detail.html')
     
