@@ -48,8 +48,8 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
                                + f**0.5*darkgreen)  for f in (np.arange(6)*0.2)])
 
 
-    xtickpos = [-2, -1, 0]
-    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
+    xtickpos = [-2, -1, 0, 1]
+    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$10^{0}$', r'$10^{1}$']
 
     ytickpos = [0, 1, 2, 3, 4]
     yticklabels = [r'$10^{0}$', r'$10^{1}$', r'$10^{2}$', r'$10^{3}$', r'$10^{4}$']
@@ -84,17 +84,16 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     
     # Where to put contour label, based on y-coordinate and contour value
     def find_place(snr, wantedy, wantedcontour):
-        nearesty = (np.abs(log10HnRstar-wantedy)).argmin()
+        nearesty = (np.abs(log10BetaOverH-wantedy)).argmin()
         nearestx = (np.abs(snr[nearesty,:]-wantedcontour)).argmin()
 
-
-        # print (wantedx,log10Ubarf[nearesty])
         return (log10alpha[nearestx],wantedy)
 
     
     # location of contour labels
-    locs = [find_place(snr, -3.2, wantedcontour) for wantedcontour in levels]
-    locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
+    locs = [find_place(snr, 2, wantedcontour) for wantedcontour in levels]
+
+    locs_tsh = [(-1.5,1), (-1.5,2), (-1.5,3), (-1.5,4)]
 
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
