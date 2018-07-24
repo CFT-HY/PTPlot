@@ -12,13 +12,14 @@ import numpy as np
 import os.path
 import io
 import sys
+import scipy.interpolate
 
 # Fix some things if running standalone
 if __name__ == "__main__" and __package__ is None:
     
     import matplotlib.figure
 
-    from espinosa import kappav, ubarf
+    from espinosa import kappav, ubarf, ubarf_to_alpha
 
     root = './'
 
@@ -71,12 +72,16 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     log10BetaOverH = np.log10(hn_rstar_to_beta(np.power(10.0, log10HnRstar),vw_list[0]))
 
     log10Ubarf = npz_result['log10Ubarf']
+    log10alpha = np.log10(ubarf_to_alpha(vw_list[0], np.power(10.0, log10Ubarf)))
 
+    a = ubarf_to_alpha(vw_list[0], np.power(10.0, log10Ubarf))
+    b = np.power(10.0, log10Ubarf)
     
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.01,0.1,1,10])
 
-
+    
+    
     # Where to put contour label, based on y-coordinate and contour value
     def find_place(snr, wantedy, wantedcontour):
         nearesty = (np.abs(log10HnRstar-wantedy)).argmin()
@@ -84,7 +89,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
 
         # print (wantedx,log10Ubarf[nearesty])
-        return (log10Ubarf[nearestx],wantedy)
+        return (log10alpha[nearestx],wantedy)
 
     
     # location of contour labels
@@ -94,22 +99,23 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
     
-    CS = ax.contour(snr, levels, linewidths=1,
+    CS = ax.contour(log10alpha, log10BetaOverH, snr, levels, linewidths=1,
                     colors=color_tuple,
-                     extent=(log10Ubarf[0], log10Ubarf[-1],
+                     extent=(log10alpha[0], log10alpha[-1],
                              log10BetaOverH[0], log10BetaOverH[-1]))
-    CStsh = ax.contour(tshHn, levels_tsh, linewidths=1,
+    CStsh = ax.contour(log10alpha, log10BetaOverH,
+                       tshHn, levels_tsh, linewidths=1,
                        linestyles='dashed', colors='k',
-                       extent=(log10Ubarf[0], log10Ubarf[-1],
+                       extent=(log10alpha[0], log10alpha[-1],
                                log10BetaOverH[0], log10BetaOverH[-1]))
 
     legends = []
 
-    sys.stderr.write(str(log10Ubarf[0]) + ' '  + str(log10Ubarf[-1]) + ' '+ \
+    sys.stderr.write(str(log10alpha[0]) + ' '  + str(log10alpha[-1]) + ' '+ \
            str(log10BetaOverH[0]) + ' ' + str(log10BetaOverH[-1]) + '\n')
 
-    CSturb = ax.contourf(tshHn, [1, 100], colors=('gray'), alpha=0.5,
-                          extent=(log10Ubarf[0], log10Ubarf[-1],
+    CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 100], colors=('gray'), alpha=0.5,
+                          extent=(log10alpha[0], log10alpha[-1],
                                   log10BetaOverH[0], log10BetaOverH[-1]))
 
     # proxy
@@ -124,7 +130,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     #    plt.title(r'SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs')
     #    plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
     ax.set_ylabel(r'$ \beta/H_* $', fontsize=14)
-    ax.set_xlabel(r'$\overline{U}_{\rm f}$', fontsize=14)
+    ax.set_xlabel(r'$\alpha$', fontsize=14)
 
     #    plt.grid()
 
@@ -132,16 +138,19 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
                       for HoverBeta in HoverBeta_list]
 
 
-    ubarf_list = [math.log10(ubarf(vw, alpha)) \
-                  for vw, alpha in zip(vw_list, alpha_list)]
+#    ubarf_list = [math.log10(ubarf(vw, alpha)) \
+#                  for vw, alpha in zip(vw_list, alpha_list)]
 
-    benchmarks = ax.plot(ubarf_list, BetaOverH_list, '-o')
+
+    alpha_log_list = [math.log10(alpha) for alpha in alpha_list]
+    
+    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '-o')
 
     if title:
         legends.append(title)
 
     if label_list:
-        for x,y,label in zip(ubarf_list, BetaOverH_list, label_list):
+        for x,y,label in zip(alpha_list, BetaOverH_list, label_list):
             ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
     
