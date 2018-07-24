@@ -9,6 +9,7 @@ from .forms import *
 
 # Science
 from .science.SNR import get_SNR_image
+from .science.SNRalphabeta import get_SNR_alphabeta_image
 from .science.powerspectrum import get_PS_image
 from .science.precomputed import *
 
@@ -56,6 +57,29 @@ def snr_image(request):
                                     SNRcurve=SNRfilename)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
+
+def snr_alphabeta_image(request):
+    if request.method == 'GET':
+        form = PTPlotForm(request.GET)
+
+        if form.is_valid():
+            vw = form.cleaned_data['vw']
+            alpha = form.cleaned_data['alpha']
+            HoverBeta = form.cleaned_data['HoverBeta']
+
+            SNRcurve = int(form.cleaned_data['SNRcurve'])
+
+            SNRfilename = precomputed_filenames[SNRcurve]
+            Tstar = precomputed_Tn[SNRcurve]
+            gstar = precomputed_gstar[SNRcurve]
+
+            sio_SNR = get_SNR_alphabeta_image(vw_list=[vw],
+                                              alpha_list=[alpha],
+                                              HoverBeta_list=[HoverBeta],
+                                              SNRcurve=SNRfilename)
+            return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
+        
 def theory(request):
 
     theories_list = Theory.objects.all()
@@ -98,7 +122,6 @@ def theory_detail_plot(request, theory_id):
     return HttpResponse(template.render(context, request))
 
 
-
 def theory_snr(request, theory_id):
 
 
@@ -120,6 +143,7 @@ def theory_snr(request, theory_id):
                             label_list,
                             title)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
 
         
 def parameterchoice_form(request):

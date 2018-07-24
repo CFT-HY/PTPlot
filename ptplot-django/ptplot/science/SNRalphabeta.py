@@ -25,7 +25,7 @@ if __name__ == "__main__" and __package__ is None:
 
 else:
 
-    from .espinosa import kappav, ubarf
+    from .espinosa import kappav, ubarf, ubarf_to_alpha
 
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
