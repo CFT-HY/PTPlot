@@ -13,15 +13,25 @@ import os.path
 import io
 import sys
 
-from django.conf import settings
+# Fix some things if running standalone
+if __name__ == "__main__" and __package__ is None:
 
+    import matplotlib.figure
 
-from .espinosa import kappav, ubarf
+    from espinosa import kappav, ubarf
 
-BASE_DIR = getattr(settings, "BASE_DIR", None)
-root = os.path.join(BASE_DIR, 'ptplot', 'science')
+    root = './'
 
-def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
+else:
+
+    from .espinosa import kappav, ubarf
+
+    from django.conf import settings
+    BASE_DIR = getattr(settings, "BASE_DIR", None)
+    root = os.path.join(BASE_DIR, 'ptplot', 'science')
+    
+
+def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
                   SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_gstar_100.0_precomputed.npz',
                   label_list=None,
                   title=None,
@@ -38,22 +48,6 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
 
     ytickpos = [-4, -3, -2, -1, 0]
     yticklabels = [r'$10^{-4}$', r'$10^{-3}$', r'$10^{-2}$', r'$10^{-1}$', r'$1$']
-
-    # Model parameters -- all used in precomputation!
-#    Omtil = 1.2e-2 # GW efficiency parameter
-#    zp = 10        # Peak kR*
-
-#    Tn = 100.      # Nucleation temp in GeV
-#    gstar = 100    # d.o.f.
-#    AdInd = 4./3.  # Adiabatic index
-
-#    Tn = Tstar
-    
-    # Hubble rate redshifted to now
-#    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
-
-    # GW dilution factor now
-#    Fgw0 = 2 * 1.64e-5 * (Tn/100) * (gstar/100)**(1./6)
 
 
     
@@ -92,11 +86,11 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
     
-    CS = ax.contour(snr, levels, linewidths=1,
+    CS = ax.contour(log10Ubarf, log10HnRstar, snr, levels, linewidths=1,
                     colors=color_tuple,
                      extent=(log10Ubarf[0], log10Ubarf[-1],
                              log10HnRstar[0], log10HnRstar[-1]))
-    CStsh = ax.contour(tshHn, levels_tsh, linewidths=1,
+    CStsh = ax.contour(log10Ubarf, log10HnRstar, tshHn, levels_tsh, linewidths=1,
                        linestyles='dashed', colors='k',
                        extent=(log10Ubarf[0], log10Ubarf[-1],
                                log10HnRstar[0], log10HnRstar[-1]))
@@ -104,7 +98,7 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     legends = []
 
 
-    CSturb = ax.contourf(tshHn, [1, 100], colors=('gray'), alpha=0.5,
+    CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1],
                                   log10HnRstar[0], log10HnRstar[-1]))
 
@@ -124,15 +118,6 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     #    plt.grid()
 
 
-    #    alpha_list = [0.09,0.12,0.17,0.20]
-    #    beta_list = [47.35,29.96,12.54,6.42]
-    #    vw_list = [0.95,0.95,0.95,0.95]
-
-#    alpha_list = [alpha]
-#    HoverBeta_list = [HoverBeta]
-#    vw_list = [vw]
-    
-
     # H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
     Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw*HoverBeta) \
                   for vw, HoverBeta in zip(vw_list, HoverBeta_list)]
@@ -141,9 +126,7 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     ubarf_list = [math.log10(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
-#    sys.stderr.write('ubarf is %g, HoverRstar %g, vw %g, alpha %g, x axis %g, y axis %g\n' % (10.0**(ubarf_list[0]), 10.0**(Rstar_list[0]), vw, alpha, ubarf_list[0], Rstar_list[0]))
-    
-    singlet = ax.plot(ubarf_list, Rstar_list, '-o')
+    benchmarks = ax.plot(ubarf_list, Rstar_list, '-o')
 
     if title:
         legends.append(title)
@@ -157,29 +140,6 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     
     #    leg.get_frame().set_alpha(0.9)
 
-#    plt.annotate('A', xy=(ubarf_list[0], Rstar_list[0]), xycoords='data',
-#                 xytext=(5, -5), textcoords='offset points')
-
-#    plt.annotate('B', xy=(ubarf_list[1], Rstar_list[1]), xycoords='data',
-#                 xytext=(5, -5), textcoords='offset points')
-
-#    plt.annotate('C', xy=(ubarf_list[2], Rstar_list[2]), xycoords='data',
-#                 xytext=(5, -10), textcoords='offset points')
-
-#    plt.annotate('D', xy=(ubarf_list[3], Rstar_list[3]), xycoords='data',
-#                 xytext=(5, 0), textcoords='offset points')
-
-
-    #    plt.arrow(-2.9,-1.8, -0.5, 0.2,
-    #              head_width=0.05, head_length=0.1, fc='k', ec='k')
-
-    #    plt.arrow(-2.6, -0.75, 0.3, 0.3,
-    #              head_width=0.05, head_length=0.1, fc='k', ec='k')
-
-    #    plt.annotate(r'\textbf{More turbulent}',
-    #                 xy=(-3.77,-1.85), xycoords='data')
-    #    plt.annotate(r'\textbf{Easier to detect}',
-    #                 xy=(-2.25,-0.32), xycoords='data')
 
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
@@ -200,24 +160,19 @@ def get_SNR_image(vw_list=[0.95], alpha_list=[0.1], HoverBeta_list=[100],
     fig.savefig(sio, format="svg")
 
     sio.seek(0)
-    
-
-    
-    # figfilename = "/tmp/SNR-Ubarf-Rstar-" + config + "-contour-cgi.png"
-    # plt.savefig(figfilename, format="png")
-
-
-    
+        
     return sio
     
-    
-    #print "Saving figfile " + figfilename
-    
-    
-    #plt.show()
-
-
 
 if __name__ == '__main__':
-    get_SNR_image()
-
+    if len(sys.argv) == 5:
+        vw = float(sys.argv[1])
+        alpha = float(sys.argv[2])
+        hoverbeta = float(sys.argv[3])
+        snrcurve = sys.argv[4]
+        b = get_SNR_image([vw], [alpha], [hoverbeta], snrcurve)
+        print(b.read().decode("utf-8"))
+    else:
+        sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <SNR file>\n'
+                         % sys.argv[0])
+        sys.stderr.write('Writes a scalable vector graphic to stdout.\n')

@@ -111,9 +111,6 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
     legends = []
 
-    sys.stderr.write(str(log10alpha[0]) + ' '  + str(log10alpha[-1]) + ' '+ \
-           str(log10BetaOverH[0]) + ' ' + str(log10BetaOverH[-1]) + '\n')
-
     CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10alpha[0], log10alpha[-1],
                                   log10BetaOverH[0], log10BetaOverH[-1]))
