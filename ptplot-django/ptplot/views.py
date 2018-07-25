@@ -8,9 +8,9 @@ from django.template import loader
 from .forms import *
 
 # Science
-from .science.SNR import get_SNR_image
-from .science.SNRalphabeta import get_SNR_alphabeta_image
-from .science.powerspectrum import get_PS_image
+from .science.SNR import get_SNR_image_threaded
+from .science.SNRalphabeta import get_SNR_alphabeta_image_threaded
+from .science.powerspectrum import get_PS_image_threaded
 from .science.precomputed import *
 
 import sys
@@ -32,8 +32,8 @@ def ps_image(request):
             gstar = precomputed_gstar[SNRcurve]
             
             sys.stderr.write('passing alpha %g\n' % alpha)
-            sio_PS = get_PS_image(Tstar=Tstar, vw=vw,
-                                  alpha=alpha, HoverBeta=HoverBeta)
+            sio_PS = get_PS_image_threaded(Tstar=Tstar, vw=vw,
+                                           alpha=alpha, HoverBeta=HoverBeta)
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
 def snr_image(request):
@@ -51,10 +51,10 @@ def snr_image(request):
             Tstar = precomputed_Tn[SNRcurve]
             gstar = precomputed_gstar[SNRcurve]
 
-            sio_SNR = get_SNR_image(vw_list=[vw],
-                                    alpha_list=[alpha],
-                                    HoverBeta_list=[HoverBeta],
-                                    SNRcurve=SNRfilename)
+            sio_SNR = get_SNR_image_threaded(vw_list=[vw],
+                                             alpha_list=[alpha],
+                                             HoverBeta_list=[HoverBeta],
+                                             SNRcurve=SNRfilename)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -73,10 +73,10 @@ def snr_alphabeta_image(request):
             Tstar = precomputed_Tn[SNRcurve]
             gstar = precomputed_gstar[SNRcurve]
 
-            sio_SNR = get_SNR_alphabeta_image(vw_list=[vw],
-                                              alpha_list=[alpha],
-                                              HoverBeta_list=[HoverBeta],
-                                              SNRcurve=SNRfilename)
+            sio_SNR = get_SNR_alphabeta_image_threaded(vw_list=[vw],
+                                                       alpha_list=[alpha],
+                                                       HoverBeta_list=[HoverBeta],
+                                                       SNRcurve=SNRfilename)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
         

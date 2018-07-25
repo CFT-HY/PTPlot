@@ -13,6 +13,7 @@ import os.path
 import io
 import sys
 import scipy.interpolate
+import multiprocessing
 
 # Fix some things if running standalone
 if __name__ == "__main__" and __package__ is None:
@@ -177,6 +178,30 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     return sio
     
 
+
+def worker(queue, vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+           SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_gstar_100.0_precomputed.npz',
+           label_list=None,
+           title=None,
+           usetex=False):
+    queue.put(get_SNR_alphabeta_image(vw_list, alpha_list, HoverBeta_list,
+                                  SNRcurve, label_list, title, usetex))
+
+def get_SNR_alphabeta_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+                                     SNRcurve='Sens_L6A2M5N2P2D28_Tn_100.0_gstar_100.0_precomputed.npz',
+                                     label_list=None,
+                                     title=None,
+                                     usetex=False):
+
+    q = multiprocessing.Queue()
+    p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, HoverBeta_list,
+                                                     SNRcurve, label_list, title, usetex))
+    p.start()
+    return_res = q.get()
+    p.join()
+    return return_res
+    
+    
 if __name__ == '__main__':
     if len(sys.argv) == 5:
         vw = float(sys.argv[1])

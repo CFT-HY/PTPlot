@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 
 
 import math, sys, string
@@ -10,20 +10,35 @@ import io, base64
 import cgi
 import os.path
 import sys
+import multiprocessing
 
-from .curves import PowerSpectrum
+# Fix some things if running standalone
+if __name__ == "__main__" and __package__ is None:
 
-from django.conf import settings
+    import matplotlib.figure
 
-BASE_DIR = getattr(settings, "BASE_DIR", None)
-root = os.path.join(BASE_DIR, 'ptplot', 'science')
-# sys.stderr.write('root = ' + root + '\n')
+    from curves import PowerSpectrum
+
+    root = './'
+
+    # eLISATools from Antoine
+    from eLISATools import *
+    
+else:
+
+    from .curves import PowerSpectrum
+
+    from django.conf import settings
+
+    BASE_DIR = getattr(settings, "BASE_DIR", None)
+    root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
 
-import matplotlib.figure
+    # eLISATools from Antoine
+    from .eLISATools import *
 
-# eLISATools from Antoine
-from .eLISATools import *
+
+
 
 def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     curves_ps = PowerSpectrum(vw=vw,
@@ -83,3 +98,34 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     sio.seek(0)
 #    plt.close()
     return sio
+
+
+
+
+def worker(queue, vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
+    queue.put(get_PS_image(vw, Tstar, alpha, HoverBeta, usetex))
+    
+
+
+def get_PS_image_threaded(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
+
+    q = multiprocessing.Queue()
+    p = multiprocessing.Process(target=worker, args=(q, vw, Tstar, alpha, HoverBeta, usetex))
+    p.start()
+    return_res = q.get()
+    p.join()
+    return return_res
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 5:
+        vw = float(sys.argv[1])
+        Tstar = float(sys.argv[2])
+        alpha = float(sys.argv[3])
+        HoverBeta = float(sys.argv[4])
+        b = get_PS_image(vw, Tstar, alpha, HoverBeta)
+        print(b.read().decode("utf-8"))
+    else:
+        sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <H/Beta>\n'
+                         % sys.argv[0])
+        sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
