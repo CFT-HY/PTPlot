@@ -11,6 +11,7 @@ Prerequisites
 
 - matplotlib
 - texlive
+- scipy
 
 If deploying to Elastic Beanstalk, use the following in
 .ebextensions/django.config::
