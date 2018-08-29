@@ -7,11 +7,35 @@
 
 {% block content %}
 
-<h3>PTplot</h3>
+<h3>PTPlot</h3>
+<p>PTPlot is a tool for exploring the gravitational wave power
+  spectrum from first-order phase transitions, and evaluating the
+  likelihood of detecting a signal with the LISA mission.</p>
 <ul>
-  <li><a href="single">Plot single point</a></li>
-  <li><a href="theories">Browse, edit, and plot theories</a> [under construction]</li>
+  <li><a href="single">Plot single point</a> and view the SNR and
+  power spectra </li>
+  <li><a href="multi">Plot multiple points</a> given tabular data</li>
+  <li><a href="theories">Browse and plot benchmark points</a>
 </ul>
-
+<h4>About the output</h4>
+<p>All output figures
+  are <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
+  Vector Graphics</a> (SVG) and can be downloaded and edited with free
+  tools such as <a href="https://inkscape.org/">Inkscape</a>. They are
+  also easily converted to PDF or bitmapped formats by Inkscape or
+  built-in OS tools.</p>
+<h4>Crediting PTPlot</h4>
+<p>The results plotted by this tool are based on the forthcoming LISA
+  Cosmology Working Group update paper. You are welcome to include
+  plots from PTPlot in your own work; if you do use PTPlot, please
+  cite that paper. Figures without the LISACosWG watermark are
+  available on request; please do not remove it without
+  permission.</p>
+<h4>References</h4>
+<ul>
+  <li><a href="https://arxiv.org/abs/1512.06239">arXiv:1512.06239</a>
+  - <em> Science with the space-based interferometer eLISA. II:
+  Gravitational waves from cosmological phase transitions</em></li>
+</ul>
 
 {% endblock content %}
