@@ -1,0 +1,33 @@
+
+
+{% extends 'ptplot/base.html' %}
+
+{% block content %}
+
+{% if point_list %}
+
+<h4>{{ theory.theory_name }}</h4>
+
+<p>{{ theory.theory_description }}</p>
+
+  <img alt="embedded" src="snr"  width="600px"
+  height="450px" style="background-color: #dddddd; border: 10px;
+  padding: 15px; background-clip: content-box"/>
+
+<ul>
+  {% for point in point_list %}
+  <li>({{point.point_shortlabel}}): $v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
+    = {{point.HoverBeta}}$, $g_* = {{ point.gstar }} $, $T_n =
+    {{ point.Tn }} \, \mathrm{GeV}$
+    [<a href="{{ point.id }}/plot">plot</a>]
+    [<a href="{{ point.id }}/edit">edit</a>]
+    [<a href="{{ point.id }}/delete">delete</a>]
+</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<p>[<a href="add">add</a>]</p>
+<p>[<a href="plot">plot</a>]</p>
+
+{% endblock content %}
