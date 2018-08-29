@@ -109,8 +109,6 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
                        extent=(log10alpha[0], log10alpha[-1],
                                log10BetaOverH[0], log10BetaOverH[-1]))
 
-    legends = []
-
     CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10alpha[0], log10alpha[-1],
                                   log10BetaOverH[0], log10BetaOverH[-1]))
@@ -143,17 +141,21 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     
     benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '-o')
 
-    if title:
-        legends.append(title)
 
     if label_list:
         for x,y,label in zip(alpha_list, BetaOverH_list, label_list):
             ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
-    
-    leg = ax.legend(legends, loc='lower left', framealpha=0.9)
 
-    #    leg.get_frame().set_alpha(0.9)
+
+    if title:
+        legends = []
+        
+        legends.append(title)
+            
+        leg = ax.legend(legends, loc='lower left', framealpha=0.9)
+
+        #    leg.get_frame().set_alpha(0.9)
     
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
@@ -163,7 +165,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',
-             ha='right', va='bottom', alpha=0.5)
+             ha='right', va='bottom', alpha=0.4)
     
     
     sio = io.BytesIO()

@@ -96,7 +96,6 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
                        extent=(log10Ubarf[0], log10Ubarf[-1],
                                log10HnRstar[0], log10HnRstar[-1]))
 
-    legends = []
 
 
     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 100], colors=('gray'), alpha=0.5,
@@ -129,17 +128,21 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
 
     benchmarks = ax.plot(ubarf_list, Rstar_list, '-o')
 
-    if title:
-        legends.append(title)
+
 
     if label_list:
         for x,y,label in zip(ubarf_list, Rstar_list, label_list):
             ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
+
+    if title:
+        legends = []
+
+        legends.append(title)
+            
+        leg = ax.legend(legends, loc='lower left', framealpha=0.9)
     
-    leg = ax.legend(legends, loc='lower left', framealpha=0.9)
-    
-    #    leg.get_frame().set_alpha(0.9)
+        #    leg.get_frame().set_alpha(0.9)
 
 
     ax.set_xticks(xtickpos)
@@ -150,7 +153,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',
-             ha='right', va='bottom', alpha=0.5)
+             ha='right', va='bottom', alpha=0.4)
     
     
     sio = io.BytesIO()

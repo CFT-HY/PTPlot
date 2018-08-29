@@ -87,7 +87,7 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',
-             ha='right', va='bottom', alpha=0.5)
+             ha='right', va='bottom', alpha=0.4)
 
     sio = io.BytesIO()
 
