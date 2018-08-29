@@ -1882,7 +1882,7 @@ ul.contact li a.icon-rss:before
 #header
 {
 	position: relative;
-	height: 13em;
+	height: 7em;
 }
 
 /*********************************************************************************/
@@ -1892,7 +1892,7 @@ ul.contact li a.icon-rss:before
 #logo
 {
 	position: absolute;
-	top: 3.2em;
+	top: 1em;
 	left: 0;
 	width: 100%;
 	margin-top: -0.5em;
@@ -1901,9 +1901,9 @@ ul.contact li a.icon-rss:before
 #logo h1
 {
 	display: inline-block;
-	padding: 0.8em 1.3em 0.6em 0.50em;
+	padding: 0.5em 0.5em 0.5em 0.50em;
 	font-size: 2.5em;
-	text-transform: uppercase;
+/*	text-transform: uppercase; */
 	font-weight: 900;
 }
 
@@ -2022,7 +2022,7 @@ ul.contact li a.icon-rss:before
 #footer
 {
 	overflow: hidden;
-	padding: 5em 0em;
+	padding: 3em 0em;
 	text-align: center;
 	text-transform: uppercase;
 	color: #6F6F6F;

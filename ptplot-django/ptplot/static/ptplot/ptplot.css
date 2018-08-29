@@ -1,0 +1,5 @@
+/* Input labels on forms */
+label {
+    text-align: right;
+    display: block;
+}
