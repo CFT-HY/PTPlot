@@ -136,12 +136,12 @@ def theory_snr(request, theory_id):
     label_list = [point.point_shortlabel for point in point_list]
     SNRfilename = precomputed_filenames[point_list[0].SNRcurve]
     
-    sio_SNR = get_SNR_image(vw_list,
-                            alpha_list,
-                            HoverBeta_list,
-                            SNRfilename,
-                            label_list,
-                            title)
+    sio_SNR = get_SNR_image_threaded(vw_list,
+                                     alpha_list,
+                                     HoverBeta_list,
+                                     SNRfilename,
+                                     label_list,
+                                     title)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
