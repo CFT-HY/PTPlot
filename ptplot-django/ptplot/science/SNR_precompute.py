@@ -41,7 +41,7 @@ def main(sensitivity_curve, Tn, gstar):
 
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
-
+    
     ### Computation of SNR map as a function of GW Amplitude and Peak frequency
     snr = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
 

@@ -143,7 +143,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
 
     if label_list:
-        for x,y,label in zip(alpha_list, BetaOverH_list, label_list):
+        for x,y,label in zip(alpha_log_list, BetaOverH_list, label_list):
             ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
 

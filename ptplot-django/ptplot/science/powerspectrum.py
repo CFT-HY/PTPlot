@@ -40,7 +40,13 @@ else:
 
 
 
-def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
+def get_PS_image(vw=0.95,
+                 Tstar=100,
+                 alpha=0.1,
+                 HoverBeta=100,
+                 sensitivity='Sens_L6A2M5N2P2D28.txt',
+                 usetex=False):
+
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
                               alpha=alpha,
@@ -55,10 +61,10 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     # but make legend smaller
     # matplotlib.rcParams.update({'legend.fontsize': 14})
 
-    sensitivity_curve = os.path.join(root,'Sens_L6A2M5N2P2D28.txt')
+    sensitivity_curve = os.path.join(root,sensitivity)
     sens_filehandle = open(sensitivity_curve)
     f, sensitivity \
-        = np.loadtxt(sens_filehandle,usecols=[0,3],unpack=True)
+        = np.loadtxt(sens_filehandle,usecols=[0,2],unpack=True)
 
     f_more = np.logspace(math.log(min(f)), math.log(max(f)), num=len(f)*10)
 
@@ -68,13 +74,25 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
     duration = 5*yr
-    snr, frange = StockBkg_ComputeSNR(fS, OmEff, fS, curves_ps.power_spectrum(fS), duration, 1.e-6, 1)
+    snr, frange = StockBkg_ComputeSNR(fS,
+                                      OmEff,
+                                      fS,
+                                      curves_ps.power_spectrum(fS),
+                                      duration,
+                                      1.e-6,
+                                      1)
+
     sys.stderr.write('snr = %g\n' % snr)
     
-    ax.fill_between(f,sensitivity,1,alpha=0.3, label=r'LISA sensitivity')
-    ax.plot(f_more, curves_ps.power_spectrum_sw(f_more), 'r', label=r'$\Omega_\mathrm{sw}$')
-    ax.plot(f_more, curves_ps.power_spectrum_turb(f_more), 'b', label=r'$\Omega_\mathrm{turb}$')
-    ax.plot(f_more, curves_ps.power_spectrum(f_more), 'k', label=r'Total')
+    ax.fill_between(f, sensitivity, 1, alpha=0.3, label=r'LISA sensitivity')
+
+    ax.plot(f_more, curves_ps.power_spectrum_sw(f_more), 'r',
+            label=r'$\Omega_\mathrm{sw}$')
+    ax.plot(f_more, curves_ps.power_spectrum_turb(f_more), 'b',
+            label=r'$\Omega_\mathrm{turb}$')
+    ax.plot(f_more, curves_ps.power_spectrum(f_more), 'k',
+            label=r'Total')
+
     ax.set_xlabel(r'$f\; \mathrm{(Hz)}$', fontsize=14)
     ax.set_ylabel(r'$h^2 \, \Omega_\mathrm{GW}(f)$', fontsize=14)
     ax.set_xlim([1e-5,0.1])
@@ -82,7 +100,8 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     ax.set_yscale('log', nonposy='clip')
     ax.set_xscale('log', nonposx='clip')
     ax.legend(loc='upper right')
-#    plt.tight_layout()
+
+
 
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
@@ -96,21 +115,45 @@ def get_PS_image(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
     
     fig.savefig(sio, format="svg")
     sio.seek(0)
-#    plt.close()
+
     return sio
 
 
 
 
-def worker(queue, vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
-    queue.put(get_PS_image(vw, Tstar, alpha, HoverBeta, usetex))
+def worker(queue,
+           vw=0.95,
+           Tstar=100,
+           alpha=0.1,
+           HoverBeta=100,
+           sensitivity='Sens_L6A2M5N2P2D28.txt',
+           usetex=False):
+
+    queue.put(get_PS_image(vw,
+                           Tstar,
+                           alpha,
+                           HoverBeta,
+                           sensitivity,
+                           usetex))
     
 
 
-def get_PS_image_threaded(vw=0.95, Tstar=100, alpha=0.1, HoverBeta=100, usetex=False):
+def get_PS_image_threaded(vw=0.95,
+                          Tstar=100,
+                          alpha=0.1,
+                          HoverBeta=100,
+                          sensitivity='Sens_L6A2M5N2P2D28.txt',
+                          usetex=False):
 
     q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker, args=(q, vw, Tstar, alpha, HoverBeta, usetex))
+    p = multiprocessing.Process(target=worker,
+                                args=(q,
+                                      vw,
+                                      Tstar,
+                                      alpha,
+                                      HoverBeta,
+                                      sensitivity,
+                                      usetex))
     p.start()
     return_res = q.get()
     p.join()
