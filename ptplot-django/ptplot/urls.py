@@ -27,6 +27,12 @@ urlpatterns = [
          name='single'),
 
     # Multiple point pages
+
+    # Plot many points - manual input
+    path(r'multiple',
+         views.multiple,
+         name='multiple'),
+
     
     # Display a list of theories from database
     path(r'theories',
@@ -44,9 +50,19 @@ urlpatterns = [
          name='theory_detail_plot'),
 
 
-    path(r'theories/<int:theory_id>/snr', views.theory_snr, name='theory_snr'),
-    path(r'parameterchoice', views.parameterchoice_form, name='parameterchoice'),
+    path(r'theories/<int:theory_id>/snr',
+         views.theory_snr,
+         name='theory_snr'),
+    path(r'theories/<int:theory_id>/snr_alphabeta',
+         views.theory_snr_alphabeta,
+         name='theory_snr)alphabeta'),
 
+    path(r'parameterchoice',
+         views.parameterchoice_form,
+         name='parameterchoice'),
+
+    
+    # Finally, the main page
     path(r'', views.index, name='index'),
 ]
 
