@@ -1,5 +1,28 @@
-/* Input labels on forms */
-label {
+/* Input labels on forms formatted as tables ONLY: */
+table label {
     text-align: right;
     display: block;
+}
+
+.formbox {
+    padding-left: 10px;
+}
+
+.choicebox {
+    box-sizing: border-box;
+    width: 90%;
+    display: inline-block;
+    background-color: #e6e6e6;
+    vertical-align: top;
+    padding: 5px 5px 5px 5px;
+}
+
+
+.mainbox {
+    box-sizing: border-box;
+    width: 90%;
+    display: inline-block;
+    background-color: #f6f6f6;
+    vertical-align: top;
+    padding: 5px 5px 5px 5px;
 }

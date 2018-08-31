@@ -1528,7 +1528,7 @@ body
 {
 	margin: 0;
 	padding: 0;
-	background: #2F2F2F url(images/bg02.jpg) repeat;
+/*	background: #2F2F2F url(images/bg02.jpg) repeat; */
 	font-family: 'Source Sans Pro', sans-serif;
 	font-size: 12pt;
 	font-weight: 300;
@@ -1786,7 +1786,7 @@ ul.contact li a.icon-rss:before
 {
 	overflow:  hidden;
 	padding: 5em 0em;
-	background: url(images/bg01.jpg) repeat;
+/*	background: url(images/bg01.jpg) repeat; */
 	box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.05), inset 0px 4px 15px 0px rgba(0,0,0,0.1);
 }
 
@@ -1875,7 +1875,7 @@ ul.contact li a.icon-rss:before
 #header-wrapper
 {
 	overflow: hidden;
-	background: url(images/header.jpg) no-repeat center bottom;
+/*	background: url(images/header.jpg) no-repeat center bottom; */
 	background-size: 100% 100%;
 }
 
