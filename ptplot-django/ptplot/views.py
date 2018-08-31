@@ -39,6 +39,7 @@ def ps_image(request):
                 gstar = form.cleaned_data['Gstar']
                 
             sio_PS = get_PS_image_threaded(Tstar=Tstar,
+                                           Gstar=gstar,
                                            vw=vw,
                                            alpha=alpha,
                                            HoverBeta=HoverBeta,
