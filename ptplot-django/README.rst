@@ -45,3 +45,10 @@ Quick start
 3. Run `python manage.py migrate`.
 
 4. Visit http://127.0.0.1:8000/ptplot/ to test the thing.
+
+Benchmark points
+----------------
+
+These are created in the database by running `python manage.py
+populate` which calls `ptplot/management/commands/populate.py`. Edit
+that file to add benchmark points.
