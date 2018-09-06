@@ -5,6 +5,9 @@ Implement the formula for the LISA sensitivity curve from the Science
 Requirements document ESA-L3-EST-SCI-RS-001_LISA_SciRD version 1.0.
 
 Running this module will write 'StochBkg'-style output to stdout.
+
+Authors:
+  2018-      David Weir
 """
 import math
 import numpy as np
