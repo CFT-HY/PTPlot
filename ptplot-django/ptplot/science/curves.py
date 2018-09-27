@@ -41,7 +41,7 @@ class PowerSpectrum:
         self.alpha = alpha
 
         # reduced hubble rate - for turbulence
-        self.gstar = 16.5e-6*(self.Tstar/100.0) \
+        self.hstar = 16.5e-6*(self.Tstar/100.0) \
                      *np.power(self.gstar/100.0,1.0/6.0)
 
         # self.kturb = 1.97/65.0
@@ -74,7 +74,7 @@ class PowerSpectrum:
         # Thus: H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
         
         fp = f/self.fsw(f)
-        return 8.5e-6*np.power(100/self.gstar,1.0/3.0) \
+        return 8.5e-6*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.vw*self.HoverBeta*self.Ssw(fp)
 
@@ -84,7 +84,7 @@ class PowerSpectrum:
 
     def Sturb(self, f, fp):
         return np.power(fp,3.0)/(np.power(1 + fp, 11.0/3.0) \
-                                 *(1 + 8*math.pi*f/self.gstar))
+                                 *(1 + 8*math.pi*f/self.hstar))
 
     def power_spectrum_turb(self, f):
         fp = f/self.fturb(f)

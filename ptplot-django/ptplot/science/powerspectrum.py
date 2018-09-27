@@ -167,12 +167,15 @@ def get_PS_image_threaded(vw=0.95,
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 5:
+    if len(sys.argv) == 6:
         vw = float(sys.argv[1])
         Tstar = float(sys.argv[2])
-        alpha = float(sys.argv[3])
-        HoverBeta = float(sys.argv[4])
-        b = get_PS_image(vw, Tstar, alpha, HoverBeta)
+        Gstar = float(sys.argv[3])
+        alpha = float(sys.argv[4])
+        HoverBeta = float(sys.argv[5]) 
+        sys.stderr.write('vw=%g, Tstar=%g, Gstar=%g, alpha=%g, HoverBeta=%g\n'
+                         % (vw, Tstar, Gstar, alpha, HoverBeta))
+        b = get_PS_image(vw, Tstar, Gstar, alpha, HoverBeta)
         print(b.read().decode("utf-8"))
     else:
         sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <H/Beta>\n'
