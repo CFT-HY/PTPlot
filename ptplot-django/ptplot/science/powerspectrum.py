@@ -45,7 +45,7 @@ def get_PS_image(vw=0.95,
                  Gstar=100,
                  alpha=0.1,
                  HoverBeta=100,
-                 sensitivity='Sens_L6A2M5N2P2D28.txt',
+                 sensitivity='ScienceRequirements.txt',
                  usetex=False):
 
     curves_ps = PowerSpectrum(vw=vw,
