@@ -81,6 +81,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
 
     
     # location of contour labels
+    # locs = [find_place(snr, -3, wantedcontour) for wantedcontour in levels]
     locs = [find_place(snr, -3.2, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
 
@@ -96,8 +97,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
                        extent=(log10Ubarf[0], log10Ubarf[-1],
                                log10HnRstar[0], log10HnRstar[-1]))
 
-
-
+#     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [0.00001, 1], colors=('gray'), alpha=0.3,
     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1],
                                   log10HnRstar[0], log10HnRstar[-1]))
@@ -126,12 +126,14 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
     ubarf_list = [math.log10(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
+#    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
     benchmarks = ax.plot(ubarf_list, Rstar_list, '-o')
 
 
 
     if label_list:
         for x,y,label in zip(ubarf_list, Rstar_list, label_list):
+#            ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,-7),
             ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
 
@@ -141,6 +143,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
         legends.append(title)
             
         leg = ax.legend(legends, loc='lower left', framealpha=0.9)
+#        leg = ax.legend(legends, loc='upper left', framealpha=0.9)
     
         #    leg.get_frame().set_alpha(0.9)
 
@@ -160,8 +163,9 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(fig)
-    
+
     fig.savefig(sio, format="svg")
+    # fig.savefig("snr.png", format="png", dpi=400)
 
     sio.seek(0)
         
@@ -205,3 +209,11 @@ if __name__ == '__main__':
         sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <SNR file>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
+
+    # Tn, alpha, betaoverh = np.loadtxt('foo', usecols=[0,1,2], delimiter=',', unpack=True)
+    # vw = [0.5]*len(Tn)
+    # b = get_SNR_image(vw, alpha, 1.0/betaoverh, "ScienceRequirements_Tn_100.0_gstar_100.0_precomputed.npz")
+    # b = get_SNR_image([0.95,0.95,0.95,0.95], [0.09,0.12,0.17,0.20], [1.0/47.35, 1.0/29.96, 1.0/12.54, 1.0/6.42], "ScienceRequirements_Tn_100.0_gstar_100.0_precomputed.npz", label_list=['A','B','C','D'], title='Singlet benchmarks')
+    # from SNRalphabeta import  get_SNR_alphabeta_image
+    # get_SNR_alphabeta_image(vw, alpha, 1.0/betaoverh, "ScienceRequirements_Tn_100.0_gstar_100.0_precomputed.npz")
+    

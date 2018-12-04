@@ -139,8 +139,8 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
     alpha_log_list = [math.log10(alpha) for alpha in alpha_list]
     
+#    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
     benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '-o')
-
 
     if label_list:
         for x,y,label in zip(alpha_log_list, BetaOverH_list, label_list):
@@ -172,7 +172,8 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(fig)
-    
+
+#    fig.savefig("snralphabeta.png", format="png", dpi=400)
     fig.savefig(sio, format="svg")
 
     sio.seek(0)
@@ -212,8 +213,12 @@ if __name__ == '__main__':
         snrcurve = sys.argv[4]
         b = get_SNR_alphabeta_image([vw], [alpha], [hoverbeta], snrcurve)
         print(b.read().decode("utf-8"))
+   
     else:
         sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <SNR file>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
         
+    # Tn, alpha, betaoverh = np.loadtxt('foo', usecols=[0,1,2], delimiter=',', unpack=True)
+    # vw = [0.1]*len(Tn)
+    # get_SNR_alphabeta_image(vw, alpha, 1.0/betaoverh, "ScienceRequirements_Tn_100.0_gstar_100.0_precomputed.npz")

@@ -115,6 +115,7 @@ def get_PS_image(vw=0.95,
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(fig)
     
+    # fig.savefig("foo.png",format="png",dpi=400)
     fig.savefig(sio, format="svg")
     sio.seek(0)
 
