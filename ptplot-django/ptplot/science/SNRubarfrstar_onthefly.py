@@ -136,34 +136,36 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
         #    leg.get_frame().set_alpha(0.9)
 
 
-    xtickpos = [min(log10Ubarf)] \
-        + list(range(int(round(min(log10Ubarf))),
-                     int(round(max(log10Ubarf))+1))) \
-        + [max(log10Ubarf)]
-    xticklabels = [r'$10^{%.2g}$' % min(log10Ubarf)] \
-        + [r'$10^{%d}$' % ind
-           for ind in list(range(int(round(min(log10Ubarf))),
-                                 int(round(max(log10Ubarf))+1)))] \
-        + [r'$10^{%.2g}$' % max(log10Ubarf)]
+    # xtickpos = [min(log10Ubarf)] \
+    #     + list(range(int(round(min(log10Ubarf))),
+    #                  int(round(max(log10Ubarf))+1))) \
+    #     + [max(log10Ubarf)]
+    # xticklabels = [r'$10^{%.2g}$' % min(log10Ubarf)] \
+    #     + [r'$10^{%d}$' % ind
+    #        for ind in list(range(int(round(min(log10Ubarf))),
+    #                              int(round(max(log10Ubarf))+1)))] \
+    #     + [r'$10^{%.2g}$' % max(log10Ubarf)]
+  
+    xtickpos = [-2, -1, 0]
+    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
+
+
+
+    # ytickpos = [min(log10HnRstar)] \
+    #     + list(range(int(math.ceil(min(log10HnRstar))),
+    #                  int(round(max(log10HnRstar))+1))) \
+    #     + [max(log10HnRstar)]
+    # yticklabels = [r'$10^{%.2g}$' % min(log10HnRstar)] \
+    #     + [r'$10^{%d}$' % ind
+    #        for ind in list(range(int(math.ceil(min(log10HnRstar))),
+    #                              int(round(max(log10HnRstar))+1)))] \
+    #     + [r'$10^{%.2g}$' % max(log10HnRstar)]
+
+
+
+    ytickpos = [-4, -3, -2, -1, 0]
+    yticklabels = [r'$10^{-4}$', r'$10^{-3}$', r'$10^{-2}$', r'$10^{-1}$', r'$1$']
     
-#    xtickpos = [-2, -1, 0, 1]
-#    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$10^{0}$', r'$10^{1}$']
-
-    ytickpos = [min(log10HnRstar)] \
-        + list(range(int(math.ceil(min(log10HnRstar))),
-                     int(round(max(log10HnRstar))+1))) \
-        + [max(log10HnRstar)]
-    yticklabels = [r'$10^{%.2g}$' % min(log10HnRstar)] \
-        + [r'$10^{%d}$' % ind
-           for ind in list(range(int(math.ceil(min(log10HnRstar))),
-                                 int(round(max(log10HnRstar))+1)))] \
-        + [r'$10^{%.2g}$' % max(log10HnRstar)]
-
-
-#    ytickpos = [0, 1, 2, 3, 4]
-#    yticklabels = [r'$10^{0}$', r'$10^{1}$', r'$10^{2}$', r'$10^{3}$', r'$10^{4}$']
-
-        
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
     ax.set_yticks(ytickpos)
