@@ -9,13 +9,84 @@
 ############################## Import modules ##############################
 import math, sys
 
-# eLISATools from Antoine
-from eLISATools import *
 
 
-from curves import PowerSpectrum
+# Fix some things if running standalone
+if __name__ == "__main__" and __package__ is None:
 
+    # eLISATools from Antoine
+    from eLISATools import *
+
+    from curves import PowerSpectrum
+    from precomputed import available_sensitivitycurves_lite
+
+    root = './'
+    
+else:
+
+    # eLISATools from Antoine
+    from .eLISATools import *
+
+    from .curves import PowerSpectrum
+    from .precomputed import available_sensitivitycurves_lite
+
+    
+    from django.conf import settings
+    BASE_DIR = getattr(settings, "BASE_DIR", None)
+    root = os.path.join(BASE_DIR, 'ptplot', 'science')
+    
 ############################## Functions ##############################
+
+def get_SNRcurve(Tn, gstar, Senscurve):
+    duration = 5*yr
+    
+    ## Values of log10 Ubarf to scan
+    log10Ubarf = np.arange(-2,0.025,0.025)
+
+    ## Values of log10 HnRstar to scan
+    log10HnRstar = np.arange(-4,0.025,0.025)
+
+    # Model parameters
+    Omtil = 1.2e-1 # GW efficiency parameter
+    zp = 10        # Peak kR*
+
+#    Tn = 100.      # Nucleation temp in GeV
+#    gstar = 100    # d.o.f.
+    AdInd = 4./3.  # Adiabatic index
+
+    # Hubble rate redshifted to now - equation 42
+    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
+
+
+    sensitivity_curve = os.path.join(root, available_sensitivitycurves_lite[Senscurve])
+
+    fS, OmEff = LoadFile(sensitivity_curve, 2)
+    
+    ### Computation of SNR map as a function of GW Amplitude and Peak frequency
+    snr = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
+
+    tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)  ))
+
+    for i in range(len(log10HnRstar)):
+        for j in range(len(log10Ubarf)):
+            Ubarf = 10.**log10Ubarf[j]
+            HnRstar = 10.**log10HnRstar[i]
+            # Peak amplitude and peak frequency, equation 45
+            OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
+            # GW dilution factor now - equation 44
+            Fgw0 = 3.57e-5* (100.0/gstar)**(1./3)
+            
+            # equation 43, peak frequency
+            fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
+
+            s = fS/fp # frequency scaled to peak
+            OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
+            snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
+            tshHn[i,j] = HnRstar/Ubarf
+        #print('Rstar number', i, "/", len(log10HnRstar))
+
+    return tshHn, snr, log10HnRstar, log10Ubarf
+
 
 
 def main(sensitivity_curve, Tn, gstar):

@@ -12,7 +12,6 @@ import numpy as np
 import os.path
 import io
 import sys
-import scipy.interpolate
 import multiprocessing
 
 # Fix some things if running standalone
@@ -21,7 +20,7 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from espinosa import kappav, ubarf, ubarf_to_alpha
-    from curves import PowerSpectrum
+    from SNR_precompute import get_SNRcurve
     
     root = './'
 
@@ -32,7 +31,7 @@ if __name__ == "__main__" and __package__ is None:
 else:
 
     from .espinosa import kappav, ubarf, ubarf_to_alpha
-    from curves import PowerSpectrum
+    from .SNR_precompute import get_SNRcurve
     
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
@@ -46,60 +45,13 @@ def hn_rstar_to_beta(hn_rstar, vw):
     return math.pow(8.0*math.pi,1.0/3.0)*vw/hn_rstar
 
 
-def get_SNRcurve(Tn, gstar):
-    duration = 5*yr
-    
-    ## Values of log10 Ubarf to scan
-    log10Ubarf = np.arange(-2,0.025,0.025)
-
-    ## Values of log10 HnRstar to scan
-    log10HnRstar = np.arange(-4,0.025,0.025)
-
-    # Model parameters
-    Omtil = 1.2e-1 # GW efficiency parameter
-    zp = 10        # Peak kR*
-
-#    Tn = 100.      # Nucleation temp in GeV
-#    gstar = 100    # d.o.f.
-    AdInd = 4./3.  # Adiabatic index
-
-    # Hubble rate redshifted to now - equation 42
-    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
-
-
-    sensitivity_curve='ScienceRequirementsLite.txt'
-    fS, OmEff = LoadFile(sensitivity_curve, 2)
-    
-    ### Computation of SNR map as a function of GW Amplitude and Peak frequency
-    snr = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
-
-    tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)  ))
-
-    for i in range(len(log10HnRstar)):
-        for j in range(len(log10Ubarf)):
-            Ubarf = 10.**log10Ubarf[j]
-            HnRstar = 10.**log10HnRstar[i]
-            # Peak amplitude and peak frequency, equation 45
-            OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
-            # GW dilution factor now - equation 44
-            Fgw0 = 3.57e-5* (100.0/gstar)**(1./3)
-            
-            # equation 43, peak frequency
-            fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
-
-            s = fS/fp # frequency scaled to peak
-            OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
-            snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
-            tshHn[i,j] = HnRstar/Ubarf
-        #print('Rstar number', i, "/", len(log10HnRstar))
-
-    return tshHn, snr, log10HnRstar, log10Ubarf
 
 def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
-                            Tn=100,
+                            Tstar=100,
                             gstar=100,
                             label_list=None,
                             title=None,
+                            Senscurve=0,
                             usetex=False):
 
 
@@ -109,9 +61,6 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     color_tuple = tuple([tuple(0.5*(np.tanh((0.5-f)*10)+1)*red
                                + f**0.5*darkgreen)  for f in (np.arange(6)*0.2)])
 
-
-
-
     
     # matplotlib.rc('text', usetex=usetex)
     matplotlib.rc('font', family='serif')
@@ -119,7 +68,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     
     
     
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tn, gstar)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, Senscurve)
     
     log10BetaOverH = np.log10(hn_rstar_to_beta(np.power(10.0, log10HnRstar),vw_list[0]))
     log10alpha = np.log10(ubarf_to_alpha(vw_list[0], np.power(10.0, log10Ubarf)))
@@ -259,24 +208,28 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
 
 def worker(queue, vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
-           Tn=100,
+           Tstar=100,
            gstar=100,
            label_list=None,
            title=None,
+           Senscurve=0,
            usetex=False):
     queue.put(get_SNR_alphabeta_image(vw_list, alpha_list, HoverBeta_list,
-                                      Tn, gstar, label_list, title, usetex))
+                                      Tstar, gstar, label_list, title,
+                                      Senscurve, usetex))
 
 def get_SNR_alphabeta_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
-                                     Tn=100,
+                                     Tstar=100,
                                      gstar=100,
                                      label_list=None,
                                      title=None,
+                                     Senscurve=0,
                                      usetex=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, HoverBeta_list,
-                                                     Tn, gstar, label_list, title, usetex))
+                                                     Tstar, gstar, label_list, title,
+                                                     Senscurve, usetex))
     p.start()
     return_res = q.get()
     p.join()

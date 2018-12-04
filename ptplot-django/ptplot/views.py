@@ -8,8 +8,8 @@ from django.template import loader
 from .forms import *
 
 # Science
-from .science.SNR import get_SNR_image_threaded
-from .science.SNRalphabeta import get_SNR_alphabeta_image_threaded
+from .science.SNRubarfrstar_onthefly import get_SNR_image_threaded
+from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image_threaded
 from .science.powerspectrum import get_PS_image_threaded
 from .science.precomputed import *
 
@@ -24,26 +24,16 @@ def ps_image(request):
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
             HoverBeta = form.cleaned_data['HoverBeta']
-            pschoices = form.cleaned_data['pschoices']
-            
-            if pschoices == 'psandsnr':
-                SNRcurve = int(form.cleaned_data['SNRcurve'])
-                SNRfilename = precomputed_filenames[SNRcurve]
-                Tstar = precomputed_Tn[SNRcurve]
-                gstar = precomputed_gstar[SNRcurve]
-                sensitivity = precomputed_sources[SNRcurve]
-            elif pschoices == 'psonly':
-                Senscurve = int(form.cleaned_data['Senscurve'])
-                sensitivity = available_sensitivitycurves[Senscurve]
-                Tstar = form.cleaned_data['Tstar']
-                gstar = form.cleaned_data['Gstar']
+            Senscurve = int(form.cleaned_data['Senscurve'])
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
                 
             sio_PS = get_PS_image_threaded(Tstar=Tstar,
-                                           Gstar=gstar,
+                                           gstar=gstar,
                                            vw=vw,
                                            alpha=alpha,
                                            HoverBeta=HoverBeta,
-                                           sensitivity=sensitivity)
+                                           Senscurve=Senscurve)
             
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
@@ -56,16 +46,18 @@ def snr_image(request):
             alpha = form.cleaned_data['alpha']
             HoverBeta = form.cleaned_data['HoverBeta']
 
-            SNRcurve = int(form.cleaned_data['SNRcurve'])
+            Senscurve = int(form.cleaned_data['Senscurve'])
+            SNRfilename = precomputed_filenames[Senscurve]
 
-            SNRfilename = precomputed_filenames[SNRcurve]
-            Tstar = precomputed_Tn[SNRcurve]
-            gstar = precomputed_gstar[SNRcurve]
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
 
-            sio_SNR = get_SNR_image_threaded(vw_list=[vw],
+            sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
+                                             gstar=gstar,
+                                             vw_list=[vw],
                                              alpha_list=[alpha],
                                              HoverBeta_list=[HoverBeta],
-                                             SNRcurve=SNRfilename)
+                                             Senscurve=Senscurve)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -78,16 +70,19 @@ def snr_alphabeta_image(request):
             alpha = form.cleaned_data['alpha']
             HoverBeta = form.cleaned_data['HoverBeta']
 
-            SNRcurve = int(form.cleaned_data['SNRcurve'])
+            Senscurve = int(form.cleaned_data['Senscurve'])
+            SNRfilename = precomputed_filenames[Senscurve]
+            
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
 
-            SNRfilename = precomputed_filenames[SNRcurve]
-            Tstar = precomputed_Tn[SNRcurve]
-            gstar = precomputed_gstar[SNRcurve]
 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw_list=[vw],
                                                        alpha_list=[alpha],
                                                        HoverBeta_list=[HoverBeta],
-                                                       SNRcurve=SNRfilename)
+                                                       Tstar=Tstar,
+                                                       gstar=gstar,
+                                                       Senscurve=Senscurve)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
         
@@ -145,12 +140,12 @@ def theory_snr(request, theory_id):
     alpha_list = [point.alpha for point in point_list]
     HoverBeta_list = [point.HoverBeta for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
-    SNRfilename = precomputed_filenames[point_list[0].SNRcurve]
+    SNRfilename = precomputed_filenames[point_list[0].Senscurve]
     
     sio_SNR = get_SNR_image_threaded(vw_list,
                                      alpha_list,
                                      HoverBeta_list,
-                                     SNRfilename,
+                                     Tstar, gstar,
                                      label_list,
                                      title)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
@@ -168,7 +163,7 @@ def theory_snr_alphabeta(request, theory_id):
     alpha_list = [point.alpha for point in point_list]
     HoverBeta_list = [point.HoverBeta for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
-    SNRfilename = precomputed_filenames[point_list[0].SNRcurve]
+    SNRfilename = precomputed_filenames[point_list[0].Senscurve]
     
     sio_SNR = get_SNR_alphabeta_image_threaded(vw_list,
                                                alpha_list,
@@ -210,7 +205,7 @@ def multiple(request):
 
 
             vw = form.cleaned_data['vw']
-            SNRcurve = int(form.cleaned_data['SNRcurve'])
+            Senscurve = int(form.cleaned_data['Senscurve'])
             table = form.cleaned_data['table']
 
             table_lines = string.split(table,'\n')
@@ -258,43 +253,21 @@ def single(request):
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
             HoverBeta = form.cleaned_data['HoverBeta']
-            pschoices = form.cleaned_data['pschoices']
 
-            
-            if pschoices == 'psandsnr':
-                
-                SNRcurve = int(form.cleaned_data['SNRcurve'])
-                Tn = precomputed_Tn[SNRcurve]
-                gstar = precomputed_gstar[SNRcurve]
+            Senscurve = int(form.cleaned_data['Senscurve'])
+            Tstar = int(form.cleaned_data['Tstar'])
+            gstar = int(form.cleaned_data['gstar'])
 
-                template = loader.get_template('ptplot/single_result.html')
+            template = loader.get_template('ptplot/single_result.html')
 
-                context = {'form': form,
-                           'querystring': querystring,
-                           'vw': vw,
-                           'alpha': alpha,
-                           'HoverBeta': HoverBeta,
-                           'Tn': Tn,
-                           'gstar': gstar}
-                return HttpResponse(template.render(context, request))
-
-            elif pschoices == 'psonly':
-
-                Senscurve = int(form.cleaned_data['Senscurve'])
-                Tn = form.cleaned_data['Tstar']
-                gstar = form.cleaned_data['Gstar']
-
-                                            
-                template = loader.get_template('ptplot/single_result_ps.html')
-
-                context = {'form': form,
-                           'querystring': querystring,
-                           'vw': vw,
-                           'alpha': alpha,
-                           'HoverBeta': HoverBeta,
-                           'Tn': Tn,
-                           'gstar': gstar}
-                return HttpResponse(template.render(context, request))
+            context = {'form': form,
+                       'querystring': querystring,
+                       'vw': vw,
+                       'alpha': alpha,
+                       'HoverBeta': HoverBeta,
+                       'Tstar': Tstar,
+                       'gstar': gstar}
+            return HttpResponse(template.render(context, request))
 
         # Form not valid
         template = loader.get_template('ptplot/single.html')

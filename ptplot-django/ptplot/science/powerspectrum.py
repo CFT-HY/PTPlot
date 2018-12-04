@@ -18,7 +18,8 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from curves import PowerSpectrum
-
+    from precomputed import available_sensitivitycurves, available_labels
+    
     root = './'
 
     # eLISATools from Antoine
@@ -27,6 +28,7 @@ if __name__ == "__main__" and __package__ is None:
 else:
 
     from .curves import PowerSpectrum
+    from .precomputed import available_sensitivitycurves, available_labels
 
     from django.conf import settings
 
@@ -42,17 +44,19 @@ else:
 
 def get_PS_image(vw=0.95,
                  Tstar=100,
-                 Gstar=100,
+                 gstar=100,
                  alpha=0.1,
                  HoverBeta=100,
-                 sensitivity='ScienceRequirements.txt',
+                 Senscurve=0,
                  usetex=False):
 
+    sensitivity=available_sensitivitycurves[Senscurve]
+    
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
                               alpha=alpha,
                               HoverBeta=HoverBeta,
-                              gstar=Gstar)
+                              gstar=gstar)
 
     # setup latex plotting
     # matplotlib.rc('text', usetex=usetex)
@@ -127,28 +131,28 @@ def get_PS_image(vw=0.95,
 def worker(queue,
            vw=0.95,
            Tstar=100,
-           Gstar=100,
+           gstar=100,
            alpha=0.1,
            HoverBeta=100,
-           sensitivity='Sens_L6A2M5N2P2D28.txt',
+           Senscurve=0,
            usetex=False):
 
     queue.put(get_PS_image(vw,
                            Tstar,
-                           Gstar,
+                           gstar,
                            alpha,
                            HoverBeta,
-                           sensitivity,
+                           Senscurve,
                            usetex))
     
 
 
 def get_PS_image_threaded(vw=0.95,
                           Tstar=100,
-                          Gstar=100,
+                          gstar=100,
                           alpha=0.1,
                           HoverBeta=100,
-                          sensitivity='Sens_L6A2M5N2P2D28.txt',
+                          Senscurve=0,
                           usetex=False):
 
     q = multiprocessing.Queue()
@@ -156,10 +160,10 @@ def get_PS_image_threaded(vw=0.95,
                                 args=(q,
                                       vw,
                                       Tstar,
-                                      Gstar,
+                                      gstar,
                                       alpha,
                                       HoverBeta,
-                                      sensitivity,
+                                      Senscurve,
                                       usetex))
     p.start()
     return_res = q.get()
@@ -171,12 +175,12 @@ if __name__ == '__main__':
     if len(sys.argv) == 6:
         vw = float(sys.argv[1])
         Tstar = float(sys.argv[2])
-        Gstar = float(sys.argv[3])
+        gstar = float(sys.argv[3])
         alpha = float(sys.argv[4])
         HoverBeta = float(sys.argv[5]) 
-        sys.stderr.write('vw=%g, Tstar=%g, Gstar=%g, alpha=%g, HoverBeta=%g\n'
-                         % (vw, Tstar, Gstar, alpha, HoverBeta))
-        b = get_PS_image(vw, Tstar, Gstar, alpha, HoverBeta)
+        sys.stderr.write('vw=%g, Tstar=%g, gstar=%g, alpha=%g, HoverBeta=%g\n'
+                         % (vw, Tstar, gstar, alpha, HoverBeta))
+        b = get_PS_image(vw, Tstar, gstar, alpha, HoverBeta)
         print(b.read().decode("utf-8"))
     else:
         sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <H/Beta>\n'

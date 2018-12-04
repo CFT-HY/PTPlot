@@ -42,15 +42,6 @@ point, against the (standard) sensitivity curve or [TODO] power-law
 	  <th><label>{{form.HoverBeta.label}}:</label></th>
 	  <td>{{form.HoverBeta}}</td>
 	</tr>
-      </table>
-    </div>
-    <br/>
-
-    {{form.pschoices.0}} (you can vary all the parameters)<br/>
- 
-    <div class="choicebox" id="justplot">
-      
-      <table>
 	<tr>
 	  <th><label>{{form.Senscurve.label}}:</label></th>
 	  <td>{{form.Senscurve}}</td>
@@ -58,97 +49,12 @@ point, against the (standard) sensitivity curve or [TODO] power-law
 	<tr>
 	  <th><label>{{form.Tstar.label}}:</label></th>
 	  <td>{{form.Tstar}} GeV</td></tr>
-	<tr><th><label>{{form.Gstar.label}}:</label></th>
-	  <td> {{form.Gstar}}</td></tr>
+	<tr><th><label>{{form.gstar.label}}:</label></th>
+	  <td> {{form.gstar}}</td></tr>
       </table>
-    </div>
-    <br/>
-
-  {{form.pschoices.1}} (you are restricted to precomputed SNR curves)<br/>  
-
-    <div class="choicebox" id="snrcurve">
-      <table>
-	<tr>
-	  <th><label>{{form.SNRcurve.label}}:</label></th>
-	  <td>{{form.SNRcurve}}</td>
-	</tr>
-      </table>
-    </div>
-    <br/>
-    
+    </div><br/>
     <input type="submit" value="Submit" />
   </div>
 </form>
-
-<script type="text/javascript">
-  // This controls the hiding and showing of bits of the form using JQuery
-  
-  var conditional_fields_plot = $("#justplot");
-  var conditional_fields_curve = $("#snrcurve");
-  
-  function plot_hide() {
-      conditional_fields_plot.hide();
-      $('#justplot input').each(function () {
-	  var $this = $(this);
-	  $this.prop("required", false);
-      });
-  }
-
-  function plot_show() {
-      conditional_fields_plot.show();  
-      $('#justplot input').each(function () {
-	  var $this = $(this);
-	  $this.prop("required", true);
-      });
-  }
-
-  function curve_hide() {
-      conditional_fields_curve.hide();
-      $('#snrcurve input').each(function () {
-	  var $this = $(this);
-	  $this.prop("required", false);
-      });
-
-  }
-
-  function curve_show() {
-      conditional_fields_curve.show();
-      $('#snrcurve input').each(function () {
-	  var $this = $(this);
-	  $this.prop("required", true);
-      });
-  }
-
-  
-  $(document).ready(function () {
-
-  plot_hide();
-  curve_hide();
-  
-  if ($("input[name='pschoices']:checked").val() == 'psonly') {
-      plot_show();
-      curve_hide();
-  }
-  if ($("input[name='pschoices']:checked").val() == 'psandsnr') {
-      plot_hide();
-      curve_show();
-  }
-
-
-      
-      $('input[type="radio"][name="pschoices"]').click(function(){
-      if ($("input[name='pschoices']:checked").val() == 'psonly') {
-	  plot_show();
-	  curve_hide();
-      }
-      if ($("input[name='pschoices']:checked").val() == 'psandsnr') {
-	  plot_hide();
-	  curve_show();
-      }
-  });
- });
-				 
-</script>
-
 
 {% endblock content %}
