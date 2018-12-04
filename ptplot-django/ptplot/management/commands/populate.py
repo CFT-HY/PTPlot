@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         pA = ParameterChoice(theory=singlet_theory,
                              point_shortlabel='A',
-                             vw=0.5,
+                             vw=0.95,
                              alpha=0.037,
                              HoverBeta=0.0036,
                              SNRcurve=0)
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         
         pB = ParameterChoice(theory=singlet_theory,
                              point_shortlabel='B',
-                             vw=0.5,
+                             vw=0.95,
                              alpha=0.066,
                              HoverBeta=0.0094,
                              SNRcurve=0)
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         
         pC = ParameterChoice(theory=singlet_theory,
                              point_shortlabel='C',
-                             vw=0.5,
+                             vw=0.95,
                              alpha=0.105,
                              HoverBeta=0.0301,
                              SNRcurve=0)
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         pD = ParameterChoice(theory=singlet_theory,
                              point_shortlabel='D',
-                             vw=0.5,
+                             vw=0.95,
                              alpha=0.143,
                              HoverBeta=0.17,
                              SNRcurve=0)
