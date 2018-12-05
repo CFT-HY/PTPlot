@@ -156,13 +156,13 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
         #    leg.get_frame().set_alpha(0.9)
 
     xtickpos = [min(log10alpha)] \
-        + list(range(int(round(min(log10alpha))),
-                     int(round(max(log10alpha))+1))) \
+        + list(range(int(math.ceil(min(log10alpha))),
+                     int(math.floor(max(log10alpha))+1))) \
         + [max(log10alpha)]
     xticklabels = [r'$10^{%.2g}$' % min(log10alpha)] \
         + [r'$10^{%d}$' % ind
-           for ind in list(range(int(round(min(log10alpha))),
-                                 int(round(max(log10alpha))+1)))] \
+           for ind in list(range(int(math.ceil(min(log10alpha))),
+                                 int(math.floor(max(log10alpha))+1)))] \
         + [r'$10^{%.2g}$' % max(log10alpha)]
     
 #    xtickpos = [-2, -1, 0, 1]
@@ -170,12 +170,12 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 
     ytickpos = [min(log10BetaOverH)] \
         + list(range(int(math.ceil(min(log10BetaOverH))),
-                     int(round(max(log10BetaOverH))+1))) \
+                     int(math.floor(max(log10BetaOverH))+1))) \
         + [max(log10BetaOverH)]
     yticklabels = [r'$10^{%.2g}$' % min(log10BetaOverH)] \
         + [r'$10^{%d}$' % ind
            for ind in list(range(int(math.ceil(min(log10BetaOverH))),
-                                 int(round(max(log10BetaOverH))+1)))] \
+                                 int(math.floor(max(log10BetaOverH))+1)))] \
         + [r'$10^{%.2g}$' % max(log10BetaOverH)]
 
 
