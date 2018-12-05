@@ -255,8 +255,8 @@ def single(request):
             HoverBeta = form.cleaned_data['HoverBeta']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
-            Tstar = int(form.cleaned_data['Tstar'])
-            gstar = int(form.cleaned_data['gstar'])
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
 
             template = loader.get_template('ptplot/single_result.html')
 

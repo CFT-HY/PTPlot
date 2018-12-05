@@ -41,10 +41,10 @@ def get_SNRcurve(Tn, gstar, Senscurve):
     duration = 5*yr
     
     ## Values of log10 Ubarf to scan
-    log10Ubarf = np.arange(-2,0.025,0.025)
+    log10Ubarf = np.arange(-2,0.04,0.04)
 
     ## Values of log10 HnRstar to scan
-    log10HnRstar = np.arange(-4,0.025,0.025)
+    log10HnRstar = np.arange(-4,0.08,0.08)
 
     # Model parameters
     Omtil = 1.2e-1 # GW efficiency parameter

@@ -92,7 +92,10 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     # location of contour labels
     locs = [find_place(snr, 2, wantedcontour) for wantedcontour in levels]
 
-    locs_tsh = [(-1.5,1), (-1.5,2), (-1.5,3), (-1.5,4)]
+#     locs_tsh = [(-1.2,0),(-1.2,1), (-1.2,2), (-1.2,3), (-1.2,4), (-1.2,5)]
+    locs_tsh = [(int(math.ceil(min(log10alpha))),x) \
+                for x in range(int(math.ceil(min(log10BetaOverH))),
+                               int(math.floor(max(log10BetaOverH))+1))]
 
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
@@ -168,16 +171,23 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
 #    xtickpos = [-2, -1, 0, 1]
 #    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$10^{0}$', r'$10^{1}$']
 
-    ytickpos = [min(log10BetaOverH)] \
-        + list(range(int(math.ceil(min(log10BetaOverH))),
-                     int(math.floor(max(log10BetaOverH))+1))) \
-        + [max(log10BetaOverH)]
-    yticklabels = [r'$10^{%.2g}$' % min(log10BetaOverH)] \
-        + [r'$10^{%d}$' % ind
-           for ind in list(range(int(math.ceil(min(log10BetaOverH))),
-                                 int(math.floor(max(log10BetaOverH))+1)))] \
-        + [r'$10^{%.2g}$' % max(log10BetaOverH)]
+#    ytickpos = [min(log10BetaOverH)] \
+#        + list(range(int(math.ceil(min(log10BetaOverH))),
+#                     int(math.floor(max(log10BetaOverH))+1))) \
+#        + [max(log10BetaOverH)]
+#    yticklabels = [r'$10^{%.2g}$' % min(log10BetaOverH)] \
+#        + [r'$10^{%d}$' % ind
+#           for ind in list(range(int(math.ceil(min(log10BetaOverH))),
+#                                 int(math.floor(max(log10BetaOverH))+1)))] \
+#        + [r'$10^{%.2g}$' % max(log10BetaOverH)]
 
+
+    ytickpos = list(range(int(math.ceil(min(log10BetaOverH))),
+                     int(math.floor(max(log10BetaOverH))+1)))
+    yticklabels = [r'$10^{%d}$' % ind
+                   for ind in list(
+                           range(int(math.ceil(min(log10BetaOverH))),
+                                 int(math.floor(max(log10BetaOverH))+1)))]    
 
 #    ytickpos = [0, 1, 2, 3, 4]
 #    yticklabels = [r'$10^{0}$', r'$10^{1}$', r'$10^{2}$', r'$10^{3}$', r'$10^{4}$']
@@ -199,7 +209,7 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     canvas = FigureCanvas(fig)
 
 #    fig.savefig("snralphabeta.png", format="png", dpi=400)
-    fig.savefig(sio, format="svg")
+    fig.savefig(sio, format="svg") # , bbox_inches='tight')
 
     sio.seek(0)
         

@@ -182,7 +182,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(fig)
 
-    fig.savefig(sio, format="svg")
+    fig.savefig(sio, format="svg") # , bbox_inches='tight')
     # fig.savefig("snr.png", format="png", dpi=400)
 
     sio.seek(0)
