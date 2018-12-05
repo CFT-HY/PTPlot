@@ -14,6 +14,7 @@ from .science.powerspectrum import get_PS_image_threaded
 from .science.precomputed import *
 
 import sys, string
+import numpy as np
 
 # Image views
 def ps_image(request):
@@ -51,10 +52,9 @@ def snr_image(request):
 
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
-
             sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
                                              gstar=gstar,
-                                             vw_list=[vw],
+                                             vw=vw,
                                              alpha_list=[alpha],
                                              HoverBeta_list=[HoverBeta],
                                              Senscurve=Senscurve)
@@ -77,7 +77,7 @@ def snr_alphabeta_image(request):
             gstar = form.cleaned_data['gstar']
 
 
-            sio_SNR = get_SNR_alphabeta_image_threaded(vw_list=[vw],
+            sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
                                                        alpha_list=[alpha],
                                                        HoverBeta_list=[HoverBeta],
                                                        Tstar=Tstar,
@@ -205,34 +205,54 @@ def multiple(request):
 
 
             vw = form.cleaned_data['vw']
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
             Senscurve = int(form.cleaned_data['Senscurve'])
             table = form.cleaned_data['table']
 
-            table_lines = string.split(table,'\n')
-            alpha_list = []
-            betaoverH_list = []
-            label_list = []
-            for line in table_lines:
-                bits = string.split(line,',')
-                alpha_list.append(float(bits[0]))
-                betaoverH_list.append(float(bits[1]))
-                label_list.append(bits[2])
+#            SNRfilename = precomputed_filenames[Senscurve]
+
             
-            template = loader.get_template('ptplot/multiple_result.html')
+            table_lines = table.splitlines()
 
-            context = {'form': form,
-                       'vw': vw,
-                       'alpha_list': alpha,
-                       'betaoverH_list': betaoverH_list,
-                       'label_list': label_list}
-            return HttpResponse(template.render(context, request))
+            alpha_list = []
+            HoverBeta_list = []
+            label_list = []
 
+            read_lines = 0
+            
+            for line in table_lines:
+                line = line.strip()
+                if len(line) == 0 or line[0] == '#':
+                    continue
 
+                read_lines += 1
+                
+                bits = line.split(',')
+                alpha_list.append(float(bits[0]))
+                HoverBeta_list.append(float(bits[1]))
+                try:
+                    label_list.append(bits[2].strip())
+                except IndexError:
+                    pass
+
+            if not len(label_list) == read_lines:
+                label_list = None
+                
+            sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
+                                                       alpha_list=alpha_list,
+                                                       HoverBeta_list=HoverBeta_list,
+                                                       Tstar=Tstar,
+                                                       gstar=gstar,
+                                                       Senscurve=Senscurve,
+                                                       label_list=label_list)
+            return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
     template = loader.get_template('ptplot/multiple.html')
     form = MultipleForm()
     context = {'form': form}
     return HttpResponse(template.render(context, request))
+
     
 
 def single(request):

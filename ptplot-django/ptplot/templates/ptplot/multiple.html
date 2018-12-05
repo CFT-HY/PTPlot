@@ -7,20 +7,16 @@
 {% endblock results %}
 
 <form action="/ptplot/multiple" method="post">
-  <!--    {% csrf_token %}  -->
+  {% csrf_token %}
 <p>Note that the input table should be a comma-separated list of pairs
-  of $\alpha$, $H/\beta$ and (optionally) the label for each
-  point.</p>
-<p><em>NB</em> Selecting the SNR curve fixes the transition
-  temperature $T_*$ and the number of degrees of freedom $g_*$, which
-  is enough on its own to produce $H_n R_*$ against $\overline{U}_f$
-  plots. However, $\beta/H_*$ against $\alpha$ plots require
-  $v_\mathrm{w}$ also to be fixed, which is why only one value can
-  selected here for now.</p>
+  of $\alpha$, $H_*/\beta$ and (optionally) the label for each
+  point. Lines beginning with '#' are ignored.</p>
+<p><em>NB</em> $\beta/H_*$ against $\alpha$ plots require
+  $v_\mathrm{w}$ to be fixed.</p>
   <table>
 {{ form.as_table}}
 </table>
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Show alpha/beta SVG plot" />
 </form>
 
 {% endblock content %}

@@ -33,9 +33,6 @@ class PTPlotForm(forms.Form):
                                  min_value=0.0,
                                  localize=False)
 
-    Senscurve = forms.ChoiceField(label=r'Sensitivity curve',
-                                  choices=available_senscurves)
-
     Tstar = forms.FloatField(label=r'Transition temperature $T_\star$',
                              min_value=0.0,
                              localize=False)
@@ -43,6 +40,9 @@ class PTPlotForm(forms.Form):
     gstar = forms.FloatField(label=r'Degrees of freedom $g_\star$',
                              min_value=0.0,
                              localize=False)
+
+    Senscurve = forms.ChoiceField(label=r'Sensitivity curve',
+                                  choices=available_senscurves)
 
     
 #    usetex = forms.BooleanField(label='Use TeX for labels (slow)?',
@@ -57,12 +57,23 @@ class PTPlotForm(forms.Form):
             
 
 class MultipleForm(forms.Form):
-    precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
+    available_senscurves = [(i, label) for i, label in enumerate(available_labels)]
    
     vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                           min_value=0.0, max_value=1.0,
                           validators=[validate_velocity],
                           localize=False)
+    Tstar = forms.FloatField(label=r'Transition temperature $T_\star$',
+                             min_value=0.0,
+                             localize=False)
+
+    gstar = forms.FloatField(label=r'Degrees of freedom $g_\star$',
+                             min_value=0.0,
+                             localize=False)
+
+    Senscurve = forms.ChoiceField(label=r'Sensitivity curve',
+                                  choices=available_senscurves)
+
     table = forms.CharField(label=r'Input table', widget=forms.Textarea,
                             initial="alpha,Hoverbeta,label")
 

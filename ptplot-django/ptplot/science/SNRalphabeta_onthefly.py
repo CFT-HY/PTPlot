@@ -42,11 +42,11 @@ else:
     from .eLISATools import *    
     
 def hn_rstar_to_beta(hn_rstar, vw):
-    return math.pow(8.0*math.pi,1.0/3.0)*vw/hn_rstar
+    return math.pow(8.0*math.pi,1.0/3.0)*(1.0/hn_rstar)*vw
 
 
 
-def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_alphabeta_image(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
                             Tstar=100,
                             gstar=100,
                             label_list=None,
@@ -70,10 +70,12 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     
     tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, Senscurve)
     
-    log10BetaOverH = np.log10(hn_rstar_to_beta(np.power(10.0, log10HnRstar),vw_list[0]))
-    log10alpha = np.log10(ubarf_to_alpha(vw_list[0], np.power(10.0, log10Ubarf)))
+    log10BetaOverH = np.log10(hn_rstar_to_beta(np.power(10.0,
+                                                        log10HnRstar),
+                                               vw))
+    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf)))
 
-    a = ubarf_to_alpha(vw_list[0], np.power(10.0, log10Ubarf))
+    a = ubarf_to_alpha(vw, np.power(10.0, log10Ubarf))
     b = np.power(10.0, log10Ubarf)
     
     levels = np.array([1,5,10,20,50,100])
@@ -217,18 +219,18 @@ def get_SNR_alphabeta_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.0
     
 
 
-def worker(queue, vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def worker(queue, vw, alpha_list=[0.1], HoverBeta_list=[0.01],
            Tstar=100,
            gstar=100,
            label_list=None,
            title=None,
            Senscurve=0,
            usetex=False):
-    queue.put(get_SNR_alphabeta_image(vw_list, alpha_list, HoverBeta_list,
+    queue.put(get_SNR_alphabeta_image(vw, alpha_list, HoverBeta_list,
                                       Tstar, gstar, label_list, title,
                                       Senscurve, usetex))
 
-def get_SNR_alphabeta_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
                                      Tstar=100,
                                      gstar=100,
                                      label_list=None,
@@ -237,7 +239,7 @@ def get_SNR_alphabeta_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_
                                      usetex=False):
 
     q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, HoverBeta_list,
+    p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, HoverBeta_list,
                                                      Tstar, gstar, label_list, title,
                                                      Senscurve, usetex))
     p.start()
@@ -253,7 +255,7 @@ if __name__ == '__main__':
         hoverbeta = float(sys.argv[3])
         T = float(sys.argv[4])
         g = float(sys.argv[5])
-        b = get_SNR_alphabeta_image([vw], [alpha], [hoverbeta], T, g)
+        b = get_SNR_alphabeta_image(vw, [alpha], [hoverbeta], T, g)
         print(b.read().decode("utf-8"))
    
     else:
