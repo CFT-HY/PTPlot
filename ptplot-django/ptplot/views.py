@@ -54,7 +54,7 @@ def snr_image(request):
             gstar = form.cleaned_data['gstar']
             sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
                                              gstar=gstar,
-                                             vw=vw,
+                                             vw_list=[vw],
                                              alpha_list=[alpha],
                                              HoverBeta_list=[HoverBeta],
                                              Senscurve=Senscurve)
