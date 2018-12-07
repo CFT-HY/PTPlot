@@ -40,7 +40,7 @@ else:
     from .eLISATools import *
 
 
-
+sensitivity_root = os.path.join(root, 'sensitivity')
 
 def get_PS_image(vw=0.95,
                  Tstar=100,
@@ -67,7 +67,7 @@ def get_PS_image(vw=0.95,
     # but make legend smaller
     # matplotlib.rcParams.update({'legend.fontsize': 14})
 
-    sensitivity_curve = os.path.join(root,sensitivity)
+    sensitivity_curve = os.path.join(sensitivity_root, sensitivity)
     sens_filehandle = open(sensitivity_curve)
     f, sensitivity \
         = np.loadtxt(sens_filehandle,usecols=[0,2],unpack=True)

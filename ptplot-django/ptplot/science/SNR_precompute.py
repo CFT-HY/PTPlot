@@ -34,6 +34,8 @@ else:
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
+
+sensitivity_root = os.path.join(root, 'sensitivity')
     
 ############################## Functions ##############################
 
@@ -58,7 +60,9 @@ def get_SNRcurve(Tn, gstar, Senscurve):
     Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
 
 
-    sensitivity_curve = os.path.join(root, available_sensitivitycurves_lite[Senscurve])
+    sensitivity_curve = os.path.join(sensitivity_root,
+                                     available_sensitivitycurves_lite[
+                                         Senscurve])
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
     
