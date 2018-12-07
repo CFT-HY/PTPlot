@@ -101,13 +101,16 @@ def theory_detail(request, theory_id):
 
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
-    for i in range(len(point_list)):
-        point_list[i].update_snrchoice()
+#    for i in range(len(point_list)):
+#        point_list[i].update_snrchoice()
     
     template = loader.get_template('ptplot/theory_detail.html')
+
+    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
     
     context = {'theory': theory,
-               'point_list': point_list}
+               'point_list': point_list,
+               'sensitivity_curve_label': sensitivity_curve_label}
     return HttpResponse(template.render(context, request))
 
 
@@ -117,37 +120,174 @@ def theory_detail_plot(request, theory_id):
     theory = Theory.objects.get(pk=theory_id)
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
-    for i in range(len(point_list)):
-        point_list[i].update_snrchoice()
+#    for i in range(len(point_list)):
+#        point_list[i].update_snrchoice()
 
+    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
         
     template = loader.get_template('ptplot/theory_detail_plot.html')
     
     context = {'theory': theory,
-               'point_list': point_list}
+               'point_list': point_list,
+               'sensitivity_curve_label': sensitivity_curve_label}
+    return HttpResponse(template.render(context, request))
+
+def theory_point_plot(request, theory_id, point_id):
+    
+    theory = Theory.objects.get(pk=theory_id)
+    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    point = ParameterChoice.objects.get(theory__id=theory_id,
+                                             id=point_id)
+    
+    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
+        
+    template = loader.get_template('ptplot/theory_point_plot.html')
+    
+    context = {'theory': theory,
+               'point_list': point_list,
+               'point': point,
+               'sensitivity_curve_label': sensitivity_curve_label}
     return HttpResponse(template.render(context, request))
 
 
-def theory_snr(request, theory_id):
 
+def theory_point_snr(request, theory_id, point_id):
+    
+    theory = Theory.objects.get(pk=theory_id)
+    point = ParameterChoice.objects.get(theory__id=theory_id,
+                                             id=point_id)
+
+    Senscurve = theory.theory_Senscurve
+    
+    alpha = point.alpha
+    HoverBeta = point.HoverBeta
+
+
+    if point.vw:
+        vw = point.vw
+    else:
+        vw = theory.theory_vw
+    
+    if point.Tstar:
+        Tstar = point.Tstar
+    else:
+        Tstar = theory.theory_Tstar
+
+    if point.gstar:
+        gstar = point.gstar
+    else:
+        gstar = theory.theory_gstar
+
+    label = point.point_shortlabel
+        
+    sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
+                                     gstar=gstar,
+                                     vw_list=[vw],
+                                     alpha_list=[alpha],
+                                     HoverBeta_list=[HoverBeta],
+                                     label_list=[label],
+                                     Senscurve=Senscurve)
+    
+    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
+def theory_point_snr_alphabeta(request, theory_id, point_id):
+    theory = Theory.objects.get(pk=theory_id)
+    point = ParameterChoice.objects.get(theory__id=theory_id,
+                                             id=point_id)
+
+    Senscurve = theory.theory_Senscurve
+    
+    alpha = point.alpha
+    HoverBeta = point.HoverBeta
+
+
+    if point.vw:
+        vw = point.vw
+    else:
+        vw = theory.theory_vw
+    
+    if point.Tstar:
+        Tstar = point.Tstar
+    else:
+        Tstar = theory.theory_Tstar
+
+    if point.gstar:
+        gstar = point.gstar
+    else:
+        gstar = theory.theory_gstar
+
+    label = point.point_shortlabel
+        
+    sio_SNR = get_SNR_alphabeta_image_threaded(Tstar=Tstar,
+                                               gstar=gstar,
+                                               vw=vw,
+                                               alpha_list=[alpha],
+                                               HoverBeta_list=[HoverBeta],
+                                               label_list=[label],
+                                               Senscurve=Senscurve)
+    
+    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+
+    
+
+def theory_point_ps(request, theory_id, point_id):
+
+    theory = Theory.objects.get(pk=theory_id)
+    point = ParameterChoice.objects.get(theory__id=theory_id,
+                                             id=point_id)
+
+    Senscurve = theory.theory_Senscurve
+    
+    alpha = point.alpha
+    HoverBeta = point.HoverBeta
+
+
+    if point.vw:
+        vw = point.vw
+    else:
+        vw = theory.theory_vw
+    
+    if point.Tstar:
+        Tstar = point.Tstar
+    else:
+        Tstar = theory.theory_Tstar
+
+    if point.gstar:
+        gstar = point.gstar
+    else:
+        gstar = theory.theory_gstar
+
+    label = point.point_shortlabel
+        
+    
+    sio_PS = get_PS_image_threaded(Tstar=Tstar,
+                                   gstar=gstar,
+                                   vw=vw,
+                                   alpha=alpha,
+                                   HoverBeta=HoverBeta,
+                                   Senscurve=Senscurve)
+            
+    return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
+
+
+def theory_snr(request, theory_id):
 
     theory = Theory.objects.get(pk=theory_id)
 
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
-    title = theory.theory_name
-    vw_list = [point.vw for point in point_list]
     alpha_list = [point.alpha for point in point_list]
     HoverBeta_list = [point.HoverBeta for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
-    SNRfilename = precomputed_filenames[point_list[0].Senscurve]
     
-    sio_SNR = get_SNR_image_threaded(vw_list,
-                                     alpha_list,
-                                     HoverBeta_list,
-                                     Tstar, gstar,
-                                     label_list,
-                                     title)
+    sio_SNR = get_SNR_image_threaded(vw_list=[theory.theory_vw]*len(point_list),
+                                     alpha_list=alpha_list,
+                                     HoverBeta_list=HoverBeta_list,
+                                     Tstar=theory.theory_Tstar,
+                                     gstar=theory.theory_gstar,
+                                     label_list=label_list,
+                                     title=theory.theory_name,
+                                     Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -158,19 +298,19 @@ def theory_snr_alphabeta(request, theory_id):
 
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
-    title = theory.theory_name
-    vw_list = [point.vw for point in point_list]
     alpha_list = [point.alpha for point in point_list]
     HoverBeta_list = [point.HoverBeta for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
-    SNRfilename = precomputed_filenames[point_list[0].Senscurve]
     
-    sio_SNR = get_SNR_alphabeta_image_threaded(vw_list,
-                                               alpha_list,
-                                               HoverBeta_list,
-                                               SNRfilename,
-                                               label_list,
-                                               title)
+
+    sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
+                                     alpha_list=alpha_list,
+                                     HoverBeta_list=HoverBeta_list,
+                                     Tstar=theory.theory_Tstar,
+                                     gstar=theory.theory_gstar,
+                                     label_list=label_list,
+                                     title=theory.theory_name,
+                                     Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 

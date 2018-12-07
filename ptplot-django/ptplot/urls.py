@@ -48,14 +48,38 @@ urlpatterns = [
     path(r'theories/<int:theory_id>/plot',
          views.theory_detail_plot,
          name='theory_detail_plot'),
+    
+    
+    # Display an individual theory point on the SNR and PS plots
+    path(r'theories/<int:theory_id>/<int:point_id>/plot',
+         views.theory_point_plot,
+         name='theory_point_plot'),
 
+    # Display an individual theory point on the SNR and PS plots
+    path(r'theories/<int:theory_id>/<int:point_id>/snr',
+         views.theory_point_snr,
+         name='theory_point_snr'),
 
+    # Display an individual theory point on the SNR and PS plots
+    path(r'theories/<int:theory_id>/<int:point_id>/snr_alphabeta',
+         views.theory_point_snr_alphabeta,
+         name='theory_point_snr_alphabeta'),
+
+    # Display an individual theory point on the SNR and PS plots
+    path(r'theories/<int:theory_id>/<int:point_id>/ps',
+         views.theory_point_ps,
+         name='theory_point_ps'),
+
+    
+    
+    
     path(r'theories/<int:theory_id>/snr',
          views.theory_snr,
          name='theory_snr'),
+    
     path(r'theories/<int:theory_id>/snr_alphabeta',
          views.theory_snr_alphabeta,
-         name='theory_snr)alphabeta'),
+         name='theory_snr_alphabeta'),
 
     path(r'parameterchoice',
          views.parameterchoice_form,

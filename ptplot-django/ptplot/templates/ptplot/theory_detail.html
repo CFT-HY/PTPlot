@@ -8,19 +8,55 @@
 
 <h4>{{ theory.theory_name }}</h4>
 
-<p>{{ theory.theory_description }}</p>
+<p>{{ theory.theory_description|urlize }}</p>
+
+<p>{{ theory.theory_notes|urlize }}</p>
+
+
+
+{% block results %}
+{% endblock results %}
 
 <ul>
   {% for point in point_list %}
-  <li>({{point.point_shortlabel}}): $v_\mathrm{w} = {{point.vw}}$, $\alpha = {{point.alpha}}$, $H/\beta
-    = {{point.HoverBeta}}$, $g_* = {{ point.gstar }} $, $T_n =
-    {{ point.Tn }} \, \mathrm{GeV}$
-    [<a href="{{ theory.id }}/{{ point.id }}/plot">plot</a> - TODO]
+  <li>({{point.point_shortlabel}}):
+
+    $\alpha = {{point.alpha}}$;
+    $H/\beta = {{point.HoverBeta}}$;
+
+    {% if point.vw %}
+    $v_\mathrm{w} = {{point.vw}}$;
+    {% endif %}
+    
+    {% if point.gstar %}
+    $g_* = {{ point.gstar }} $;
+    {% endif %}
+
+    {% if point.Tstar %}
+    $T_n = {{ point.Tstar }} \, \mathrm{GeV}$;
+    {% endif %}
+
+    {% if point.point_longlabel %}
+    [ {{ point.point_longlabel}} ]
+    {% endif %}
+    
+    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.id }}/plot">plot</a>]
 </li>
   {% endfor %}
 </ul>
 {% endif %}
 
-<p>[<a href="{{ theory.id }}/plot">plot all</a>]</p>
+<p>General parameters (used for plotting):
+  $v_\mathrm{w} = {{ theory.theory_vw }}$,
+  $T_* = {{theory.theory_Tstar }}$,
+  $g_* = {{theory.theory_gstar }}$</p>
+
+<p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
+  ({{ theory.theory_Senscurve }})<p>
+
+<p>[<a href="/ptplot/theories/{{ theory.id }}/plot">plot all with these parameters</a>]</p>
+
+{% block onepoint %}
+{% endblock onepoint %}
 
 {% endblock content %}

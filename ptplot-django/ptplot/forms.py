@@ -79,32 +79,35 @@ class MultipleForm(forms.Form):
 
 class ParameterChoiceForm(forms.Form):
 
-    theories = []
+    def __init__(self):
     
-    try:
-        theories = Theory.objects.all()
-    except:
-        pass
+        self.theories = []
+    
+        try:
+            self.theories = Theory.objects.all()
+        except:
+            pass
         
-    for theory in theories:
-        sys.stderr.write(theory.theory_name + '\n')
+        for theory in self.theories:
+            sys.stderr.write(theory.theory_name + '\n')
 
-    underlying_theory = forms.ChoiceField(label=r'Theory',
-                                          choices=[(theory.id,theory.theory_name) for theory in theories])
-
-    precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
-   
-    vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
-                          min_value=0.0, max_value=1.0,
-                          validators=[validate_velocity],
-                          localize=False)
-#    tstar = forms.FloatField(label=r'Phase transition temperature $T_*$',
-#                             min_value=0.0)    
-    alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
-                             min_value=0.0,
-                             localize=False)
-    HoverBeta = forms.FloatField(label=r'Phase transition duration $H/\beta$',
-                                 min_value=0.0,
-                                 localize=False)
-    SNRcurve = forms.ChoiceField(label=r'Sensitivity curve',
-                                 choices=available_labels)
+            self.underlying_theory = forms.ChoiceField(label=r'Theory',
+                                                       choices=[(theory.id,theory.theory_name) for theory in theories])
+            
+            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
+            
+            self.vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
+                                       min_value=0.0, max_value=1.0,
+                                       validators=[validate_velocity],
+                                       localize=False)
+            #    tstar = forms.FloatField(label=r'Phase transition temperature $T_*$',
+            #                             min_value=0.0)    
+            self.alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
+                                          min_value=0.0,
+                                          localize=False)
+            self.HoverBeta = forms.FloatField(label=r'Phase transition duration $H/\beta$',
+                                              min_value=0.0,
+                                              localize=False)
+            self.SNRcurve = forms.ChoiceField(label=r'Sensitivity curve',
+                                              choices=available_labels)
+            

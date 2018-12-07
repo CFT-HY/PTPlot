@@ -42,6 +42,8 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
                   Senscurve=0,
                   usetex=False):
 
+
+    
     red = np.array([1,0,0])
     darkgreen = np.array([0,0.7,0])
     color_tuple = tuple([tuple(0.5*(np.tanh((0.5-f)*10)+1)*red
@@ -114,7 +116,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
     ubarf_list = [math.log10(ubarf(vw, alpha)) \
                   for vw, alpha in zip(vw_list, alpha_list)]
 
-#    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
+    #    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
     benchmarks = ax.plot(ubarf_list, Rstar_list, '-o')
 
 
