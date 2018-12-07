@@ -9,14 +9,15 @@
 <form action="/ptplot/multiple" method="post">
   {% csrf_token %}
 <p>Note that the input table should be a comma-separated list of pairs
-  of $\alpha$, $H_*/\beta$ and (optionally) the label for each
-  point. Lines beginning with '#' are ignored.</p>
-<p><em>NB</em> $\beta/H_*$ against $\alpha$ plots require
+  of $\alpha$, $H_*/\beta$ and (optionally) the label for each point
+  (Math mode TeX is allowed, surrounded by $ signs, in the
+  label). Lines beginning with '#' are ignored.</p>
+<p><em>NB:</em> $\beta/H_*$ against $\alpha$ plots require
   $v_\mathrm{w}$ to be fixed.</p>
   <table>
 {{ form.as_table}}
 </table>
-    <input type="submit" value="Show alpha/beta SVG plot" />
+    <input type="submit" value="Render alpha/beta SVG plot" />
 </form>
 
 {% endblock content %}

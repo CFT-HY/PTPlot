@@ -75,7 +75,7 @@ class MultipleForm(forms.Form):
                                   choices=available_senscurves)
 
     table = forms.CharField(label=r'Input table', widget=forms.Textarea,
-                            initial="alpha,Hoverbeta,label")
+                            initial="#alpha,Hoverbeta,label")
 
 class ParameterChoiceForm(forms.Form):
 
