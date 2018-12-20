@@ -11,6 +11,7 @@ import cgi
 import os.path
 import sys
 import multiprocessing
+import time
 
 # Fix some things if running standalone
 if __name__ == "__main__" and __package__ is None:
@@ -114,6 +115,12 @@ def get_PS_image(vw=0.95,
              fontsize=50, color='gray',
              ha='right', va='bottom', alpha=0.4)
 
+    # position top left
+    fig.text(0.13, 0.87, time.asctime(),
+             fontsize=8, color='black',
+             ha='left', va='top', alpha=1.0)
+
+    
     sio = io.BytesIO()
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas

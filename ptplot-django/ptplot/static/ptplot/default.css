@@ -1874,9 +1874,11 @@ ul.contact li a.icon-rss:before
 
 #header-wrapper
 {
-	overflow: hidden;
-/*	background: url(images/header.jpg) no-repeat center bottom; */
-	background-size: 100% 100%;
+    overflow: hidden;
+    
+    background: url(banner_movie_0964.jpeg) center bottom;
+    background-size: cover;
+    background-position: center center;
 }
 
 #header
