@@ -84,20 +84,20 @@ def get_PS_image(vw=0.95,
     snr, frange = StockBkg_ComputeSNR(fS,
                                       OmEff,
                                       fS,
-                                      curves_ps.power_spectrum(fS),
+                                      curves_ps.power_spectrum_sw_conservative(fS),
                                       duration,
                                       1.e-6,
                                       1)
 
-    sys.stderr.write('snr = %g\n' % snr)
+#    sys.stderr.write('snr = %g\n' % snr)
     
     ax.fill_between(f, sensitivity, 1, alpha=0.3, label=r'LISA sensitivity')
 
-    ax.plot(f_more, curves_ps.power_spectrum_sw(f_more), 'r',
+    ax.plot(f_more, curves_ps.power_spectrum_sw_conservative(f_more), 'r',
             label=r'$\Omega_\mathrm{sw}$')
     ax.plot(f_more, curves_ps.power_spectrum_turb(f_more), 'b',
             label=r'$\Omega_\mathrm{turb}$')
-    ax.plot(f_more, curves_ps.power_spectrum(f_more), 'k',
+    ax.plot(f_more, curves_ps.power_spectrum_conservative(f_more), 'k',
             label=r'Total')
 
     ax.set_xlabel(r'$f\; \mathrm{(Hz)}$', fontsize=14)
@@ -116,7 +116,7 @@ def get_PS_image(vw=0.95,
              ha='right', va='bottom', alpha=0.4)
 
     # position top left
-    fig.text(0.13, 0.87, time.asctime(),
+    fig.text(0.13, 0.87, r'%s [$\mathrm{SNR}_\mathrm{sw} = %g$]' % (time.asctime(), snr),
              fontsize=8, color='black',
              ha='left', va='top', alpha=1.0)
 

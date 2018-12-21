@@ -21,26 +21,24 @@ def beta_to_rstar(beta, vw):
 class PowerSpectrum:
 
     def __init__(self,
-                 HoverBeta = 0.1,
+                 HoverBeta = None,
                  Tstar = 180.0,
                  gstar = 100,
-                 vw = 0.44,
+                 vw = None,
                  adiabaticRatio = 4.0/3.0,
                  zp = 10,
-                 alpha = 0.1,
-                 kturb = 1.97/65.0):
+                 alpha = None,
+                 kturb = 1.97/65.0,
+                 H_rstar = None,
+                 ubarf_in = None):
         
         # # Not sure about these
-        # self.HoverBeta = 0.1
-        self.HoverBeta=HoverBeta
         # self.Tstar = 180.0
         self.Tstar = Tstar
         
         # self.gstar = 106.75
         self.gstar = gstar
         # self.ubarf = 0.0545
-        # self.vw = 0.44
-        self.vw = vw
         # self.adiabaticRatio = 4.0/3.0
         self.adiabaticRatio = adiabaticRatio
         # self.zp = 6.9
@@ -55,18 +53,44 @@ class PowerSpectrum:
         # self.kturb = 1.97/65.0
         self.kturb = kturb
 
-        self.ubarf = ubarf(vw, alpha)
 
+        
+        # self.HoverBeta = 0.1
+        self.HoverBeta=HoverBeta
+        
+        # self.vw = 0.44
+        self.vw = vw
+
+        if (vw is not None) and (ubarf_in is None):
+            self.ubarf = ubarf(vw, alpha)
+        elif (vw is None) and (ubarf_in is not None):
+            self.ubarf = ubarf_in
+        else:
+            raise ValueError("Either ubarf_in or vw must be set, but not both")
+        # now have ubarf
+        
         # calculate shock time
-        self.H_rstar = beta_to_rstar(1.0/self.HoverBeta, self.vw)
-        self.H_tsh = self.H_rstar/self.ubarf
+        if (H_rstar is None) and (HoverBeta is not None):
+            self.H_rstar = beta_to_rstar(1.0/self.HoverBeta, self.vw)
+        elif (H_rstar is not None) and (HoverBeta is None):
+            self.H_rstar = H_rstar
+        else:
+            raise ValueError("Either H_rstar or HoverBeta must be set, but not both")
 
+        # compute shock time
+        self.H_tsh = self.H_rstar/self.ubarf
+        
 
     # Spectral shape
-    def Ssw(self, fp, norm=1.0):
+    @staticmethod
+    def Ssw(fp, norm=1.0):
         return norm*np.power(fp,3.0) \
             *np.power(7.0/(4.0 + 3.0*np.power(fp,2.0)),7.0/2.0)
-        
+
+
+    def get_shocktime(self):
+        return self.H_tsh
+    
     def fsw(self, f):
 
         # equation 43 in shape paper
@@ -116,3 +140,7 @@ class PowerSpectrum:
     
     def power_spectrum(self, f):
         return self.power_spectrum_sw(f) + self.power_spectrum_turb(f)
+
+    def power_spectrum_conservative(self, f):
+        return self.power_spectrum_sw_conservative(f) + self.power_spectrum_turb(f)
+    

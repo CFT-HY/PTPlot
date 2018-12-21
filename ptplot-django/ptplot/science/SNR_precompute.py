@@ -49,15 +49,15 @@ def get_SNRcurve(Tn, gstar, Senscurve):
     log10HnRstar = np.arange(-4,0.08,0.08)
 
     # Model parameters
-    Omtil = 1.2e-1 # GW efficiency parameter
-    zp = 10        # Peak kR*
+    #Omtil = 1.2e-1 # GW efficiency parameter
+    #zp = 10        # Peak kR*
 
 #    Tn = 100.      # Nucleation temp in GeV
 #    gstar = 100    # d.o.f.
-    AdInd = 4./3.  # Adiabatic index
+    #AdInd = 4./3.  # Adiabatic index
 
     # Hubble rate redshifted to now - equation 42
-    Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
+    #Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
 
 
     sensitivity_curve = os.path.join(sensitivity_root,
@@ -76,22 +76,29 @@ def get_SNRcurve(Tn, gstar, Senscurve):
             Ubarf = 10.**log10Ubarf[j]
             HnRstar = 10.**log10HnRstar[i]
 
+            ps = PowerSpectrum(Tstar=Tn,
+                               gstar=gstar,
+                               H_rstar=HnRstar,
+                               ubarf_in=Ubarf)
+            
             # this stuff should all be aligned with the PS calc
 
             # Peak amplitude and peak frequency, equation 45
-            OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
+            # OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
             # GW dilution factor now - equation 44
-            Fgw0 = 3.57e-5* (100.0/gstar)**(1./3)
+            # Fgw0 = 3.57e-5* (100.0/gstar)**(1./3)
             
             # equation 43, peak frequency
-            fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
+            # fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
 
-            s = fS/fp # frequency scaled to peak
-            OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
-            tshHn[i,j] = HnRstar/Ubarf
+            # s = fS/fp # frequency scaled to peak
+            # OmGW0 = Fgw0*PowerSpectrum.Ssw(s, OmMax)
+            OmGW0 = ps.power_spectrum_sw_conservative(fS)
+            
+            tshHn[i,j] = ps.get_shocktime() # HnRstar/Ubarf
 
             # hacky way of doing it
-            OmGW0 = OmGW0*min(tshHn[i,j],1.0)
+            # OmGW0 = OmGW0*min(tshHn[i,j],1.0)
             
             snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
 
