@@ -22,6 +22,7 @@ if __name__ == "__main__" and __package__ is None:
 
     from espinosa import kappav, ubarf, ubarf_to_alpha
     from SNR_precompute import get_SNRcurve
+    from curves import rstar_to_beta
     
     root = './'
 
@@ -33,6 +34,7 @@ else:
 
     from .espinosa import kappav, ubarf, ubarf_to_alpha
     from .SNR_precompute import get_SNRcurve
+    from .curves import rstar_to_beta
     
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
@@ -42,8 +44,6 @@ else:
     # eLISATools from Antoine
     from .eLISATools import *    
     
-def hn_rstar_to_beta(hn_rstar, vw):
-    return math.pow(8.0*math.pi,1.0/3.0)*(1.0/hn_rstar)*vw
 
 
 
@@ -71,8 +71,8 @@ def get_SNR_alphabeta_image(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
     
     tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, Senscurve)
     
-    log10BetaOverH = np.log10(hn_rstar_to_beta(np.power(10.0,
-                                                        log10HnRstar),
+    log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
+                                                     log10HnRstar),
                                                vw))
     log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf)))
 

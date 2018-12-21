@@ -75,6 +75,9 @@ def get_SNRcurve(Tn, gstar, Senscurve):
         for j in range(len(log10Ubarf)):
             Ubarf = 10.**log10Ubarf[j]
             HnRstar = 10.**log10HnRstar[i]
+
+            # this stuff should all be aligned with the PS calc
+
             # Peak amplitude and peak frequency, equation 45
             OmMax = 0.68 * AdInd**2 * Ubarf**4 * Omtil * HnRstar
             # GW dilution factor now - equation 44
@@ -85,8 +88,13 @@ def get_SNRcurve(Tn, gstar, Senscurve):
 
             s = fS/fp # frequency scaled to peak
             OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
-            snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
             tshHn[i,j] = HnRstar/Ubarf
+
+            # hacky way of doing it
+            OmGW0 = OmGW0*min(tshHn[i,j],1.0)
+            
+            snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
+
         #print('Rstar number', i, "/", len(log10HnRstar))
 
     return tshHn, snr, log10HnRstar, log10Ubarf

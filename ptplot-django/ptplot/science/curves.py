@@ -10,6 +10,14 @@ except ImportError:
     from espinosa import ubarf
 
 
+def rstar_to_beta(rstar, vw):
+    return math.pow(8.0*math.pi,1.0/3.0)*vw/rstar
+
+
+def beta_to_rstar(beta, vw):
+    return math.pow(8.0*math.pi,1.0/3.0)*vw/beta
+
+    
 class PowerSpectrum:
 
     def __init__(self,
@@ -49,6 +57,9 @@ class PowerSpectrum:
 
         self.ubarf = ubarf(vw, alpha)
 
+        # calculate shock time
+        self.H_rstar = beta_to_rstar(1.0/self.HoverBeta, self.vw)
+        self.H_tsh = self.H_rstar/self.ubarf
 
 
     # Spectral shape
@@ -63,20 +74,28 @@ class PowerSpectrum:
         #
         # Thus numerical prefactor is (26e-6)/(8*pi)^{1/3} = 8.9e-6
         
-        return (8.9e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.zp/10.0) \
-            *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)
+#        return (8.9e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.zp/10.0) \
+#            *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)
 
+        return (26.0e-6)*(1.0/self.H_rstar)*(self.zp/10.0) \
+            *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)        
 
     def power_spectrum_sw(self, f):
         # equation 45 in shape paper with numerical prefactor coming from
-        # 0.68*(3.57e-5)*(8*pi)^(1/3) = 8.5e-6
+        # 0.68*(3.57e-5)*(8*pi)^(1/3)*0.12 = 8.5e-6
+        # (=0.68*Fgw0*geometric*Omtil)
+        #
         # using equation R_* = (8*pi)^{1/3}*vw/beta (section IV, same paper)
         # Thus: H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
         
         fp = f/self.fsw(f)
-        return 8.5e-6*np.power(100.0/self.gstar,1.0/3.0) \
+#        return 8.5e-6*np.power(100.0/self.gstar,1.0/3.0) \
+#            *self.adiabaticRatio*self.adiabaticRatio \
+#            *np.power(self.ubarf,4.0)*self.vw*self.HoverBeta*self.Ssw(fp)
+
+        return 0.68*3.57e-5*0.12*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
-            *np.power(self.ubarf,4.0)*self.vw*self.HoverBeta*self.Ssw(fp)
+            *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
 
     def fturb(self, f):
         return (27e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.Tstar/100.0) \
@@ -92,5 +111,8 @@ class PowerSpectrum:
             *np.power(self.kturb*self.alpha/(1 + self.alpha),3.0/2.0) \
             *np.power(100/self.gstar,1.0/3.0)*self.vw*self.Sturb(f,fp)
 
+    def power_spectrum_sw_conservative(self, f):
+        return min(self.H_tsh,1.0)*self.power_spectrum_sw(f)
+    
     def power_spectrum(self, f):
         return self.power_spectrum_sw(f) + self.power_spectrum_turb(f)
