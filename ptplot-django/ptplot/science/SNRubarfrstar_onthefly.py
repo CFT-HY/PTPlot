@@ -72,8 +72,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
 
     
     # location of contour labels
-    # locs = [find_place(snr, -3, wantedcontour) for wantedcontour in levels]
-    locs = [find_place(snr, -3.2, wantedcontour) for wantedcontour in levels]
+    locs = [find_place(snr, -2.5, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
 
     fig = matplotlib.figure.Figure()
