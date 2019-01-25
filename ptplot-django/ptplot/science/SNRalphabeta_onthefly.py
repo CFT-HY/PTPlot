@@ -23,6 +23,7 @@ if __name__ == "__main__" and __package__ is None:
     from espinosa import kappav, ubarf, ubarf_to_alpha
     from SNR_precompute import get_SNRcurve
     from curves import rstar_to_beta
+    from precomputed import available_labels
     
     root = './'
 
@@ -255,20 +256,25 @@ def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], HoverBeta_list=[0.01]
     
     
 if __name__ == '__main__':
-    if len(sys.argv) == 6:
+    if len(sys.argv) == 7:
         vw = float(sys.argv[1])
         alpha = float(sys.argv[2])
         hoverbeta = float(sys.argv[3])
         T = float(sys.argv[4])
         g = float(sys.argv[5])
-        b = get_SNR_alphabeta_image(vw, [alpha], [hoverbeta], T, g)
+        Senscurve = int(sys.argv[6])
+        b = get_SNR_alphabeta_image(vw, [alpha], [hoverbeta], T, g, Senscurve=Senscurve)
         print(b.read().decode("utf-8"))
    
     else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <T*> <g*>\n'
+        sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <T*> <g*> <Senscurve>\n'
                          % sys.argv[0])
-        sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
-        
+        sys.stderr.write('Writes a scalable vector graphic to stdout.\n\n')
+
+        sys.stderr.write('Available curves:\n')
+        for number,label in enumerate(available_labels):
+            sys.stderr.write('%d: %s\n' % (number, label))
+            
     # Tn, alpha, betaoverh = np.loadtxt('foo', usecols=[0,1,2], delimiter=',', unpack=True)
     # vw = [0.1]*len(Tn)
     # get_SNR_alphabeta_image(vw, alpha, 1.0/betaoverh, "ScienceRequirements_Tn_100.0_gstar_100.0_precomputed.npz")

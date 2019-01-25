@@ -10,9 +10,8 @@
 import math, sys
 
 
-
 # Fix some things if running standalone
-if __name__ == "__main__" and __package__ is None:
+if (__name__ == "__main__" and __package__ is None) or __package__ == '':
 
     # eLISATools from Antoine
     from eLISATools import *
@@ -23,7 +22,7 @@ if __name__ == "__main__" and __package__ is None:
     root = './'
     
 else:
-
+    
     # eLISATools from Antoine
     from .eLISATools import *
 
