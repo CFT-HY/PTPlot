@@ -33,7 +33,7 @@
     {% endif %}
 
     {% if point.Tstar %}
-    $T_n = {{ point.Tstar }} \, \mathrm{GeV}$;
+    $T_* = {{ point.Tstar }} \, \mathrm{GeV}$;
     {% endif %}
 
     {% if point.point_longlabel %}
@@ -46,9 +46,10 @@
 </ul>
 {% endif %}
 
-<p>General parameters (used for plotting):
+<p>General parameters used for plotting:
   $v_\mathrm{w} = {{ theory.theory_vw }}$,
-  $T_* = {{theory.theory_Tstar }}$,
+  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$ (when all points
+  are plotted),
   $g_* = {{theory.theory_gstar }}$</p>
 
 <p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
