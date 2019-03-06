@@ -19,8 +19,16 @@
 
 <ul>
   {% for point in point_list %}
-  <li>({{point.point_shortlabel}}):
+  <li>
 
+    {% if point.point_shortlabel %}
+    ({{point.point_shortlabel}}):
+    {% endif %}
+
+    {% if point.point_longlabel %}
+    [ {{ point.point_longlabel}} ]
+    {% endif %}
+    
     $\alpha = {{point.alpha}}$;
     $\beta/H_* = {{point.BetaoverH}}$;
 
@@ -34,10 +42,6 @@
 
     {% if point.Tstar %}
     $T_* = {{ point.Tstar }} \, \mathrm{GeV}$;
-    {% endif %}
-
-    {% if point.point_longlabel %}
-    [ {{ point.point_longlabel}} ]
     {% endif %}
     
     [<a href="/ptplot/theories/{{ theory.id }}/{{ point.id }}/plot">plot</a>]

@@ -117,7 +117,7 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
                   for vw, alpha in zip(vw_list, alpha_list)]
 
     #    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
-    benchmarks = ax.plot(ubarf_list, Rstar_list, '-o')
+    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
 
 
 

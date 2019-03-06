@@ -145,7 +145,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[0.1], BetaoverH_list=[100],
     alpha_log_list = [math.log10(alpha) for alpha in alpha_list]
     
 #    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
-    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '-o')
+    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
 
     if label_list:
         for x,y,label in zip(alpha_log_list, BetaOverH_list, label_list):
