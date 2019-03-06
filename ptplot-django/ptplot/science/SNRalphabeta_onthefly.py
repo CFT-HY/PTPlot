@@ -48,7 +48,7 @@ else:
 
 
 
-def get_SNR_alphabeta_image(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_alphabeta_image(vw, alpha_list=[0.1], BetaoverH_list=[100],
                             Tstar=100,
                             gstar=100,
                             label_list=None,
@@ -134,8 +134,8 @@ def get_SNR_alphabeta_image(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
 
     #    plt.grid()
 
-    BetaOverH_list = [math.log10(1.0/HoverBeta) \
-                      for HoverBeta in HoverBeta_list]
+    BetaOverH_list = [math.log10(BetaoverH) \
+                      for BetaoverH in BetaoverH_list]
 
 
 #    ubarf_list = [math.log10(ubarf(vw, alpha)) \
@@ -226,18 +226,18 @@ def get_SNR_alphabeta_image(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
     
 
 
-def worker(queue, vw, alpha_list=[0.1], HoverBeta_list=[0.01],
+def worker(queue, vw, alpha_list=[0.1], BetaoverH_list=[100],
            Tstar=100,
            gstar=100,
            label_list=None,
            title=None,
            Senscurve=0,
            usetex=False):
-    queue.put(get_SNR_alphabeta_image(vw, alpha_list, HoverBeta_list,
+    queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
                                       Tstar, gstar, label_list, title,
                                       Senscurve, usetex))
 
-def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      Tstar=100,
                                      gstar=100,
                                      label_list=None,
@@ -246,7 +246,7 @@ def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], HoverBeta_list=[0.01]
                                      usetex=False):
 
     q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, HoverBeta_list,
+    p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, BetaoverH_list,
                                                      Tstar, gstar, label_list, title,
                                                      Senscurve, usetex))
     p.start()
@@ -259,15 +259,15 @@ if __name__ == '__main__':
     if len(sys.argv) == 7:
         vw = float(sys.argv[1])
         alpha = float(sys.argv[2])
-        hoverbeta = float(sys.argv[3])
+        betaoverh = float(sys.argv[3])
         T = float(sys.argv[4])
         g = float(sys.argv[5])
         Senscurve = int(sys.argv[6])
-        b = get_SNR_alphabeta_image(vw, [alpha], [hoverbeta], T, g, Senscurve=Senscurve)
+        b = get_SNR_alphabeta_image(vw, [alpha], [betaoverh], T, g, Senscurve=Senscurve)
         print(b.read().decode("utf-8"))
    
     else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <T*> <g*> <Senscurve>\n'
+        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <T*> <g*> <Senscurve>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n\n')
 

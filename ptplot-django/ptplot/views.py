@@ -24,7 +24,7 @@ def ps_image(request):
         if form.is_valid():
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
-            HoverBeta = form.cleaned_data['HoverBeta']
+            BetaoverH = form.cleaned_data['BetaoverH']
             Senscurve = int(form.cleaned_data['Senscurve'])
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
@@ -33,7 +33,7 @@ def ps_image(request):
                                            gstar=gstar,
                                            vw=vw,
                                            alpha=alpha,
-                                           HoverBeta=HoverBeta,
+                                           BetaoverH=BetaoverH,
                                            Senscurve=Senscurve)
             
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
@@ -45,7 +45,7 @@ def snr_image(request):
         if form.is_valid():
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
-            HoverBeta = form.cleaned_data['HoverBeta']
+            BetaoverH = form.cleaned_data['BetaoverH']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
             SNRfilename = precomputed_filenames[Senscurve]
@@ -56,7 +56,7 @@ def snr_image(request):
                                              gstar=gstar,
                                              vw_list=[vw],
                                              alpha_list=[alpha],
-                                             HoverBeta_list=[HoverBeta],
+                                             BetaoverH_list=[BetaoverH],
                                              Senscurve=Senscurve)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -68,7 +68,7 @@ def snr_alphabeta_image(request):
         if form.is_valid():
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
-            HoverBeta = form.cleaned_data['HoverBeta']
+            BetaoverH = form.cleaned_data['BetaoverH']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
             SNRfilename = precomputed_filenames[Senscurve]
@@ -79,7 +79,7 @@ def snr_alphabeta_image(request):
 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
                                                        alpha_list=[alpha],
-                                                       HoverBeta_list=[HoverBeta],
+                                                       BetaoverH_list=[BetaoverH],
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        Senscurve=Senscurve)
@@ -160,7 +160,7 @@ def theory_point_snr(request, theory_id, point_id):
     Senscurve = theory.theory_Senscurve
     
     alpha = point.alpha
-    HoverBeta = point.HoverBeta
+    BetaoverH = point.BetaoverH
 
 
     if point.vw:
@@ -184,7 +184,7 @@ def theory_point_snr(request, theory_id, point_id):
                                      gstar=gstar,
                                      vw_list=[vw],
                                      alpha_list=[alpha],
-                                     HoverBeta_list=[HoverBeta],
+                                     BetaoverH_list=[BetaoverH],
                                      label_list=[label],
                                      Senscurve=Senscurve)
     
@@ -198,7 +198,7 @@ def theory_point_snr_alphabeta(request, theory_id, point_id):
     Senscurve = theory.theory_Senscurve
     
     alpha = point.alpha
-    HoverBeta = point.HoverBeta
+    BetaoverH = point.BetaoverH
 
 
     if point.vw:
@@ -222,7 +222,7 @@ def theory_point_snr_alphabeta(request, theory_id, point_id):
                                                gstar=gstar,
                                                vw=vw,
                                                alpha_list=[alpha],
-                                               HoverBeta_list=[HoverBeta],
+                                               BetaoverH_list=[BetaoverH],
                                                label_list=[label],
                                                Senscurve=Senscurve)
     
@@ -239,7 +239,7 @@ def theory_point_ps(request, theory_id, point_id):
     Senscurve = theory.theory_Senscurve
     
     alpha = point.alpha
-    HoverBeta = point.HoverBeta
+    BetaoverH = point.BetaoverH
 
 
     if point.vw:
@@ -264,7 +264,7 @@ def theory_point_ps(request, theory_id, point_id):
                                    gstar=gstar,
                                    vw=vw,
                                    alpha=alpha,
-                                   HoverBeta=HoverBeta,
+                                   BetaoverH=BetaoverH,
                                    Senscurve=Senscurve)
             
     return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
@@ -277,12 +277,12 @@ def theory_snr(request, theory_id):
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
     alpha_list = [point.alpha for point in point_list]
-    HoverBeta_list = [point.HoverBeta for point in point_list]
+    BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
     
     sio_SNR = get_SNR_image_threaded(vw_list=[theory.theory_vw]*len(point_list),
                                      alpha_list=alpha_list,
-                                     HoverBeta_list=HoverBeta_list,
+                                     BetaoverH_list=BetaoverH_list,
                                      Tstar=theory.theory_Tstar,
                                      gstar=theory.theory_gstar,
                                      label_list=label_list,
@@ -299,13 +299,13 @@ def theory_snr_alphabeta(request, theory_id):
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
 
     alpha_list = [point.alpha for point in point_list]
-    HoverBeta_list = [point.HoverBeta for point in point_list]
+    BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
     
 
     sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
                                      alpha_list=alpha_list,
-                                     HoverBeta_list=HoverBeta_list,
+                                     BetaoverH_list=BetaoverH_list,
                                      Tstar=theory.theory_Tstar,
                                      gstar=theory.theory_gstar,
                                      label_list=label_list,
@@ -356,7 +356,7 @@ def multiple(request):
             table_lines = table.splitlines()
 
             alpha_list = []
-            HoverBeta_list = []
+            BetaoverH_list = []
             label_list = []
 
             read_lines = 0
@@ -370,7 +370,7 @@ def multiple(request):
                 
                 bits = line.split(',')
                 alpha_list.append(float(bits[0]))
-                HoverBeta_list.append(float(bits[1]))
+                BetaoverH_list.append(float(bits[1]))
                 try:
                     label_list.append(bits[2].strip())
                 except IndexError:
@@ -381,7 +381,7 @@ def multiple(request):
                 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
                                                        alpha_list=alpha_list,
-                                                       HoverBeta_list=HoverBeta_list,
+                                                       BetaoverH_list=BetaoverH_list,
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        Senscurve=Senscurve,
@@ -412,7 +412,7 @@ def single(request):
 
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
-            HoverBeta = form.cleaned_data['HoverBeta']
+            BetaoverH = form.cleaned_data['BetaoverH']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
             Tstar = form.cleaned_data['Tstar']
@@ -424,7 +424,7 @@ def single(request):
                        'querystring': querystring,
                        'vw': vw,
                        'alpha': alpha,
-                       'HoverBeta': HoverBeta,
+                       'BetaoverH': BetaoverH,
                        'Tstar': Tstar,
                        'gstar': gstar}
             return HttpResponse(template.render(context, request))

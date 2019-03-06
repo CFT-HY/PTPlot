@@ -35,7 +35,7 @@ else:
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
     
 
-def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
                   Tstar=100,
                   gstar=100,
                   label_list=None,
@@ -108,9 +108,9 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
     #    plt.grid()
 
 
-    # H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
-    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw*HoverBeta) \
-                  for vw, HoverBeta in zip(vw_list, HoverBeta_list)]
+    # H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
+    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw/BetaoverH) \
+                  for vw, BetaoverH in zip(vw_list, BetaoverH_list)]
 
 
     ubarf_list = [math.log10(ubarf(vw, alpha)) \
@@ -196,20 +196,20 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
         
     return sio
 
-def worker(queue, vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
            Tstar=100,
            gstar=100,
            label_list=None,
            title=None,
            Senscurve=0,
            usetex=False):
-    queue.put(get_SNR_image(vw_list, alpha_list, HoverBeta_list,
+    queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
                             Tstar, gstar,
                             label_list, title, Senscurve, usetex))
     
 
 
-def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01],
+def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
                            Tstar=100,
                            gstar=100,
                            label_list=None,
@@ -218,7 +218,7 @@ def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], HoverBeta_list=[0.01
                            usetex=False):
 
     q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, HoverBeta_list,
+    p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, BetaoverH_list,
                                                      Tstar, gstar,
                                                      label_list, title, Senscurve, usetex))
     p.start()
@@ -231,12 +231,12 @@ if __name__ == '__main__':
     if len(sys.argv) == 5:
         vw = float(sys.argv[1])
         alpha = float(sys.argv[2])
-        hoverbeta = float(sys.argv[3])
+        betaoverh = float(sys.argv[3])
         snrcurve = sys.argv[4]
-        b = get_SNR_image([vw], [alpha], [hoverbeta], snrcurve)
+        b = get_SNR_image([vw], [alpha], [betaoverh], snrcurve)
         print(b.read().decode("utf-8"))
     else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <H/Beta> <SNR file>\n'
+        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <SNR file>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
 

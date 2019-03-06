@@ -47,7 +47,7 @@ def get_PS_image(vw=0.95,
                  Tstar=100,
                  gstar=100,
                  alpha=0.1,
-                 HoverBeta=100,
+                 BetaoverH=100,
                  Senscurve=0,
                  usetex=False):
 
@@ -56,7 +56,7 @@ def get_PS_image(vw=0.95,
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
                               alpha=alpha,
-                              HoverBeta=HoverBeta,
+                              BetaoverH=BetaoverH,
                               gstar=gstar)
 
     # setup latex plotting
@@ -140,7 +140,7 @@ def worker(queue,
            Tstar=100,
            gstar=100,
            alpha=0.1,
-           HoverBeta=100,
+           BetaoverH=100,
            Senscurve=0,
            usetex=False):
 
@@ -148,7 +148,7 @@ def worker(queue,
                            Tstar,
                            gstar,
                            alpha,
-                           HoverBeta,
+                           BetaoverH,
                            Senscurve,
                            usetex))
     
@@ -158,7 +158,7 @@ def get_PS_image_threaded(vw=0.95,
                           Tstar=100,
                           gstar=100,
                           alpha=0.1,
-                          HoverBeta=100,
+                          BetaoverH=100,
                           Senscurve=0,
                           usetex=False):
 
@@ -169,7 +169,7 @@ def get_PS_image_threaded(vw=0.95,
                                       Tstar,
                                       gstar,
                                       alpha,
-                                      HoverBeta,
+                                      BetaoverH,
                                       Senscurve,
                                       usetex))
     p.start()
@@ -184,12 +184,12 @@ if __name__ == '__main__':
         Tstar = float(sys.argv[2])
         gstar = float(sys.argv[3])
         alpha = float(sys.argv[4])
-        HoverBeta = float(sys.argv[5]) 
-        sys.stderr.write('vw=%g, Tstar=%g, gstar=%g, alpha=%g, HoverBeta=%g\n'
-                         % (vw, Tstar, gstar, alpha, HoverBeta))
-        b = get_PS_image(vw, Tstar, gstar, alpha, HoverBeta)
+        BetaoverH = float(sys.argv[5]) 
+        sys.stderr.write('vw=%g, Tstar=%g, gstar=%g, alpha=%g, BetaoverH=%g\n'
+                         % (vw, Tstar, gstar, alpha, BetaoverH))
+        b = get_PS_image(vw, Tstar, gstar, alpha, BetaoverH)
         print(b.read().decode("utf-8"))
     else:
-        sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <H/Beta>\n'
+        sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <Beta/H>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n')

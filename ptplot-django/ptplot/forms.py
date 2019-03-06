@@ -29,7 +29,7 @@ class PTPlotForm(forms.Form):
     alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
                              min_value=0.0,
                              localize=False)
-    HoverBeta = forms.FloatField(label=r'Phase transition duration $H/\beta$',
+    BetaoverH = forms.FloatField(label=r'Inverse phase transition duration $\beta/H_*$',
                                  min_value=0.0,
                                  localize=False)
 
@@ -105,7 +105,7 @@ class ParameterChoiceForm(forms.Form):
             self.alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
                                           min_value=0.0,
                                           localize=False)
-            self.HoverBeta = forms.FloatField(label=r'Phase transition duration $H/\beta$',
+            self.BetaoverH = forms.FloatField(label=r'Inverse phase transition duration $\beta/H_*$',
                                               min_value=0.0,
                                               localize=False)
             self.SNRcurve = forms.ChoiceField(label=r'Sensitivity curve',

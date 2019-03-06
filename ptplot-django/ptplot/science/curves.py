@@ -21,7 +21,7 @@ def beta_to_rstar(beta, vw):
 class PowerSpectrum:
 
     def __init__(self,
-                 HoverBeta = None,
+                 BetaoverH = None,
                  Tstar = 180.0,
                  gstar = 100,
                  vw = None,
@@ -55,8 +55,8 @@ class PowerSpectrum:
 
 
         
-        # self.HoverBeta = 0.1
-        self.HoverBeta=HoverBeta
+        # self.BetaoverH = 100
+        self.BetaoverH=BetaoverH
         
         # self.vw = 0.44
         self.vw = vw
@@ -70,12 +70,12 @@ class PowerSpectrum:
         # now have ubarf
         
         # calculate shock time
-        if (H_rstar is None) and (HoverBeta is not None):
-            self.H_rstar = beta_to_rstar(1.0/self.HoverBeta, self.vw)
-        elif (H_rstar is not None) and (HoverBeta is None):
+        if (H_rstar is None) and (BetaoverH is not None):
+            self.H_rstar = beta_to_rstar(self.BetaoverH, self.vw)
+        elif (H_rstar is not None) and (BetaoverH is None):
             self.H_rstar = H_rstar
         else:
-            raise ValueError("Either H_rstar or HoverBeta must be set, but not both")
+            raise ValueError("Either H_rstar or BetaoverH must be set, but not both")
 
         # compute shock time
         self.H_tsh = self.H_rstar/self.ubarf
@@ -94,11 +94,11 @@ class PowerSpectrum:
     def fsw(self, f):
 
         # equation 43 in shape paper
-        # note (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw*HoverBeta)
+        # note (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH)
         #
         # Thus numerical prefactor is (26e-6)/(8*pi)^{1/3} = 8.9e-6
         
-#        return (8.9e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.zp/10.0) \
+#        return (8.9e-6)*(1.0/self.vw)*(self.BetaoverH)*(self.zp/10.0) \
 #            *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)
 
         return (26.0e-6)*(1.0/self.H_rstar)*(self.zp/10.0) \
@@ -110,19 +110,19 @@ class PowerSpectrum:
         # (=0.68*Fgw0*geometric*Omtil)
         #
         # using equation R_* = (8*pi)^{1/3}*vw/beta (section IV, same paper)
-        # Thus: H_n*R_* = (8*pi)^{1/3}*vw*HoverBeta
+        # Thus: H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
         
         fp = f/self.fsw(f)
 #        return 8.5e-6*np.power(100.0/self.gstar,1.0/3.0) \
 #            *self.adiabaticRatio*self.adiabaticRatio \
-#            *np.power(self.ubarf,4.0)*self.vw*self.HoverBeta*self.Ssw(fp)
+#            *np.power(self.ubarf,4.0)*self.vw*(1.0/self.BetaoverH)*self.Ssw(fp)
 
         return 0.68*3.57e-5*0.12*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
 
     def fturb(self, f):
-        return (27e-6)*(1.0/self.vw)*(1.0/self.HoverBeta)*(self.Tstar/100.0) \
+        return (27e-6)*(1.0/self.vw)*(self.BetaoverH)*(self.Tstar/100.0) \
             *np.power(self.gstar/100,1.0/6.0)
 
     def Sturb(self, f, fp):
@@ -131,7 +131,7 @@ class PowerSpectrum:
 
     def power_spectrum_turb(self, f):
         fp = f/self.fturb(f)
-        return (3.35e-4)*self.HoverBeta \
+        return (3.35e-4)/self.BetaoverH \
             *np.power(self.kturb*self.alpha/(1 + self.alpha),3.0/2.0) \
             *np.power(100/self.gstar,1.0/3.0)*self.vw*self.Sturb(f,fp)
 

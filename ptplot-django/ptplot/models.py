@@ -21,6 +21,6 @@ class ParameterChoice(models.Model):
     point_longlabel = models.CharField(max_length=100)
     vw = models.FloatField(null=True)
     alpha = models.FloatField()
-    HoverBeta = models.FloatField()
+    BetaoverH = models.FloatField()
     Tstar = models.FloatField(null=True)
     gstar = models.FloatField(null=True)
