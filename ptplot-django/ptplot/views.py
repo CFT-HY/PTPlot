@@ -99,8 +99,10 @@ def theory_detail(request, theory_id):
     
     theory = Theory.objects.get(pk=theory_id)
 
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    print(ParameterChoice.objects.filter(theory__id=theory_id))
 
+    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
     
@@ -137,7 +139,7 @@ def theory_point_plot(request, theory_id, point_id):
     theory = Theory.objects.get(pk=theory_id)
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
     point = ParameterChoice.objects.get(theory__id=theory_id,
-                                             id=point_id)
+                                             number=point_id)
     
     sensitivity_curve_label = available_labels[theory.theory_Senscurve]
         
@@ -155,7 +157,7 @@ def theory_point_snr(request, theory_id, point_id):
     
     theory = Theory.objects.get(pk=theory_id)
     point = ParameterChoice.objects.get(theory__id=theory_id,
-                                             id=point_id)
+                                             number=point_id)
 
     Senscurve = theory.theory_Senscurve
     
@@ -193,7 +195,7 @@ def theory_point_snr(request, theory_id, point_id):
 def theory_point_snr_alphabeta(request, theory_id, point_id):
     theory = Theory.objects.get(pk=theory_id)
     point = ParameterChoice.objects.get(theory__id=theory_id,
-                                             id=point_id)
+                                             number=point_id)
 
     Senscurve = theory.theory_Senscurve
     
@@ -234,7 +236,7 @@ def theory_point_ps(request, theory_id, point_id):
 
     theory = Theory.objects.get(pk=theory_id)
     point = ParameterChoice.objects.get(theory__id=theory_id,
-                                             id=point_id)
+                                             number=point_id)
 
     Senscurve = theory.theory_Senscurve
     

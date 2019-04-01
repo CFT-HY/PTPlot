@@ -17,6 +17,7 @@ class Theory(models.Model):
     
 class ParameterChoice(models.Model):
     theory = models.ForeignKey(Theory, on_delete=models.CASCADE)
+    number = models.IntegerField()
     point_shortlabel = models.CharField(max_length=2)
     point_longlabel = models.CharField(max_length=100)
     vw = models.FloatField(null=True)

@@ -67,13 +67,13 @@
     $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
     
-    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.id }}/plot">plot</a>]
+    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.number }}/plot">plot</a>]
 </li>
   {% endfor %}
 </ul>
 </div>
-{% endif %}
 </p>
+{% endif %}
 
 <p>General parameters used for plotting:
   $v_\mathrm{w} = {{ theory.theory_vw }}$,
