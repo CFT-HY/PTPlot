@@ -17,6 +17,29 @@
 {% block results %}
 {% endblock results %}
 
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", initPoints);
+
+  function initPoints(){
+      var pointslist = document.getElementById("points-list");
+      var pointslink = document.getElementById("points-link");
+      pointslink.addEventListener("click", function togglePoints(){
+//          window.event.preventDefault();
+//          pointslink.classList.toggle('active');
+//          pointslist.classList.toggle('active');
+	  if(pointslist.style.display == "none") {
+	      pointslist.style.display = "block";
+              pointslink.innerHTML = '[Hide list of points]';
+	  } else {
+	      pointslist.style.display = "none";
+	      pointslink.innerHTML = '[Show list of points]';
+	  }
+      });
+  };
+</script>
+
+<p><a href="#points" id="points-link">[Show list of points]</a>
+<div id="points-list" style="display: none">
 <ul>
   {% for point in point_list %}
   <li>
@@ -29,8 +52,8 @@
     [ {{ point.point_longlabel}} ]
     {% endif %}
     
-    $\alpha = {{point.alpha}}$;
-    $\beta/H_* = {{point.BetaoverH}}$;
+    $\alpha = {{point.alpha|floatformat:"-4"}}$;
+    $\beta/H_* = {{point.BetaoverH|floatformat:"0"}}$;
 
     {% if point.vw %}
     $v_\mathrm{w} = {{point.vw}}$;
@@ -41,14 +64,16 @@
     {% endif %}
 
     {% if point.Tstar %}
-    $T_* = {{ point.Tstar }} \, \mathrm{GeV}$;
+    $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
     
     [<a href="/ptplot/theories/{{ theory.id }}/{{ point.id }}/plot">plot</a>]
 </li>
   {% endfor %}
 </ul>
+</div>
 {% endif %}
+</p>
 
 <p>General parameters used for plotting:
   $v_\mathrm{w} = {{ theory.theory_vw }}$,
@@ -59,7 +84,7 @@
 <p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
   ({{ theory.theory_Senscurve }})<p>
 
-<p>[<a href="/ptplot/theories/{{ theory.id }}/plot">plot all with these parameters</a>]</p>
+<p>[<a href="/ptplot/theories/{{ theory.id }}/plot">plot all points with these parameters</a>]</p>
 
 {% block onepoint %}
 {% endblock onepoint %}
