@@ -35,11 +35,11 @@ else:
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
     
 
-def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
+def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   Tstar=100,
                   gstar=100,
                   label_list=None,
-                  title=None,
+                  title_list=None,
                   Senscurve=0,
                   usetex=False):
 
@@ -108,29 +108,33 @@ def get_SNR_image(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
     #    plt.grid()
 
 
-    # H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
-    Rstar_list = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw/BetaoverH) \
-                  for vw, BetaoverH in zip(vw_list, BetaoverH_list)]
+    for i, (vw_set, BetaoverH_set, alpha_set) in enumerate(zip(vw_list, BetaoverH_list,
+                                                             alpha_list)):
+
+        # H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
+        Rstar_set = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw/BetaoverH) \
+                      for vw, BetaoverH in zip(vw_set, BetaoverH_set)]
 
 
-    ubarf_list = [math.log10(ubarf(vw, alpha)) \
-                  for vw, alpha in zip(vw_list, alpha_list)]
+        ubarf_set = [math.log10(ubarf(vw, alpha)) \
+                      for vw, alpha in zip(vw_set, alpha_set)]
 
-    #    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
-    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
+        #    benchmarks = ax.plot(ubarf_list, Rstar_list, '.')
+        benchmarks = ax.plot(ubarf_set, Rstar_set, '.')
 
 
 
-    if label_list:
-        for x,y,label in zip(ubarf_list, Rstar_list, label_list):
-#            ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,-7),
-            ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
-                        textcoords='offset points')
+        if label_list:
+            label_set = label_list[i]
+            for x,y,label in zip(ubarf_set, Rstar_set, label_set):
+                ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
+                            textcoords='offset points')
 
-    if title:
-        legends = []
+    if title_list:
+        legends = title_list
 
-        legends.append(title)
+#        legends = []
+#        legends.append(title)
             
         leg = ax.legend(legends, loc='lower left', framealpha=0.9)
 #        leg = ax.legend(legends, loc='upper left', framealpha=0.9)
@@ -200,12 +204,12 @@ def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
            Tstar=100,
            gstar=100,
            label_list=None,
-           title=None,
+           title_list=None,
            Senscurve=0,
            usetex=False):
     queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
                             Tstar, gstar,
-                            label_list, title, Senscurve, usetex))
+                            label_list, title_list, Senscurve, usetex))
     
 
 
@@ -213,14 +217,14 @@ def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100]
                            Tstar=100,
                            gstar=100,
                            label_list=None,
-                           title=None,
+                           title_list=None,
                            Senscurve=0,
                            usetex=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, BetaoverH_list,
                                                      Tstar, gstar,
-                                                     label_list, title, Senscurve, usetex))
+                                                     label_list, title_list, Senscurve, usetex))
     p.start()
     return_res = q.get()
     p.join()

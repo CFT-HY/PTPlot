@@ -48,11 +48,11 @@ else:
 
 
 
-def get_SNR_alphabeta_image(vw, alpha_list=[0.1], BetaoverH_list=[100],
+def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             Tstar=100,
                             gstar=100,
                             label_list=None,
-                            title=None,
+                            title_list=None,
                             Senscurve=0,
                             usetex=False):
 
@@ -134,30 +134,37 @@ def get_SNR_alphabeta_image(vw, alpha_list=[0.1], BetaoverH_list=[100],
 
     #    plt.grid()
 
-    BetaOverH_list = [math.log10(BetaoverH) \
-                      for BetaoverH in BetaoverH_list]
+    for i, (BetaoverH_set, alpha_set) in enumerate(zip(BetaoverH_list,
+                                                       alpha_list)):
+        BetaOverH_log_set = [math.log10(BetaoverH) \
+                         for BetaoverH in BetaoverH_set]
 
 
-#    ubarf_list = [math.log10(ubarf(vw, alpha)) \
-#                  for vw, alpha in zip(vw_list, alpha_list)]
+        #    ubarf_list = [math.log10(ubarf(vw, alpha)) \
+            #                  for vw, alpha in zip(vw_list, alpha_list)]
 
 
-    alpha_log_list = [math.log10(alpha) for alpha in alpha_list]
+        alpha_log_set = [math.log10(alpha) for alpha in alpha_set]
     
-#    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
-    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
+        #    benchmarks = ax.plot(alpha_log_list, BetaOverH_list, '.')
+        benchmarks = ax.plot(alpha_log_set, BetaOverH_log_set, '.')
 
-    if label_list:
-        for x,y,label in zip(alpha_log_list, BetaOverH_list, label_list):
-            ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
+        
+        if label_list:
+            label_set = label_list[i]
+            
+            for x,y,label in zip(alpha_log_set, BetaOverH_log_set, label_set):
+                ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
                         textcoords='offset points')
 
 
-    if title:
-        legends = []
+    if title_list:
+#        legends = []
         
-        legends.append(title)
-            
+#        legends.append(title)
+
+        legends = title_list
+        
         leg = ax.legend(legends, loc='lower left', framealpha=0.9)
 
         #    leg.get_frame().set_alpha(0.9)
@@ -230,24 +237,24 @@ def worker(queue, vw, alpha_list=[0.1], BetaoverH_list=[100],
            Tstar=100,
            gstar=100,
            label_list=None,
-           title=None,
+           title_list=None,
            Senscurve=0,
            usetex=False):
     queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
-                                      Tstar, gstar, label_list, title,
+                                      Tstar, gstar, label_list, title_list,
                                       Senscurve, usetex))
 
 def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      Tstar=100,
                                      gstar=100,
                                      label_list=None,
-                                     title=None,
+                                     title_list=None,
                                      Senscurve=0,
                                      usetex=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, BetaoverH_list,
-                                                     Tstar, gstar, label_list, title,
+                                                     Tstar, gstar, label_list, title_list,
                                                      Senscurve, usetex))
     p.start()
     return_res = q.get()

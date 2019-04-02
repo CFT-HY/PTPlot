@@ -54,9 +54,9 @@ def snr_image(request):
             gstar = form.cleaned_data['gstar']
             sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
                                              gstar=gstar,
-                                             vw_list=[vw],
-                                             alpha_list=[alpha],
-                                             BetaoverH_list=[BetaoverH],
+                                             vw_list=[[vw]],
+                                             alpha_list=[[alpha]],
+                                             BetaoverH_list=[[BetaoverH]],
                                              Senscurve=Senscurve)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -78,8 +78,8 @@ def snr_alphabeta_image(request):
 
 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
-                                                       alpha_list=[alpha],
-                                                       BetaoverH_list=[BetaoverH],
+                                                       alpha_list=[[alpha]],
+                                                       BetaoverH_list=[[BetaoverH]],
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        Senscurve=Senscurve)
@@ -147,6 +147,12 @@ def theory_detail_plot(request, theory_id):
 def theory_point_plot(request, theory_id, point_id):
     
     theory = Theory.objects.get(pk=theory_id)
+
+    if theory.theory_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    else:
+        scenario_list = None
+
     point_list = ParameterChoice.objects.filter(theory__id=theory_id)
     point = ParameterChoice.objects.get(theory__id=theory_id,
                                              number=point_id)
@@ -157,6 +163,7 @@ def theory_point_plot(request, theory_id, point_id):
     
     context = {'theory': theory,
                'point_list': point_list,
+               'scenario_list': scenario_list,
                'point': point,
                'sensitivity_curve_label': sensitivity_curve_label}
     return HttpResponse(template.render(context, request))
@@ -194,10 +201,10 @@ def theory_point_snr(request, theory_id, point_id):
         
     sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
                                      gstar=gstar,
-                                     vw_list=[vw],
-                                     alpha_list=[alpha],
-                                     BetaoverH_list=[BetaoverH],
-                                     label_list=[label],
+                                     vw_list=[[vw]],
+                                     alpha_list=[[alpha]],
+                                     BetaoverH_list=[[BetaoverH]],
+                                     label_list=[[label]],
                                      Senscurve=Senscurve)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
@@ -233,9 +240,9 @@ def theory_point_snr_alphabeta(request, theory_id, point_id):
     sio_SNR = get_SNR_alphabeta_image_threaded(Tstar=Tstar,
                                                gstar=gstar,
                                                vw=vw,
-                                               alpha_list=[alpha],
-                                               BetaoverH_list=[BetaoverH],
-                                               label_list=[label],
+                                               alpha_list=[[alpha]],
+                                               BetaoverH_list=[[BetaoverH]],
+                                               label_list=[[label]],
                                                Senscurve=Senscurve)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
@@ -321,13 +328,13 @@ def theory_scenario_snr(request, theory_id, scenario_id):
     BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
     
-    sio_SNR = get_SNR_image_threaded(vw_list=[theory.theory_vw]*len(point_list),
-                                     alpha_list=alpha_list,
-                                     BetaoverH_list=BetaoverH_list,
+    sio_SNR = get_SNR_image_threaded(vw_list=[[theory.theory_vw]*len(point_list)],
+                                     alpha_list=[alpha_list],
+                                     BetaoverH_list=[BetaoverH_list],
                                      Tstar=theory.theory_Tstar,
                                      gstar=theory.theory_gstar,
-                                     label_list=label_list,
-                                     title=theory.theory_name,
+                                     label_list=[label_list],
+                                     title_list=[theory.theory_name],
                                      Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -344,12 +351,12 @@ def theory_scenario_snr_alphabeta(request, theory_id, scenario_id):
     
 
     sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
-                                     alpha_list=alpha_list,
-                                     BetaoverH_list=BetaoverH_list,
+                                     alpha_list=[alpha_list],
+                                     BetaoverH_list=[BetaoverH_list],
                                      Tstar=theory.theory_Tstar,
                                      gstar=theory.theory_gstar,
-                                     label_list=label_list,
-                                     title=theory.theory_name,
+                                     label_list=[label_list],
+                                     title_list=[theory.theory_name],
                                      Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -362,19 +369,43 @@ def theory_snr(request, theory_id):
 
     theory = Theory.objects.get(pk=theory_id)
 
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    if theory.theory_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
 
-    alpha_list = [point.alpha for point in point_list]
-    BetaoverH_list = [point.BetaoverH for point in point_list]
-    label_list = [point.point_shortlabel for point in point_list]
+        vw_list = []
+        alpha_list = []
+        BetaoverH_list = []
+        label_list = []
+        title_list = []
+        
+        for scenario in scenario_list:
+            point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+                                                        scenario__id=scenario.id)
+            vw_list.append([theory.theory_vw]*len(point_list))
+            alpha_list.append([point.alpha for point in point_list])
+            BetaoverH_list.append([point.BetaoverH for point in point_list])
+            label_list.append([point.point_shortlabel for point in point_list])
+            title_list.append(scenario.scenario_name)
+
+
+    else:
+        scenario_list = None
     
-    sio_SNR = get_SNR_image_threaded(vw_list=[theory.theory_vw]*len(point_list),
+        point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+
+        vw_list=[[theory.theory_vw]*len(point_list)]
+        alpha_list = [[point.alpha for point in point_list]]
+        BetaoverH_list = [[point.BetaoverH for point in point_list]]
+        label_list = [[point.point_shortlabel for point in point_list]]
+        title_list = [theory.theory_name]
+        
+    sio_SNR = get_SNR_image_threaded(vw_list=vw_list,
                                      alpha_list=alpha_list,
                                      BetaoverH_list=BetaoverH_list,
                                      Tstar=theory.theory_Tstar,
                                      gstar=theory.theory_gstar,
                                      label_list=label_list,
-                                     title=theory.theory_name,
+                                     title_list=title_list,
                                      Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -384,21 +415,40 @@ def theory_snr_alphabeta(request, theory_id):
 
     theory = Theory.objects.get(pk=theory_id)
 
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    if theory.theory_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
 
-    alpha_list = [point.alpha for point in point_list]
-    BetaoverH_list = [point.BetaoverH for point in point_list]
-    label_list = [point.point_shortlabel for point in point_list]
-    
+        alpha_list = []
+        BetaoverH_list = []
+        label_list = []
+        title_list = []
+        
+        for scenario in scenario_list:
+            point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+                                                        scenario__id=scenario.id)
+            alpha_list.append([point.alpha for point in point_list])
+            BetaoverH_list.append([point.BetaoverH for point in point_list])
+            label_list.append([point.point_shortlabel for point in point_list])
+            title_list.append(scenario.scenario_name)
 
+    else:
+        scenario_list = None
+
+        point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+
+        alpha_list = [[point.alpha for point in point_list]]
+        BetaoverH_list = [[point.BetaoverH for point in point_list]]
+        label_list = [[point.point_shortlabel for point in point_list]]
+        title_list = [[theory.theory_name]]
+        
     sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
-                                     alpha_list=alpha_list,
-                                     BetaoverH_list=BetaoverH_list,
-                                     Tstar=theory.theory_Tstar,
-                                     gstar=theory.theory_gstar,
-                                     label_list=label_list,
-                                     title=theory.theory_name,
-                                     Senscurve=theory.theory_Senscurve)
+                                               alpha_list=alpha_list,
+                                               BetaoverH_list=BetaoverH_list,
+                                               Tstar=theory.theory_Tstar,
+                                               gstar=theory.theory_gstar,
+                                               label_list=label_list,
+                                               title_list=title_list,
+                                               Senscurve=theory.theory_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -468,12 +518,12 @@ def multiple(request):
                 label_list = None
                 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
-                                                       alpha_list=alpha_list,
-                                                       BetaoverH_list=BetaoverH_list,
+                                                       alpha_list=[alpha_list],
+                                                       BetaoverH_list=[BetaoverH_list],
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        Senscurve=Senscurve,
-                                                       label_list=label_list)
+                                                       label_list=[label_list])
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
     template = loader.get_template('ptplot/multiple.html')

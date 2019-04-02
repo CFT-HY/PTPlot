@@ -12,6 +12,16 @@
 
 <p>{{ theory.theory_notes|urlize }}</p>
 
+
+<p>General parameters used for plotting:
+  $v_\mathrm{w} = {{ theory.theory_vw }}$,
+  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$ (when all points
+  are plotted),
+  $g_* = {{theory.theory_gstar }}$</p>
+
+<p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
+  ({{ theory.theory_Senscurve }})<p>
+
 {% if theory.theory_hasScenarios == True %}
 
 <h4>This theory has the following scenarios:</h4>
@@ -24,16 +34,15 @@
   {% if scenario.scenario_description %}
   {{ scenario.scenario_description }}
   {% endif %}
-  [<a href="/ptplot/theories/{{ theory.id }}/scenarios/{{scenario.scenario_number }}/plot">plot scenario</a>]
+  [<a href="/ptplot/theories/{{ theory.id }}/scenarios/{{scenario.scenario_number }}/plot#results">plot scenario</a>]
 </li>
 {% endfor %}
 </ul>
 
 {% endif %}
 
-{% block results %}
-{% endblock results %}
-
+<h4>Full list of points:</h4>
+  
 <script type="text/javascript">
   document.addEventListener("DOMContentLoaded", initPoints);
 
@@ -84,7 +93,7 @@
     $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
     
-    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.number }}/plot">plot</a>]
+    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.number }}/plot#results">plot</a>]
 </li>
   {% endfor %}
 </ul>
@@ -92,18 +101,11 @@
 </p>
 {% endif %}
 
-<p>General parameters used for plotting:
-  $v_\mathrm{w} = {{ theory.theory_vw }}$,
-  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$ (when all points
-  are plotted),
-  $g_* = {{theory.theory_gstar }}$</p>
+<p>[<a href="/ptplot/theories/{{ theory.id }}/plot#results">plot all points with these parameters</a>]</p>
 
-<p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
-  ({{ theory.theory_Senscurve }})<p>
-
-<p>[<a href="/ptplot/theories/{{ theory.id }}/plot">plot all points with these parameters</a>]</p>
-
-{% block onepoint %}
-{% endblock onepoint %}
+<a id="results" />
+{% block results %}
+{% endblock results %}
 
 {% endblock content %}
+
