@@ -70,6 +70,23 @@ urlpatterns = [
          views.theory_point_ps,
          name='theory_point_ps'),
 
+    # Display a group of scenario points on the SNR plots
+    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/plot',
+         views.theory_scenario_plot,
+         name='theory_scenario_plot'),
+
+    # Display a group of scenario points on the SNR plots
+    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/snr',
+         views.theory_scenario_snr,
+         name='theory_scenario_snr'),
+
+    # Display a group of scenario points on the SNR plots
+    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/snr_alphabeta',
+         views.theory_scenario_snr_alphabeta,
+         name='theory_scenario_snr_alphabeta'),
+
+
+    
     
     
     

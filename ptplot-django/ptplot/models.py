@@ -13,7 +13,13 @@ class Theory(models.Model):
     theory_Tstar = models.FloatField()
     theory_gstar = models.FloatField()
     theory_Senscurve = models.IntegerField(default=0)
+    theory_hasScenarios = models.BooleanField()
 
+class Scenario(models.Model):
+    scenario_theory = models.ForeignKey(Theory, on_delete=models.CASCADE)
+    scenario_number = models.IntegerField()
+    scenario_name = models.CharField(max_length=200)
+    scenario_description = models.TextField(null=True)
     
 class ParameterChoice(models.Model):
     theory = models.ForeignKey(Theory, on_delete=models.CASCADE)
@@ -25,3 +31,4 @@ class ParameterChoice(models.Model):
     BetaoverH = models.FloatField()
     Tstar = models.FloatField(null=True)
     gstar = models.FloatField(null=True)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=True)

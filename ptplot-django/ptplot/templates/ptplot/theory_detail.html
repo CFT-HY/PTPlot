@@ -12,7 +12,24 @@
 
 <p>{{ theory.theory_notes|urlize }}</p>
 
+{% if theory.theory_hasScenarios == True %}
 
+<h4>This theory has the following scenarios:</h4>
+
+<ul>
+{% for scenario in scenario_list %}
+<li>
+  {{scenario.scenario_name}}
+
+  {% if scenario.scenario_description %}
+  {{ scenario.scenario_description }}
+  {% endif %}
+  [<a href="/ptplot/theories/{{ theory.id }}/scenarios/{{scenario.scenario_number }}/plot">plot scenario</a>]
+</li>
+{% endfor %}
+</ul>
+
+{% endif %}
 
 {% block results %}
 {% endblock results %}
