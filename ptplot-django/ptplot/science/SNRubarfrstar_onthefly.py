@@ -105,6 +105,8 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     #    plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
     ax.set_ylabel(r'$H_{\rm n} R_* $', fontsize=14)
     ax.set_xlabel(r'$\overline{U}_{\rm f}$', fontsize=14)
+    ax.set_xlim(min(log10Ubarf),max(log10Ubarf))
+    ax.set_ylim(min(log10HnRstar),max(log10HnRstar))
     #    plt.grid()
 
 

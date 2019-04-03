@@ -132,6 +132,9 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     ax.set_ylabel(r'$ \beta/H_* $', fontsize=14)
     ax.set_xlabel(r'$\alpha$', fontsize=14)
 
+    ax.set_xlim(min(log10alpha),max(log10alpha))
+    ax.set_ylim(min(log10BetaOverH),max(log10BetaOverH))
+    
     #    plt.grid()
 
     for i, (BetaoverH_set, alpha_set) in enumerate(zip(BetaoverH_list,
