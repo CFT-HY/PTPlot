@@ -439,7 +439,7 @@ def theory_snr_alphabeta(request, theory_id):
         alpha_list = [[point.alpha for point in point_list]]
         BetaoverH_list = [[point.BetaoverH for point in point_list]]
         label_list = [[point.point_shortlabel for point in point_list]]
-        title_list = [[theory.theory_name]]
+        title_list = [theory.theory_name]
         
     sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
                                                alpha_list=alpha_list,

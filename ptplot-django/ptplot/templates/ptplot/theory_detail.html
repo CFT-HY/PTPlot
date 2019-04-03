@@ -6,7 +6,7 @@
 
 {% if point_list %}
 
-<h4>{{ theory.theory_name }}</h4>
+<h3>{{ theory.theory_name }}</h3>
 
 <p>{{ theory.theory_description|urlize }}</p>
 
@@ -17,10 +17,10 @@
   $v_\mathrm{w} = {{ theory.theory_vw }}$,
   $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$ (when all points
   are plotted),
-  $g_* = {{theory.theory_gstar }}$</p>
+  $g_* = {{theory.theory_gstar }}$.</p>
 
 <p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
-  ({{ theory.theory_Senscurve }})<p>
+<!--  ({{ theory.theory_Senscurve }}) --> <p>
 
 {% if theory.theory_hasScenarios == True %}
 
