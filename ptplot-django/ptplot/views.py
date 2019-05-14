@@ -324,6 +324,7 @@ def theory_scenario_snr(request, theory_id, scenario_id):
     point_list = ParameterChoice.objects.filter(theory__id=theory_id,
                                                 scenario__scenario_number=scenario_id)
 
+    vw_list = [theory.theory_vw if point.vw == None else point.vw for point in point_list]
     alpha_list = [point.alpha for point in point_list]
     BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
@@ -333,7 +334,7 @@ def theory_scenario_snr(request, theory_id, scenario_id):
         Tstar = selected_scenario.scenario_Tstar
         
     
-    sio_SNR = get_SNR_image_threaded(vw_list=[[theory.theory_vw]*len(point_list)],
+    sio_SNR = get_SNR_image_threaded(vw_list=[vw_list],
                                      alpha_list=[alpha_list],
                                      BetaoverH_list=[BetaoverH_list],
                                      Tstar=Tstar,
@@ -391,7 +392,7 @@ def theory_snr(request, theory_id):
         for scenario in scenario_list:
             point_list = ParameterChoice.objects.filter(theory__id=theory_id,
                                                         scenario__id=scenario.id)
-            vw_list.append([theory.theory_vw]*len(point_list))
+            vw_list.append([theory.theory_vw if point.vw == None else point.vw for point in point_list])
             alpha_list.append([point.alpha for point in point_list])
             BetaoverH_list.append([point.BetaoverH for point in point_list])
             label_list.append([point.point_shortlabel for point in point_list])
