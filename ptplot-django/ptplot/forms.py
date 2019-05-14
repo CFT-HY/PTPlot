@@ -26,7 +26,7 @@ class PTPlotForm(forms.Form):
                           validators=[validate_velocity],
                           localize=False)
 
-    alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
+    alpha = forms.FloatField(label=r'Phase transition strength $\alpha_\theta$',
                              min_value=0.0,
                              localize=False)
     BetaoverH = forms.FloatField(label=r'Inverse phase transition duration $\beta/H_*$',
@@ -75,7 +75,7 @@ class MultipleForm(forms.Form):
                                   choices=available_senscurves)
 
     table = forms.CharField(label=r'Input table', widget=forms.Textarea,
-                            initial="#alpha,BetaOverH,label")
+                            initial="#alpha_theta,BetaOverH,label")
 
 class ParameterChoiceForm(forms.Form):
 
@@ -102,7 +102,7 @@ class ParameterChoiceForm(forms.Form):
                                        localize=False)
             #    tstar = forms.FloatField(label=r'Phase transition temperature $T_*$',
             #                             min_value=0.0)    
-            self.alpha = forms.FloatField(label=r'Phase transition strength $\alpha$',
+            self.alpha = forms.FloatField(label=r'Phase transition strength $\alpha_\theta$',
                                           min_value=0.0,
                                           localize=False)
             self.BetaoverH = forms.FloatField(label=r'Inverse phase transition duration $\beta/H_*$',
