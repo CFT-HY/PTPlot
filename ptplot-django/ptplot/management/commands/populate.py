@@ -462,6 +462,159 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
 
             point.save()
 
+        susy_theory \
+            = Theory(theory_name=r'SUSY model benchmark points',
+                                  theory_description=r'''description goes here''',
+                    theory_notes=r'''notes go here''',
+                     theory_Tstar=100,
+                     theory_gstar=108.75,
+                     theory_vw=0.95,
+                     theory_Senscurve=0,
+                     theory_hasScenarios=True)
+        susy_theory.save()
+
+        susy_scenario_1 = \
+            Scenario(scenario_theory=susy_theory,
+                     scenario_number=1,
+                     scenario_name="Scenario 1",
+                     scenario_Tstar=100,
+                     scenario_description=r'(this scenario has 2 benchmark points)')
+        susy_scenario_1.save()
+                
+        p1_A = ParameterChoice(theory=susy_theory,
+                               number=1,
+                               point_shortlabel=r'1A',
+                               point_longlabel=r'SUSY 1 point A',
+                               Tstar=112,
+                               alpha=0.037,
+                               BetaoverH=277,
+                               scenario=susy_scenario_1)
+
+        p1_A.save()
+
+        p1_B = ParameterChoice(theory=susy_theory,
+                               number=2,
+                               point_shortlabel=r'1B',
+                               point_longlabel=r'SUSY 1 point B',
+                               Tstar=76.4,
+                               alpha=0.143,
+                               BetaoverH=6.0,
+                               scenario=susy_scenario_1)
+
+        p1_B.save()
+
+
+        susy_scenario_2 = \
+            Scenario(scenario_theory=susy_theory,
+                     scenario_number=2,
+                     scenario_name="Scenario 2",
+                     scenario_Tstar=140,
+                     scenario_description=r'(this scenario has 2 benchmark points)')
+        susy_scenario_2.save()
+                
+        p2_A = ParameterChoice(theory=susy_theory,
+                               number=3,
+                               point_shortlabel=r'2A',
+                               point_longlabel=r'SUSY 2 point A',
+                               Tstar=135,
+                               alpha=0.050,
+                               BetaoverH=830,
+                               vw=0.73,
+                               scenario=susy_scenario_2)
+
+        p2_A.save()
+
+        p2_B = ParameterChoice(theory=susy_theory,
+                               number=4,
+                               point_shortlabel=r'2B',
+                               point_longlabel=r'SUSY 2 point B',
+                               Tstar=146,
+                               alpha=0.040,
+                               BetaoverH=2914,
+                               vw=0.72,
+                               scenario=susy_scenario_2)
+
+        p2_B.save()
+
+
+        susy_scenario_3 = \
+            Scenario(scenario_theory=susy_theory,
+                     scenario_number=3,
+                     scenario_name="Scenario 3",
+                     scenario_Tstar=75,
+                     scenario_description=r'(this scenario has 4 benchmark points)')
+        susy_scenario_3.save()
+                
+        p3_A = ParameterChoice(theory=susy_theory,
+                               number=5,
+                               point_shortlabel=r'3A',
+                               point_longlabel=r'SUSY 3 point A',
+                               Tstar=74,
+                               alpha=0.062,
+                               BetaoverH=214,
+                               vw=0.1,
+                               scenario=susy_scenario_3)
+
+        p3_A.save()
+
+        p3_B = ParameterChoice(theory=susy_theory,
+                               number=6,
+                               point_shortlabel=r'3B',
+                               point_longlabel=r'SUSY 3 point B',
+                               Tstar=74,
+                               alpha=0.062,
+                               BetaoverH=214,
+                               vw=0.5,
+                               scenario=susy_scenario_3)
+
+        p3_B.save()
+
+        p3_C = ParameterChoice(theory=susy_theory,
+                               number=7,
+                               point_shortlabel=r'3C',
+                               point_longlabel=r'SUSY 3 point C',
+                               Tstar=79,
+                               alpha=0.045,
+                               BetaoverH=200,
+                               vw=0.1,
+                               scenario=susy_scenario_3)
+
+        p3_C.save()
+
+        p3_D = ParameterChoice(theory=susy_theory,
+                               number=8,
+                               point_shortlabel=r'3D',
+                               point_longlabel=r'SUSY 3 point D',
+                               Tstar=79,
+                               alpha=0.045,
+                               BetaoverH=200,
+                               vw=0.5,
+                               scenario=susy_scenario_3)
+
+        p3_D.save()
+        
+        
+        susy_scenario_4 = \
+            Scenario(scenario_theory=susy_theory,
+                     scenario_number=4,
+                     scenario_name="Scenario 4",
+                     scenario_Tstar=100,
+                     scenario_description=r'(this scenario has 1 benchmark points)')
+        susy_scenario_4.save()
+                
+        p4_A = ParameterChoice(theory=susy_theory,
+                               number=5,
+                               point_shortlabel=r'4A',
+                               point_longlabel=r'SUSY 4 point A',
+                               Tstar=48,
+                               alpha=0.22,
+                               BetaoverH=57,
+                               vw=0.95,
+                               scenario=susy_scenario_4)
+
+        p4_A.save()
+
+            
         
             
         print('done populating.')
