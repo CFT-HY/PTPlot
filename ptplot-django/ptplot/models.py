@@ -19,6 +19,7 @@ class Scenario(models.Model):
     scenario_theory = models.ForeignKey(Theory, on_delete=models.CASCADE)
     scenario_number = models.IntegerField()
     scenario_name = models.CharField(max_length=200)
+    scenario_Tstar = models.FloatField(null=True)
     scenario_description = models.TextField(null=True)
     
 class ParameterChoice(models.Model):

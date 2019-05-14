@@ -327,11 +327,16 @@ def theory_scenario_snr(request, theory_id, scenario_id):
     alpha_list = [point.alpha for point in point_list]
     BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
+
+    Tstar = theory.theory_Tstar
+    if selected_scenario.scenario_Tstar:
+        Tstar = selected_scenario.scenario_Tstar
+        
     
     sio_SNR = get_SNR_image_threaded(vw_list=[[theory.theory_vw]*len(point_list)],
                                      alpha_list=[alpha_list],
                                      BetaoverH_list=[BetaoverH_list],
-                                     Tstar=theory.theory_Tstar,
+                                     Tstar=Tstar,
                                      gstar=theory.theory_gstar,
                                      label_list=[label_list],
                                      title_list=[theory.theory_name],
@@ -350,10 +355,15 @@ def theory_scenario_snr_alphabeta(request, theory_id, scenario_id):
     label_list = [point.point_shortlabel for point in point_list]
     
 
+    Tstar = theory.theory_Tstar
+    if selected_scenario.scenario_Tstar:
+        Tstar = selected_scenario.scenario_Tstar
+
+    
     sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
                                      alpha_list=[alpha_list],
                                      BetaoverH_list=[BetaoverH_list],
-                                     Tstar=theory.theory_Tstar,
+                                     Tstar=Tstar,
                                      gstar=theory.theory_gstar,
                                      label_list=[label_list],
                                      title_list=[theory.theory_name],

@@ -8,7 +8,13 @@
 
 <p>NB: using
   $v_\mathrm{w} = {{ theory.theory_vw }}$,
-  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$,
+  $T_* = 
+  {% if selected_scenario.scenario_Tstar %}
+  {{ selected_scenario.scenario_Tstar }}
+  {% else %}
+  {{theory.theory_Tstar }}
+  {% endif %}
+  \, \mathrm{GeV}$,
   $g_* = {{theory.theory_gstar }}$.</p>
 
 
