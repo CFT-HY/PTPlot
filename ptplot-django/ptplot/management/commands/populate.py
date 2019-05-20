@@ -81,32 +81,70 @@ class Command(BaseCommand):
             Theory(theory_name=r'2HDM benchmark points',
                                   theory_description='''
                                   Description goes here''',
-                   theory_notes=r'''Notes go here: equation for the potential, parameters, etc. $\tan \beta = 30$ for all points.''',
-                   theory_Tstar=100,
+                   theory_notes=r'''Notes go here: equation for the potential, parameters, etc.''',
+                   theory_Tstar=50,
                    theory_gstar=106.75,
-                   theory_vw=0.95,
+                   theory_vw=0.9,
                    theory_Senscurve=0,
-                   theory_hasScenarios=False)
+                   theory_hasScenarios=True)
         twohdm_josemi_theory.save()
 
+        josemi_set_1 = \
+            Scenario(scenario_theory=twohdm_josemi_theory,
+                     scenario_number=1,
+                     scenario_name="Set 1",
+                     scenario_description=r'2HDM points which are currently allowed both for Type I and Type II 2HDM. For Type II, these will be probed by the LHC in the future, while for Type I the LHC will not be able to exclude these benchmarks, depending on the value of $\tan\beta$ (which does influence the strength of the PT).')
+        josemi_set_1.save()
+        
         josemi_points = np.genfromtxt(os.path.join(filedir, 'josemi_2hdm.txt'), delimiter=',',names=True)
         Tn = josemi_points['Tn']
         alpha_n = josemi_points['alpha_n']
         beta_H_n = josemi_points['beta_H_n']
+        tanb = josemi_points['tanb']
         mH = josemi_points['mH']
         mA = josemi_points['mA']
         
-        for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n) in \
-            enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n)):
+        for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
+            enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
             point = ParameterChoice(theory=twohdm_josemi_theory,
                                     number=(i+1),
-                                 point_longlabel='$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$' % (this_mH, this_mA),
-                                 Tstar=this_Tn,
-                                 alpha=this_alpha_n,
-                                 BetaoverH=this_beta_H_n)
+                                    point_longlabel=r'$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$, $\tan \beta = %d$' % (this_mH, this_mA, this_tanb),
+                                    Tstar=this_Tn,
+                                    alpha=this_alpha_n,
+                                    BetaoverH=this_beta_H_n,
+                                    scenario=josemi_set_1)
 
             point.save()
 
+
+        josemi_set_2 = \
+            Scenario(scenario_theory=twohdm_josemi_theory,
+                     scenario_number=2,
+                     scenario_name="Set 2",
+                     scenario_description=r'2HDM points which are currently allowed for Type I 2HDM, but excluded for Type II 2HDM, by LHC searches.')
+        josemi_set_2.save()
+        
+        josemi_points = np.genfromtxt(os.path.join(filedir, 'josemi_2hdm_set2.txt'), delimiter=',',names=True)
+        Tn = josemi_points['Tn']
+        alpha_n = josemi_points['alpha_n']
+        beta_H_n = josemi_points['beta_H_n']
+        tanb = josemi_points['tanb']
+        mH = josemi_points['mH']
+        mA = josemi_points['mA']
+        
+        for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
+            enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
+            point = ParameterChoice(theory=twohdm_josemi_theory,
+                                    number=(i+1),
+                                    point_longlabel=r'$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$, $\tan \beta = %d$' % (this_mH, this_mA, this_tanb),
+                                    Tstar=this_Tn,
+                                    alpha=this_alpha_n,
+                                    BetaoverH=this_beta_H_n,
+                                    scenario=josemi_set_2)
+
+            point.save()
+
+            
 
         singlet_miki_theory = \
             Theory(theory_name=r'Singlet portal benchmark points',
