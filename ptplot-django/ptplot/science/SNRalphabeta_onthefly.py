@@ -172,16 +172,31 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
 
         #    leg.get_frame().set_alpha(0.9)
 
-    xtickpos = [min(log10alpha)] \
-        + list(range(int(math.ceil(min(log10alpha))),
-                     int(math.floor(max(log10alpha))+1))) \
-        + [max(log10alpha)]
-    xticklabels = [r'$10^{%.2g}$' % min(log10alpha)] \
-        + [r'$10^{%d}$' % ind
+    # xtickpos = [min(log10alpha)] \
+    #     + list(range(int(math.ceil(min(log10alpha))),
+    #                  int(math.floor(max(log10alpha))+1))) \
+    #     + [max(log10alpha)]
+    # xticklabels = [r'$10^{%.2g}$' % min(log10alpha)] \
+    #     + [r'$10^{%d}$' % ind
+    #        for ind in list(range(int(math.ceil(min(log10alpha))),
+    #                              int(math.floor(max(log10alpha))+1)))] \
+    #     + [r'$10^{%.2g}$' % max(log10alpha)]
+
+
+    # # Remove if too close together
+    # if xtickpos[1]/xtickpos[0] < 3:
+    #     xtickpos = xtickpos[1:]
+    #     xticklabels = xticklabels[1:]
+
+
+    xtickpos = list(range(int(math.ceil(min(log10alpha))),
+                     int(math.floor(max(log10alpha))+1)))
+    xticklabels = [r'$10^{%d}$' % ind
            for ind in list(range(int(math.ceil(min(log10alpha))),
-                                 int(math.floor(max(log10alpha))+1)))] \
-        + [r'$10^{%.2g}$' % max(log10alpha)]
-    
+                                 int(math.floor(max(log10alpha))+1)))]
+
+        
+
 #    xtickpos = [-2, -1, 0, 1]
 #    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$10^{0}$', r'$10^{1}$']
 
