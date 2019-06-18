@@ -2,11 +2,15 @@ For all these points g*=108.75. Scenarios:
 
 
 
-SUSY$_1$   (this scenario has 2 benchmark points)
+SUSY$_1$   (this scenario has 2 benchmark points)    
 ---------------
-alpha = 0.037 ;   beta/H = 277 ;   vw = 0.95  ;  Tn = 112 GeV
+alpha = 0.037 ;   beta/H = 277 ;   vw = 0.95  ;  Tn = 112 GeV;   color = e.g. red, marker = e.g. star
 ------------------
-alpha = 0.143 ;  beta/H =  6.0  ;  vw = 0.95  ;  Tn = 76.4  GeV
+alpha = 0.066 ;   beta/H = 106 ;   vw = 0.95  ;  Tn = 95 GeV;   color = e.g. red, marker = e.g. star
+------------------
+alpha = 0.105 ;   beta/H = 33 ;   vw = 0.95  ;  Tn = 82 GeV;   color = e.g. red, marker = e.g. star
+------------------
+alpha = 0.143 ;  beta/H =  6.0  ;  vw = 0.95  ;  Tn = 76.4  GeV;  color = e.g. red, marker = e.g. star
 ---------------
 
 
@@ -14,22 +18,22 @@ alpha = 0.143 ;  beta/H =  6.0  ;  vw = 0.95  ;  Tn = 76.4  GeV
 
 SUSY$_2$   (this scenario has 2 benchmark points)
     ---------------
-alpha = 0.050 ;   beta/H = 830 ;   vw = 0.73  ;  Tn = 135 GeV
+alpha = 0.050 ;   beta/H = 830 ;   vw = 0.73  ;  Tn = 135 GeV; color = e.g. green, marker = e.g. cross
 ------------------
-alpha = 0.040 ;  beta/H =  2914  ;  vw = 0.72  ;  Tn = 146  GeV
+alpha = 0.040 ;  beta/H =  2914  ;  vw = 0.72  ;  Tn = 146  GeV; color = e.g. green, marker = e.g. cross
 ---------------
 
 
 
 SUSY$_3$   (this scenario has 4 benchmark points)
 ---------------
-alpha = 0.062 ;   beta/H = 214 ;   vw = 0.1  ;  Tn = 74 GeV
+alpha = 0.062 ;   beta/H = 214 ;   vw = 0.1  ;  Tn = 74 GeV;  color = e.g. black, marker = e.g. diamond
 ------------------
-alpha = 0.062 ;   beta/H = 214 ;   vw = 0.5  ;  Tn = 74 GeV
+alpha = 0.062 ;   beta/H = 214 ;   vw = 0.5  ;  Tn = 74 GeV; color = e.g. magenta, marker = e.g. diamond
 ------------------
-alpha = 0.045 ;   beta/H = 200 ;   vw = 0.1  ;  Tn = 79 GeV
+alpha = 0.045 ;   beta/H = 200 ;   vw = 0.1  ;  Tn = 79 GeV;  color = e.g. black, marker = e.g. diamond
 ------------------
-alpha = 0.045 ;   beta/H = 200 ;   vw = 0.5  ;  Tn = 79 GeV
+alpha = 0.045 ;   beta/H = 200 ;   vw = 0.5  ;  Tn = 79 GeV;  color = e.g. magenta, marker = e.g. diamond
 ------------------
       
 
@@ -37,7 +41,7 @@ alpha = 0.045 ;   beta/H = 200 ;   vw = 0.5  ;  Tn = 79 GeV
 
 SUSY$_4$  (this scenario has 1 benchmark point)
 --------
-alpha =  0.22 ;  beta/H = 57 ;   vw = 0.95  ;   Tn =  48 GeV
+alpha =  0.22 ;  beta/H = 57 ;   vw = 0.95  ;   Tn =  48 GeV;  color = e.g. red, marker = e.g. plus
 ----------
 
 

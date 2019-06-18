@@ -147,7 +147,7 @@ class Command(BaseCommand):
             
 
         singlet_miki_theory = \
-            Theory(theory_name=r'Singlet portal benchmark points',
+            Theory(theory_name=r'$Z_2$-symmetric singlet scalar benchmark points',
                                   theory_description=r'''Benchmark points for the SM extended with a scalar singlet with
 $Z_2$ symmetry.''',
                     theory_notes=r'''The new physics potential reads
@@ -162,7 +162,7 @@ the strength of the phase transition, computed using a modified version
 of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                      theory_Tstar=50,
                      theory_gstar=106.75,
-                     theory_vw=0.95,
+                     theory_vw=1.0,
                      theory_Senscurve=0,
                      theory_hasScenarios=False)
         singlet_miki_theory.save()
@@ -192,7 +192,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
 
         singletscalars_moritz_theory = \
-            Theory(theory_name=r'Singlet scalar benchmark points (Breitbach et al.)',
+            Theory(theory_name=r'Scalar dark sector benchmark points (Breitbach et al.)',
                                   theory_description='''Benchmark points for a model with two gauge singlet scalars in a hidden sector.''',
                    theory_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
                    theory_Tstar=100,
@@ -257,7 +257,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
         gaugedlepton_madge_theory = \
             Theory(theory_name=r'Gauged Lepton Number Model benchmark points',
-                                  theory_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number''',
+                                  theory_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number.''',
                    theory_notes=r'''Benchmark points for the lepton number phase transition in the
 model considered in https://arxiv.org/abs/1809.09110, see section 5.2
 for the potential.  Lepton number is gauged as a $U(1)_\ell$ gauge
@@ -501,9 +501,15 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
             point.save()
 
         susy_theory \
-            = Theory(theory_name=r'SUSY model benchmark points',
-                                  theory_description=r'''description goes here''',
-                    theory_notes=r'''notes go here''',
+            = Theory(theory_name=r'Some SUSY embeddings (Nardini)',
+                                  theory_description=r'''Benchmark points for some SUSY embeddings with chiral 
+supersinglets or supertriplets.''',
+                    theory_notes=r'''The benchmark points  SUSY$_1$ are taken from 
+https://arxiv.org/abs/1512.06357, SUSY$_2$ from 
+https://arxiv.org/abs/1704.02488,  SUSY$_3$ from 
+https://arxiv.org/abs/1712.00087, and SUSY$_4$ from 
+https://arxiv.org/abs/1602.01351 . Details on the models can be found in 
+the corresponding references.''',
                      theory_Tstar=100,
                      theory_gstar=108.75,
                      theory_vw=0.95,
@@ -514,7 +520,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         susy_scenario_1 = \
             Scenario(scenario_theory=susy_theory,
                      scenario_number=1,
-                     scenario_name="Scenario 1",
+                     scenario_name="SUSY$_1$",
                      scenario_Tstar=100,
                      scenario_description=r'(this scenario has 2 benchmark points)')
         susy_scenario_1.save()
@@ -522,7 +528,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p1_A = ParameterChoice(theory=susy_theory,
                                number=1,
                                point_shortlabel=r'1A',
-                               point_longlabel=r'SUSY 1 point A',
+                               point_longlabel=r'SUSY$_1$ point A',
                                Tstar=112,
                                alpha=0.037,
                                BetaoverH=277,
@@ -533,27 +539,50 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p1_B = ParameterChoice(theory=susy_theory,
                                number=2,
                                point_shortlabel=r'1B',
-                               point_longlabel=r'SUSY 1 point B',
+                               point_longlabel=r'SUSY$_1$ point B',
+                               Tstar=95,
+                               alpha=0.066,
+                               BetaoverH=106,
+                               scenario=susy_scenario_1)
+
+        p1_B.save()
+
+        p1_C = ParameterChoice(theory=susy_theory,
+                               number=3,
+                               point_shortlabel=r'1C',
+                               point_longlabel=r'SUSY$_1$ point C',
+                               Tstar=82,
+                               alpha=0.105,
+                               BetaoverH=33,
+                               scenario=susy_scenario_1)
+
+        p1_C.save()
+
+        
+        p1_D = ParameterChoice(theory=susy_theory,
+                               number=4,
+                               point_shortlabel=r'1D',
+                               point_longlabel=r'SUSY$_1$ point D',
                                Tstar=76.4,
                                alpha=0.143,
                                BetaoverH=6.0,
                                scenario=susy_scenario_1)
 
-        p1_B.save()
+        p1_D.save()
 
 
         susy_scenario_2 = \
             Scenario(scenario_theory=susy_theory,
                      scenario_number=2,
-                     scenario_name="Scenario 2",
+                     scenario_name="SUSY$_2$",
                      scenario_Tstar=140,
                      scenario_description=r'(this scenario has 2 benchmark points)')
         susy_scenario_2.save()
                 
         p2_A = ParameterChoice(theory=susy_theory,
-                               number=3,
+                               number=5,
                                point_shortlabel=r'2A',
-                               point_longlabel=r'SUSY 2 point A',
+                               point_longlabel=r'SUSY$_2$ point A',
                                Tstar=135,
                                alpha=0.050,
                                BetaoverH=830,
@@ -563,9 +592,9 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p2_A.save()
 
         p2_B = ParameterChoice(theory=susy_theory,
-                               number=4,
+                               number=6,
                                point_shortlabel=r'2B',
-                               point_longlabel=r'SUSY 2 point B',
+                               point_longlabel=r'SUSY$_2$ point B',
                                Tstar=146,
                                alpha=0.040,
                                BetaoverH=2914,
@@ -578,15 +607,15 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         susy_scenario_3 = \
             Scenario(scenario_theory=susy_theory,
                      scenario_number=3,
-                     scenario_name="Scenario 3",
+                     scenario_name="SUSY$_3$",
                      scenario_Tstar=75,
                      scenario_description=r'(this scenario has 4 benchmark points)')
         susy_scenario_3.save()
                 
         p3_A = ParameterChoice(theory=susy_theory,
-                               number=5,
+                               number=7,
                                point_shortlabel=r'3A',
-                               point_longlabel=r'SUSY 3 point A',
+                               point_longlabel=r'SUSY$_3$ point A',
                                Tstar=74,
                                alpha=0.062,
                                BetaoverH=214,
@@ -596,9 +625,9 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p3_A.save()
 
         p3_B = ParameterChoice(theory=susy_theory,
-                               number=6,
+                               number=8,
                                point_shortlabel=r'3B',
-                               point_longlabel=r'SUSY 3 point B',
+                               point_longlabel=r'SUSY$_3$ point B',
                                Tstar=74,
                                alpha=0.062,
                                BetaoverH=214,
@@ -608,9 +637,9 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p3_B.save()
 
         p3_C = ParameterChoice(theory=susy_theory,
-                               number=7,
+                               number=9,
                                point_shortlabel=r'3C',
-                               point_longlabel=r'SUSY 3 point C',
+                               point_longlabel=r'SUSY$_3$ point C',
                                Tstar=79,
                                alpha=0.045,
                                BetaoverH=200,
@@ -620,9 +649,9 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         p3_C.save()
 
         p3_D = ParameterChoice(theory=susy_theory,
-                               number=8,
+                               number=10,
                                point_shortlabel=r'3D',
-                               point_longlabel=r'SUSY 3 point D',
+                               point_longlabel=r'SUSY$_3$ point D',
                                Tstar=79,
                                alpha=0.045,
                                BetaoverH=200,
@@ -635,15 +664,15 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         susy_scenario_4 = \
             Scenario(scenario_theory=susy_theory,
                      scenario_number=4,
-                     scenario_name="Scenario 4",
+                     scenario_name="SUSY$_4$",
                      scenario_Tstar=100,
                      scenario_description=r'(this scenario has 1 benchmark points)')
         susy_scenario_4.save()
                 
         p4_A = ParameterChoice(theory=susy_theory,
-                               number=5,
+                               number=11,
                                point_shortlabel=r'4A',
-                               point_longlabel=r'SUSY 4 point A',
+                               point_longlabel=r'SUSY$_4$ point A',
                                Tstar=48,
                                alpha=0.22,
                                BetaoverH=57,
@@ -654,7 +683,77 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
 
             
         
-            
+
+        singlet_jonathan_theory = \
+            Theory(theory_name=r'Singlet scalar benchmark points (Kozaczuk)',
+                                  theory_description='''
+                                  Benchmark points for the SM extended with a general real singlet scalar field, $S$.''',
+                   theory_notes=r'''
+$$
+\Delta V = b_1 S +  \frac{1}{2} b_2 S^2 + \frac{1}{2} a_1 S \left| H \right|^2 + \frac{1}{2} a_2 S^2 \left| H \right|^2 + \frac{1}{3} b_3 S^3 + \frac{1}{4} b_4 S^4.
+$$
+
+In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle between $S$ and $H$ is denoted as $\theta$. Masses considered are $m_2 = 170,\, 240\, \mathrm{GeV}$. We show results for points with $m_2= 170,\, 240\, \mathrm{GeV}$ and $\sin \theta = 0.1$, which are likely to be probed by direct searches at the high-luminosity LHC with $3\, \mathrm{ab}^{-1}$, and $\sin\theta = 0.01$, which will likely remain undetected at colliders. The various parameters in the potential are scanned over as described in the text. See also JHEP 1708 (2017) 096 [http://arxiv.org/abs/arXiv:1704.05844] for more details. 
+''',
+                   theory_Tstar=50,
+                   theory_gstar=107.75,
+                   theory_vw=1.0,
+                   theory_Senscurve=0,
+                   theory_hasScenarios=True)
+        singlet_jonathan_theory.save()
+
+        jonathan_set_1 = \
+            Scenario(scenario_theory=singlet_jonathan_theory,
+                     scenario_number=1,
+                     scenario_name="Not probed by HL-LHC",
+                     scenario_description=r'Set of points that are not probed by HL-LHC')
+        jonathan_set_1.save()
+
+        jonathan_set_2 = \
+            Scenario(scenario_theory=singlet_jonathan_theory,
+                     scenario_number=2,
+                     scenario_name="Will be probed by HL-LHC",
+                     scenario_description=r'Set of points that will be probed by HL-LHC')
+        jonathan_set_2.save()
+
+        
+#        alpha, beta_over_H, probe = np.genfromtxt(os.path.join(filedir, 'GW_singlet_combined.dat'), delimiter=',', unpack=True)
+        jonathan_points = np.genfromtxt(os.path.join(filedir, 'GW_singlet_combined_all_params.dat'), delimiter=',', names=True)
+        m2 = jonathan_points['m2']
+        sinTheta = jonathan_points['sinTheta']
+        a2 = jonathan_points['a2']
+        b3 = jonathan_points['b3']
+        b4 = jonathan_points['b4']
+        alpha = jonathan_points['alpha']
+        betaoverH = jonathan_points['betaoverH']
+        LHCflag = jonathan_points['LHCflag']
+        Tstar = jonathan_points['Tstar']
+        
+        for i, (this_m2, this_sinTheta, this_a2, this_b3, this_b4, this_alpha, this_beta_over_H, this_probe, this_Tstar) in \
+            enumerate(zip(m2, sinTheta, a2, b3, b4, alpha, betaoverH, LHCflag, Tstar)):
+
+            if not this_probe:                
+                point = ParameterChoice(theory=singlet_jonathan_theory,
+                                        number=(i+1),
+#                                        point_longlabel=r'Point %d' % (i+1),
+                                        point_longlabel=r'$m_2 = %d\, \mathrm{GeV}$, $\sin \theta = %g$, $a_2 = %g$, $b_3 = %g$, $b_4  = %g$)' % (this_m2, this_sinTheta, this_a2, this_b3, this_b4),
+                                        alpha=this_alpha,
+                                        Tstar=this_Tstar,
+                                        BetaoverH=this_beta_over_H,
+                                        scenario=jonathan_set_1)
+            else:
+                point = ParameterChoice(theory=singlet_jonathan_theory,
+                                        number=(i+1),
+#                                        point_longlabel=r'Point %d' % (i+1),
+                                        point_longlabel=r'$m_2 = %d\, \mathrm{GeV}$, $\sin \theta = %g$, $a_2 = %g$, $b_3 = %g$, $b_4  = %g$)' % (this_m2, this_sinTheta, this_a2, this_b3, this_b4),                                        
+                                        alpha=this_alpha,
+                                        Tstar=this_Tstar,
+                                        BetaoverH=this_beta_over_H,
+                                        scenario=jonathan_set_2)
+
+            point.save()
+
+        
         print('done populating.')
         print('NOTE: run python3 manage.py flush to clear tables')
 
