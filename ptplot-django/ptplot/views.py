@@ -25,7 +25,7 @@ def ps_image(request):
             vw = form.cleaned_data['vw']
             alpha = form.cleaned_data['alpha']
             BetaoverH = form.cleaned_data['BetaoverH']
-            Senscurve = int(form.cleaned_data['Senscurve'])
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
                 
@@ -34,7 +34,7 @@ def ps_image(request):
                                            vw=vw,
                                            alpha=alpha,
                                            BetaoverH=BetaoverH,
-                                           Senscurve=Senscurve)
+                                           MissionProfile=MissionProfile)
             
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
@@ -47,8 +47,8 @@ def snr_image(request):
             alpha = form.cleaned_data['alpha']
             BetaoverH = form.cleaned_data['BetaoverH']
 
-            Senscurve = int(form.cleaned_data['Senscurve'])
-#            SNRfilename = precomputed_filenames[Senscurve]
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
+#            SNRfilename = precomputed_filenames[MissionProfile]
 
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
@@ -57,7 +57,7 @@ def snr_image(request):
                                              vw_list=[[vw]],
                                              alpha_list=[[alpha]],
                                              BetaoverH_list=[[BetaoverH]],
-                                             Senscurve=Senscurve)
+                                             MissionProfile=MissionProfile)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -70,8 +70,8 @@ def snr_alphabeta_image(request):
             alpha = form.cleaned_data['alpha']
             BetaoverH = form.cleaned_data['BetaoverH']
 
-            Senscurve = int(form.cleaned_data['Senscurve'])
-#            SNRfilename = precomputed_filenames[Senscurve]
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
+#            SNRfilename = precomputed_filenames[MissionProfile]
             
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
@@ -82,7 +82,7 @@ def snr_alphabeta_image(request):
                                                        BetaoverH_list=[[BetaoverH]],
                                                        Tstar=Tstar,
                                                        gstar=gstar,
-                                                       Senscurve=Senscurve)
+                                                       MissionProfile=MissionProfile)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
         
@@ -111,7 +111,7 @@ def model_detail(request, model_id):
     
     template = loader.get_template('ptplot/model_detail.html')
 
-    sensitivity_curve_label = available_labels[model.model_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_MissionProfile]
     
     context = {'model': model,
                'point_list': point_list,
@@ -134,7 +134,7 @@ def model_detail_plot(request, model_id):
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
 
-    sensitivity_curve_label = available_labels[model.model_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_detail_plot.html')
     
@@ -157,7 +157,7 @@ def model_point_plot(request, model_id, point_id):
     point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
     
-    sensitivity_curve_label = available_labels[model.model_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_point_plot.html')
     
@@ -176,7 +176,7 @@ def model_point_snr(request, model_id, point_id):
     point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = model.model_Senscurve
+    MissionProfile = model.model_MissionProfile
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -205,7 +205,7 @@ def model_point_snr(request, model_id, point_id):
                                      alpha_list=[[alpha]],
                                      BetaoverH_list=[[BetaoverH]],
                                      label_list=[[label]],
-                                     Senscurve=Senscurve)
+                                     MissionProfile=MissionProfile)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -214,7 +214,7 @@ def model_point_snr_alphabeta(request, model_id, point_id):
     point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = model.model_Senscurve
+    MissionProfile = model.model_MissionProfile
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -243,7 +243,7 @@ def model_point_snr_alphabeta(request, model_id, point_id):
                                                alpha_list=[[alpha]],
                                                BetaoverH_list=[[BetaoverH]],
                                                label_list=[[label]],
-                                               Senscurve=Senscurve)
+                                               MissionProfile=MissionProfile)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -255,7 +255,7 @@ def model_point_ps(request, model_id, point_id):
     point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = model.model_Senscurve
+    MissionProfile = model.model_MissionProfile
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -284,7 +284,7 @@ def model_point_ps(request, model_id, point_id):
                                    vw=vw,
                                    alpha=alpha,
                                    BetaoverH=BetaoverH,
-                                   Senscurve=Senscurve)
+                                   MissionProfile=MissionProfile)
             
     return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
@@ -304,7 +304,7 @@ def model_scenario_plot(request, model_id, scenario_id):
     point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
     
-    sensitivity_curve_label = available_labels[model.model_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_scenario_plot.html')
     
@@ -341,7 +341,7 @@ def model_scenario_snr(request, model_id, scenario_id):
                                      gstar=model.model_gstar,
                                      label_list=[label_list],
                                      title_list=[model.model_name],
-                                     Senscurve=model.model_Senscurve)
+                                     MissionProfile=model.model_MissionProfile)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -368,7 +368,7 @@ def model_scenario_snr_alphabeta(request, model_id, scenario_id):
                                      gstar=model.model_gstar,
                                      label_list=[label_list],
                                      title_list=[model.model_name],
-                                     Senscurve=model.model_Senscurve)
+                                     MissionProfile=model.model_MissionProfile)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -417,7 +417,7 @@ def model_snr(request, model_id):
                                      gstar=model.model_gstar,
                                      label_list=label_list,
                                      title_list=title_list,
-                                     Senscurve=model.model_Senscurve)
+                                     MissionProfile=model.model_MissionProfile)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -459,7 +459,7 @@ def model_snr_alphabeta(request, model_id):
                                                gstar=model.model_gstar,
                                                label_list=label_list,
                                                title_list=title_list,
-                                               Senscurve=model.model_Senscurve)
+                                               MissionProfile=model.model_MissionProfile)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -496,10 +496,10 @@ def multiple(request):
             vw = form.cleaned_data['vw']
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
-            Senscurve = int(form.cleaned_data['Senscurve'])
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
             table = form.cleaned_data['table']
 
-#            SNRfilename = precomputed_filenames[Senscurve]
+#            SNRfilename = precomputed_filenames[MissionProfile]
 
             
             table_lines = table.splitlines()
@@ -533,7 +533,7 @@ def multiple(request):
                                                        BetaoverH_list=[BetaoverH_list],
                                                        Tstar=Tstar,
                                                        gstar=gstar,
-                                                       Senscurve=Senscurve,
+                                                       MissionProfile=MissionProfile,
                                                        label_list=[label_list])
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
@@ -563,7 +563,8 @@ def single(request):
             alpha = form.cleaned_data['alpha']
             BetaoverH = form.cleaned_data['BetaoverH']
 
-            Senscurve = int(form.cleaned_data['Senscurve'])
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
+            MissionProfile_label = available_labels[MissionProfile]
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
 
@@ -575,7 +576,8 @@ def single(request):
                        'alpha': alpha,
                        'BetaoverH': BetaoverH,
                        'Tstar': Tstar,
-                       'gstar': gstar}
+                       'gstar': gstar,
+                       'MissionProfile_label': MissionProfile_label}
             return HttpResponse(template.render(context, request))
 
         # Form not valid

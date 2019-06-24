@@ -38,8 +38,8 @@ sensitivity_root = os.path.join(root, 'sensitivity')
     
 ############################## Functions ##############################
 
-def get_SNRcurve(Tn, gstar, Senscurve):
-    duration = yr*available_durations[Senscurve]
+def get_SNRcurve(Tn, gstar, MissionProfile):
+    duration = yr*available_durations[MissionProfile]
     
     ## Values of log10 Ubarf to scan
     log10Ubarf = np.arange(-2,0.04,0.04)
@@ -61,7 +61,7 @@ def get_SNRcurve(Tn, gstar, Senscurve):
 
     sensitivity_curve = os.path.join(sensitivity_root,
                                      available_sensitivitycurves_lite[
-                                         Senscurve])
+                                         MissionProfile])
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
     

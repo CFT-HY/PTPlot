@@ -3,23 +3,40 @@
 
 {% block results %}
 
+<h3>Results</h3>
 <p>Results for $v_\mathrm{w} = {{vw}}$, $\alpha_\theta = {{alpha}}$, $H/\beta
-  = {{BetaoverH}}$, $g_* ={{gstar}}$, $T_* = {{Tstar}} \, \mathrm{GeV}$</p>
+  = {{BetaoverH}}$, $g_* ={{gstar}}$, $T_* = {{Tstar}} \,
+  \mathrm{GeV}$.</p>
+<p>Mission profile is: <em>{{MissionProfile_label}}</em>.</p>
+
+<h4>Notes</h4>
+<ul>
+<li>  The computed
+  SNR value, shown below, is from the sound wave source only, and
+  assumes that the source duration is the Hubble time or one fluid
+  turnover time, whichever is smaller.</li>
+<li>Diagonal dashed contours are the ratio of Hubble time to fluid
+  turnover time. Coloured curved contours are LISA SNR for the given
+  mission profile (sensitivity curve and duration).</li>
+<li>The shaded region on the SNR contour plots shows the area in which
+  the sound wave source will last longer than a Hubble time.</li>
+</ul>
+
 <p>
   <img alt="embedded" src="ps?{{querystring}}" width="600px"
   height="450px" style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"/>
 </p>
 <p>
-  (note that the SNR curves <em>only</em> consider the sound wave
-  source for now)
+<!--  (note that the SNR curves <em>only</em> consider the sound wave
+  source for now) -->
   <img alt="embedded" src="snr?{{querystring}}"  width="600px"
   height="450px" style="background-color: #dddddd; border: 10px;
   padding: 15px; background-clip: content-box"/>
 </p>
 <p>
-  (note $\alpha$-$\beta$ plane plot depends on
+<!--  (note $\alpha$-$\beta$ plane plot depends on
   converting $\overline{U}_\mathrm{f}$ SNR curves to $\alpha_\theta$ SNR
-  curves for fixed $v_\mathrm{w}$)
+  curves for fixed $v_\mathrm{w}$) -->
   <img alt="embedded" src="snr_alphabeta?{{querystring}}"  width="600px"
   height="450px" style="background-color: #dddddd; border: 10px;
   padding: 15px; background-clip: content-box"/>

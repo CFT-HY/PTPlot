@@ -5,9 +5,11 @@
 
 {% block content %}
 
+<h3>Plot a single parameter point</h3>
+  
 <p>Plot the gravitational wave power spectrum for a single parameter
-point, against the (standard) sensitivity curve or [TODO] power-law
-  sensitivity curve.</p>
+point, against a given sensitivity curve and calculate the SNR
+  for the chosen sensitivity curve and mission profile.</p>
 
 
 
@@ -43,8 +45,8 @@ point, against the (standard) sensitivity curve or [TODO] power-law
 	  <td>{{form.BetaoverH}}</td>
 	</tr>
 	<tr>
-	  <th><label>{{form.Senscurve.label}}:</label></th>
-	  <td>{{form.Senscurve}}</td>
+	  <th><label>{{form.MissionProfile.label}}:</label></th>
+	  <td>{{form.MissionProfile}}</td>
 	</tr>
 	<tr>
 	  <th><label>{{form.Tstar.label}}:</label></th>

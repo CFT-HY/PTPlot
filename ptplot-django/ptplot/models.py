@@ -12,7 +12,7 @@ class Model(models.Model):
     model_vw = models.FloatField()
     model_Tstar = models.FloatField()
     model_gstar = models.FloatField()
-    model_Senscurve = models.IntegerField(default=0)
+    model_MissionProfile = models.IntegerField(default=0)
     model_hasScenarios = models.BooleanField()
 
 class Scenario(models.Model):
