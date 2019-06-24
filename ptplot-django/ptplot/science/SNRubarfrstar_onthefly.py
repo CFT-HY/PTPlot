@@ -40,7 +40,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   gstar=100,
                   label_list=None,
                   title_list=None,
-                  Senscurve=0,
+                  MissionProfile=0,
                   usetex=False):
 
 
@@ -55,7 +55,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     matplotlib.rc('mathtext', fontset='dejavuserif')
     
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, Senscurve)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile)
     
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])
@@ -207,11 +207,11 @@ def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
            gstar=100,
            label_list=None,
            title_list=None,
-           Senscurve=0,
+           MissionProfile=0,
            usetex=False):
     queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
                             Tstar, gstar,
-                            label_list, title_list, Senscurve, usetex))
+                            label_list, title_list, MissionProfile, usetex))
     
 
 
@@ -220,13 +220,13 @@ def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100]
                            gstar=100,
                            label_list=None,
                            title_list=None,
-                           Senscurve=0,
+                           MissionProfile=0,
                            usetex=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, BetaoverH_list,
                                                      Tstar, gstar,
-                                                     label_list, title_list, Senscurve, usetex))
+                                                     label_list, title_list, MissionProfile, usetex))
     p.start()
     return_res = q.get()
     p.join()

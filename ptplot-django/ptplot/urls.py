@@ -1,7 +1,6 @@
-
-from django.urls import path
-
+from django.urls import path, re_path
 from . import views
+from django.views.generic import RedirectView
 
 urlpatterns = [
     # Plots
@@ -34,69 +33,72 @@ urlpatterns = [
          name='multiple'),
 
     
-    # Display a list of theories from database
-    path(r'theories',
-         views.theory,
-         name='theory'),
+    # Display a list of models from database
+    path(r'models',
+         views.model,
+         name='model'),
 
-    # Display a list of benchmark points for a theory
-    path(r'theories/<int:theory_id>',
-         views.theory_detail,
-         name='theory_detail'),
+    # Old name for models
+    re_path(r'theories*', RedirectView.as_view(url='/ptplot/models', permanent=True)),
+    
+    # Display a list of benchmark points for a model
+    path(r'models/<int:model_id>',
+         views.model_detail,
+         name='model_detail'),
 
-    # Display the benchmark points for a theory on the SNR plots
-    path(r'theories/<int:theory_id>/plot',
-         views.theory_detail_plot,
-         name='theory_detail_plot'),
+    # Display the benchmark points for a model on the SNR plots
+    path(r'models/<int:model_id>/plot',
+         views.model_detail_plot,
+         name='model_detail_plot'),
     
     
-    # Display an individual theory point on the SNR and PS plots
-    path(r'theories/<int:theory_id>/<int:point_id>/plot',
-         views.theory_point_plot,
-         name='theory_point_plot'),
+    # Display an individual model point on the SNR and PS plots
+    path(r'models/<int:model_id>/<int:point_id>/plot',
+         views.model_point_plot,
+         name='model_point_plot'),
 
-    # Display an individual theory point on the SNR and PS plots
-    path(r'theories/<int:theory_id>/<int:point_id>/snr',
-         views.theory_point_snr,
-         name='theory_point_snr'),
+    # Display an individual model point on the SNR and PS plots
+    path(r'models/<int:model_id>/<int:point_id>/snr',
+         views.model_point_snr,
+         name='model_point_snr'),
 
-    # Display an individual theory point on the SNR and PS plots
-    path(r'theories/<int:theory_id>/<int:point_id>/snr_alphabeta',
-         views.theory_point_snr_alphabeta,
-         name='theory_point_snr_alphabeta'),
+    # Display an individual model point on the SNR and PS plots
+    path(r'models/<int:model_id>/<int:point_id>/snr_alphabeta',
+         views.model_point_snr_alphabeta,
+         name='model_point_snr_alphabeta'),
 
-    # Display an individual theory point on the SNR and PS plots
-    path(r'theories/<int:theory_id>/<int:point_id>/ps',
-         views.theory_point_ps,
-         name='theory_point_ps'),
+    # Display an individual model point on the SNR and PS plots
+    path(r'models/<int:model_id>/<int:point_id>/ps',
+         views.model_point_ps,
+         name='model_point_ps'),
 
     # Display a group of scenario points on the SNR plots
-    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/plot',
-         views.theory_scenario_plot,
-         name='theory_scenario_plot'),
+    path(r'models/<int:model_id>/scenarios/<int:scenario_id>/plot',
+         views.model_scenario_plot,
+         name='model_scenario_plot'),
 
     # Display a group of scenario points on the SNR plots
-    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/snr',
-         views.theory_scenario_snr,
-         name='theory_scenario_snr'),
+    path(r'models/<int:model_id>/scenarios/<int:scenario_id>/snr',
+         views.model_scenario_snr,
+         name='model_scenario_snr'),
 
     # Display a group of scenario points on the SNR plots
-    path(r'theories/<int:theory_id>/scenarios/<int:scenario_id>/snr_alphabeta',
-         views.theory_scenario_snr_alphabeta,
-         name='theory_scenario_snr_alphabeta'),
+    path(r'models/<int:model_id>/scenarios/<int:scenario_id>/snr_alphabeta',
+         views.model_scenario_snr_alphabeta,
+         name='model_scenario_snr_alphabeta'),
 
 
     
     
     
     
-    path(r'theories/<int:theory_id>/snr',
-         views.theory_snr,
-         name='theory_snr'),
+    path(r'models/<int:model_id>/snr',
+         views.model_snr,
+         name='model_snr'),
     
-    path(r'theories/<int:theory_id>/snr_alphabeta',
-         views.theory_snr_alphabeta,
-         name='theory_snr_alphabeta'),
+    path(r'models/<int:model_id>/snr_alphabeta',
+         views.model_snr_alphabeta,
+         name='model_snr_alphabeta'),
 
     path(r'parameterchoice',
          views.parameterchoice_form,

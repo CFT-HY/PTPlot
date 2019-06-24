@@ -19,7 +19,7 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from curves import PowerSpectrum
-    from precomputed import available_sensitivitycurves, available_labels
+    from precomputed import available_sensitivitycurves, available_labels, available_durations
     
     root = './'
 
@@ -29,7 +29,7 @@ if __name__ == "__main__" and __package__ is None:
 else:
 
     from .curves import PowerSpectrum
-    from .precomputed import available_sensitivitycurves, available_labels
+    from .precomputed import available_sensitivitycurves, available_labels, available_durations
 
     from django.conf import settings
 
@@ -48,10 +48,10 @@ def get_PS_image(vw=0.95,
                  gstar=100,
                  alpha=0.1,
                  BetaoverH=100,
-                 Senscurve=0,
+                 MissionProfile=0,
                  usetex=False):
 
-    sensitivity=available_sensitivitycurves[Senscurve]
+    sensitivity=available_sensitivitycurves[MissionProfile]
     
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
@@ -80,7 +80,7 @@ def get_PS_image(vw=0.95,
 
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
-    duration = 5*yr
+    duration = yr*available_durations[MissionProfile]
     snr, frange = StockBkg_ComputeSNR(fS,
                                       OmEff,
                                       fS,
@@ -141,7 +141,7 @@ def worker(queue,
            gstar=100,
            alpha=0.1,
            BetaoverH=100,
-           Senscurve=0,
+           MissionProfile=0,
            usetex=False):
 
     queue.put(get_PS_image(vw,
@@ -149,7 +149,7 @@ def worker(queue,
                            gstar,
                            alpha,
                            BetaoverH,
-                           Senscurve,
+                           MissionProfile,
                            usetex))
     
 
@@ -159,7 +159,7 @@ def get_PS_image_threaded(vw=0.95,
                           gstar=100,
                           alpha=0.1,
                           BetaoverH=100,
-                          Senscurve=0,
+                          MissionProfile=0,
                           usetex=False):
 
     q = multiprocessing.Queue()
@@ -170,7 +170,7 @@ def get_PS_image_threaded(vw=0.95,
                                       gstar,
                                       alpha,
                                       BetaoverH,
-                                      Senscurve,
+                                      MissionProfile,
                                       usetex))
     p.start()
     return_res = q.get()

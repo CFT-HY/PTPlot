@@ -53,7 +53,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             gstar=100,
                             label_list=None,
                             title_list=None,
-                            Senscurve=0,
+                            MissionProfile=0,
                             usetex=False):
 
 
@@ -70,7 +70,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     
     
     
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, Senscurve)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile)
     
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
                                                      log10HnRstar),
@@ -256,24 +256,24 @@ def worker(queue, vw, alpha_list=[0.1], BetaoverH_list=[100],
            gstar=100,
            label_list=None,
            title_list=None,
-           Senscurve=0,
+           MissionProfile=0,
            usetex=False):
     queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
                                       Tstar, gstar, label_list, title_list,
-                                      Senscurve, usetex))
+                                      MissionProfile, usetex))
 
 def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      Tstar=100,
                                      gstar=100,
                                      label_list=None,
                                      title_list=None,
-                                     Senscurve=0,
+                                     MissionProfile=0,
                                      usetex=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, BetaoverH_list,
                                                      Tstar, gstar, label_list, title_list,
-                                                     Senscurve, usetex))
+                                                     MissionProfile, usetex))
     p.start()
     return_res = q.get()
     p.join()
@@ -287,12 +287,12 @@ if __name__ == '__main__':
         betaoverh = float(sys.argv[3])
         T = float(sys.argv[4])
         g = float(sys.argv[5])
-        Senscurve = int(sys.argv[6])
-        b = get_SNR_alphabeta_image(vw, [alpha], [betaoverh], T, g, Senscurve=Senscurve)
+        MissionProfile = int(sys.argv[6])
+        b = get_SNR_alphabeta_image(vw, [alpha], [betaoverh], T, g, MissionProfile=MissionProfile)
         print(b.read().decode("utf-8"))
    
     else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <T*> <g*> <Senscurve>\n'
+        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <T*> <g*> <MissionProfile>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n\n')
 

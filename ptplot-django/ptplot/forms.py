@@ -18,7 +18,7 @@ def validate_velocity(value):
             )
 
 class PTPlotForm(forms.Form):
-    available_senscurves = [(i, label) for i, label in enumerate(available_labels)]
+    available_MissionProfiles = [(i, label) for i, label in enumerate(available_labels)]
 
     
     vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
@@ -41,8 +41,8 @@ class PTPlotForm(forms.Form):
                              min_value=0.0,
                              localize=False)
 
-    Senscurve = forms.ChoiceField(label=r'Sensitivity curve',
-                                  choices=available_senscurves)
+    MissionProfile = forms.ChoiceField(label=r'Mission profile',
+                                       choices=available_MissionProfiles)
 
     
 #    usetex = forms.BooleanField(label='Use TeX for labels (slow)?',
@@ -57,7 +57,7 @@ class PTPlotForm(forms.Form):
             
 
 class MultipleForm(forms.Form):
-    available_senscurves = [(i, label) for i, label in enumerate(available_labels)]
+    available_MissionProfiles = [(i, label) for i, label in enumerate(available_labels)]
    
     vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                           min_value=0.0, max_value=1.0,
@@ -71,8 +71,8 @@ class MultipleForm(forms.Form):
                              min_value=0.0,
                              localize=False)
 
-    Senscurve = forms.ChoiceField(label=r'Sensitivity curve',
-                                  choices=available_senscurves)
+    MissionProfile = forms.ChoiceField(label=r'Mission profile',
+                                       choices=available_MissionProfiles)
 
     table = forms.CharField(label=r'Input table', widget=forms.Textarea,
                             initial="#alpha_theta,BetaOverH,label")
@@ -81,20 +81,20 @@ class ParameterChoiceForm(forms.Form):
 
     def __init__(self):
     
-        self.theories = []
+        self.models = []
     
         try:
-            self.theories = Theory.objects.all()
+            self.models = Model.objects.all()
         except:
             pass
         
-        for theory in self.theories:
-            sys.stderr.write(theory.theory_name + '\n')
+        for model in self.models:
+            sys.stderr.write(model.model_name + '\n')
 
-            self.underlying_theory = forms.ChoiceField(label=r'Theory',
-                                                       choices=[(theory.id,theory.theory_name) for theory in theories])
+            self.underlying_model = forms.ChoiceField(label=r'Model',
+                                                       choices=[(model.id,model.model_name) for model in models])
             
-            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
+#            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
             
             self.vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                                        min_value=0.0, max_value=1.0,
@@ -108,6 +108,6 @@ class ParameterChoiceForm(forms.Form):
             self.BetaoverH = forms.FloatField(label=r'Inverse phase transition duration $\beta/H_*$',
                                               min_value=0.0,
                                               localize=False)
-            self.SNRcurve = forms.ChoiceField(label=r'Sensitivity curve',
-                                              choices=available_labels)
+            self.MissionProfile = forms.ChoiceField(label=r'MissionProfile',
+                                                    choices=available_labels)
             

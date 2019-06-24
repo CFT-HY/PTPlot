@@ -1,21 +1,21 @@
 
 
-{% extends 'ptplot/theory_detail.html' %}
+{% extends 'ptplot/model_detail.html' %}
 
 {% block results %}
 
 <h4>Results for scenario: {{ selected_scenario.scenario_name }}</h4>
 
 <p>NB: using
-  $v_\mathrm{w} = {{ theory.theory_vw }}$,
+  $v_\mathrm{w} = {{ model.model_vw }}$,
   $T_* = 
   {% if selected_scenario.scenario_Tstar %}
   {{ selected_scenario.scenario_Tstar }}
   {% else %}
-  {{theory.theory_Tstar }}
+  {{model.model_Tstar }}
   {% endif %}
   \, \mathrm{GeV}$,
-  $g_* = {{theory.theory_gstar }}$.</p>
+  $g_* = {{model.model_gstar }}$.</p>
 
 
   <img alt="embedded" src="snr"  width="600px"
