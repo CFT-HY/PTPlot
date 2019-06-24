@@ -1,15 +1,15 @@
 
 
-{% extends 'ptplot/theory_detail.html' %}
+{% extends 'ptplot/model_detail.html' %}
 
 {% block results %}
 
 <h4>Results for all points</h4>
 
 <p>NB: using
-  $v_\mathrm{w} = {{ theory.theory_vw }}$,
-  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$,
-  $g_* = {{theory.theory_gstar }}$.</p>
+  $v_\mathrm{w} = {{ model.model_vw }}$,
+  $T_* = {{model.model_Tstar }} \, \mathrm{GeV}$,
+  $g_* = {{model.model_gstar }}$.</p>
 
   <img alt="embedded" src="snr"  width="600px"
   height="450px" style="background-color: #dddddd; border: 10px;

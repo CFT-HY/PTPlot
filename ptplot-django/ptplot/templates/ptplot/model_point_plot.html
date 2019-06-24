@@ -1,6 +1,6 @@
 
 
-{% extends 'ptplot/theory_detail.html' %}
+{% extends 'ptplot/model_detail.html' %}
 
 {% block results %}
 
@@ -12,19 +12,19 @@
   {% if point.vw %}
   {{ point.vw }}
   {% else %}
-  {{theory.theory_vw }}
+  {{model.model_vw }}
   {% endif %}$,
   $T_* =
   {% if point.Tstar %}
   {{ point.Tstar }}
   {% else %}
-  {{ theory.theory_Tstar }}
+  {{ model.model_Tstar }}
   {% endif %} \, \mathrm{GeV}$,
   $g_* =
   {% if point.gstar %}
   {{ point.gstar }}
   {% else %}
-  {{ theory.theory_gstar }}
+  {{ model.model_gstar }}
   {% endif %}$.
 </p>
 

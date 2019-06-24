@@ -81,18 +81,18 @@ class ParameterChoiceForm(forms.Form):
 
     def __init__(self):
     
-        self.theories = []
+        self.models = []
     
         try:
-            self.theories = Theory.objects.all()
+            self.models = Model.objects.all()
         except:
             pass
         
-        for theory in self.theories:
-            sys.stderr.write(theory.theory_name + '\n')
+        for model in self.models:
+            sys.stderr.write(model.model_name + '\n')
 
-            self.underlying_theory = forms.ChoiceField(label=r'Theory',
-                                                       choices=[(theory.id,theory.theory_name) for theory in theories])
+            self.underlying_model = forms.ChoiceField(label=r'Model',
+                                                       choices=[(model.id,model.model_name) for model in models])
             
             self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
             

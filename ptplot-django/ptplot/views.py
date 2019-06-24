@@ -86,34 +86,34 @@ def snr_alphabeta_image(request):
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
         
-def theory(request):
+def model(request):
 
-    theories_list = Theory.objects.all()
+    models_list = Model.objects.all()
     
-    template = loader.get_template('ptplot/theories.html')
+    template = loader.get_template('ptplot/models.html')
     
-    context = {'theories_list': theories_list}
+    context = {'models_list': models_list}
     return HttpResponse(template.render(context, request))
 
-def theory_detail(request, theory_id):
+def model_detail(request, model_id):
     
-    theory = Theory.objects.get(pk=theory_id)
+    model = Model.objects.get(pk=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
         scenario_list = None
         
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    point_list = ParameterChoice.objects.filter(model__id=model_id)
 
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
     
-    template = loader.get_template('ptplot/theory_detail.html')
+    template = loader.get_template('ptplot/model_detail.html')
 
-    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_Senscurve]
     
-    context = {'theory': theory,
+    context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
                'sensitivity_curve_label': sensitivity_curve_label}
@@ -121,47 +121,47 @@ def theory_detail(request, theory_id):
 
 
 
-def theory_detail_plot(request, theory_id):
+def model_detail_plot(request, model_id):
     
-    theory = Theory.objects.get(pk=theory_id)
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+    model = Model.objects.get(pk=model_id)
+    point_list = ParameterChoice.objects.filter(model__id=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
         scenario_list = None
     
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
 
-    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_Senscurve]
         
-    template = loader.get_template('ptplot/theory_detail_plot.html')
+    template = loader.get_template('ptplot/model_detail_plot.html')
     
-    context = {'theory': theory,
+    context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
                'sensitivity_curve_label': sensitivity_curve_label}
     return HttpResponse(template.render(context, request))
 
-def theory_point_plot(request, theory_id, point_id):
+def model_point_plot(request, model_id, point_id):
     
-    theory = Theory.objects.get(pk=theory_id)
+    model = Model.objects.get(pk=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
         scenario_list = None
 
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id)
-    point = ParameterChoice.objects.get(theory__id=theory_id,
+    point_list = ParameterChoice.objects.filter(model__id=model_id)
+    point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
     
-    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_Senscurve]
         
-    template = loader.get_template('ptplot/theory_point_plot.html')
+    template = loader.get_template('ptplot/model_point_plot.html')
     
-    context = {'theory': theory,
+    context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
                'point': point,
@@ -170,13 +170,13 @@ def theory_point_plot(request, theory_id, point_id):
 
 
 
-def theory_point_snr(request, theory_id, point_id):
+def model_point_snr(request, model_id, point_id):
     
-    theory = Theory.objects.get(pk=theory_id)
-    point = ParameterChoice.objects.get(theory__id=theory_id,
+    model = Model.objects.get(pk=model_id)
+    point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = theory.theory_Senscurve
+    Senscurve = model.model_Senscurve
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -185,17 +185,17 @@ def theory_point_snr(request, theory_id, point_id):
     if point.vw:
         vw = point.vw
     else:
-        vw = theory.theory_vw
+        vw = model.model_vw
     
     if point.Tstar:
         Tstar = point.Tstar
     else:
-        Tstar = theory.theory_Tstar
+        Tstar = model.model_Tstar
 
     if point.gstar:
         gstar = point.gstar
     else:
-        gstar = theory.theory_gstar
+        gstar = model.model_gstar
 
     label = point.point_shortlabel
         
@@ -209,12 +209,12 @@ def theory_point_snr(request, theory_id, point_id):
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
-def theory_point_snr_alphabeta(request, theory_id, point_id):
-    theory = Theory.objects.get(pk=theory_id)
-    point = ParameterChoice.objects.get(theory__id=theory_id,
+def model_point_snr_alphabeta(request, model_id, point_id):
+    model = Model.objects.get(pk=model_id)
+    point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = theory.theory_Senscurve
+    Senscurve = model.model_Senscurve
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -223,17 +223,17 @@ def theory_point_snr_alphabeta(request, theory_id, point_id):
     if point.vw:
         vw = point.vw
     else:
-        vw = theory.theory_vw
+        vw = model.model_vw
     
     if point.Tstar:
         Tstar = point.Tstar
     else:
-        Tstar = theory.theory_Tstar
+        Tstar = model.model_Tstar
 
     if point.gstar:
         gstar = point.gstar
     else:
-        gstar = theory.theory_gstar
+        gstar = model.model_gstar
 
     label = point.point_shortlabel
         
@@ -249,13 +249,13 @@ def theory_point_snr_alphabeta(request, theory_id, point_id):
 
     
 
-def theory_point_ps(request, theory_id, point_id):
+def model_point_ps(request, model_id, point_id):
 
-    theory = Theory.objects.get(pk=theory_id)
-    point = ParameterChoice.objects.get(theory__id=theory_id,
+    model = Model.objects.get(pk=model_id)
+    point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
 
-    Senscurve = theory.theory_Senscurve
+    Senscurve = model.model_Senscurve
     
     alpha = point.alpha
     BetaoverH = point.BetaoverH
@@ -264,17 +264,17 @@ def theory_point_ps(request, theory_id, point_id):
     if point.vw:
         vw = point.vw
     else:
-        vw = theory.theory_vw
+        vw = model.model_vw
     
     if point.Tstar:
         Tstar = point.Tstar
     else:
-        Tstar = theory.theory_Tstar
+        Tstar = model.model_Tstar
 
     if point.gstar:
         gstar = point.gstar
     else:
-        gstar = theory.theory_gstar
+        gstar = model.model_gstar
 
     label = point.point_shortlabel
         
@@ -289,26 +289,26 @@ def theory_point_ps(request, theory_id, point_id):
     return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
 
-def theory_scenario_plot(request, theory_id, scenario_id):
+def model_scenario_plot(request, model_id, scenario_id):
 
 
     
-    theory = Theory.objects.get(pk=theory_id)
+    model = Model.objects.get(pk=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
         scenario_list = None
 
-    selected_scenario = Scenario.objects.get(scenario_theory__id=theory_id, scenario_number=scenario_id)
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
     
-    sensitivity_curve_label = available_labels[theory.theory_Senscurve]
+    sensitivity_curve_label = available_labels[model.model_Senscurve]
         
-    template = loader.get_template('ptplot/theory_scenario_plot.html')
+    template = loader.get_template('ptplot/model_scenario_plot.html')
     
-    context = {'theory': theory,
+    context = {'model': model,
                'selected_scenario': selected_scenario,
                'scenario_list': scenario_list,
                'point_list': point_list,
@@ -317,19 +317,19 @@ def theory_scenario_plot(request, theory_id, scenario_id):
 
 
 
-def theory_scenario_snr(request, theory_id, scenario_id):
+def model_scenario_snr(request, model_id, scenario_id):
     
-    theory = Theory.objects.get(pk=theory_id)
-    selected_scenario = Scenario.objects.get(scenario_theory__id=theory_id, scenario_number=scenario_id)
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+    model = Model.objects.get(pk=model_id)
+    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
 
-    vw_list = [theory.theory_vw if point.vw == None else point.vw for point in point_list]
+    vw_list = [model.model_vw if point.vw == None else point.vw for point in point_list]
     alpha_list = [point.alpha for point in point_list]
     BetaoverH_list = [point.BetaoverH for point in point_list]
     label_list = [point.point_shortlabel for point in point_list]
 
-    Tstar = theory.theory_Tstar
+    Tstar = model.model_Tstar
     if selected_scenario.scenario_Tstar:
         Tstar = selected_scenario.scenario_Tstar
         
@@ -338,17 +338,17 @@ def theory_scenario_snr(request, theory_id, scenario_id):
                                      alpha_list=[alpha_list],
                                      BetaoverH_list=[BetaoverH_list],
                                      Tstar=Tstar,
-                                     gstar=theory.theory_gstar,
+                                     gstar=model.model_gstar,
                                      label_list=[label_list],
-                                     title_list=[theory.theory_name],
-                                     Senscurve=theory.theory_Senscurve)
+                                     title_list=[model.model_name],
+                                     Senscurve=model.model_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
-def theory_scenario_snr_alphabeta(request, theory_id, scenario_id):
-    theory = Theory.objects.get(pk=theory_id)
-    selected_scenario = Scenario.objects.get(scenario_theory__id=theory_id, scenario_number=scenario_id)
-    point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+def model_scenario_snr_alphabeta(request, model_id, scenario_id):
+    model = Model.objects.get(pk=model_id)
+    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
 
     alpha_list = [point.alpha for point in point_list]
@@ -356,19 +356,19 @@ def theory_scenario_snr_alphabeta(request, theory_id, scenario_id):
     label_list = [point.point_shortlabel for point in point_list]
     
 
-    Tstar = theory.theory_Tstar
+    Tstar = model.model_Tstar
     if selected_scenario.scenario_Tstar:
         Tstar = selected_scenario.scenario_Tstar
 
     
-    sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
+    sio_SNR = get_SNR_alphabeta_image_threaded(vw=model.model_vw,
                                      alpha_list=[alpha_list],
                                      BetaoverH_list=[BetaoverH_list],
                                      Tstar=Tstar,
-                                     gstar=theory.theory_gstar,
+                                     gstar=model.model_gstar,
                                      label_list=[label_list],
-                                     title_list=[theory.theory_name],
-                                     Senscurve=theory.theory_Senscurve)
+                                     title_list=[model.model_name],
+                                     Senscurve=model.model_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -376,12 +376,12 @@ def theory_scenario_snr_alphabeta(request, theory_id, scenario_id):
 
 
 
-def theory_snr(request, theory_id):
+def model_snr(request, model_id):
 
-    theory = Theory.objects.get(pk=theory_id)
+    model = Model.objects.get(pk=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
 
         vw_list = []
         alpha_list = []
@@ -390,9 +390,9 @@ def theory_snr(request, theory_id):
         title_list = []
         
         for scenario in scenario_list:
-            point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+            point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                         scenario__id=scenario.id)
-            vw_list.append([theory.theory_vw if point.vw == None else point.vw for point in point_list])
+            vw_list.append([model.model_vw if point.vw == None else point.vw for point in point_list])
             alpha_list.append([point.alpha for point in point_list])
             BetaoverH_list.append([point.BetaoverH for point in point_list])
             label_list.append([point.point_shortlabel for point in point_list])
@@ -402,32 +402,32 @@ def theory_snr(request, theory_id):
     else:
         scenario_list = None
     
-        point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+        point_list = ParameterChoice.objects.filter(model__id=model_id)
 
-        vw_list=[[theory.theory_vw]*len(point_list)]
+        vw_list=[[model.model_vw]*len(point_list)]
         alpha_list = [[point.alpha for point in point_list]]
         BetaoverH_list = [[point.BetaoverH for point in point_list]]
         label_list = [[point.point_shortlabel for point in point_list]]
-        title_list = [theory.theory_name]
+        title_list = [model.model_name]
         
     sio_SNR = get_SNR_image_threaded(vw_list=vw_list,
                                      alpha_list=alpha_list,
                                      BetaoverH_list=BetaoverH_list,
-                                     Tstar=theory.theory_Tstar,
-                                     gstar=theory.theory_gstar,
+                                     Tstar=model.model_Tstar,
+                                     gstar=model.model_gstar,
                                      label_list=label_list,
                                      title_list=title_list,
-                                     Senscurve=theory.theory_Senscurve)
+                                     Senscurve=model.model_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
-def theory_snr_alphabeta(request, theory_id):
+def model_snr_alphabeta(request, model_id):
 
 
-    theory = Theory.objects.get(pk=theory_id)
+    model = Model.objects.get(pk=model_id)
 
-    if theory.theory_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_theory__id=theory_id)
+    if model.model_hasScenarios:
+        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
 
         alpha_list = []
         BetaoverH_list = []
@@ -435,7 +435,7 @@ def theory_snr_alphabeta(request, theory_id):
         title_list = []
         
         for scenario in scenario_list:
-            point_list = ParameterChoice.objects.filter(theory__id=theory_id,
+            point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                         scenario__id=scenario.id)
             alpha_list.append([point.alpha for point in point_list])
             BetaoverH_list.append([point.BetaoverH for point in point_list])
@@ -445,37 +445,37 @@ def theory_snr_alphabeta(request, theory_id):
     else:
         scenario_list = None
 
-        point_list = ParameterChoice.objects.filter(theory__id=theory_id)
+        point_list = ParameterChoice.objects.filter(model__id=model_id)
 
         alpha_list = [[point.alpha for point in point_list]]
         BetaoverH_list = [[point.BetaoverH for point in point_list]]
         label_list = [[point.point_shortlabel for point in point_list]]
-        title_list = [theory.theory_name]
+        title_list = [model.model_name]
         
-    sio_SNR = get_SNR_alphabeta_image_threaded(vw=theory.theory_vw,
+    sio_SNR = get_SNR_alphabeta_image_threaded(vw=model.model_vw,
                                                alpha_list=alpha_list,
                                                BetaoverH_list=BetaoverH_list,
-                                               Tstar=theory.theory_Tstar,
-                                               gstar=theory.theory_gstar,
+                                               Tstar=model.model_Tstar,
+                                               gstar=model.model_gstar,
                                                label_list=label_list,
                                                title_list=title_list,
-                                               Senscurve=theory.theory_Senscurve)
+                                               Senscurve=model.model_Senscurve)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
         
 def parameterchoice_form(request):
     
-    theory = Theory.objects.all()[0]
+    model = Model.objects.all()[0]
     
-    point_list = ParameterChoice.objects.filter(theory__theory_name
-                                                = theory.theory_name)
+    point_list = ParameterChoice.objects.filter(model__model_name
+                                                = model.model_name)
 
     
     template = loader.get_template('ptplot/parameterchoice.html')
     form = ParameterChoiceForm()
     
-    context = {'theory': theory.theory_name,
+    context = {'model': model.model_name,
                'form': form,
                'point_list': point_list}
     return HttpResponse(template.render(context, request))

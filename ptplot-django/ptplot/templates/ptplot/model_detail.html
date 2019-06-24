@@ -6,35 +6,36 @@
 
 {% if point_list %}
 
-<h3>{{ theory.theory_name }}</h3>
+<h3>{{ model.model_name }}</h3>
 
-<p>{{ theory.theory_description|urlize }}</p>
+<p>{{ model.model_description|urlize }}</p>
 
-<p>{{ theory.theory_notes|urlize }}</p>
+<p>{{ model.model_notes|urlize }}</p>
 
 
 <p>General parameters used for plotting:
-  $v_\mathrm{w} = {{ theory.theory_vw }}$,
-  $T_* = {{theory.theory_Tstar }} \, \mathrm{GeV}$ (when all points
+  $v_\mathrm{w} = {{ model.model_vw }}$,
+  $T_* = {{model.model_Tstar }} \, \mathrm{GeV}$ (when all points
   are plotted),
-  $g_* = {{theory.theory_gstar }}$.</p>
+  $g_* = {{model.model_gstar }}$.</p>
 
 <p>Sensitivity curve: <b>{{ sensitivity_curve_label }}</b>
-<!--  ({{ theory.theory_Senscurve }}) --> <p>
+<!--  ({{ model.model_Senscurve }}) --> <p>
 
-{% if theory.theory_hasScenarios == True %}
+{% if model.model_hasScenarios == True %}
 
-<h4>This theory has the following scenarios:</h4>
+<h4>This model has the following scenarios:</h4>
 
 <ul>
 {% for scenario in scenario_list %}
 <li>
-  {{scenario.scenario_name}}
-
   {% if scenario.scenario_description %}
-  {{ scenario.scenario_description }}
+    <b>{{scenario.scenario_name}}:</b>
+    {{ scenario.scenario_description }}
+  {% else %}
+    <b>{{scenario.scenario_name}}</b>
   {% endif %}
-  [<a href="/ptplot/theories/{{ theory.id }}/scenarios/{{scenario.scenario_number }}/plot#results">plot scenario</a>]
+  [<a href="/ptplot/models/{{ model.id }}/scenarios/{{scenario.scenario_number }}/plot#results">plot scenario</a>]
 </li>
 {% endfor %}
 </ul>
@@ -93,7 +94,7 @@
     $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
     
-    [<a href="/ptplot/theories/{{ theory.id }}/{{ point.number }}/plot#results">plot</a>]
+    [<a href="/ptplot/models/{{ model.id }}/{{ point.number }}/plot#results">plot</a>]
 </li>
   {% endfor %}
 </ul>
@@ -101,7 +102,7 @@
 </p>
 {% endif %}
 
-<p>[<a href="/ptplot/theories/{{ theory.id }}/plot#results">plot all points with these parameters</a>]</p>
+<p>[<a href="/ptplot/models/{{ model.id }}/plot#results">plot all points with these parameters</a>]</p>
 
 <a id="results" />
 {% block results %}
