@@ -48,7 +48,7 @@ def snr_image(request):
             BetaoverH = form.cleaned_data['BetaoverH']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
-            SNRfilename = precomputed_filenames[Senscurve]
+#            SNRfilename = precomputed_filenames[Senscurve]
 
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
@@ -71,7 +71,7 @@ def snr_alphabeta_image(request):
             BetaoverH = form.cleaned_data['BetaoverH']
 
             Senscurve = int(form.cleaned_data['Senscurve'])
-            SNRfilename = precomputed_filenames[Senscurve]
+#            SNRfilename = precomputed_filenames[Senscurve]
             
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']

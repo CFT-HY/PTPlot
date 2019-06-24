@@ -94,7 +94,7 @@ class ParameterChoiceForm(forms.Form):
             self.underlying_model = forms.ChoiceField(label=r'Model',
                                                        choices=[(model.id,model.model_name) for model in models])
             
-            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
+#            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
             
             self.vw = forms.FloatField(label=r'Wall velocity $v_\mathrm{w}$',
                                        min_value=0.0, max_value=1.0,

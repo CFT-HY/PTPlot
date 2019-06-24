@@ -19,7 +19,7 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from curves import PowerSpectrum
-    from precomputed import available_sensitivitycurves, available_labels
+    from precomputed import available_sensitivitycurves, available_labels, available_durations
     
     root = './'
 
@@ -29,7 +29,7 @@ if __name__ == "__main__" and __package__ is None:
 else:
 
     from .curves import PowerSpectrum
-    from .precomputed import available_sensitivitycurves, available_labels
+    from .precomputed import available_sensitivitycurves, available_labels, available_durations
 
     from django.conf import settings
 
@@ -80,7 +80,7 @@ def get_PS_image(vw=0.95,
 
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
-    duration = 5*yr
+    duration = yr*available_durations[Senscurve]
     snr, frange = StockBkg_ComputeSNR(fS,
                                       OmEff,
                                       fS,

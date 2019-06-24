@@ -1,7 +1,7 @@
 
 from django.db import models
 
-from .science.precomputed import precomputed_gstar, precomputed_Tn
+# from .science.precomputed import precomputed_gstar, precomputed_Tn
 
 # Create your models here.
 
