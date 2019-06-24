@@ -15,24 +15,24 @@ class Command(BaseCommand):
     def _populate_db(self):
         print('populating DB...')
         
-#         singlet_theory \
-#             = Theory(theory_name=r'Singlet (Higgs Portal) benchmark points',
-#                                   theory_description=r''' 
+#         singlet_model \
+#             = Model(model_name=r'Singlet (Higgs Portal) benchmark points',
+#                                   model_description=r''' 
 # Real singlet extension of the Standard Model with $Z_2$
 # symmetry, with $m_S = 250\, \mathrm{GeV}$.''',
-#                     theory_notes=r'''Benchmark points from https://arxiv.org/abs/1512.06239. Data
+#                     model_notes=r'''Benchmark points from https://arxiv.org/abs/1512.06239. Data
 # from Table 3, see potential, Eq. (30), for details of potential
 # parameters $(a_2,b_4)$. $T_*$ is taken to be $50\, \mathrm{GeV}$ for the plot.
 #                                 ''',
-#                      theory_Tstar=50,
-#                      theory_gstar=106.75,
-#                      theory_vw=0.95,
-#                      theory_Senscurve=0,
-#                      theory_hasScenarios=False)
-#         singlet_theory.save()
+#                      model_Tstar=50,
+#                      model_gstar=106.75,
+#                      model_vw=0.95,
+#                      model_Senscurve=0,
+#                      model_hasScenarios=False)
+#         singlet_model.save()
 
         
-#         pA = ParameterChoice(theory=singlet_theory,
+#         pA = ParameterChoice(model=singlet_model,
 #                              number=1,
 #                              point_shortlabel=r'A',
 #                              point_longlabel=r'$(a_2,b_4) = (2.8,2.1)$',
@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
 #         pA.save()
         
-#         pB = ParameterChoice(theory=singlet_theory,
+#         pB = ParameterChoice(model=singlet_model,
 #                              number=2,
 #                              point_shortlabel=r'B',
 #                              point_longlabel=r'$(a_2,b_4) = (2.9,2.6)$',
@@ -53,7 +53,7 @@ class Command(BaseCommand):
 #         pB.save()
         
         
-#         pC = ParameterChoice(theory=singlet_theory,
+#         pC = ParameterChoice(model=singlet_model,
 #                              number=3,
 #                              point_shortlabel=r'C',
 #                              point_longlabel=r'$(a_2,b_4) = (3.0,3.3)$',                          
@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
 #         pC.save()
 
-#         pD = ParameterChoice(theory=singlet_theory,
+#         pD = ParameterChoice(model=singlet_model,
 #                              number=4,
 #                              point_shortlabel=r'D',
 #                              point_longlabel=r'$(a_2,b_4) = (3.1,4.0)$',
@@ -77,20 +77,20 @@ class Command(BaseCommand):
 
 
 
-        twohdm_josemi_theory = \
-            Theory(theory_name=r'2HDM benchmark points',
-                                  theory_description='''
+        twohdm_josemi_model = \
+            Model(model_name=r'2HDM benchmark points',
+                                  model_description='''
                                   Description goes here''',
-                   theory_notes=r'''Notes go here: equation for the potential, parameters, etc.''',
-                   theory_Tstar=50,
-                   theory_gstar=106.75,
-                   theory_vw=0.9,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=True)
-        twohdm_josemi_theory.save()
+                   model_notes=r'''Notes go here: equation for the potential, parameters, etc.''',
+                   model_Tstar=50,
+                   model_gstar=106.75,
+                   model_vw=0.9,
+                   model_Senscurve=0,
+                   model_hasScenarios=True)
+        twohdm_josemi_model.save()
 
         josemi_set_1 = \
-            Scenario(scenario_theory=twohdm_josemi_theory,
+            Scenario(scenario_model=twohdm_josemi_model,
                      scenario_number=1,
                      scenario_name="Set 1",
                      scenario_description=r'2HDM points which are currently allowed both for Type I and Type II 2HDM. For Type II, these will be probed by the LHC in the future, while for Type I the LHC will not be able to exclude these benchmarks, depending on the value of $\tan\beta$ (which does influence the strength of the PT).')
@@ -106,7 +106,7 @@ class Command(BaseCommand):
         
         for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
             enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
-            point = ParameterChoice(theory=twohdm_josemi_theory,
+            point = ParameterChoice(model=twohdm_josemi_model,
                                     number=(i+1),
                                     point_longlabel=r'$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$, $\tan \beta = %d$' % (this_mH, this_mA, this_tanb),
                                     Tstar=this_Tn,
@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
 
         josemi_set_2 = \
-            Scenario(scenario_theory=twohdm_josemi_theory,
+            Scenario(scenario_model=twohdm_josemi_model,
                      scenario_number=2,
                      scenario_name="Set 2",
                      scenario_description=r'2HDM points which are currently allowed for Type I 2HDM, but excluded for Type II 2HDM, by LHC searches.')
@@ -134,7 +134,7 @@ class Command(BaseCommand):
         
         for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
             enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
-            point = ParameterChoice(theory=twohdm_josemi_theory,
+            point = ParameterChoice(model=twohdm_josemi_model,
                                     number=(i+1),
                                     point_longlabel=r'$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$, $\tan \beta = %d$' % (this_mH, this_mA, this_tanb),
                                     Tstar=this_Tn,
@@ -146,11 +146,11 @@ class Command(BaseCommand):
 
             
 
-        singlet_miki_theory = \
-            Theory(theory_name=r'$Z_2$-symmetric singlet scalar benchmark points',
-                                  theory_description=r'''Benchmark points for the SM extended with a scalar singlet with
+        singlet_miki_model = \
+            Model(model_name=r'$Z_2$-symmetric singlet scalar benchmark points',
+                                  model_description=r'''Benchmark points for the SM extended with a scalar singlet with
 $Z_2$ symmetry.''',
-                    theory_notes=r'''The new physics potential reads
+                    model_notes=r'''The new physics potential reads
 
 $$\Delta V = \frac{1}{2}a_2 |H|^2 S^2 + \frac{1}{2} b_2 S^2 + \frac{1}{4} 
 b_4 S^4.$$
@@ -160,12 +160,12 @@ For each pair $(m, a_2)$, the remaining free parameter, namely
 the singlet self coupling $b_4$, is taken to be the one that maximizes
 the strength of the phase transition, computed using a modified version
 of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
-                     theory_Tstar=50,
-                     theory_gstar=106.75,
-                     theory_vw=1.0,
-                     theory_Senscurve=0,
-                     theory_hasScenarios=False)
-        singlet_miki_theory.save()
+                     model_Tstar=50,
+                     model_gstar=106.75,
+                     model_vw=1.0,
+                     model_Senscurve=0,
+                     model_hasScenarios=False)
+        singlet_miki_model.save()
 
         miki_points = np.genfromtxt(os.path.join(filedir, 'miki_singlet_portal.txt'), delimiter=' ',names=True)
         Tn = miki_points['Tstar']
@@ -176,7 +176,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
         
         for i, (this_m, this_a2, this_Tn, this_alpha_n, this_beta_H_n) in \
             enumerate(zip(m, a2, Tn, alpha_n, beta_H_n)):
-            point = ParameterChoice(theory=singlet_miki_theory,
+            point = ParameterChoice(model=singlet_miki_model,
                                     number=(i+1),
                                  point_longlabel='$m = %d\, \mathrm{GeV}, \, a_2 = %g$' % (this_m, this_a2),
                                  Tstar=this_Tn,
@@ -191,16 +191,16 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
 
 
-        singletscalars_moritz_theory = \
-            Theory(theory_name=r'Scalar dark sector benchmark points (Breitbach et al.)',
-                                  theory_description='''Benchmark points for a model with two gauge singlet scalars in a hidden sector.''',
-                   theory_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
-                   theory_Tstar=100,
-                   theory_gstar=106.75,
-                   theory_vw=0.95,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=False)
-        singletscalars_moritz_theory.save()
+        singletscalars_moritz_model = \
+            Model(model_name=r'Scalar dark sector benchmark points (Breitbach et al.)',
+                                  model_description='''Benchmark points for a model with two gauge singlet scalars in a hidden sector.''',
+                   model_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
+                   model_Tstar=100,
+                   model_gstar=106.75,
+                   model_vw=0.95,
+                   model_Senscurve=0,
+                   model_hasScenarios=False)
+        singletscalars_moritz_model.save()
 
         moritz_points = np.genfromtxt(os.path.join(filedir, 'datapoints_TwoRealScalarSinglets.csv'), delimiter=',',names=True)
         scale=200
@@ -211,7 +211,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
         for i, (this_Tn, this_alpha_n, this_beta_H_n, this_gstar) in \
             enumerate(zip(Tn, alpha_n, beta_H_n, gstar)):
-            point = ParameterChoice(theory=singletscalars_moritz_theory,
+            point = ParameterChoice(model=singletscalars_moritz_model,
                                     number=(i+1),
                                     point_longlabel='Point %d' % (i+1),
                                     Tstar=this_Tn,
@@ -223,16 +223,16 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
 
 
-        darkphoton_moritz_theory = \
-            Theory(theory_name=r'Dark photon benchmark points (Breitbach et al.)',
-                                  theory_description='''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector.''',
-                   theory_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
-                   theory_Tstar=50,
-                   theory_gstar=106.75,
-                   theory_vw=0.95,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=False)
-        darkphoton_moritz_theory.save()
+        darkphoton_moritz_model = \
+            Model(model_name=r'Dark photon benchmark points (Breitbach et al.)',
+                                  model_description='''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector.''',
+                   model_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
+                   model_Tstar=50,
+                   model_gstar=106.75,
+                   model_vw=0.95,
+                   model_Senscurve=0,
+                   model_hasScenarios=False)
+        darkphoton_moritz_model.save()
 
         moritz_points = np.genfromtxt(os.path.join(filedir, 'datapoints_DarkPhoton.csv'), delimiter=',',names=True)
         scale=200
@@ -244,7 +244,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
         
         for i, (this_Tn, this_alpha_n, this_beta_H_n, this_gstar) in \
             enumerate(zip(Tn, alpha_n, beta_H_n, gstar)):
-            point = ParameterChoice(theory=darkphoton_moritz_theory,
+            point = ParameterChoice(model=darkphoton_moritz_model,
                                     number=(i+1),
                                     point_longlabel='Point %d' % (i+1),
                                     Tstar=this_Tn,
@@ -255,10 +255,10 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
             point.save()
 
 
-        gaugedlepton_madge_theory = \
-            Theory(theory_name=r'Gauged Lepton Number Model benchmark points',
-                                  theory_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number.''',
-                   theory_notes=r'''Benchmark points for the lepton number phase transition in the
+        gaugedlepton_madge_model = \
+            Model(model_name=r'Gauged Lepton Number Model benchmark points',
+                                  model_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number.''',
+                   model_notes=r'''Benchmark points for the lepton number phase transition in the
 model considered in https://arxiv.org/abs/1809.09110, see section 5.2
 for the potential.  Lepton number is gauged as a $U(1)_\ell$ gauge
 group. The corresponding gauge boson acquires a mass $m_{Z'}$ when
@@ -267,12 +267,12 @@ with mass $m_\phi$ and lepton number 3. The VEV is set to $v_\phi =
 2\,\text{TeV}$. Four different scenarios for the masses of the DM
 ($m_\text{DM}$) and additional leptons ($m_\text{HL}$) are
 considered.''',
-                   theory_Tstar=500,
-                   theory_gstar=130,
-                   theory_vw=1.0,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=True)
-        gaugedlepton_madge_theory.save()
+                   model_Tstar=500,
+                   model_gstar=130,
+                   model_vw=1.0,
+                   model_Senscurve=0,
+                   model_hasScenarios=True)
+        gaugedlepton_madge_model.save()
 
         madge_points = np.genfromtxt(os.path.join(filedir, 'BenchmarksGaugedLeptonNumber.csv'), delimiter=',',names=True,dtype=None,encoding=None)
         Tn = madge_points['Tn']
@@ -283,28 +283,28 @@ considered.''',
 
 
         gaugedlepton_madge_scenario_A = \
-            Scenario(scenario_theory=gaugedlepton_madge_theory,
+            Scenario(scenario_model=gaugedlepton_madge_model,
                      scenario_number=1,
                      scenario_name="Scenario A",
                      scenario_description=r'$m_\text{DM} = 0$, $m_\text{HL} = 0$')
         gaugedlepton_madge_scenario_A.save()
         
         gaugedlepton_madge_scenario_B = \
-            Scenario(scenario_theory=gaugedlepton_madge_theory,
+            Scenario(scenario_model=gaugedlepton_madge_model,
                      scenario_number=2,
                      scenario_name="Scenario B",
                      scenario_description=r'$m_\text{DM} = 200\,\text{GeV}$, $m_\text{HL} = 210\,\text{GeV}$ ')
         gaugedlepton_madge_scenario_B.save()
 
         gaugedlepton_madge_scenario_C = \
-            Scenario(scenario_theory=gaugedlepton_madge_theory,
+            Scenario(scenario_model=gaugedlepton_madge_model,
                      scenario_number=3,
                      scenario_name="Scenario C",
                      scenario_description=r'$m_\text{DM} = 500\,\text{GeV}$, $m_\text{HL} = 1\,\text{TeV}$')
         gaugedlepton_madge_scenario_C.save()
         
         gaugedlepton_madge_scenario_D = \
-            Scenario(scenario_theory=gaugedlepton_madge_theory,
+            Scenario(scenario_model=gaugedlepton_madge_model,
                      scenario_number=4,
                      scenario_name="Scenario D",
                      scenario_description=r'$h^2\Omega_\text{DM} = 0.12$, $m_\text{HL} = 1.5\,m_\text{DM}$')
@@ -331,7 +331,7 @@ considered.''',
             else:
                 raise Exception('Unknown gauged lepton scenario')
                 
-            point = ParameterChoice(theory=gaugedlepton_madge_theory,
+            point = ParameterChoice(model=gaugedlepton_madge_model,
                                     number=(i+1),
                                     point_longlabel=labelstring,
                                     Tstar=this_Tn,
@@ -346,19 +346,19 @@ considered.''',
 
 
 
-        composite_theory \
-            = Theory(theory_name=r'Composite Higgs models benchmark points',
-                                  theory_description=r'''description goes here''',
-                    theory_notes=r'''notes go here''',
-                     theory_Tstar=150,
-                     theory_gstar=106.75,
-                     theory_vw=0.95,
-                     theory_Senscurve=0,
-                     theory_hasScenarios=False)
-        composite_theory.save()
+        composite_model \
+            = Model(model_name=r'Composite Higgs models benchmark points',
+                                  model_description=r'''description goes here''',
+                    model_notes=r'''notes go here''',
+                     model_Tstar=150,
+                     model_gstar=106.75,
+                     model_vw=0.95,
+                     model_Senscurve=0,
+                     model_hasScenarios=False)
+        composite_model.save()
 
         
-        pA = ParameterChoice(theory=composite_theory,
+        pA = ParameterChoice(model=composite_model,
                              number=1,
                              point_shortlabel=r'M1',
                              point_longlabel=r'Meson-like $m_\chi=600\, \mathrm{GeV}; \, N=5.4$',
@@ -368,7 +368,7 @@ considered.''',
 
         pA.save()
         
-        pB = ParameterChoice(theory=composite_theory,
+        pB = ParameterChoice(model=composite_model,
                              number=2,
                              point_shortlabel=r'M2',
                              point_longlabel=r'Meson-like $m_\chi=700\, \mathrm{GeV}; \, N=3$',
@@ -379,7 +379,7 @@ considered.''',
         pB.save()
 
 
-        pC = ParameterChoice(theory=composite_theory,
+        pC = ParameterChoice(model=composite_model,
                              number=3,
                              point_shortlabel=r'G1',
                              point_longlabel=r'Glueball-like $m_\chi=200\, \mathrm{GeV}; \, N=6.6$',
@@ -389,7 +389,7 @@ considered.''',
 
         pC.save()
         
-        pD = ParameterChoice(theory=composite_theory,
+        pD = ParameterChoice(model=composite_model,
                              number=4,
                              point_shortlabel=r'G2',
                              point_longlabel=r'Glueball-like $m_\chi=200\, \mathrm{GeV}; \, N=5.4$',
@@ -399,7 +399,7 @@ considered.''',
 
         pD.save()
 
-        pE = ParameterChoice(theory=composite_theory,
+        pE = ParameterChoice(model=composite_model,
                              number=5,
                              point_shortlabel=r'G3',
                              point_longlabel=r'Glueball-like $m_\chi=300\, \mathrm{GeV}; \, N=4.2$',
@@ -409,7 +409,7 @@ considered.''',
 
         pE.save()
         
-        pF = ParameterChoice(theory=composite_theory,
+        pF = ParameterChoice(model=composite_model,
                              number=6,
                              point_shortlabel=r'G4',
                              point_longlabel=r'Glueball-like $m_\chi=1000\, \mathrm{GeV}; \, N=4.2$',
@@ -424,25 +424,25 @@ considered.''',
         
         
 
-        eft_miki_theory = \
-            Theory(theory_name=r'EFT benchmark points',
-                   theory_description=r''' Benchmark points for the SM extended with effective operators up to dimension eight.''',
-                   theory_notes=r'''The new physics potential reads
+        eft_miki_model = \
+            Model(model_name=r'EFT benchmark points',
+                   model_description=r''' Benchmark points for the SM extended with effective operators up to dimension eight.''',
+                   model_notes=r'''The new physics potential reads
                    $$\Delta V = \frac{c_6}{f^2}|H|^6 + \frac{c_8}{f^4}|H|^8.$$
                    The effective scale $f/\sqrt{c}$ below is defined by $c/f^2 \equiv \frac{c_6}{f^2} + \frac{3}{2} v^2 \frac{c_8}{f^4}$. The nucleation temperature and other parameters relevant for the 
 gravitational wave spectrum have very
 little dependence on $c_6$ and $c_8$ independently (see https://arxiv.org/abs/1802.02168); and 
 they have been computed using
 a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
-                   theory_Tstar=100,
-                   theory_gstar=106.75,
-                   theory_vw=0.95,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=True)
-        eft_miki_theory.save()
+                   model_Tstar=100,
+                   model_gstar=106.75,
+                   model_vw=0.95,
+                   model_Senscurve=0,
+                   model_hasScenarios=True)
+        eft_miki_model.save()
 
         eft_miki_scenario_A = \
-            Scenario(scenario_theory=eft_miki_theory,
+            Scenario(scenario_model=eft_miki_model,
                      scenario_number=1,
                      scenario_name="Scenario A",
                      scenario_Tstar=50,
@@ -450,7 +450,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         eft_miki_scenario_A.save()
 
         eft_miki_scenario_B = \
-            Scenario(scenario_theory=eft_miki_theory,
+            Scenario(scenario_model=eft_miki_model,
                      scenario_number=2,
                      scenario_name="Scenario B",
                      scenario_Tstar=100,
@@ -469,7 +469,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         for i, (this_effscale, this_Tn, this_alpha_n, this_beta_H_n) in \
             enumerate(zip(effscale, Tn, alpha_n, beta_H_n)):
             
-            point = ParameterChoice(theory=eft_miki_theory,
+            point = ParameterChoice(model=eft_miki_model,
                                     number=(i+1),
                                     point_longlabel=r'$f/\sqrt{c} = %.2f \, \text{GeV}$' % this_effscale,
                                     Tstar=50,
@@ -489,7 +489,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         for i, (this_effscale, this_Tn, this_alpha_n, this_beta_H_n) in \
             enumerate(zip(effscale, Tn, alpha_n, beta_H_n)):
             
-            point = ParameterChoice(theory=eft_miki_theory,
+            point = ParameterChoice(model=eft_miki_model,
                                     number=(i+1),
                                     point_longlabel=r'$f/\sqrt{c} = %.2f \, \text{GeV}$' % this_effscale,
                                     Tstar=100,
@@ -500,32 +500,32 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
 
             point.save()
 
-        susy_theory \
-            = Theory(theory_name=r'Some SUSY embeddings (Nardini)',
-                                  theory_description=r'''Benchmark points for some SUSY embeddings with chiral 
+        susy_model \
+            = Model(model_name=r'Some SUSY embeddings (Nardini)',
+                                  model_description=r'''Benchmark points for some SUSY embeddings with chiral 
 supersinglets or supertriplets.''',
-                    theory_notes=r'''The benchmark points  SUSY$_1$ are taken from 
+                    model_notes=r'''The benchmark points  SUSY$_1$ are taken from 
 https://arxiv.org/abs/1512.06357, SUSY$_2$ from 
 https://arxiv.org/abs/1704.02488,  SUSY$_3$ from 
 https://arxiv.org/abs/1712.00087, and SUSY$_4$ from 
 https://arxiv.org/abs/1602.01351 . Details on the models can be found in 
 the corresponding references.''',
-                     theory_Tstar=100,
-                     theory_gstar=108.75,
-                     theory_vw=0.95,
-                     theory_Senscurve=0,
-                     theory_hasScenarios=True)
-        susy_theory.save()
+                     model_Tstar=100,
+                     model_gstar=108.75,
+                     model_vw=0.95,
+                     model_Senscurve=0,
+                     model_hasScenarios=True)
+        susy_model.save()
 
         susy_scenario_1 = \
-            Scenario(scenario_theory=susy_theory,
+            Scenario(scenario_model=susy_model,
                      scenario_number=1,
                      scenario_name="SUSY$_1$",
                      scenario_Tstar=100,
                      scenario_description=r'(this scenario has 2 benchmark points)')
         susy_scenario_1.save()
                 
-        p1_A = ParameterChoice(theory=susy_theory,
+        p1_A = ParameterChoice(model=susy_model,
                                number=1,
                                point_shortlabel=r'1A',
                                point_longlabel=r'SUSY$_1$ point A',
@@ -536,7 +536,7 @@ the corresponding references.''',
 
         p1_A.save()
 
-        p1_B = ParameterChoice(theory=susy_theory,
+        p1_B = ParameterChoice(model=susy_model,
                                number=2,
                                point_shortlabel=r'1B',
                                point_longlabel=r'SUSY$_1$ point B',
@@ -547,7 +547,7 @@ the corresponding references.''',
 
         p1_B.save()
 
-        p1_C = ParameterChoice(theory=susy_theory,
+        p1_C = ParameterChoice(model=susy_model,
                                number=3,
                                point_shortlabel=r'1C',
                                point_longlabel=r'SUSY$_1$ point C',
@@ -559,7 +559,7 @@ the corresponding references.''',
         p1_C.save()
 
         
-        p1_D = ParameterChoice(theory=susy_theory,
+        p1_D = ParameterChoice(model=susy_model,
                                number=4,
                                point_shortlabel=r'1D',
                                point_longlabel=r'SUSY$_1$ point D',
@@ -572,14 +572,14 @@ the corresponding references.''',
 
 
         susy_scenario_2 = \
-            Scenario(scenario_theory=susy_theory,
+            Scenario(scenario_model=susy_model,
                      scenario_number=2,
                      scenario_name="SUSY$_2$",
                      scenario_Tstar=140,
                      scenario_description=r'(this scenario has 2 benchmark points)')
         susy_scenario_2.save()
                 
-        p2_A = ParameterChoice(theory=susy_theory,
+        p2_A = ParameterChoice(model=susy_model,
                                number=5,
                                point_shortlabel=r'2A',
                                point_longlabel=r'SUSY$_2$ point A',
@@ -591,7 +591,7 @@ the corresponding references.''',
 
         p2_A.save()
 
-        p2_B = ParameterChoice(theory=susy_theory,
+        p2_B = ParameterChoice(model=susy_model,
                                number=6,
                                point_shortlabel=r'2B',
                                point_longlabel=r'SUSY$_2$ point B',
@@ -605,14 +605,14 @@ the corresponding references.''',
 
 
         susy_scenario_3 = \
-            Scenario(scenario_theory=susy_theory,
+            Scenario(scenario_model=susy_model,
                      scenario_number=3,
                      scenario_name="SUSY$_3$",
                      scenario_Tstar=75,
                      scenario_description=r'(this scenario has 4 benchmark points)')
         susy_scenario_3.save()
                 
-        p3_A = ParameterChoice(theory=susy_theory,
+        p3_A = ParameterChoice(model=susy_model,
                                number=7,
                                point_shortlabel=r'3A',
                                point_longlabel=r'SUSY$_3$ point A',
@@ -624,7 +624,7 @@ the corresponding references.''',
 
         p3_A.save()
 
-        p3_B = ParameterChoice(theory=susy_theory,
+        p3_B = ParameterChoice(model=susy_model,
                                number=8,
                                point_shortlabel=r'3B',
                                point_longlabel=r'SUSY$_3$ point B',
@@ -636,7 +636,7 @@ the corresponding references.''',
 
         p3_B.save()
 
-        p3_C = ParameterChoice(theory=susy_theory,
+        p3_C = ParameterChoice(model=susy_model,
                                number=9,
                                point_shortlabel=r'3C',
                                point_longlabel=r'SUSY$_3$ point C',
@@ -648,7 +648,7 @@ the corresponding references.''',
 
         p3_C.save()
 
-        p3_D = ParameterChoice(theory=susy_theory,
+        p3_D = ParameterChoice(model=susy_model,
                                number=10,
                                point_shortlabel=r'3D',
                                point_longlabel=r'SUSY$_3$ point D',
@@ -662,14 +662,14 @@ the corresponding references.''',
         
         
         susy_scenario_4 = \
-            Scenario(scenario_theory=susy_theory,
+            Scenario(scenario_model=susy_model,
                      scenario_number=4,
                      scenario_name="SUSY$_4$",
                      scenario_Tstar=100,
                      scenario_description=r'(this scenario has 1 benchmark points)')
         susy_scenario_4.save()
                 
-        p4_A = ParameterChoice(theory=susy_theory,
+        p4_A = ParameterChoice(model=susy_model,
                                number=11,
                                point_shortlabel=r'4A',
                                point_longlabel=r'SUSY$_4$ point A',
@@ -684,33 +684,33 @@ the corresponding references.''',
             
         
 
-        singlet_jonathan_theory = \
-            Theory(theory_name=r'Singlet scalar benchmark points (Kozaczuk)',
-                                  theory_description='''
+        singlet_jonathan_model = \
+            Model(model_name=r'Singlet scalar benchmark points (Kozaczuk)',
+                                  model_description='''
                                   Benchmark points for the SM extended with a general real singlet scalar field, $S$.''',
-                   theory_notes=r'''
+                   model_notes=r'''
 $$
 \Delta V = b_1 S +  \frac{1}{2} b_2 S^2 + \frac{1}{2} a_1 S \left| H \right|^2 + \frac{1}{2} a_2 S^2 \left| H \right|^2 + \frac{1}{3} b_3 S^3 + \frac{1}{4} b_4 S^4.
 $$
 
 In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle between $S$ and $H$ is denoted as $\theta$. Masses considered are $m_2 = 170,\, 240\, \mathrm{GeV}$. We show results for points with $m_2= 170,\, 240\, \mathrm{GeV}$ and $\sin \theta = 0.1$, which are likely to be probed by direct searches at the high-luminosity LHC with $3\, \mathrm{ab}^{-1}$, and $\sin\theta = 0.01$, which will likely remain undetected at colliders. The various parameters in the potential are scanned over as described in the text. See also JHEP 1708 (2017) 096 [http://arxiv.org/abs/arXiv:1704.05844] for more details. 
 ''',
-                   theory_Tstar=50,
-                   theory_gstar=107.75,
-                   theory_vw=1.0,
-                   theory_Senscurve=0,
-                   theory_hasScenarios=True)
-        singlet_jonathan_theory.save()
+                   model_Tstar=50,
+                   model_gstar=107.75,
+                   model_vw=1.0,
+                   model_Senscurve=0,
+                   model_hasScenarios=True)
+        singlet_jonathan_model.save()
 
         jonathan_set_1 = \
-            Scenario(scenario_theory=singlet_jonathan_theory,
+            Scenario(scenario_model=singlet_jonathan_model,
                      scenario_number=1,
                      scenario_name="Not probed by HL-LHC",
                      scenario_description=r'Set of points that are not probed by HL-LHC')
         jonathan_set_1.save()
 
         jonathan_set_2 = \
-            Scenario(scenario_theory=singlet_jonathan_theory,
+            Scenario(scenario_model=singlet_jonathan_model,
                      scenario_number=2,
                      scenario_name="Will be probed by HL-LHC",
                      scenario_description=r'Set of points that will be probed by HL-LHC')
@@ -733,7 +733,7 @@ In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle 
             enumerate(zip(m2, sinTheta, a2, b3, b4, alpha, betaoverH, LHCflag, Tstar)):
 
             if not this_probe:                
-                point = ParameterChoice(theory=singlet_jonathan_theory,
+                point = ParameterChoice(model=singlet_jonathan_model,
                                         number=(i+1),
 #                                        point_longlabel=r'Point %d' % (i+1),
                                         point_longlabel=r'$m_2 = %d\, \mathrm{GeV}$, $\sin \theta = %g$, $a_2 = %g$, $b_3 = %g$, $b_4  = %g$)' % (this_m2, this_sinTheta, this_a2, this_b3, this_b4),
@@ -742,7 +742,7 @@ In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle 
                                         BetaoverH=this_beta_over_H,
                                         scenario=jonathan_set_1)
             else:
-                point = ParameterChoice(theory=singlet_jonathan_theory,
+                point = ParameterChoice(model=singlet_jonathan_model,
                                         number=(i+1),
 #                                        point_longlabel=r'Point %d' % (i+1),
                                         point_longlabel=r'$m_2 = %d\, \mathrm{GeV}$, $\sin \theta = %g$, $a_2 = %g$, $b_3 = %g$, $b_4  = %g$)' % (this_m2, this_sinTheta, this_a2, this_b3, this_b4),                                        
