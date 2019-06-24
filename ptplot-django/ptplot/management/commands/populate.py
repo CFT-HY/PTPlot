@@ -85,7 +85,7 @@ class Command(BaseCommand):
                    model_Tstar=50,
                    model_gstar=106.75,
                    model_vw=0.9,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=True)
         twohdm_josemi_model.save()
 
@@ -163,7 +163,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                      model_Tstar=50,
                      model_gstar=106.75,
                      model_vw=1.0,
-                     model_Senscurve=0,
+                     model_MissionProfile=0,
                      model_hasScenarios=False)
         singlet_miki_model.save()
 
@@ -198,7 +198,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                    model_Tstar=100,
                    model_gstar=106.75,
                    model_vw=0.95,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=False)
         singletscalars_moritz_model.save()
 
@@ -230,7 +230,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                    model_Tstar=50,
                    model_gstar=106.75,
                    model_vw=0.95,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=False)
         darkphoton_moritz_model.save()
 
@@ -270,7 +270,7 @@ considered.''',
                    model_Tstar=500,
                    model_gstar=130,
                    model_vw=1.0,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=True)
         gaugedlepton_madge_model.save()
 
@@ -353,7 +353,7 @@ considered.''',
                      model_Tstar=150,
                      model_gstar=106.75,
                      model_vw=0.95,
-                     model_Senscurve=0,
+                     model_MissionProfile=0,
                      model_hasScenarios=False)
         composite_model.save()
 
@@ -437,7 +437,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
                    model_Tstar=100,
                    model_gstar=106.75,
                    model_vw=0.95,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=True)
         eft_miki_model.save()
 
@@ -513,7 +513,7 @@ the corresponding references.''',
                      model_Tstar=100,
                      model_gstar=108.75,
                      model_vw=0.95,
-                     model_Senscurve=0,
+                     model_MissionProfile=0,
                      model_hasScenarios=True)
         susy_model.save()
 
@@ -698,7 +698,7 @@ In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle 
                    model_Tstar=50,
                    model_gstar=107.75,
                    model_vw=1.0,
-                   model_Senscurve=0,
+                   model_MissionProfile=0,
                    model_hasScenarios=True)
         singlet_jonathan_model.save()
 
