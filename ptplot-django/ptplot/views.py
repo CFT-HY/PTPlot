@@ -111,12 +111,12 @@ def model_detail(request, model_id):
     
     template = loader.get_template('ptplot/model_detail.html')
 
-    sensitivity_curve_label = available_labels[model.model_MissionProfile]
+    MissionProfile_label = available_labels[model.model_MissionProfile]
     
     context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
-               'sensitivity_curve_label': sensitivity_curve_label}
+               'MissionProfile_label': MissionProfile_label}
     return HttpResponse(template.render(context, request))
 
 
@@ -134,14 +134,14 @@ def model_detail_plot(request, model_id):
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
 
-    sensitivity_curve_label = available_labels[model.model_MissionProfile]
+    MissionProfile_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_detail_plot.html')
     
     context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
-               'sensitivity_curve_label': sensitivity_curve_label}
+               'MissionProfile_label': MissionProfile_label}
     return HttpResponse(template.render(context, request))
 
 def model_point_plot(request, model_id, point_id):
@@ -157,7 +157,7 @@ def model_point_plot(request, model_id, point_id):
     point = ParameterChoice.objects.get(model__id=model_id,
                                              number=point_id)
     
-    sensitivity_curve_label = available_labels[model.model_MissionProfile]
+    MissionProfile_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_point_plot.html')
     
@@ -165,7 +165,7 @@ def model_point_plot(request, model_id, point_id):
                'point_list': point_list,
                'scenario_list': scenario_list,
                'point': point,
-               'sensitivity_curve_label': sensitivity_curve_label}
+               'MissionProfile_label': MissionProfile_label}
     return HttpResponse(template.render(context, request))
 
 
@@ -304,7 +304,7 @@ def model_scenario_plot(request, model_id, scenario_id):
     point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
     
-    sensitivity_curve_label = available_labels[model.model_MissionProfile]
+    MissionProfile_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_scenario_plot.html')
     
@@ -312,7 +312,7 @@ def model_scenario_plot(request, model_id, scenario_id):
                'selected_scenario': selected_scenario,
                'scenario_list': scenario_list,
                'point_list': point_list,
-               'sensitivity_curve_label': sensitivity_curve_label}
+               'MissionProfile_label': MissionProfile_label}
     return HttpResponse(template.render(context, request))
 
 
@@ -526,7 +526,9 @@ def multiple(request):
                     pass
 
             if not len(label_list) == read_lines:
-                label_list = None
+                label_list_final = None
+            else:
+                label_list_final = [label_list]
                 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
                                                        alpha_list=[alpha_list],
@@ -534,7 +536,7 @@ def multiple(request):
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        MissionProfile=MissionProfile,
-                                                       label_list=[label_list])
+                                                       label_list=label_list_final)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
     template = loader.get_template('ptplot/multiple.html')

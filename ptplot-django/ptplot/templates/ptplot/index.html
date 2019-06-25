@@ -7,7 +7,7 @@
 
 {% block content %}
 
-<h3>PTPlot</h3>
+<h2>PTPlot: About</h2>
 <p>PTPlot is a tool for exploring the gravitational wave power
   spectrum from first-order phase transitions, and evaluating the
   likelihood of detecting a signal with the LISA mission.</p>
@@ -17,28 +17,45 @@
   <li><a href="multiple">Plot multiple points</a> given tabular data</li>
   <li><a href="models">Browse and plot benchmark points</a> for selected models</li>
 </ul>
-<h4>About the output</h4>
+<h3>About the output</h3>
 <p>All output figures
   are <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
   Vector Graphics</a> (SVG) and can be downloaded and edited with free
   tools such as <a href="https://inkscape.org/">Inkscape</a>. They are
   also easily converted to PDF or bitmapped formats by Inkscape or
-  built-in OS tools.</p>
-<h4>Crediting PTPlot</h4>
+  built-in OS tools, e.g.:</p>
+<pre>$ <b>inkscape input_snr_file.svg --export-pdf=outpout_snr_file.pdf</b></pre>
+<p>Note that on Macos, Inkscape requires the <em>full path</em> to the
+  source and destination files in order to work.</p>
+<h3>Crediting PTPlot</h3>
 <p>The results plotted by this tool are based on the forthcoming LISA
   Cosmology Working Group update paper. You are welcome to include
   plots from PTPlot in your own work; if you do use PTPlot, please
   cite that paper. Figures without the LISACosWG watermark are
   available on request; please do not remove it without
   permission.</p>
-<h4>Source</h4>
+<h3>Source</h3>
 <p>The source for PTPlot is available
   at <a href="https://bitbucket.org/dweir/ptplot">https://bitbucket.org/dweir/ptplot</a>. Please
   do not, however, use this code in your own projects without
   permission.</p>
-<h4>Recent news</h4>
+<h3>Recent news</h3>
 <ul>
-  <li><b>21.12.2018</b> - version 0.9.1
+  <li><b>25.6.2019</b> - version 0.9.5
+    <ul>
+      <li>3- and 7- year mission durations available.</li>
+      <li>Bugfixes to the "energy budget" calculation, which
+      previously had some discrepancies at intermediate
+	velocities.</li>
+      <li>Axis labels cleaned up.</li>
+      <li>"Theories" renamed to "Models" and another layer of
+	granularity, "Scenarios", added to benchmark points.</li>
+      <li>More flexibility in terms of individual points and scenarios
+	having their own $T_*$ and $v_\mathrm{w}$.</li>
+      <li>$\beta/H$ is now plotted (and used as a parameter) rather
+	than $H/\beta$.</li>
+    </ul>
+  <li><b>21.12.2018</b> - version 0.9.2
     <ul>
       <li>The SNR curves and power spectra now use a single
 	merged <span style="font-family: monospace">PowerSpectrum()</span> class.</li>
@@ -53,7 +70,7 @@
   </li>
 </ul>
       
-<h4>References</h4>
+<h3>References</h3>
 <ul>
   <li><a href="https://arxiv.org/abs/1512.06239">arXiv:1512.06239</a>
   - <em> Science with the space-based interferometer eLISA. II:

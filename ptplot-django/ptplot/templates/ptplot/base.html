@@ -14,6 +14,8 @@
   </head>
   <body>
 
+    <a id="top"/>
+
     <div id="header-wrapper">
       <div id="header" class="container">
 	<div id="logo">
@@ -25,12 +27,11 @@
     <div id="wrapper">
       <div id="page" class="container">
 	<div id="content">
-	  <a id="top"/>
 	  
 	  {% block content %}
 	  {% endblock %}
 
-	  <p>[<a href="#top">Back to top</a>]</p>
+	  <p>[<a href="#top">Back to top</a>] [<a href="/ptplot/">Home</a>]</p>
 	</div>
       </div>
     </div>
