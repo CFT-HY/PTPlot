@@ -526,7 +526,9 @@ def multiple(request):
                     pass
 
             if not len(label_list) == read_lines:
-                label_list = None
+                label_list_final = None
+            else:
+                label_list_final = [label_list]
                 
             sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
                                                        alpha_list=[alpha_list],
@@ -534,7 +536,7 @@ def multiple(request):
                                                        Tstar=Tstar,
                                                        gstar=gstar,
                                                        MissionProfile=MissionProfile,
-                                                       label_list=[label_list])
+                                                       label_list=label_list_final)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
     template = loader.get_template('ptplot/multiple.html')

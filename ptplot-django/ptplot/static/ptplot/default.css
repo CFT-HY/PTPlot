@@ -1546,12 +1546,12 @@ h1, h2, h3
 
 h1
 {
-	font-size: 2em;
+	font-size: 2.6em;
 }
 
 h2
 {
-	font-size: 2.6em;
+	font-size: 2em;
 }
 
 h3
@@ -1904,7 +1904,7 @@ ul.contact li a.icon-rss:before
 {
 	display: inline-block;
 	padding: 0.5em 0.5em 0.5em 0.50em;
-	font-size: 2.5em;
+	font-size: 2.6em;
 /*	text-transform: uppercase; */
 	font-weight: 900;
 }
