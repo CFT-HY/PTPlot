@@ -117,6 +117,7 @@ def model_detail(request, model_id):
                'point_list': point_list,
                'scenario_list': scenario_list,
                'MissionProfile_label': MissionProfile_label}
+
     return HttpResponse(template.render(context, request))
 
 
@@ -135,13 +136,14 @@ def model_detail_plot(request, model_id):
 #        point_list[i].update_snrchoice()
 
     MissionProfile_label = available_labels[model.model_MissionProfile]
-        
+    
     template = loader.get_template('ptplot/model_detail_plot.html')
     
     context = {'model': model,
                'point_list': point_list,
                'scenario_list': scenario_list,
                'MissionProfile_label': MissionProfile_label}
+    
     return HttpResponse(template.render(context, request))
 
 def model_point_plot(request, model_id, point_id):
@@ -198,14 +200,17 @@ def model_point_snr(request, model_id, point_id):
         gstar = model.model_gstar
 
     label = point.point_shortlabel
-        
+
+    hugeAlpha = model.model_hugeAlpha
+    
     sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
                                      gstar=gstar,
                                      vw_list=[[vw]],
                                      alpha_list=[[alpha]],
                                      BetaoverH_list=[[BetaoverH]],
                                      label_list=[[label]],
-                                     MissionProfile=MissionProfile)
+                                     MissionProfile=MissionProfile,
+                                     hugeAlpha=hugeAlpha)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -236,6 +241,8 @@ def model_point_snr_alphabeta(request, model_id, point_id):
         gstar = model.model_gstar
 
     label = point.point_shortlabel
+
+    hugeAlpha = model.model_hugeAlpha
         
     sio_SNR = get_SNR_alphabeta_image_threaded(Tstar=Tstar,
                                                gstar=gstar,
@@ -243,7 +250,8 @@ def model_point_snr_alphabeta(request, model_id, point_id):
                                                alpha_list=[[alpha]],
                                                BetaoverH_list=[[BetaoverH]],
                                                label_list=[[label]],
-                                               MissionProfile=MissionProfile)
+                                               MissionProfile=MissionProfile,
+                                               hugeAlpha=hugeAlpha)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -341,7 +349,8 @@ def model_scenario_snr(request, model_id, scenario_id):
                                      gstar=model.model_gstar,
                                      label_list=[label_list],
                                      title_list=[model.model_name],
-                                     MissionProfile=model.model_MissionProfile)
+                                     MissionProfile=model.model_MissionProfile,
+                                     hugeAlpha=model.model_hugeAlpha)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -368,7 +377,9 @@ def model_scenario_snr_alphabeta(request, model_id, scenario_id):
                                      gstar=model.model_gstar,
                                      label_list=[label_list],
                                      title_list=[model.model_name],
-                                     MissionProfile=model.model_MissionProfile)
+                                     MissionProfile=model.model_MissionProfile,
+                                     hugeAlpha=model.model_hugeAlpha)
+
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -417,7 +428,9 @@ def model_snr(request, model_id):
                                      gstar=model.model_gstar,
                                      label_list=label_list,
                                      title_list=title_list,
-                                     MissionProfile=model.model_MissionProfile)
+                                     MissionProfile=model.model_MissionProfile,
+                                     hugeAlpha=model.model_hugeAlpha)
+                                     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -459,7 +472,8 @@ def model_snr_alphabeta(request, model_id):
                                                gstar=model.model_gstar,
                                                label_list=label_list,
                                                title_list=title_list,
-                                               MissionProfile=model.model_MissionProfile)
+                                               MissionProfile=model.model_MissionProfile,
+                                               hugeAlpha=model.model_hugeAlpha)                                               
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 

@@ -17,6 +17,10 @@
   \, \mathrm{GeV}$,
   $g_* = {{model.model_gstar }}$.</p>
 
+{% if model.model_hugeAlpha %}
+<p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these
+    phase transition strengths has not been tested.</div></p>
+{% endif %}
 
   <img alt="embedded" src="snr"  width="600px"
   height="450px" style="background-color: #dddddd; border: 10px;

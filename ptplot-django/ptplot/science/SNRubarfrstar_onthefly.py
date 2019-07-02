@@ -41,7 +41,9 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   label_list=None,
                   title_list=None,
                   MissionProfile=0,
-                  usetex=False):
+                  usetex=False,
+                  hugeAlpha=False):
+    
 
 
     
@@ -53,14 +55,22 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     # matplotlib.rc('text', usetex=usetex)
     matplotlib.rc('font', family='serif')
     matplotlib.rc('mathtext', fontset='dejavuserif')
+
+    
+    if hugeAlpha:
+        ubarfmax = 1000
+    else:
+        ubarfmax = 1
+        
     
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
     
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])
-
-
+    # only if hugeAlpha in play
+    levels_tsh_hugeAlpha = np.array([0.0000001,0.000001,0.00001,0.0001])
+    
     # Where to put contour label, based on y-coordinate and contour value
     def find_place(snr, wantedy, wantedcontour):
         nearesty = (np.abs(log10HnRstar-wantedy)).argmin()
@@ -87,6 +97,15 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                        extent=(log10Ubarf[0], log10Ubarf[-1],
                                log10HnRstar[0], log10HnRstar[-1]))
 
+    if hugeAlpha:
+        # These don't get annotated with labels
+        CStsh_hugeAlpha = ax.contour(log10Ubarf, log10HnRstar, tshHn, levels_tsh_hugeAlpha, linewidths=1,
+                                     linestyles='dashed', colors='k',
+                                     extent=(log10Ubarf[0], log10Ubarf[-1],
+                                             log10HnRstar[0], log10HnRstar[-1]))
+    
+
+    
 #     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [0.00001, 1], colors=('gray'), alpha=0.3,
     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1],
@@ -154,9 +173,13 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     #                              int(round(max(log10Ubarf))+1)))] \
     #     + [r'$10^{%.2g}$' % max(log10Ubarf)]
   
-    xtickpos = [-2, -1, 0]
-    xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
-
+    if hugeAlpha:
+        xtickpos = [-2, -1, 0, 1, 2, 3]
+        xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$',
+                        r'$10$', r'$10^2$', r'$10^3$']
+    else:
+        xtickpos = [-2, -1, 0]
+        xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
 
 
     # ytickpos = [min(log10HnRstar)] \
@@ -208,10 +231,13 @@ def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
            label_list=None,
            title_list=None,
            MissionProfile=0,
-           usetex=False):
+           usetex=False,
+           hugeAlpha=False):           
+    
     queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
                             Tstar, gstar,
-                            label_list, title_list, MissionProfile, usetex))
+                            label_list, title_list, MissionProfile, usetex,
+                            hugeAlpha))
     
 
 
@@ -221,12 +247,13 @@ def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100]
                            label_list=None,
                            title_list=None,
                            MissionProfile=0,
-                           usetex=False):
+                           usetex=False,
+                           hugeAlpha=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, BetaoverH_list,
                                                      Tstar, gstar,
-                                                     label_list, title_list, MissionProfile, usetex))
+                                                     label_list, title_list, MissionProfile, usetex, hugeAlpha))
     p.start()
     return_res = q.get()
     p.join()

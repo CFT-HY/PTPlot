@@ -54,7 +54,8 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             label_list=None,
                             title_list=None,
                             MissionProfile=0,
-                            usetex=False):
+                            usetex=False,
+                            hugeAlpha=False):
 
 
     
@@ -69,8 +70,14 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     matplotlib.rc('mathtext', fontset='dejavuserif')
     
     
-    
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile)
+    if hugeAlpha:
+        ubarfmax = 1000
+    else:
+        ubarfmax = 1
+
+
+        
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
     
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
                                                      log10HnRstar),
@@ -82,7 +89,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])
-
+    levels_tsh_hugeAlpha = np.array([0.0000001,0.000001,0.00001,0.0001])
     
     
     # Where to put contour label, based on y-coordinate and contour value
@@ -97,9 +104,10 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     locs = [find_place(snr, 2, wantedcontour) for wantedcontour in levels]
 
 #     locs_tsh = [(-1.2,0),(-1.2,1), (-1.2,2), (-1.2,3), (-1.2,4), (-1.2,5)]
-    locs_tsh = [(int(math.ceil(min(log10alpha))),x) \
+    locs_tsh = [(int(math.ceil(min(log10alpha))) + 0.2,x) \
                 for x in range(int(math.ceil(min(log10BetaOverH))),
                                int(math.floor(max(log10BetaOverH))+1))]
+    
 
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
@@ -114,6 +122,14 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                        extent=(log10alpha[0], log10alpha[-1],
                                log10BetaOverH[0], log10BetaOverH[-1]))
 
+    if hugeAlpha:
+        CStsh_hugeAlpha = ax.contour(log10alpha, log10BetaOverH,
+                           tshHn, levels_tsh_hugeAlpha, linewidths=1,
+                           linestyles='dashed', colors='k',
+                           extent=(log10alpha[0], log10alpha[-1],
+                                   log10BetaOverH[0], log10BetaOverH[-1]))
+        
+    
     CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 100], colors=('gray'), alpha=0.5,
                           extent=(log10alpha[0], log10alpha[-1],
                                   log10BetaOverH[0], log10BetaOverH[-1]))
@@ -257,10 +273,12 @@ def worker(queue, vw, alpha_list=[0.1], BetaoverH_list=[100],
            label_list=None,
            title_list=None,
            MissionProfile=0,
-           usetex=False):
+           usetex=False,
+           hugeAlpha=False):
+    
     queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
                                       Tstar, gstar, label_list, title_list,
-                                      MissionProfile, usetex))
+                                      MissionProfile, usetex, hugeAlpha))
 
 def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      Tstar=100,
@@ -268,12 +286,13 @@ def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      label_list=None,
                                      title_list=None,
                                      MissionProfile=0,
-                                     usetex=False):
+                                     usetex=False,
+                                     hugeAlpha=False):
 
     q = multiprocessing.Queue()
     p = multiprocessing.Process(target=worker, args=(q, vw, alpha_list, BetaoverH_list,
                                                      Tstar, gstar, label_list, title_list,
-                                                     MissionProfile, usetex))
+                                                     MissionProfile, usetex, hugeAlpha))
     p.start()
     return_res = q.get()
     p.join()

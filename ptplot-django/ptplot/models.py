@@ -5,6 +5,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Model(models.Model):
     model_name = models.CharField(max_length=200)
     model_description = models.TextField(null=True)
@@ -13,6 +14,7 @@ class Model(models.Model):
     model_Tstar = models.FloatField()
     model_gstar = models.FloatField()
     model_MissionProfile = models.IntegerField(default=0)
+    model_hugeAlpha = models.BooleanField(default=False)
     model_hasScenarios = models.BooleanField()
 
 class Scenario(models.Model):

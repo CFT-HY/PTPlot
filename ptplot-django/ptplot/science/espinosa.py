@@ -41,7 +41,7 @@ def ubarf_to_alpha(vw, this_ubarf):
         def alphatrue(alpha):
             return ubarf(vw, alpha) - this_ubarf
 
-        return scipy.optimize.brentq(alphatrue, 0.0000001, 1000.0, xtol=1e-5)
+        return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-5)
         
 
     vfunc = np.vectorize(ubarf_to_alpha_inner)
