@@ -3,7 +3,7 @@ from ptplot.models import *
 
 import numpy as np
 
-import os, string
+import os, string, math
 
 filedir = os.path.dirname(os.path.realpath(__file__))
 
@@ -79,12 +79,25 @@ class Command(BaseCommand):
 
         twohdm_josemi_model = \
             Model(model_name=r'2HDM benchmark points',
-                                  model_description='''
-                                  Description goes here''',
-                   model_notes=r'''Notes go here: equation for the potential, parameters, etc.''',
+                                  model_description='''Benchmark points for the two-Higgs-doublet model with a softly-broken $Z_2$ symmetry (supplied by G. Dorsch and J.M. No).''',
+                   model_notes=r'''
+Benchmark points for the two-Higgs-doublet model (2HDM) with a softly-broken $Z_{2}$ symmetry, with scalar potential
+\begin{eqnarray}
+V(H_1,H_2) & = & \mu^2_1 \left|H_1\right|^2 + \mu^2_2\left|H_2\right|^2 - \mu^2 \left[H_1^{\dagger}H_2+\mathrm{h.c.}\right] +\frac{\lambda_1}{2}\left|H_1\right|^4 
++\frac{\lambda_2}{2}\left|H_2\right|^4 \nonumber \\
+&  & + \lambda_3 \left|H_1\right|^2\left|H_2\right|^2 +\lambda_4 \left|H_1^{\dagger}H_2\right|^2 +
+ \frac{\lambda_5}{2}\left[\left(H_1^{\dagger}H_2\right)^2+\mathrm{h.c.}\right] \, , \nonumber
+\end{eqnarray}
+In the mass basis, there are three new physical states in addition to the 125 GeV Higgs $h$: 
+a charged scalar $H^{\pm}$ and two neutral states $H_0$, $A_0$. Apart from their masses, the 2HDM features as free 
+parameters two angles ($\beta$ and $\alpha$) and $\mu^2$. In the following results we consider $m_{H^{\pm}} = m_{A_0}$, 
+$\mathrm{cos} (\beta - \alpha) = 0$ (the 2HDM alignment limit) an fix for convenience $\mu^2 (\mathrm{tan} \beta + \mathrm{tan}^{-1} \beta) = m_{H_0}^2$.
+Results are shown for benchmarks in $m_{H_0} \in [180\,\mathrm{GeV},\,\,450\,\mathrm{GeV}]$ and 
+$m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
+''',
                    model_Tstar=50,
                    model_gstar=106.75,
-                   model_vw=0.9,
+                   model_vw=0.7,
                    model_MissionProfile=0,
                    model_hasScenarios=True)
         twohdm_josemi_model.save()
@@ -93,7 +106,7 @@ class Command(BaseCommand):
             Scenario(scenario_model=twohdm_josemi_model,
                      scenario_number=1,
                      scenario_name="Set 1",
-                     scenario_description=r'2HDM points which are currently allowed both for Type I and Type II 2HDM. For Type II, these will be probed by the LHC in the future, while for Type I the LHC will not be able to exclude these benchmarks, depending on the value of $\tan\beta$ (which does influence the strength of the PT).')
+                     scenario_description=r'2HDM points which are currently allowed both for Type I and Type II 2HDM. For Type II, these will be probed by the LHC in the future, while for Type I the LHC will not be able to exclude these benchmarks, depending on the value of $\tan\beta$ (which does not influence the strength of the PT).')
         josemi_set_1.save()
         
         josemi_points = np.genfromtxt(os.path.join(filedir, 'josemi_2hdm.txt'), delimiter=',',names=True)
@@ -146,10 +159,50 @@ class Command(BaseCommand):
 
             
 
-        singlet_miki_model = \
+#         singlet_miki_model = \
+#             Model(model_name=r'$Z_2$-symmetric singlet scalar benchmark points',
+#                                   model_description=r'''Benchmark points for the SM extended with a scalar singlet with
+# $Z_2$ symmetry (supplied by M. Chala).''',
+#                     model_notes=r'''The new physics potential reads
+
+# $$\Delta V = \frac{1}{2}a_2 |H|^2 S^2 + \frac{1}{2} b_2 S^2 + \frac{1}{4} 
+# b_4 S^4.$$
+
+# The parameter $m$ below stands for the physical mass of the singlet.
+# For each pair $(m, a_2)$, the remaining free parameter, namely
+# the singlet self coupling $b_4$, is taken to be the one that maximizes
+# the strength of the phase transition, computed using a modified version
+# of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
+#                      model_Tstar=50,
+#                      model_gstar=106.75,
+#                      model_vw=1.0,
+#                      model_MissionProfile=0,
+#                      model_hasScenarios=False)
+#         singlet_miki_model.save()
+
+#         miki_points = np.genfromtxt(os.path.join(filedir, 'miki_singlet_portal.txt'), delimiter=' ',names=True)
+#         Tn = miki_points['Tstar']
+#         alpha_n = miki_points['alpha']
+#         beta_H_n = miki_points['betaoverH']
+#         m = miki_points['m']
+#         a2 = miki_points['a2']
+        
+#         for i, (this_m, this_a2, this_Tn, this_alpha_n, this_beta_H_n) in \
+#             enumerate(zip(m, a2, Tn, alpha_n, beta_H_n)):
+#             point = ParameterChoice(model=singlet_miki_model,
+#                                     number=(i+1),
+#                                  point_longlabel='$m = %d\, \mathrm{GeV}, \, a_2 = %g$' % (this_m, this_a2),
+#                                  Tstar=this_Tn,
+#                                  alpha=this_alpha_n,
+#                                  BetaoverH=this_beta_H_n)
+
+#             point.save()
+
+
+        singlet_jonathan_z2_model = \
             Model(model_name=r'$Z_2$-symmetric singlet scalar benchmark points',
                                   model_description=r'''Benchmark points for the SM extended with a scalar singlet with
-$Z_2$ symmetry.''',
+$Z_2$ symmetry (supplied by J. Kozaczuk).''',
                     model_notes=r'''The new physics potential reads
 
 $$\Delta V = \frac{1}{2}a_2 |H|^2 S^2 + \frac{1}{2} b_2 S^2 + \frac{1}{4} 
@@ -165,18 +218,18 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                      model_vw=1.0,
                      model_MissionProfile=0,
                      model_hasScenarios=False)
-        singlet_miki_model.save()
+        singlet_jonathan_z2_model.save()
 
-        miki_points = np.genfromtxt(os.path.join(filedir, 'miki_singlet_portal.txt'), delimiter=' ',names=True)
-        Tn = miki_points['Tstar']
-        alpha_n = miki_points['alpha']
-        beta_H_n = miki_points['betaoverH']
-        m = miki_points['m']
-        a2 = miki_points['a2']
+        jonathan_z2_points = np.genfromtxt(os.path.join(filedir, 'GW_singlet_Z2.dat'), delimiter=',',names=True)
+        Tn = jonathan_z2_points['Tstar']
+        alpha_n = jonathan_z2_points['alpha']
+        beta_H_n = jonathan_z2_points['betaoverH']
+        m = jonathan_z2_points['m']
+        a2 = jonathan_z2_points['a2']
         
         for i, (this_m, this_a2, this_Tn, this_alpha_n, this_beta_H_n) in \
             enumerate(zip(m, a2, Tn, alpha_n, beta_H_n)):
-            point = ParameterChoice(model=singlet_miki_model,
+            point = ParameterChoice(model=singlet_jonathan_z2_model,
                                     number=(i+1),
                                  point_longlabel='$m = %d\, \mathrm{GeV}, \, a_2 = %g$' % (this_m, this_a2),
                                  Tstar=this_Tn,
@@ -184,7 +237,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
                                  BetaoverH=this_beta_H_n)
 
             point.save()
-
+            
 
 
             
@@ -192,8 +245,8 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
 
         singletscalars_moritz_model = \
-            Model(model_name=r'Scalar dark sector benchmark points (Breitbach et al.)',
-                                  model_description='''Benchmark points for a model with two gauge singlet scalars in a hidden sector.''',
+            Model(model_name=r'Scalar dark sector benchmark points',
+                                  model_description='''Benchmark points for a model with two gauge singlet scalars in a hidden sector (supplied by M. Breitbach).''',
                    model_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
                    model_Tstar=100,
                    model_gstar=106.75,
@@ -224,8 +277,8 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
 
         darkphoton_moritz_model = \
-            Model(model_name=r'Dark photon benchmark points (Breitbach et al.)',
-                                  model_description='''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector.''',
+            Model(model_name=r'Dark photon benchmark points)',
+                                  model_description='''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector (supplied by M. Breitbach).''',
                    model_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
                    model_Tstar=50,
                    model_gstar=106.75,
@@ -257,7 +310,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
         gaugedlepton_madge_model = \
             Model(model_name=r'Gauged Lepton Number Model benchmark points',
-                                  model_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number.''',
+                                  model_description='''Lepton number breaking phase transition in an extension of the SM with gauged lepton number (supplied by E. Madge).''',
                    model_notes=r'''Benchmark points for the lepton number phase transition in the
 model considered in https://arxiv.org/abs/1809.09110, see section 5.2
 for the potential.  Lepton number is gauged as a $U(1)_\ell$ gauge
@@ -348,13 +401,26 @@ considered.''',
 
         composite_model \
             = Model(model_name=r'Composite Higgs models benchmark points',
-                                  model_description=r'''description goes here''',
-                    model_notes=r'''notes go here''',
-                     model_Tstar=150,
-                     model_gstar=106.75,
-                     model_vw=0.95,
-                     model_MissionProfile=0,
-                     model_hasScenarios=False)
+                                  model_description=r'''Benchmark points for minimal composite Higgs models, featuring a PNGB Higgs and a PNGB dilaton (supplied by G. Servant).''',
+                    model_notes=r'''Composite Higgs models, which aim at addressing the hierarchy
+problem, are a natural framework for very supercooled EW phase
+transitions.  The Lagrangian and the parameter regions are given in
+Section III and Section VI respectively of
+https://arxiv.org/pdf/1804.07314.pdf, Figure 16 of that paper shows
+typical values of $\alpha$ and $\beta/H$.  In this framework, the dynamics
+of the EW phase transition is governed by the interplay between the
+dilaton and the Higgs fields.  In these models where a very large
+number of degrees of freedom become massive during the phase
+transition, the friction and the bubble wall velocity have not yet
+been computed and v_w is set to 0.95 for illustration.  Benchmark
+points correspond to two categories where the dilaton (a composite
+particle) is either a meson-like or a glueball-like state.''',
+                    model_Tstar=150,
+                    model_gstar=106.75,
+                    model_vw=0.95,
+                    model_MissionProfile=0,
+                    model_hasScenarios=False,
+                    model_hugeAlpha=True)
         composite_model.save()
 
         
@@ -421,12 +487,178 @@ considered.''',
 
 
 
+
+        RS_model \
+            = Model(model_name=r'Randall-Sundrum model benchmark points',
+                                  model_description=r'''Benchmark points for the holographic phase transition in Randall-Sundrum models (supplied by G. Nardini).''',
+                    model_notes=r'''notes go here''',
+                    model_Tstar=500,
+                    model_gstar=106.75,
+                    model_vw=0.95,
+                    model_MissionProfile=0,
+                    model_hasScenarios=False,
+                    model_hugeAlpha=True)
+        RS_model.save()
+
         
+        pB1 = ParameterChoice(model=RS_model,
+                              number=1,
+                              point_shortlabel=r'B1',
+                              point_longlabel=r'$B_1$',
+                              Tstar=1053,
+                              alpha=1.60,
+                              BetaoverH=math.pow(10,2.36))
+
+        pB1.save()
+
+        pB2 = ParameterChoice(model=RS_model,
+                              number=2,
+                              point_shortlabel=r'B2',
+                              point_longlabel=r'$B_2$',
+                              Tstar=821.8,
+                              alpha=4.61,
+                              BetaoverH=math.pow(10,1.99))
+
+        pB2.save()
+
+
+        pB3 = ParameterChoice(model=RS_model,
+                              number=3,
+                              point_shortlabel=r'B3',
+                              point_longlabel=r'$B_3$',
+                              Tstar=770.4,
+                              alpha=7.86,
+                              BetaoverH=math.pow(10,1.79))
+
+        pB3.save()
+
+
+        pB4 = ParameterChoice(model=RS_model,
+                              number=4,
+                              point_shortlabel=r'B4',
+                              point_longlabel=r'$B_4$',
+                              Tstar=730.6,
+                              alpha=17.1,
+                              BetaoverH=math.pow(10,1.48))
+
+        pB4.save()
+
+
+        pB5 = ParameterChoice(model=RS_model,
+                              number=5,
+                              point_shortlabel=r'B5',
+                              point_longlabel=r'$B_5$',
+                              Tstar=694.0,
+                              alpha=90.1,
+                              BetaoverH=math.pow(10,1.97))
+
+        pB5.save()
+
         
+        pB6 = ParameterChoice(model=RS_model,
+                              number=6,
+                              point_shortlabel=r'B6',
+                              point_longlabel=r'$B_6$',
+                              Tstar=694.0,
+                              alpha=90.1,
+                              BetaoverH=math.pow(10,1.97))
+
+        pB6.save()
+
+        pB7 = ParameterChoice(model=RS_model,
+                              number=7,
+                              point_shortlabel=r'B7',
+                              point_longlabel=r'$B_7$',
+                              Tstar=612.0,
+                              alpha=1047,
+                              BetaoverH=math.pow(10,1.67))
+
+        pB7.save()
+
+        pB8 = ParameterChoice(model=RS_model,
+                              number=8,
+                              point_shortlabel=r'B8',
+                              point_longlabel=r'$B_8$',
+                              Tstar=566.4,
+                              alpha=4e4,
+                              BetaoverH=math.pow(10,1.23))
+
+        pB8.save()
+
+        pB9 = ParameterChoice(model=RS_model,
+                              number=9,
+                              point_shortlabel=r'B9',
+                              point_longlabel=r'$B_9$',
+                              Tstar=549.3,
+                              alpha=4.1e6,
+                              BetaoverH=math.pow(10,0.64))
+
+        pB9.save()
+
+        pB10 = ParameterChoice(model=RS_model,
+                               number=10,
+                               point_shortlabel=r'B10',
+                               point_longlabel=r'$B_{10}$',
+                               Tstar=546.8,
+                               alpha=3.3e7,
+                               BetaoverH=math.pow(10,0.34))
+
+        pB10.save()
+
+
+        pB11 = ParameterChoice(model=RS_model,
+                               number=11,
+                               point_shortlabel=r'B11',
+                               point_longlabel=r'$B_{11}$',
+                               Tstar=545.6,
+                               alpha=4.5e8,
+                               BetaoverH=math.pow(10,-0.32))
+
+        pB11.save()
+
+        pC1 = ParameterChoice(model=RS_model,
+                               number=12,
+                               point_shortlabel=r'B11',
+                               point_longlabel=r'$B_{11}$',
+                               Tstar=578.4,
+                               alpha=4.3,
+                               BetaoverH=math.pow(10,2.03))
+
+        pC1.save()
+
+        pC2 = ParameterChoice(model=RS_model,
+                               number=13,
+                               point_shortlabel=r'C2',
+                               point_longlabel=r'$C_2$',
+                               Tstar=416.2,
+                               alpha=5e3,
+                               BetaoverH=math.pow(10,1.45))
+
+        pC2.save()
+
+        pD1 = ParameterChoice(model=RS_model,
+                              number=14,
+                              point_shortlabel=r'D1',
+                              point_longlabel=r'$D_1$',
+                              Tstar=133.7,
+                              alpha=5.0,
+                              BetaoverH=math.pow(10,1.05))
+
+        pD1.save()
+
+        pE1 = ParameterChoice(model=RS_model,
+                              number=15,
+                              point_shortlabel=r'E1',
+                              point_longlabel=r'$E_1$',
+                              Tstar=567.2,
+                              alpha=203,
+                              BetaoverH=math.pow(10,1.89))
+
+        pE1.save()
 
         eft_miki_model = \
             Model(model_name=r'EFT benchmark points',
-                   model_description=r''' Benchmark points for the SM extended with effective operators up to dimension eight.''',
+                   model_description=r''' Benchmark points for the SM extended with effective operators up to dimension eight (supplied by M. Chala).''',
                    model_notes=r'''The new physics potential reads
                    $$\Delta V = \frac{c_6}{f^2}|H|^6 + \frac{c_8}{f^4}|H|^8.$$
                    The effective scale $f/\sqrt{c}$ below is defined by $c/f^2 \equiv \frac{c_6}{f^2} + \frac{3}{2} v^2 \frac{c_8}{f^4}$. The nucleation temperature and other parameters relevant for the 
@@ -501,9 +733,9 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
             point.save()
 
         susy_model \
-            = Model(model_name=r'Some SUSY embeddings (Nardini)',
+            = Model(model_name=r'Some SUSY embeddings',
                                   model_description=r'''Benchmark points for some SUSY embeddings with chiral 
-supersinglets or supertriplets.''',
+supersinglets or supertriplets (supplied by G. Nardini).''',
                     model_notes=r'''The benchmark points  SUSY$_1$ are taken from 
 https://arxiv.org/abs/1512.06357, SUSY$_2$ from 
 https://arxiv.org/abs/1704.02488,  SUSY$_3$ from 
@@ -685,9 +917,9 @@ the corresponding references.''',
         
 
         singlet_jonathan_model = \
-            Model(model_name=r'Singlet scalar benchmark points (Kozaczuk)',
+            Model(model_name=r'Singlet scalar benchmark points',
                                   model_description='''
-                                  Benchmark points for the SM extended with a general real singlet scalar field, $S$.''',
+                                  Benchmark points for the SM extended with a general real singlet scalar field, $S$ (supplied by J. Kozaczuk).''',
                    model_notes=r'''
 $$
 \Delta V = b_1 S +  \frac{1}{2} b_2 S^2 + \frac{1}{2} a_1 S \left| H \right|^2 + \frac{1}{2} a_2 S^2 \left| H \right|^2 + \frac{1}{3} b_3 S^3 + \frac{1}{4} b_4 S^4.
