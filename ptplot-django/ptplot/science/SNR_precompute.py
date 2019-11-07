@@ -42,10 +42,10 @@ def get_SNRcurve(Tn, gstar, MissionProfile,  ubarfmax=1):
     duration = yr*available_durations[MissionProfile]
     
     ## Values of log10 Ubarf to scan
-    log10Ubarf = np.arange(-2, math.log10(ubarfmax) + 0.04, 0.04)
+    log10Ubarf = np.linspace(-2, math.log10(ubarfmax), 51)
 
     ## Values of log10 HnRstar to scan
-    log10HnRstar = np.arange(-4, 0.08, 0.08)
+    log10HnRstar = np.linspace(-4, 0.08, 51)
 
     # Model parameters
     #Omtil = 1.2e-1 # GW efficiency parameter

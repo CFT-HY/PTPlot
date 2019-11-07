@@ -107,7 +107,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
 
     
 #     CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [0.00001, 1], colors=('gray'), alpha=0.3,
-    CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 100], colors=('gray'), alpha=0.5,
+    CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 1000], colors=('gray'), alpha=0.5,
                           extent=(log10Ubarf[0], log10Ubarf[-1],
                                   log10HnRstar[0], log10HnRstar[-1]))
 
@@ -199,9 +199,11 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
+    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-
+    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',

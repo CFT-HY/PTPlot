@@ -71,14 +71,14 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     
     
     if hugeAlpha:
-        ubarfmax = 1000
+        ubarfmax = 0.866
     else:
-        ubarfmax = 1
+        ubarfmax = 0.6
 
 
         
     tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
-    
+    # print(log10Ubarf)
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
                                                      log10HnRstar),
                                                vw))
@@ -130,7 +130,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                                    log10BetaOverH[0], log10BetaOverH[-1]))
         
     
-    CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 100], colors=('gray'), alpha=0.5,
+    CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [1, 1000], colors=('gray'), alpha=0.5,
                           extent=(log10alpha[0], log10alpha[-1],
                                   log10BetaOverH[0], log10BetaOverH[-1]))
 
@@ -239,9 +239,11 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
         
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
+    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-
+    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',
