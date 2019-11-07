@@ -79,7 +79,7 @@ class PowerSpectrum:
 
         # compute shock time
         self.H_tsh = self.H_rstar/self.ubarf
-        
+       
 
     # Spectral shape
     @staticmethod
