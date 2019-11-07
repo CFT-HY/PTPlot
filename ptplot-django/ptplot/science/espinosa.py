@@ -3,7 +3,7 @@ import scipy.optimize
 import numpy as np
 
 def ubarf(vw, alpha):
-    return math.sqrt((3.0/4.0)*kappav(vw,alpha)*alpha)
+    return math.sqrt((3.0/4.0)*kappav(vw,alpha)*alpha/(1.0 + alpha))
 
 def kappav(vw, alpha):
 
@@ -41,8 +41,12 @@ def ubarf_to_alpha(vw, this_ubarf):
         def alphatrue(alpha):
             return ubarf(vw, alpha) - this_ubarf
 
-        return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-5)
-        
+#        try:
+        return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-6)
+#        except ValueError:
+#            import sys
+#            sys.stderr.write('vw=%g, this_ubarf=%g\n' % (vw, this_ubarf))
 
+    
     vfunc = np.vectorize(ubarf_to_alpha_inner)
     return vfunc(vw, this_ubarf)

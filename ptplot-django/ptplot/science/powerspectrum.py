@@ -49,7 +49,8 @@ def get_PS_image(vw=0.95,
                  alpha=0.1,
                  BetaoverH=100,
                  MissionProfile=0,
-                 usetex=False):
+                 usetex=False,
+                 sw_only=True):
 
     sensitivity=available_sensitivitycurves[MissionProfile]
     
@@ -93,13 +94,17 @@ def get_PS_image(vw=0.95,
     
     ax.fill_between(f, sensitivity, 1, alpha=0.3, label=r'LISA sensitivity')
 
-    ax.plot(f_more, curves_ps.power_spectrum_sw_conservative(f_more), 'r',
-            label=r'$\Omega_\mathrm{sw}$')
-    ax.plot(f_more, curves_ps.power_spectrum_turb(f_more), 'b',
-            label=r'$\Omega_\mathrm{turb}$')
-    ax.plot(f_more, curves_ps.power_spectrum_conservative(f_more), 'k',
-            label=r'Total')
-
+    if sw_only:
+        ax.plot(f_more, curves_ps.power_spectrum_sw_conservative(f_more), 'k',
+                label=r'$\Omega_\mathrm{sw}$')
+    else:
+        ax.plot(f_more, curves_ps.power_spectrum_sw_conservative(f_more), 'r',
+                label=r'$\Omega_\mathrm{sw}$')
+        ax.plot(f_more, curves_ps.power_spectrum_turb(f_more), 'b',
+                label=r'$\Omega_\mathrm{turb}$')
+        ax.plot(f_more, curves_ps.power_spectrum_conservative(f_more), 'k',
+                label=r'Total')
+        
     ax.set_xlabel(r'$f\; \mathrm{(Hz)}$', fontsize=14)
     ax.set_ylabel(r'$h^2 \, \Omega_\mathrm{GW}(f)$', fontsize=14)
     ax.set_xlim([1e-5,0.1])
