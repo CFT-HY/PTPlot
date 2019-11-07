@@ -117,7 +117,13 @@ class PowerSpectrum:
 #            *self.adiabaticRatio*self.adiabaticRatio \
 #            *np.power(self.ubarf,4.0)*self.vw*(1.0/self.BetaoverH)*self.Ssw(fp)
 
-        return 0.68*3.57e-5*0.12*np.power(100.0/self.gstar,1.0/3.0) \
+        # Planck h=0.678
+        h_planck = 0.678
+
+        # 1704.05871 Eqs 39 and 45 are missing the factor of 3 [typo];
+        # and there is no h_planck in eq 45 (on either side; intentional)
+        return h_planck*h_planck*3.0 \
+            *0.68*3.57e-5*0.12*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
 

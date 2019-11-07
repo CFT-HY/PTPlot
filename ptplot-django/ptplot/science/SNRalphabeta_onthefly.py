@@ -239,9 +239,11 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
         
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
+    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-
+    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    
     # position bottom right
     fig.text(0.95, 0.05, 'LISACosWG',
              fontsize=50, color='gray',
