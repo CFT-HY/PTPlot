@@ -2,6 +2,7 @@
 # Django core stuff
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404
 from django.template import loader
 
 # Django app stuff
@@ -96,9 +97,12 @@ def model(request):
     return HttpResponse(template.render(context, request))
 
 def model_detail(request, model_id):
-    
-    model = Model.objects.get(pk=model_id)
 
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+        
     if model.model_hasScenarios:
         scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
@@ -124,7 +128,12 @@ def model_detail(request, model_id):
 
 def model_detail_plot(request, model_id):
     
-    model = Model.objects.get(pk=model_id)
+
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
     point_list = ParameterChoice.objects.filter(model__id=model_id)
 
     if model.model_hasScenarios:
@@ -148,7 +157,10 @@ def model_detail_plot(request, model_id):
 
 def model_point_plot(request, model_id, point_id):
     
-    model = Model.objects.get(pk=model_id)
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
 
     if model.model_hasScenarios:
         scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
@@ -156,9 +168,13 @@ def model_point_plot(request, model_id, point_id):
         scenario_list = None
 
     point_list = ParameterChoice.objects.filter(model__id=model_id)
-    point = ParameterChoice.objects.get(model__id=model_id,
-                                             number=point_id)
-    
+
+    try:
+        point = ParameterChoice.objects.get(model__id=model_id,
+                                            number=point_id)
+    except ParameterChoice.DoesNotExist:
+        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
+
     MissionProfile_label = available_labels[model.model_MissionProfile]
         
     template = loader.get_template('ptplot/model_point_plot.html')
@@ -174,9 +190,20 @@ def model_point_plot(request, model_id, point_id):
 
 def model_point_snr(request, model_id, point_id):
     
-    model = Model.objects.get(pk=model_id)
-    point = ParameterChoice.objects.get(model__id=model_id,
-                                             number=point_id)
+
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        point = ParameterChoice.objects.get(model__id=model_id,
+                                            number=point_id)
+    except ParameterChoice.DoesNotExist:
+        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
+
+    
+
 
     MissionProfile = model.model_MissionProfile
     
@@ -215,9 +242,17 @@ def model_point_snr(request, model_id, point_id):
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 def model_point_snr_alphabeta(request, model_id, point_id):
-    model = Model.objects.get(pk=model_id)
-    point = ParameterChoice.objects.get(model__id=model_id,
-                                             number=point_id)
+
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        point = ParameterChoice.objects.get(model__id=model_id,
+                                            number=point_id)
+    except ParameterChoice.DoesNotExist:
+        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
 
     MissionProfile = model.model_MissionProfile
     
@@ -259,9 +294,17 @@ def model_point_snr_alphabeta(request, model_id, point_id):
 
 def model_point_ps(request, model_id, point_id):
 
-    model = Model.objects.get(pk=model_id)
-    point = ParameterChoice.objects.get(model__id=model_id,
-                                             number=point_id)
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        point = ParameterChoice.objects.get(model__id=model_id,
+                                            number=point_id)
+    except ParameterChoice.DoesNotExist:
+        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
+    
 
     MissionProfile = model.model_MissionProfile
     
@@ -299,18 +342,23 @@ def model_point_ps(request, model_id, point_id):
 
 def model_scenario_plot(request, model_id, scenario_id):
 
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
 
-    
-    model = Model.objects.get(pk=model_id)
 
     if model.model_hasScenarios:
         scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
     else:
         scenario_list = None
 
-    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
-    point_list = ParameterChoice.objects.filter(model__id=model_id,
-                                                scenario__scenario_number=scenario_id)
+    try:
+        selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+        point_list = ParameterChoice.objects.filter(model__id=model_id,
+                                                    scenario__scenario_number=scenario_id)
+    except Scenario.DoesNotExist:
+        raise Http404("Scenario id=%d does not exist for model id=%d" % (scenario_id,model_id))        
     
     MissionProfile_label = available_labels[model.model_MissionProfile]
         
@@ -326,9 +374,17 @@ def model_scenario_plot(request, model_id, scenario_id):
 
 
 def model_scenario_snr(request, model_id, scenario_id):
-    
-    model = Model.objects.get(pk=model_id)
-    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    except Scenario.DoesNotExist:
+        raise Http404("Scenario id=%d does not exist for model id=%d" % (scenario_id,model_id))
+        
     point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
 
@@ -355,8 +411,16 @@ def model_scenario_snr(request, model_id, scenario_id):
 
 
 def model_scenario_snr_alphabeta(request, model_id, scenario_id):
-    model = Model.objects.get(pk=model_id)
-    selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
+    except Scenario.DoesNotExist:
+        raise Http404("Scenario id=%d does not exist for model id=%d" % (scenario_id,model_id))
+
     point_list = ParameterChoice.objects.filter(model__id=model_id,
                                                 scenario__scenario_number=scenario_id)
 
@@ -389,7 +453,11 @@ def model_scenario_snr_alphabeta(request, model_id, scenario_id):
 
 def model_snr(request, model_id):
 
-    model = Model.objects.get(pk=model_id)
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
 
     if model.model_hasScenarios:
         scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
@@ -436,8 +504,12 @@ def model_snr(request, model_id):
 
 def model_snr_alphabeta(request, model_id):
 
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
 
-    model = Model.objects.get(pk=model_id)
+
 
     if model.model_hasScenarios:
         scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
