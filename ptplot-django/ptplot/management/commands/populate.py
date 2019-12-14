@@ -116,6 +116,8 @@ $m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
         tanb = josemi_points['tanb']
         mH = josemi_points['mH']
         mA = josemi_points['mA']
+
+        first_set_point_count = 0
         
         for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
             enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
@@ -128,6 +130,8 @@ $m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
                                     scenario=josemi_set_1)
 
             point.save()
+
+            first_set_point_count += 1
 
 
         josemi_set_2 = \
@@ -148,7 +152,7 @@ $m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
         for i, (this_mH, this_mA, this_Tn, this_alpha_n, this_beta_H_n, this_tanb) in \
             enumerate(zip(mH, mA, Tn, alpha_n, beta_H_n, tanb)):
             point = ParameterChoice(model=twohdm_josemi_model,
-                                    number=(i+1),
+                                    number=(first_set_point_count + i+1),
                                     point_longlabel=r'$(m_H,m_A) = (%d,%d) \, \mathrm{GeV}$, $\tan \beta = %d$' % (this_mH, this_mA, this_tanb),
                                     Tstar=this_Tn,
                                     alpha=this_alpha_n,
