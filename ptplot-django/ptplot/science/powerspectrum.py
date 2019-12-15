@@ -149,14 +149,17 @@ def worker(queue,
            MissionProfile=0,
            usetex=False):
 
-    queue.put(get_PS_image(vw,
-                           Tstar,
-                           gstar,
-                           alpha,
-                           BetaoverH,
-                           MissionProfile,
-                           usetex))
-    
+    try:
+        queue.put(get_PS_image(vw,
+                               Tstar,
+                               gstar,
+                               alpha,
+                               BetaoverH,
+                               MissionProfile,
+                               usetex))
+    except Exception as e:
+        sys.stderr.write("Caught exception in powerspectrum worker: %s\n" % str(e))
+        queue.put(None)
 
 
 def get_PS_image_threaded(vw=0.95,

@@ -235,11 +235,15 @@ def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
            MissionProfile=0,
            usetex=False,
            hugeAlpha=False):           
-    
-    queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
-                            Tstar, gstar,
-                            label_list, title_list, MissionProfile, usetex,
-                            hugeAlpha))
+
+    try:
+        queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
+                                Tstar, gstar,
+                                label_list, title_list, MissionProfile, usetex,
+                                hugeAlpha))
+    except Exception as e:
+        sys.stderr.write("Caught exception in SNRubarfrstar worker: %s\n" % str(e))
+        queue.put(None)
     
 
 

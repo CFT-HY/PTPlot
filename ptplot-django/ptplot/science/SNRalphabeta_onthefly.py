@@ -277,10 +277,14 @@ def worker(queue, vw, alpha_list=[0.1], BetaoverH_list=[100],
            MissionProfile=0,
            usetex=False,
            hugeAlpha=False):
-    
-    queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
-                                      Tstar, gstar, label_list, title_list,
-                                      MissionProfile, usetex, hugeAlpha))
+
+    try:
+        queue.put(get_SNR_alphabeta_image(vw, alpha_list, BetaoverH_list,
+                                          Tstar, gstar, label_list, title_list,
+                                          MissionProfile, usetex, hugeAlpha))
+    except Exception as e:
+        sys.stderr.write("Caught exception in SNRalphabeta worker: %s\n" % str(e))
+        queue.put(None)
 
 def get_SNR_alphabeta_image_threaded(vw, alpha_list=[0.1], BetaoverH_list=[100],
                                      Tstar=100,
