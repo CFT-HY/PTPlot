@@ -52,7 +52,7 @@ def get_PS_image(vw=0.95,
                  usetex=False,
                  sw_only=True):
 
-    sensitivity=available_sensitivitycurves[MissionProfile]
+    sensitivity_file=available_sensitivitycurves[MissionProfile]
     
     curves_ps = PowerSpectrum(vw=vw,
                               Tstar=Tstar,
@@ -69,7 +69,7 @@ def get_PS_image(vw=0.95,
     # but make legend smaller
     # matplotlib.rcParams.update({'legend.fontsize': 14})
 
-    sensitivity_curve = os.path.join(sensitivity_root, sensitivity)
+    sensitivity_curve = os.path.join(sensitivity_root, sensitivity_file)
     sens_filehandle = open(sensitivity_curve)
     f, sensitivity \
         = np.loadtxt(sens_filehandle,usecols=[0,2],unpack=True)
