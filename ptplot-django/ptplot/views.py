@@ -315,6 +315,56 @@ def model_point_snr_alphabeta(request, model_id, point_id):
 
     
 
+def model_point_csv(request, model_id, point_id):
+
+    try:
+        model = Model.objects.get(pk=model_id)
+    except Model.DoesNotExist:
+        raise Http404("Model id=%d does not exist" % model_id)
+
+    try:
+        point = ParameterChoice.objects.get(model__id=model_id,
+                                            number=point_id)
+    except ParameterChoice.DoesNotExist:
+        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
+    
+
+    MissionProfile = model.model_MissionProfile
+    
+    alpha = point.alpha
+    BetaoverH = point.BetaoverH
+
+
+    if point.vw:
+        vw = point.vw
+    else:
+        vw = model.model_vw
+    
+    if point.Tstar:
+        Tstar = point.Tstar
+    else:
+        Tstar = model.model_Tstar
+
+    if point.gstar:
+        gstar = point.gstar
+    else:
+        gstar = model.model_gstar
+
+    label = point.point_shortlabel
+        
+    
+    csv = get_PS_data(Tstar=Tstar,
+                      gstar=gstar,
+                      vw=vw,
+                      alpha=alpha,
+                      BetaoverH=BetaoverH,
+                      MissionProfile=MissionProfile)
+            
+    return HttpResponse(csv, content_type="text/csv")
+
+
+
+
 def model_point_ps(request, model_id, point_id):
 
     try:

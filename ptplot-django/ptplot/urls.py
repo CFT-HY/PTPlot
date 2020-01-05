@@ -79,6 +79,12 @@ urlpatterns = [
          views.model_point_ps,
          name='model_point_ps'),
 
+    # Download CSV data for an individual model point
+    path(r'models/<int:model_id>/<int:point_id>/csv',
+         views.model_point_csv,
+         name='model_point_csv'),
+
+    
     # Display a group of scenario points on the SNR plots
     path(r'models/<int:model_id>/scenarios/<int:scenario_id>/plot',
          views.model_scenario_plot,
