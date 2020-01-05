@@ -4,29 +4,51 @@
 
 {% block results %}
 
-<h3>Results for point {{ point.point_shortlabel }}:
-  {{ point.point_longlabel }}</h3>
+<h3>Results for point
+    {% if point.point_shortlabel %}
+    ({{point.point_shortlabel}}):
+    {% endif %}
 
-<p>NB: using
-  $v_\mathrm{w} =
-  {% if point.vw %}
-  {{ point.vw }}
-  {% else %}
-  {{model.model_vw }}
-  {% endif %}$,
-  $T_* =
-  {% if point.Tstar %}
-  {{ point.Tstar }}
-  {% else %}
-  {{ model.model_Tstar }}
-  {% endif %} \, \mathrm{GeV}$,
-  $g_* =
-  {% if point.gstar %}
-  {{ point.gstar }}
-  {% else %}
-  {{ model.model_gstar }}
-  {% endif %}$.
+    {% if point.point_longlabel %}
+    [ {{ point.point_longlabel}} ]
+  {% endif %}
+</h3>
+
+
+<p>Using the following model specific parameters:
+  
+    $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
+    $\beta/H_* = {{point.BetaoverH|floatformat:"0"}}$;
+    
+    {% if point.vw %}
+    $v_\mathrm{w} = {{point.vw}}$;
+    {% endif %}
+
+    {% if point.gstar %}
+    $g_* = {{ point.gstar }} $;
+    {% endif %}
+
+    {% if point.Tstar %}
+    $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
+    {% endif %}
 </p>
+
+<p>And the following general parameters:
+
+  {% if not point.vw %}
+  $v_\mathrm{w} =
+  {{model.model_vw }};
+  {% endif %}$
+  {% if not point.Tstar %}
+  $T_* =
+  {{ model.model_Tstar }} \, \mathrm{GeV}$;
+  {% endif %} 
+  {% if not point.gstar %}
+  $g_* =
+  {{ model.model_gstar }};
+  {% endif %}$
+</p>
+
 
 {% if model.model_hugeAlpha %}
 <p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these
