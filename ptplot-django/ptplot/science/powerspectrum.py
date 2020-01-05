@@ -85,16 +85,21 @@ def get_PS_data(vw=0.95,
 
     if sw_only:
         res = res + 'f, omegaSens, omegaSW\n'
-
+    else:
+        res = res + 'f, omegaSens, omegaSW, omegaTurb, omegaTot\n'
+        
     for x,y in zip(f, sensitivity):
 
         if sw_only:
-            res = res + '%g, %g, %g\n' % (x, y, curves_ps.power_spectrum_sw_conservative(x))
+            res = res + '%g, %g, %g\n' % (x,
+                                          y,
+                                          curves_ps.power_spectrum_sw_conservative(x))
         else:
-            print(x, y,
-                  curves_ps.power_spectrum_sw_conservative(x),
-                  curves_ps.power_spectrum_turb(x),
-                  curves_ps.power_spectrum_conservative(x))
+            res = res + '%g, %g, %g, %g, %g\n' % (x,
+                                                  y,
+                                                  curves_ps.power_spectrum_sw_conservative(x),
+                                                  curves_ps.power_spectrum_turb(x),
+                                                  curves_ps.power_spectrum_conservative(x))
 
     return res
 
