@@ -43,6 +43,61 @@ else:
 
 sensitivity_root = os.path.join(root, 'sensitivity')
 
+
+def get_PS_data(vw=0.95,
+                 Tstar=100,
+                 gstar=100,
+                 alpha=0.1,
+                 BetaoverH=100,
+                 MissionProfile=0,
+                 usetex=False,
+                 sw_only=True):
+
+    sensitivity_file=available_sensitivitycurves[MissionProfile]
+    
+    curves_ps = PowerSpectrum(vw=vw,
+                              Tstar=Tstar,
+                              alpha=alpha,
+                              BetaoverH=BetaoverH,
+                              gstar=gstar)
+
+
+    sensitivity_curve = os.path.join(sensitivity_root, sensitivity_file)
+    sens_filehandle = open(sensitivity_curve)
+    f, sensitivity \
+        = np.loadtxt(sens_filehandle,usecols=[0,2],unpack=True)
+
+    f_more = np.logspace(math.log(min(f)), math.log(max(f)), num=len(f)*10)
+
+    fS, OmEff = LoadFile(sensitivity_curve, 2)
+    duration = yr*available_durations[MissionProfile]
+    snr, frange = StockBkg_ComputeSNR(fS,
+                                      OmEff,
+                                      fS,
+                                      curves_ps.power_spectrum_sw_conservative(fS),
+                                      duration,
+                                      1.e-6,
+                                      1)
+
+
+    
+    res = ''
+
+    if sw_only:
+        res = res + 'f, omegaSens, omegaSW\n'
+
+    for x,y in zip(f, sensitivity):
+
+        if sw_only:
+            res = res + '%g, %g, %g\n' % (x, y, curves_ps.power_spectrum_sw_conservative(x))
+        else:
+            print(x, y,
+                  curves_ps.power_spectrum_sw_conservative(x),
+                  curves_ps.power_spectrum_turb(x),
+                  curves_ps.power_spectrum_conservative(x))
+
+    return res
+
 def get_PS_image(vw=0.95,
                  Tstar=100,
                  gstar=100,

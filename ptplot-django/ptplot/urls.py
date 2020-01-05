@@ -3,6 +3,13 @@ from . import views
 from django.views.generic import RedirectView
 
 urlpatterns = [
+    # CSV
+
+    path(r'csv',
+         views.csv,
+         name='csv'),
+
+
     # Plots
 
     # SNR plot with alpha on the x-axis and beta on the y-axis

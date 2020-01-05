@@ -11,12 +11,35 @@ from .forms import *
 # Science
 from .science.SNRubarfrstar_onthefly import get_SNR_image_threaded
 from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image_threaded
-from .science.powerspectrum import get_PS_image_threaded
+from .science.powerspectrum import get_PS_image_threaded, get_PS_data
 from .science.precomputed import *
 
 import sys, string
 import numpy as np
 
+# CSV view
+def csv(request):
+    
+    if request.method == 'GET':
+        form = PTPlotForm(request.GET)
+
+        if form.is_valid():
+            vw = form.cleaned_data['vw']
+            alpha = form.cleaned_data['alpha']
+            BetaoverH = form.cleaned_data['BetaoverH']
+            MissionProfile = int(form.cleaned_data['MissionProfile'])
+            Tstar = form.cleaned_data['Tstar']
+            gstar = form.cleaned_data['gstar']
+                
+            csv = get_PS_data(Tstar=Tstar,
+                              gstar=gstar,
+                              vw=vw,
+                              alpha=alpha,
+                              BetaoverH=BetaoverH,
+                              MissionProfile=MissionProfile)
+            
+            return HttpResponse(csv, content_type="text/csv")
+        
 # Image views
 def ps_image(request):
     if request.method == 'GET':
