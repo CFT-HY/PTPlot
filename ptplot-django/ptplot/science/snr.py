@@ -1,6 +1,10 @@
-# Inspired by Antoine Petiteau's eLISAToolBox but
-# just the minimum functions we need. Also StockBkg_ComputeSNR is
-# adapted to use a trapezium rule integration with nonuniform interval.
+# Inspired by Antoine Petiteau's eLISAToolBox aka eLISATools.py but
+# just the minimum functions we need.
+#
+# - LoadFile is copied directly, for now.
+# - StockBkg_ComputeSNR is adapted to use a trapezium rule integration
+#   with nonuniform interval.
+#
 import sys, os, re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -59,7 +63,7 @@ def LoadFile(fNIn, iCol):
 # FOR STOCHASTIC BAKGROUND
 ############################################
 
-def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
+def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs) :
     """ 
     Compute Signal to Noise Ratio and the used frequency range fmin and fmax
     for a given sensitivity defined by the two numpy array (same size) SensFr for frequency 
@@ -72,33 +76,11 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
         - SensOm [req] : numpy numpy of sensitivity in Omega unit
         - GWFr   [req] : numpy numpy of frequency in Hz corresponding to GWOm
         - GWOm   [req] : numpy numpy of GW stochastic background
-        - Tobs   [req] : observation time in years
-        - fmin         : minimal frequency
-        - fmax         : maximal frequency
+        - Tobs   [req] : observation time in seconds
 
     Output : 
         - Signal To Noise  
     """
-    #print SensFr, SensOm, GWFr, GWOm, Tobs, fmin, fmax
-    
-#    dfr = SensFr[1]-SensFr[0]
-
-    ### Frequency range
-#    if fmin < 0 :
-#        fmin = max(SensFr[0], GWFr[0])
-#    if fmax < 0 :
-#        fmax = min(SensFr[-1], GWFr[-1])
-    
-#    ifmin = int(np.floor(fmin/dfr))
-#    ifmax = int(np.ceil(fmax/dfr))
-#    fr = SensFr[ifmin:ifmax]
-
-#    OmEff   = SensOm[ifmin:ifmax]
-#    OmEff2 = OmEff**2
-
-
-    ### Make an interpolated data serie
-#    OmGWi = 10.**np.interp(np.log10(fr),np.log10(GWFr),np.log10(GWOm))
 
     ### Numerical integration over frequency
     Itg = 0.
