@@ -122,8 +122,9 @@ class PowerSpectrum:
 
         # 1704.05871 Eqs 39 and 45 are missing the factor of 3 [typo];
         # and there is no h_planck in eq 45 (on either side; intentional)
+        # Note also typo below eq 45, 0.12 -> 0.012 for OmTilde
         return h_planck*h_planck*3.0 \
-            *0.68*3.57e-5*0.12*np.power(100.0/self.gstar,1.0/3.0) \
+            *0.68*3.57e-5*0.012*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
 

@@ -7,15 +7,16 @@
 #   ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
 
 ############################## Import modules ##############################
-import math, sys
+import math, sys, os
 
 
 # Fix some things if running standalone
 if (__name__ == "__main__" and __package__ is None) or __package__ == '':
 
     # eLISATools from Antoine
-    from eLISATools import *
-
+    # from eLISATools import *
+    from snr import *
+    
     from curves import PowerSpectrum
     from precomputed import available_sensitivitycurves_lite, available_durations
 
@@ -24,8 +25,9 @@ if (__name__ == "__main__" and __package__ is None) or __package__ == '':
 else:
     
     # eLISATools from Antoine
-    from .eLISATools import *
-
+    # from .eLISATools import *
+    from .snr import *
+    
     from .curves import PowerSpectrum
     from .precomputed import available_sensitivitycurves_lite, available_durations
 

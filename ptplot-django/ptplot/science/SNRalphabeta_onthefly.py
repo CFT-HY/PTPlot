@@ -29,7 +29,8 @@ if __name__ == "__main__" and __package__ is None:
 
     
     # eLISATools from Antoine
-    from eLISATools import *
+    # from eLISATools import *
+    from snr import *
     
 else:
 
@@ -43,8 +44,8 @@ else:
 
 
     # eLISATools from Antoine
-    from .eLISATools import *    
-    
+    # from .eLISATools import *    
+    from .snr import *
 
 
 

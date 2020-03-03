@@ -24,7 +24,8 @@ if __name__ == "__main__" and __package__ is None:
     root = './'
 
     # eLISATools from Antoine
-    from eLISATools import *
+    # from eLISATools import *
+    from snr import *
     
 else:
 
@@ -38,8 +39,8 @@ else:
 
 
     # eLISATools from Antoine
-    from .eLISATools import *
-
+    # from .eLISATools import *
+    from .snr import *
 
 sensitivity_root = os.path.join(root, 'sensitivity')
 
