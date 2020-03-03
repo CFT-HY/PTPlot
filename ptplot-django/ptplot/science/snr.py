@@ -63,7 +63,7 @@ def LoadFile(fNIn, iCol):
 # FOR STOCHASTIC BAKGROUND
 ############################################
 
-def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs) :
+def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     """ 
     Compute Signal to Noise Ratio and the used frequency range fmin and fmax
     for a given sensitivity defined by the two numpy array (same size) SensFr for frequency 
@@ -82,11 +82,35 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs) :
         - Signal To Noise  
     """
 
+    sys.stderr.write('%g %g\n' % (fmin, fmax))    
+    
+    ### Frequency range
+    if fmin < 0 :
+        fmin = max(SensFr[0], GWFr[0])
+    if fmax < 0 :
+        fmax = min(SensFr[-1], GWFr[-1])
+
+    ifmin = np.argmax(SensFr >= fmin)
+    ifmax = np.argmax(SensFr >= fmax)
+
+    sys.stderr.write('%d %g %d %g\n' % (ifmin, fmin, ifmax, fmax))
+    
+    fr = SensFr[ifmin:ifmax]
+
+    sys.stderr.write('%g %g\n' % (fr[0], fr[-1]))
+        
+    OmEff = SensOm[ifmin:ifmax]
+    
+    ### Make an interpolated data series, interpolate GWOm onto same
+    ### series as OmEff
+    OmGWi = 10.**np.interp(np.log10(fr),np.log10(GWFr),np.log10(GWOm))
+    
     ### Numerical integration over frequency
+    rat = OmGWi**2 / OmEff**2
+
     Itg = 0.
-    rat = GWOm**2 / SensOm**2
-    for i in range(len(SensFr)-1):
-        dfr = SensFr[i+1] - SensFr[i]
+    for i in range(len(fr) - 1):
+        dfr = fr[i+1] - fr[i]
         Itg = Itg + dfr*(rat[i] + rat[i+1])/2.0
     Itg = Itg 
 

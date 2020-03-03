@@ -2,7 +2,7 @@
 
 #!/usr/bin/env python
 # Broken power law (Mark Hindmarsh Sep 2015)
-#
+#-
 # Hacked from
 #   ExampleUseSNR1.py v 0.3 (Antoine Petiteau 15/05/2015)
 
