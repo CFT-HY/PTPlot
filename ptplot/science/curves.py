@@ -4,11 +4,13 @@ import sys
 
 try:
     from .espinosa import ubarf
+    from .snr import *
 except ValueError:
     from espinosa import ubarf
+    from snr import *
 except ImportError:
     from espinosa import ubarf
-
+    from snr import *
 
 def rstar_to_beta(rstar, vw):
     return math.pow(8.0*math.pi,1.0/3.0)*vw/rstar
@@ -17,6 +19,24 @@ def rstar_to_beta(rstar, vw):
 def beta_to_rstar(beta, vw):
     return math.pow(8.0*math.pi,1.0/3.0)*vw/beta
 
+
+
+
+def get_SNR_value(fSens, omSens, duration,
+                  Tstar=180.0, gstar=100, vw=0.9, alpha=0.1, BetaoverH=10):
+
+    ps = PowerSpectrum(Tstar=Tstar, gstar=gstar,
+                       vw=vw, alpha=alpha, BetaoverH=BetaoverH)
+
+    snr, frange = StockBkg_ComputeSNR(fSens,
+                                      omSens,
+                                      fSens,
+                                      ps.power_spectrum_sw_conservative(fSens),
+                                      duration,
+                                      1.e-6,
+                                      1)
+
+    return snr
     
 class PowerSpectrum:
 
