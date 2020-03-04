@@ -82,7 +82,7 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
         - Signal To Noise  
     """
 
-    sys.stderr.write('%g %g\n' % (fmin, fmax))    
+#    sys.stderr.write('%g %g\n' % (fmin, fmax))    
     
     ### Frequency range
     if fmin < 0 :
@@ -93,11 +93,11 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     ifmin = np.argmax(SensFr >= fmin)
     ifmax = np.argmax(SensFr >= fmax)
 
-    sys.stderr.write('%d %g %d %g\n' % (ifmin, fmin, ifmax, fmax))
+#    sys.stderr.write('%d %g %d %g\n' % (ifmin, fmin, ifmax, fmax))
     
     fr = SensFr[ifmin:ifmax]
 
-    sys.stderr.write('%g %g\n' % (fr[0], fr[-1]))
+#    sys.stderr.write('%g %g\n' % (fr[0], fr[-1]))
         
     OmEff = SensOm[ifmin:ifmax]
     
