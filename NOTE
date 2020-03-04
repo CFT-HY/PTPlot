@@ -1,7 +1,0 @@
-Format of sensitivity data file :
-column 1 : frequency in Hz
-column 2 : standard sensitivity in strain linear spectral density S(f) in 1/√Hz.
-column 3 : standard sensitivity in energy density h² Ω_GW(f).
-column 4 : power-law sensitivity h² Ω_GW,PL(f)(f) based on Thrane & Romano (2013).
-
-
