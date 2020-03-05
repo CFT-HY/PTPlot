@@ -40,8 +40,18 @@ sensitivity_root = os.path.join(root, 'sensitivity')
     
 ############################## Functions ##############################
 
-def get_SNRcurve(Tn, gstar, MissionProfile,  ubarfmax=1):
+def get_SNRcurve_mission(Tn, gstar, MissionProfile, ubarfmax=1):
     duration = yr*available_durations[MissionProfile]
+
+    sensitivity_curve = os.path.join(sensitivity_root,
+                                     available_sensitivitycurves_lite[
+                                         MissionProfile])
+
+    return get_SNRcurve(Tn, gstar, sensitivity_curve, duration, ubarfmax)
+
+
+def get_SNRcurve(Tn, gstar, sensitivity_curve, duration,  ubarfmax=1):
+
     
     ## Values of log10 Ubarf to scan
     log10Ubarf = np.linspace(-2, math.log10(ubarfmax), 51)
@@ -61,9 +71,6 @@ def get_SNRcurve(Tn, gstar, MissionProfile,  ubarfmax=1):
     #Hn0 = 16.5e-6 * (Tn/100) * (gstar/100)**(1./6) # Hz
 
 
-    sensitivity_curve = os.path.join(sensitivity_root,
-                                     available_sensitivitycurves_lite[
-                                         MissionProfile])
 
     fS, OmEff = LoadFile(sensitivity_curve, 2)
     

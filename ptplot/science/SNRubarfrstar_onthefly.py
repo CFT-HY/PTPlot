@@ -21,13 +21,13 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from espinosa import kappav, ubarf
-    from SNR_precompute import get_SNRcurve                                      
+    from SNR_precompute import get_SNRcurve, get_SNRcurve_mission
     root = './'
 
 else:
 
     from .espinosa import kappav, ubarf
-    from .SNR_precompute import get_SNRcurve
+    from .SNR_precompute import get_SNRcurve, get_SNRcurve_mission
 
     
     from django.conf import settings
@@ -40,7 +40,9 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   gstar=100,
                   label_list=None,
                   title_list=None,
-                  MissionProfile=0,
+                  MissionProfile=None,
+                  SensitivityCurve=None,
+                  duration=None,
                   usetex=False,
                   hugeAlpha=False):
     
@@ -64,7 +66,10 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         
     
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
+    if not (MissionProfile == None):
+        tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve_mission(Tstar, gstar, MissionProfile, ubarfmax)
+    else:
+        tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, SensitivityCurve, duration, ubarfmax)        
     
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])

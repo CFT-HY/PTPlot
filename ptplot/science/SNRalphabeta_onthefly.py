@@ -21,7 +21,7 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
 
     from espinosa import kappav, ubarf, ubarf_to_alpha
-    from SNR_precompute import get_SNRcurve
+    from SNR_precompute import get_SNRcurve_mission, get_SNRcurve
     from curves import rstar_to_beta
     from precomputed import available_labels
     
@@ -35,7 +35,7 @@ if __name__ == "__main__" and __package__ is None:
 else:
 
     from .espinosa import kappav, ubarf, ubarf_to_alpha
-    from .SNR_precompute import get_SNRcurve
+    from .SNR_precompute import get_SNRcurve_mission, get_SNRcurve
     from .curves import rstar_to_beta
     
     from django.conf import settings
@@ -54,7 +54,9 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             gstar=100,
                             label_list=None,
                             title_list=None,
-                            MissionProfile=0,
+                            MissionProfile=None,
+                            SensitivityCurve=None,
+                            duration=None,
                             usetex=False,
                             hugeAlpha=False):
 
@@ -77,8 +79,11 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
         ubarfmax = 0.6
 
 
-        
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
+    if not (MissionProfile == None):
+        tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve_mission(Tstar, gstar, MissionProfile, ubarfmax)
+    else:
+        tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, SensitivityCurve, duration, ubarfmax)
+
     # print(log10Ubarf)
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
                                                      log10HnRstar),
