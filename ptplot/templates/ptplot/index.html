@@ -50,6 +50,27 @@
 </p>
 <h3>Recent news</h3>
 <ul>
+  <li><b>5.3.2020</b> - version 1.0.1
+    <ul>
+      <li>Can be installed with pip3 (for standalone use):
+	<pre>pip3 install --upgrade
+	  --git+https://dweir@bitbucket.org/dweir/ptplot.git</pre></li>
+      <li>Fixes a systematic error due to having logarithmically
+      spaced data for the sensitivity curve, while eLISATools.py
+      cannot cope with anything but evenly spaced points. Wrote a new
+      replacement for the relevant commands that does numerical
+	integration with an arbitrary interval.</li>
+      <li>Fixed the value of $\tilde{\Omega}_\text{gw}$ from 0.12 to
+      0.012. This was due to a typo
+      in <a href="https://arxiv.org/pdf/1704.05871.pdf">arXiv:1704.05871</a>
+      below Equation 45, which will be corrected in a forthcoming
+	erratum.</li>
+      <li>Power spectra and sensitivity data can now be downloaded as
+	a CSV from individual point pages.</li>
+      <li>Minor fixes due to changes in Django.</li>
+      <li>Some improvements to the benchmark point database.</li>
+    </ul>
+  </li>
   <li><b>7.11.2019</b> - version 1.0.0
     <ul>
       <li>Coincides with release of paper
