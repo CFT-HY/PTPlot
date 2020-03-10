@@ -9,6 +9,7 @@ import sys, os, re
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import pi
+import scipy.integrate
 
 
 ############################## DEFINITION OF CONSTANTS ##############################
@@ -108,11 +109,12 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     ### Numerical integration over frequency
     rat = OmGWi**2 / OmEff**2
 
-    Itg = 0.
-    for i in range(len(fr) - 1):
-        dfr = fr[i+1] - fr[i]
-        Itg = Itg + dfr*(rat[i] + rat[i+1])/2.0
-    Itg = Itg 
+    Itg = scipy.integrate.trapz(rat, fr)
+    # Itg = 0.
+    # for i in range(len(fr) - 1):
+    #     dfr = fr[i+1] - fr[i]
+    #     Itg = Itg + dfr*(rat[i] + rat[i+1])/2.0
+    # Itg = Itg 
 
     snr = np.sqrt(Tobs*Itg)
     
