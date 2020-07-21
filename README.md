@@ -1,5 +1,3 @@
-
-======
 PTPlot
 ======
 
@@ -14,7 +12,7 @@ Prerequisites
 - scipy
 
 If deploying to Elastic Beanstalk, use the following in
-.ebextensions/django.config::
+.ebextensions/django.config:
 
     packages:
       yum:
@@ -31,16 +29,16 @@ If deploying to Elastic Beanstalk, use the following in
 Quick start
 -----------
 
-1. Add "ptplot" to your INSTALLED_APPS setting like this::
+1. Add "ptplot" to your INSTALLED_APPS setting like this:
 
-    INSTALLED_APPS = [
-        ...
-        'ptplot',
-    ]
+       INSTALLED_APPS = [
+           ...
+           'ptplot',
+       ]
 
 2. Include the ptplot URLconf in your project urls.py like this::
 
-    path('ptplot/', include('ptplot.urls')),
+       path('ptplot/', include('ptplot.urls')),
 
 3. Run `python manage.py migrate`.
 
@@ -52,3 +50,4 @@ Benchmark points
 These are created in the database by running `python manage.py
 populate` which calls `ptplot/management/commands/populate.py`. Edit
 that file to add benchmark points.
+
