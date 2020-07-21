@@ -31,14 +31,14 @@ Quick start
 
 1. Add "ptplot" to your INSTALLED_APPS setting like this:
 
-       INSTALLED_APPS = [
-           ...
-           'ptplot',
-       ]
+        INSTALLED_APPS = [
+            ...
+            'ptplot',
+        ]
 
 2. Include the ptplot URLconf in your project urls.py like this::
 
-       path('ptplot/', include('ptplot.urls')),
+        path('ptplot/', include('ptplot.urls')),
 
 3. Run `python manage.py migrate`.
 
