@@ -43,8 +43,10 @@ def R(f):
 def OmSens(f):
     """Convert strain sensitivity to sensitivity in terms of Omega_GW."""
 
-    # Hubble rate
-    H0 = 100.0/3.0e19
+    # Hubble rate - set to 100 km/s/Mpc, thus the
+    # left hand side is in terms of the reduced Hubble rate
+    # i.e. this returns h^2*OmSens(f).
+    H0 = 100.0/3.09e19
 
     # Standard formula
     return (2.0*math.pi*math.pi/(3.0*H0*H0))*f*f*f*Sh(f)

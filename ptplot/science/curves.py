@@ -141,10 +141,22 @@ class PowerSpectrum:
         h_planck = 0.678
 
         # 1704.05871 Eqs 39 and 45 are missing the factor of 3 [typo];
-        # and there is no h_planck in eq 45 (on either side; intentional)
+        # and there is no h_planck in eq 45 (it is implicit in the RHS)
         # Note also typo below eq 45, 0.12 -> 0.012 for OmTilde
+        #
+        # The resulting 3*0.687 prefactor is also explained in the
+        # erratum, eq. 2.
+        #
+        # Fgw0 is 3.57e-5*(100/hstar)^(1/3), and implicitly includes
+        # Omega_photons. The implicit Hubble constant dependence of eq
+        # 45 (erratum eq 2) comes from Omega_photons. Multiplying both
+        # sides by h_planck removes that, and so the result does not
+        # depend on a particular measurement of the Hubble constant.
+        #
+        # Thus, this returns h^2 OmGW, which does not depend on a
+        # particular value of the Hubble constant.
         return h_planck*h_planck*3.0 \
-            *0.68*3.57e-5*0.012*np.power(100.0/self.gstar,1.0/3.0) \
+            *0.687*3.57e-5*0.012*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
             *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
 

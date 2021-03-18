@@ -18,15 +18,30 @@
   <li><a href="models">Browse and plot benchmark points</a> for selected models</li>
 </ul>
 <h3>About the output</h3>
-<p>All output figures
-  are <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
-  Vector Graphics</a> (SVG) and can be downloaded and edited with free
-  tools such as <a href="https://inkscape.org/">Inkscape</a>. They are
-  also easily converted to PDF or bitmapped formats by Inkscape or
-  built-in OS tools, e.g.:</p>
-<pre>$ <b>inkscape input_snr_file.svg --export-pdf=outpout_snr_file.pdf</b></pre>
-<p>Note that on Macos, Inkscape requires the <em>full path</em> to the
-  source and destination files in order to work.</p>
+<ul>
+  <li>All <em>output figures</em>
+    are <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
+    Vector Graphics</a> (SVG) and can be downloaded and edited with
+    free tools such
+    as <a href="https://inkscape.org/">Inkscape</a>. They are also
+    easily converted to PDF or bitmapped formats by Inkscape or
+    built-in OS tools, e.g.:
+<pre>$ <b>inkscape input_snr_file.svg
+    --export-pdf=outpout_snr_file.pdf</b></pre> Note that on Macos,
+    Inkscape requires the <em>full path</em> to the source and
+destination files in order to work.
+  </li>
+  <li>The <em>CSV files</em> that can be downloaded on 'single point'
+    plotting pages contain the following columns (these are labeled on
+    the first row):
+    $$
+    f,\, h^2 \Omega_\text{sensitivity}, \, h^2 \Omega_\text{GW, sw},\,
+    [h^2 \Omega_\text{GW, turb}, \, h^2 \Omega_\text{GW, tot} ].
+    $$
+    There is therefore no explicit dependence on the Hubble rate in
+    the data.
+  </li>
+</ul>
 <h3>Crediting PTPlot</h3>
 <p>The results plotted by this tool are based on the
   paper <em>Detecting gravitational waves from cosmological phase
