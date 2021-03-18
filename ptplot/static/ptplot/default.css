@@ -1531,7 +1531,7 @@ body
 	background: #2F2F2F; /* url(images/bg02.jpg) repeat; */
 	font-family: 'Source Sans Pro', sans-serif;
 	font-size: 12pt;
-	font-weight: 300;
+	font-weight: normal;
 	color: #5B5B5B;
 }
 
@@ -1566,7 +1566,7 @@ p, ol, ul
 
 p
 {
-	line-height: 180%;
+    /*	line-height: 180%; */
 }
 
 strong
