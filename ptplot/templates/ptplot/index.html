@@ -47,7 +47,14 @@ destination files in order to work.
   paper <em>Detecting gravitational waves from cosmological phase
   transitions with LISA: an update</em>, <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>. You are welcome to include
   plots from PTPlot in your own work; if you do use PTPlot, please
-  cite that paper. Figures without the LISACosWG watermark are
+  cite:
+  <ul>
+    <li>The above paper, i.e. <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>, as well as
+    </li>
+    <li>The Zenodo snapshot of the latest version, i.e. <a href="https://dx.doi.org/10.5281/zenodo.6949107">doi:10.5281/zenodo.6949107</a>. This helps me track interest and usage of PTPlot in particular and justify its continued development.</li>
+  </ul>
+  </p>
+  <p>Figures without the LISACosWG watermark are
   available on request; please do not remove it without
   permission.</p>
 <h3>Source</h3>
@@ -65,6 +72,14 @@ destination files in order to work.
 </p>
 <h3>Recent news</h3>
 <ul>
+  <li><b>1.8.2022</b> - version 1.0.2
+    <ul>
+      <li>Relicensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode">CC BY 4.0 International</a> and <a href="https://dx.doi.org/10.5281/zenodo.6949107">made available on Zenodo</a> with a DOI.</li>
+      <li>Corrected value of sound wave power spectrum prefactor (per erratum of <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>).
+      <li>Changes to appearance for readability.</li>
+      <li>URLs which return SVG or CSV files now have the extension in the URL to make it a more pleasant experience when saving the file.</li>
+      <li>Use <pre>scipy.integrate.trapz</pre> rather than some weird in-house code for calculating the integrated SNR.</li>
+    </ul>
   <li><b>5.3.2020</b> - version 1.0.1
     <ul>
       <li>Can be installed with pip3 (for standalone use):
@@ -77,7 +92,7 @@ destination files in order to work.
 	integration with an arbitrary interval.</li>
       <li>Fixed the value of $\tilde{\Omega}_\text{gw}$ from 0.12 to
       0.012. This was due to a typo
-      in <a href="https://arxiv.org/pdf/1704.05871.pdf">arXiv:1704.05871</a>
+      in <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>
       below Equation 45, which will be corrected in a forthcoming
 	erratum.</li>
       <li>Power spectra and sensitivity data can now be downloaded as
