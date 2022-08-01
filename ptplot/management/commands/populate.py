@@ -702,6 +702,8 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
         alpha_n = eft_points_A['alpha']
         beta_H_n = eft_points_A['betaoverH']
 
+        first_set_point_count = 0
+
         for i, (this_effscale, this_Tn, this_alpha_n, this_beta_H_n) in \
             enumerate(zip(effscale, Tn, alpha_n, beta_H_n)):
             
@@ -716,6 +718,8 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
 
             point.save()
 
+            first_set_point_count += 1
+
         eft_points_B = np.genfromtxt(os.path.join(filedir, 'forDavidTn100.txt'), delimiter=' ',names=True)
         effscale = eft_points_B['effscale']
         alpha_n = eft_points_B['alpha']
@@ -726,7 +730,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189).'''
             enumerate(zip(effscale, Tn, alpha_n, beta_H_n)):
             
             point = ParameterChoice(model=eft_miki_model,
-                                    number=(i+1),
+                                    number=(first_set_point_count + i+1),
                                     point_longlabel=r'$f/\sqrt{c} = %.2f \, \text{GeV}$' % this_effscale,
                                     Tstar=100,
                                     alpha=this_alpha_n,
