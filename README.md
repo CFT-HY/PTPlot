@@ -18,29 +18,32 @@ Getting started
 
         django-admin startproject ptplot_site
 
-   This will create a new folder called `ptplot_site`. It is useful
-   to create a symbolic link to your main ptplot folder here
-   (alternatively, update the path in step 3).
+    This will create a new folder called `ptplot_site`. It is useful
+	to create a symbolic link to your main ptplot folder (i.e. `ptplot/`
+	within this repo) here:
 
-2. Add "ptplot" to your INSTALLED_APPS (in `settings.py`) like this:
+        ln -s <path to this repo>/ptplot ptplot_site/ptplot
+
+    Alternatively, update the path in step 3.
+
+2. Add "ptplot" to your INSTALLED_APPS (in `ptplot_site/ptplot_site/settings.py`) like this:
 
         INSTALLED_APPS = [
             ...
             'ptplot',
         ]
 
-3. Include the ptplot URLconf in your project urls.py like this:
+3. Include the ptplot URLconf in your project urls.py (i.e. `ptplot_site/ptplot_site/urls.py`) like this:
 
         path('ptplot/', include('ptplot.urls')),
 
-   You will first need to import the include function:
+    You will first need to import the include function:
 
         from django.conf.urls import include
 
 4. Run `python manage.py makemigrations ptplot` and `python manage.py migrate`.
 
-5. Finally, run `python manage.py runserver` and visit
-   http://127.0.0.1:8000/ptplot/ to test the thing.
+5. Finally, run `python manage.py runserver` and visit http://127.0.0.1:8000/ptplot/ to test the thing.
 
 Benchmark points
 ----------------
@@ -49,7 +52,7 @@ These are created in the database by running `python manage.py
 populate` which calls `ptplot/management/commands/populate.py`. Edit
 that file to add benchmark points.
 
-Elastic beanstalk
+Elastic Beanstalk
 -----------------
 
 If deploying to Elastic Beanstalk, use the following in
