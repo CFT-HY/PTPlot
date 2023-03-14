@@ -170,8 +170,9 @@ def get_PS_image(vw=0.95,
     ax.set_ylabel(r'$h^2 \, \Omega_\mathrm{GW}(f)$', fontsize=14)
     ax.set_xlim([1e-5,0.1])
     ax.set_ylim([1e-16,1e-8])
-    ax.set_yscale('log', nonposy='clip')
-    ax.set_xscale('log', nonposx='clip')
+    # the following lines could be simplified to one command, but we leave it like this for legacy reasons
+    ax.set_yscale('log', nonpositive='clip')
+    ax.set_xscale('log', nonpositive='clip')
     ax.legend(loc='upper right')
 
 
