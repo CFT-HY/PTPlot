@@ -80,6 +80,28 @@ def kappav(vw, alpha):
 
 
 def ubarf_to_alpha(vw, this_ubarf):
+    """Calculates alpha from ubarf.
+
+    For a given wall velocity and list of ubarf values, calculate
+    the corresponding list of alpha values. As the calculation of
+    the rms fluid velocity for a given alpha is not easy to invert,
+    we calculate ubarf for different alphas until finding an alpha
+    that minimises the difference between the calculated ubarf and
+    this_ubarf (input) value.
+
+    Parameters
+    ----------
+    vw : float
+        Wall velocity
+    this_ubarf : array
+        List of rms fluid velocities
+
+    Returns
+    -------
+    alpha_list : array
+        List of phase transition strengths
+    """
+
     def ubarf_to_alpha_inner(vw, this_ubarf):
 
         def alphatrue(alpha):
