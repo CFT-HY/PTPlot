@@ -12,10 +12,12 @@ except ImportError:
     from espinosa import ubarf
     from snr import *
 
+
+# Convert R_* to \Beta_* for a given wall velocity ...
 def rstar_to_beta(rstar, vw):
     return math.pow(8.0*math.pi,1.0/3.0)*vw/rstar
 
-
+# ... and convert \Beta_* to R_* for a given wall velocity
 def beta_to_rstar(beta, vw):
     return math.pow(8.0*math.pi,1.0/3.0)*vw/beta
 
@@ -89,7 +91,7 @@ class PowerSpectrum:
             raise ValueError("Either ubarf_in or vw must be set, but not both")
         # now have ubarf
         
-        # calculate shock time
+        # calculate typical bubble radius
         if (H_rstar is None) and (BetaoverH is not None):
             self.H_rstar = beta_to_rstar(self.BetaoverH, self.vw)
         elif (H_rstar is not None) and (BetaoverH is None):
@@ -115,11 +117,7 @@ class PowerSpectrum:
 
         # equation 43 in shape paper
         # note (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH)
-        #
-        # Thus numerical prefactor is (26e-6)/(8*pi)^{1/3} = 8.9e-6
-        
-#        return (8.9e-6)*(1.0/self.vw)*(self.BetaoverH)*(self.zp/10.0) \
-#            *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)
+        # - see definition of beta_to_rstar() above
 
         return (26.0e-6)*(1.0/self.H_rstar)*(self.zp/10.0) \
             *(self.Tstar/100)*np.power(self.gstar/100,1.0/6.0)        
@@ -131,11 +129,9 @@ class PowerSpectrum:
         #
         # using equation R_* = (8*pi)^{1/3}*vw/beta (section IV, same paper)
         # Thus: H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
-        
+        #
+        # see fsw() method, and definition of beta_to_rstar()
         fp = f/self.fsw(f)
-#        return 8.5e-6*np.power(100.0/self.gstar,1.0/3.0) \
-#            *self.adiabaticRatio*self.adiabaticRatio \
-#            *np.power(self.ubarf,4.0)*self.vw*(1.0/self.BetaoverH)*self.Ssw(fp)
 
         # Planck h=0.678
         h_planck = 0.678
