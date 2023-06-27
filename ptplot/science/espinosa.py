@@ -1,7 +1,7 @@
-"""Energy budget computations.
+"""Energy budget computations
 
 This file contains all the functions related to the calculation of
-the energy budget of a First-order Phase Transition, following José R.
+the energy budget of a First-order Phase Transition, following J. R.
 Espinosa et al. JCAP06 (2010) 028 (arXiv:1004.4187).
 
 Contains the following functions:
@@ -15,7 +15,7 @@ import scipy.optimize
 import numpy as np
 
 def ubarf(vw, alpha):
-    """Calculates the rms fluid velocity.
+    """Calculates the rms fluid velocity
 
     Parameters
     ----------
@@ -29,14 +29,14 @@ def ubarf(vw, alpha):
     ubarf : float
         Measure of the rms fluid velocity
     """
+
     return math.sqrt((3.0/4.0)*kappav(vw,alpha)*alpha/(1.0 + alpha))
 
 def kappav(vw, alpha):
-    """Calculates the fluid efficiency.
+    """Calculates the fluid efficiency
 
     The fluid efficiency gives the fraction of vacuum energy that is
-    turned into kinetic energy during the phase transition. These
-    equations can be found in Appendix A of arXiv:1004.4187.
+    turned into kinetic energy during the phase transition.
 
     Parameters
     ----------
@@ -51,6 +51,8 @@ def kappav(vw, alpha):
         Fluid efficiency
     """
 
+    # Approximations for the different kappas can be found in Appendix A
+    # of arXiv:1004.4187
     kappaA = math.pow(vw,6.0/5.0)*6.9*alpha/ \
              (1.36 - 0.037*math.sqrt(alpha) + alpha)
     kappaB = math.pow(alpha,2.0/5.0)/ \
@@ -80,7 +82,7 @@ def kappav(vw, alpha):
 
 
 def ubarf_to_alpha(vw, this_ubarf):
-    """Calculates alpha from ubarf.
+    """Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate
     the corresponding list of alpha values. As the calculation of
@@ -93,12 +95,12 @@ def ubarf_to_alpha(vw, this_ubarf):
     ----------
     vw : float
         Wall velocity
-    this_ubarf : array
+    this_ubarf : np.ndarray
         List of rms fluid velocities
 
     Returns
     -------
-    alpha_list : array
+    alpha_list : np.ndarray
         List of phase transition strengths
     """
 
