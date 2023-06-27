@@ -133,8 +133,8 @@ class PowerSpectrum:
          Fraction of latent heat that is transformed into magnetohydrodynamic turbulence (default 1.97/65.0)
     H_rstar : float
         Typical bubble radius
-    ubarf_in : float
-        Input value of the rms fluid velocity
+    ubarf : float
+        rms fluid velocity
     hstar : float
         Reduced Hubble rate, needed for turbulence
     H_tsh : float
@@ -256,7 +256,7 @@ class PowerSpectrum:
         # thus: H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
         #
         # See fsw() method, and definition of beta_to_rstar()
-        fp = f/self.fsw(f)
+        fp = f/self.fsw()
 
         h_planck = 0.678
 
@@ -309,7 +309,7 @@ class PowerSpectrum:
         This function follows equation 16 equation of 1512.06239.
         """
 
-        fp = f/self.fturb
+        fp = f/self.fturb()
         return (3.35e-4)/self.BetaoverH \
             *np.power(self.kturb*self.alpha/(1 + self.alpha),3.0/2.0) \
             *np.power(100/self.gstar,1.0/3.0)*self.vw*self.Sturb(f,fp)
