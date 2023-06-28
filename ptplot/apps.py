@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
-
-class LisaConfig(AppConfig):
+class PTPlotConfig(AppConfig):
     name = 'ptplot'
+    verbose_name = 'PTPlot'
