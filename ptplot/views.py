@@ -26,7 +26,7 @@ git_description = 'unknown'
 have_gitver = False
 
 try:
-     this_file_dir = os.path.dirname(__file__)
+     this_file_dir = os.path.realpath(os.path.dirname(__file__))
      git_description = dulwich.porcelain.describe(Repo.discover(this_file_dir))
      have_gitver = True
 except dulwich.errors.NotGitRepository as err:
