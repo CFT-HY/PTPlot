@@ -20,12 +20,14 @@ import numpy as np
 # Retrieve git version
 from dulwich.repo import Repo
 import dulwich.porcelain
+import os
 
 git_description = 'unknown'
 have_gitver = False
 
 try:
-     git_description = dulwich.porcelain.describe(Repo.discover())
+     this_file_dir = os.path.dirname(__file__)
+     git_description = dulwich.porcelain.describe(Repo.discover(this_file_dir))
      have_gitver = True
 except dulwich.errors.NotGitRepository as err:
      pass
