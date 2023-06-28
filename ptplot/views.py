@@ -17,6 +17,19 @@ from .science.precomputed import *
 import sys, string
 import numpy as np
 
+# Retrieve git version
+from dulwich.repo import Repo
+import dulwich.porcelain
+
+git_description = 'unknown'
+have_gitver = False
+
+try:
+     git_description = dulwich.porcelain.describe(Repo.discover())
+     have_gitver = True
+except dulwich.errors.NotGitRepository as err:
+     pass
+
 # CSV view
 def csv(request):
     
@@ -757,6 +770,11 @@ def single(request):
     
 
 def index(request):
+    context = {}
+
+    if have_gitver:
+        context['git_description'] = git_description
+    
     template = loader.get_template('ptplot/index.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(context, request))
     
