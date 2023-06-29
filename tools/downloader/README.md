@@ -12,6 +12,12 @@ annotations from the SVG file (and an older version
 `remove_watermark_old.py`), and the script `download_LISA_figures.sh`
 to fetch the set of figures used in the above paper.
 
+The watermarks are easily removed in the SVG file, and when the plots
+PTPlot generates will in due course evolve away from the 2019
+'official' paper as the equations used are improved. Therefore it was
+felt there was no harm in including this code here in the public repo,
+especially as it helps with testing.
+
 Prerequisites
 -------------
 
