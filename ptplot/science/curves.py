@@ -177,7 +177,7 @@ class PowerSpectrum:
             Input value of the rms fluid velocity
         """
 
-        self.BetaoverH=BetaoverH
+        self.BetaoverH = BetaoverH
         self.Tstar = Tstar
         self.gstar = gstar
         self.vw = vw
@@ -244,7 +244,7 @@ class PowerSpectrum:
     def power_spectrum_sw(self, f):
         """Calculate power spectrum from sound waves for a given frequency f
 
-        This function follows equation 45 equation (erratum equation 2) of
+        This function follows equation 45 (erratum equation 2) of
         1704.05871.
         """
 
@@ -252,7 +252,7 @@ class PowerSpectrum:
         # prefactor coming from 0.68*(3.57e-5)*(8*pi)^(1/3)*0.12 = 8.5e-6
         # (=0.68*Fgw0*geometric*Omtil)
         #
-        # Using equation R_* = (8*pi)^{1/3}*vw/beta (section IV, same paper),
+        # Using equation R_* = (8*pi)^{1/3}*vw/beta (section VI, same paper),
         # thus: H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
         #
         # See fsw() method, and definition of beta_to_rstar()
