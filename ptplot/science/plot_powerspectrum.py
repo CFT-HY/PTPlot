@@ -18,7 +18,7 @@ if __name__ == "__main__" and __package__ is None:
 
     import matplotlib.figure
 
-    from curves import PowerSpectrum
+    from calculate_powerspectrum import PowerSpectrum
     from precomputed import available_sensitivitycurves, available_labels, available_durations
     
     root = './'
@@ -29,7 +29,7 @@ if __name__ == "__main__" and __package__ is None:
     
 else:
 
-    from .curves import PowerSpectrum
+    from .calculate_powerspectrum import PowerSpectrum
     from .precomputed import available_sensitivitycurves, available_labels, available_durations
 
     from django.conf import settings
@@ -220,7 +220,7 @@ def worker(queue,
                                MissionProfile,
                                usetex))
     except Exception as e:
-        sys.stderr.write("Caught exception in powerspectrum worker: %s\n" % str(e))
+        sys.stderr.write("Caught exception in plot_powerspectrum worker: %s\n" % str(e))
         queue.put(None)
 
 

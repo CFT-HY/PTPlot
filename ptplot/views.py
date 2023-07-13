@@ -11,7 +11,7 @@ from .forms import *
 # Science
 from .science.SNRubarfrstar_onthefly import get_SNR_image_threaded
 from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image_threaded
-from .science.powerspectrum import get_PS_image_threaded, get_PS_data
+from .science.plot_powerspectrum import get_PS_image_threaded, get_PS_data
 from .science.precomputed import *
 
 import sys, string

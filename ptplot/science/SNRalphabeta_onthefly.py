@@ -22,7 +22,7 @@ if __name__ == "__main__" and __package__ is None:
 
     from espinosa import kappav, ubarf, ubarf_to_alpha
     from SNR_precompute import get_SNRcurve
-    from curves import rstar_to_beta
+    from calculate_powerspectrum import rstar_to_beta
     from precomputed import available_labels
     
     root = './'
@@ -36,7 +36,7 @@ else:
 
     from .espinosa import kappav, ubarf, ubarf_to_alpha
     from .SNR_precompute import get_SNRcurve
-    from .curves import rstar_to_beta
+    from .calculate_powerspectrum import rstar_to_beta
     
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
@@ -322,7 +322,7 @@ if __name__ == '__main__':
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n\n')
 
-        sys.stderr.write('Available curves:\n')
+        sys.stderr.write('Available sensitivity curves:\n')
         for number,label in enumerate(available_labels):
             sys.stderr.write('%d: %s\n' % (number, label))
             
