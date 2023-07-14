@@ -177,10 +177,11 @@ def get_PS_image(vw=0.95,
 
 
 
-    # position bottom right
-    fig.text(0.95, 0.05, 'LISACosWG',
-             fontsize=50, color='gray',
-             ha='right', va='bottom', alpha=0.4)
+    # July 2023: No longer watermark with LISACosWG
+    # # position bottom right
+    # fig.text(0.95, 0.05, 'LISACosWG',
+    #          fontsize=50, color='gray',
+    #          ha='right', va='bottom', alpha=0.4)
 
     # position top left
     fig.text(0.13, 0.87, r'%s [$\mathrm{SNR}_\mathrm{sw} = %g$]' % (time.asctime(), snr),
