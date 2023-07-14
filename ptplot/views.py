@@ -9,9 +9,9 @@ from django.template import loader
 from .forms import *
 
 # Science
-from .science.SNRubarfrstar_onthefly import get_SNR_image_threaded
-from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image_threaded
-from .science.plot_powerspectrum import get_PS_image_threaded, get_PS_data
+from .science.SNRubarfrstar_onthefly import get_SNR_image
+from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
+from .science.plot_powerspectrum import get_PS_image, get_PS_data
 from .science.precomputed import *
 
 import sys, string
@@ -68,12 +68,12 @@ def ps_image(request):
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
                 
-            sio_PS = get_PS_image_threaded(Tstar=Tstar,
-                                           gstar=gstar,
-                                           vw=vw,
-                                           alpha=alpha,
-                                           BetaoverH=BetaoverH,
-                                           MissionProfile=MissionProfile)
+            sio_PS = get_PS_image(Tstar=Tstar,
+                                  gstar=gstar,
+                                  vw=vw,
+                                  alpha=alpha,
+                                  BetaoverH=BetaoverH,
+                                  MissionProfile=MissionProfile)
             
             return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
@@ -91,12 +91,12 @@ def snr_image(request):
 
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
-            sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
-                                             gstar=gstar,
-                                             vw_list=[[vw]],
-                                             alpha_list=[[alpha]],
-                                             BetaoverH_list=[[BetaoverH]],
-                                             MissionProfile=MissionProfile)
+            sio_SNR = get_SNR_image(Tstar=Tstar,
+                                    gstar=gstar,
+                                    vw_list=[[vw]],
+                                    alpha_list=[[alpha]],
+                                    BetaoverH_list=[[BetaoverH]],
+                                    MissionProfile=MissionProfile)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -116,12 +116,12 @@ def snr_alphabeta_image(request):
             gstar = form.cleaned_data['gstar']
 
 
-            sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
-                                                       alpha_list=[[alpha]],
-                                                       BetaoverH_list=[[BetaoverH]],
-                                                       Tstar=Tstar,
-                                                       gstar=gstar,
-                                                       MissionProfile=MissionProfile)
+            sio_SNR = get_SNR_alphabeta_image(vw=vw,
+                                              alpha_list=[[alpha]],
+                                              BetaoverH_list=[[BetaoverH]],
+                                              Tstar=Tstar,
+                                              gstar=gstar,
+                                              MissionProfile=MissionProfile)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
         
@@ -268,14 +268,14 @@ def model_point_snr(request, model_id, point_id):
 
     hugeAlpha = model.model_hugeAlpha
     
-    sio_SNR = get_SNR_image_threaded(Tstar=Tstar,
-                                     gstar=gstar,
-                                     vw_list=[[vw]],
-                                     alpha_list=[[alpha]],
-                                     BetaoverH_list=[[BetaoverH]],
-                                     label_list=[[label]],
-                                     MissionProfile=MissionProfile,
-                                     hugeAlpha=hugeAlpha)
+    sio_SNR = get_SNR_image(Tstar=Tstar,
+                            gstar=gstar,
+                            vw_list=[[vw]],
+                            alpha_list=[[alpha]],
+                            BetaoverH_list=[[BetaoverH]],
+                            label_list=[[label]],
+                            MissionProfile=MissionProfile,
+                            hugeAlpha=hugeAlpha)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -317,14 +317,14 @@ def model_point_snr_alphabeta(request, model_id, point_id):
 
     hugeAlpha = model.model_hugeAlpha
         
-    sio_SNR = get_SNR_alphabeta_image_threaded(Tstar=Tstar,
-                                               gstar=gstar,
-                                               vw=vw,
-                                               alpha_list=[[alpha]],
-                                               BetaoverH_list=[[BetaoverH]],
-                                               label_list=[[label]],
-                                               MissionProfile=MissionProfile,
-                                               hugeAlpha=hugeAlpha)
+    sio_SNR = get_SNR_alphabeta_image(Tstar=Tstar,
+                                      gstar=gstar,
+                                      vw=vw,
+                                      alpha_list=[[alpha]],
+                                      BetaoverH_list=[[BetaoverH]],
+                                      label_list=[[label]],
+                                      MissionProfile=MissionProfile,
+                                      hugeAlpha=hugeAlpha)
     
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -418,12 +418,12 @@ def model_point_ps(request, model_id, point_id):
     label = point.point_shortlabel
         
     
-    sio_PS = get_PS_image_threaded(Tstar=Tstar,
-                                   gstar=gstar,
-                                   vw=vw,
-                                   alpha=alpha,
-                                   BetaoverH=BetaoverH,
-                                   MissionProfile=MissionProfile)
+    sio_PS = get_PS_image(Tstar=Tstar,
+                          gstar=gstar,
+                          vw=vw,
+                          alpha=alpha,
+                          BetaoverH=BetaoverH,
+                          MissionProfile=MissionProfile)
             
     return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
 
@@ -486,15 +486,15 @@ def model_scenario_snr(request, model_id, scenario_id):
         Tstar = selected_scenario.scenario_Tstar
         
     
-    sio_SNR = get_SNR_image_threaded(vw_list=[vw_list],
-                                     alpha_list=[alpha_list],
-                                     BetaoverH_list=[BetaoverH_list],
-                                     Tstar=Tstar,
-                                     gstar=model.model_gstar,
-                                     label_list=[label_list],
-                                     title_list=[model.model_name],
-                                     MissionProfile=model.model_MissionProfile,
-                                     hugeAlpha=model.model_hugeAlpha)
+    sio_SNR = get_SNR_image(vw_list=[vw_list],
+                            alpha_list=[alpha_list],
+                            BetaoverH_list=[BetaoverH_list],
+                            Tstar=Tstar,
+                            gstar=model.model_gstar,
+                            label_list=[label_list],
+                            title_list=[model.model_name],
+                            MissionProfile=model.model_MissionProfile,
+                            hugeAlpha=model.model_hugeAlpha)
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -522,15 +522,15 @@ def model_scenario_snr_alphabeta(request, model_id, scenario_id):
         Tstar = selected_scenario.scenario_Tstar
 
     
-    sio_SNR = get_SNR_alphabeta_image_threaded(vw=model.model_vw,
-                                     alpha_list=[alpha_list],
-                                     BetaoverH_list=[BetaoverH_list],
-                                     Tstar=Tstar,
-                                     gstar=model.model_gstar,
-                                     label_list=[label_list],
-                                     title_list=[model.model_name],
-                                     MissionProfile=model.model_MissionProfile,
-                                     hugeAlpha=model.model_hugeAlpha)
+    sio_SNR = get_SNR_alphabeta_image(vw=model.model_vw,
+                                      alpha_list=[alpha_list],
+                                      BetaoverH_list=[BetaoverH_list],
+                                      Tstar=Tstar,
+                                      gstar=model.model_gstar,
+                                      label_list=[label_list],
+                                      title_list=[model.model_name],
+                                      MissionProfile=model.model_MissionProfile,
+                                      hugeAlpha=model.model_hugeAlpha)
 
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -577,15 +577,15 @@ def model_snr(request, model_id):
         label_list = [[point.point_shortlabel for point in point_list]]
         title_list = [model.model_name]
         
-    sio_SNR = get_SNR_image_threaded(vw_list=vw_list,
-                                     alpha_list=alpha_list,
-                                     BetaoverH_list=BetaoverH_list,
-                                     Tstar=model.model_Tstar,
-                                     gstar=model.model_gstar,
-                                     label_list=label_list,
-                                     title_list=title_list,
-                                     MissionProfile=model.model_MissionProfile,
-                                     hugeAlpha=model.model_hugeAlpha)
+    sio_SNR = get_SNR_image(vw_list=vw_list,
+                            alpha_list=alpha_list,
+                            BetaoverH_list=BetaoverH_list,
+                            Tstar=model.model_Tstar,
+                            gstar=model.model_gstar,
+                            label_list=label_list,
+                            title_list=title_list,
+                            MissionProfile=model.model_MissionProfile,
+                            hugeAlpha=model.model_hugeAlpha)
                                      
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
@@ -625,15 +625,15 @@ def model_snr_alphabeta(request, model_id):
         label_list = [[point.point_shortlabel for point in point_list]]
         title_list = [model.model_name]
         
-    sio_SNR = get_SNR_alphabeta_image_threaded(vw=model.model_vw,
-                                               alpha_list=alpha_list,
-                                               BetaoverH_list=BetaoverH_list,
-                                               Tstar=model.model_Tstar,
-                                               gstar=model.model_gstar,
-                                               label_list=label_list,
-                                               title_list=title_list,
-                                               MissionProfile=model.model_MissionProfile,
-                                               hugeAlpha=model.model_hugeAlpha)                                               
+    sio_SNR = get_SNR_alphabeta_image(vw=model.model_vw,
+                                      alpha_list=alpha_list,
+                                      BetaoverH_list=BetaoverH_list,
+                                      Tstar=model.model_Tstar,
+                                      gstar=model.model_gstar,
+                                      label_list=label_list,
+                                      title_list=title_list,
+                                      MissionProfile=model.model_MissionProfile,
+                                      hugeAlpha=model.model_hugeAlpha)                                               
     return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
 
 
@@ -704,13 +704,13 @@ def multiple(request):
             else:
                 label_list_final = [label_list]
                 
-            sio_SNR = get_SNR_alphabeta_image_threaded(vw=vw,
-                                                       alpha_list=[alpha_list],
-                                                       BetaoverH_list=[BetaoverH_list],
-                                                       Tstar=Tstar,
-                                                       gstar=gstar,
-                                                       MissionProfile=MissionProfile,
-                                                       label_list=label_list_final)
+            sio_SNR = get_SNR_alphabeta_image(vw=vw,
+                                              alpha_list=[alpha_list],
+                                              BetaoverH_list=[BetaoverH_list],
+                                              Tstar=Tstar,
+                                              gstar=gstar,
+                                              MissionProfile=MissionProfile,
+                                              label_list=label_list_final)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
     template = loader.get_template('ptplot/multiple.html')

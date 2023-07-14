@@ -46,6 +46,11 @@ Getting started
 
 5. Finally, run `python manage.py runserver` and visit http://127.0.0.1:8000/ptplot/ to test the thing.
 
+Deploying
+---------
+
+For best performance, run using gunicorn behind a buffering proxy (e.g. nginx). Ensure that gunicorn has enough worker threads to handle separate plotting computations for 2-3 plots per page.
+
 Benchmark points
 ----------------
 
