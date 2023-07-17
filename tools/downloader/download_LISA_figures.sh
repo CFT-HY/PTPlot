@@ -16,6 +16,8 @@ PYTHON=python3
 CLEANER=remove_watermark.py
 # Where to put files
 DEST=files-`date +%Y-%m-%d`
+# Server to read from
+HOST=https://www.ptplot.org
 
 
 # Check we're not overwriting something
@@ -53,12 +55,12 @@ handleplot () {
 
     echo -n "Processing plot ID $num with label $label... "
 
-    curl -s https://www.ptplot.org/ptplot/models/${num}/snr_alphabeta.svg > $DEST/${label}_snr.svg
+    curl -s $HOST/ptplot/models/${num}/snr_alphabeta.svg > $DEST/${label}_snr.svg
     $PYTHON $CLEANER $DEST/${label}_snr.svg $DEST/${label}_snr_cleaned.svg
     # Inkscape needs an absolute directory path, hence $(pwd) here.
     inkscape $(pwd)/$DEST/${label}_snr_cleaned.svg --export-filename=$(pwd)/$DEST/${label}_snr.pdf
 
-    curl -s https://www.ptplot.org/ptplot/models/${num}/snr.svg > $DEST/${label}_snr_ubarf.svg
+    curl -s $HOST/ptplot/models/${num}/snr.svg > $DEST/${label}_snr_ubarf.svg
     $PYTHON $CLEANER $DEST/${label}_snr_ubarf.svg $DEST/${label}_snr_ubarf_cleaned.svg
     # Again, inkscape needs an absolute path.
     inkscape $(pwd)/$DEST/${label}_snr_ubarf_cleaned.svg --export-filename=$(pwd)/$DEST/${label}_snr_ubarf.pdf
@@ -112,8 +114,8 @@ handlesingle () {
 
     echo -n "Processing single point plot type $type... "
 
-    # echo "curl -s https://www.ptplot.org/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg"
-    curl -s https://www.ptplot.org/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg
+    # echo "curl -s $HOST/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg"
+    curl -s $HOST/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg
     $PYTHON $CLEANER $DEST/single_${type}.svg $DEST/single_${type}_cleaned.svg
 
     # As in handleplot(), inkscape needs an absolute directory path
