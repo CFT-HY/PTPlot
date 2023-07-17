@@ -11,11 +11,26 @@ from .forms import *
 # Science
 from .science.SNRubarfrstar_onthefly import get_SNR_image_threaded
 from .science.SNRalphabeta_onthefly import get_SNR_alphabeta_image_threaded
-from .science.powerspectrum import get_PS_image_threaded, get_PS_data
+from .science.plot_powerspectrum import get_PS_image_threaded, get_PS_data
 from .science.precomputed import *
 
 import sys, string
 import numpy as np
+
+# Retrieve git version
+from dulwich.repo import Repo
+import dulwich.porcelain
+import os
+
+git_description = 'unknown'
+have_gitver = False
+
+try:
+     this_file_dir = os.path.realpath(os.path.dirname(__file__))
+     git_description = dulwich.porcelain.describe(Repo.discover(this_file_dir))
+     have_gitver = True
+except dulwich.errors.NotGitRepository as err:
+     pass
 
 # CSV view
 def csv(request):
@@ -757,6 +772,11 @@ def single(request):
     
 
 def index(request):
+    context = {}
+
+    if have_gitver:
+        context['git_description'] = git_description
+    
     template = loader.get_template('ptplot/index.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(context, request))
     

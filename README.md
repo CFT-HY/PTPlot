@@ -8,6 +8,7 @@ Prerequisites
 -------------
 
 - django
+- dulwich [pure python git implementation]
 - matplotlib
 - scipy
 

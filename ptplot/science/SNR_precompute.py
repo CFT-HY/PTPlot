@@ -17,7 +17,7 @@ if (__name__ == "__main__" and __package__ is None) or __package__ == '':
     # from eLISATools import *
     from snr import *
     
-    from curves import PowerSpectrum
+    from calculate_powerspectrum import PowerSpectrum
     from precomputed import available_sensitivitycurves_lite, available_durations
 
     root = './'
@@ -28,7 +28,7 @@ else:
     # from .eLISATools import *
     from .snr import *
     
-    from .curves import PowerSpectrum
+    from .calculate_powerspectrum import PowerSpectrum
     from .precomputed import available_sensitivitycurves_lite, available_durations
 
     
