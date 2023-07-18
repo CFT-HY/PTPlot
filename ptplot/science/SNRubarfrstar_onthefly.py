@@ -203,11 +203,12 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
     ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
-    
-    # position bottom right
-    fig.text(0.95, 0.05, 'LISACosWG',
-             fontsize=50, color='gray',
-             ha='right', va='bottom', alpha=0.4)
+
+    # July 2023: No longer watermark with LISACosWG
+    # # position bottom right
+    # fig.text(0.95, 0.05, 'LISACosWG',
+    #          fontsize=50, color='gray',
+    #          ha='right', va='bottom', alpha=0.4)
 
     # position top left
     fig.text(0.13, 0.87, time.asctime(),
