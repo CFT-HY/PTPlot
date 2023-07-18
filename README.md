@@ -46,17 +46,17 @@ Getting started
 
 5. Finally, run `python manage.py runserver` and visit http://127.0.0.1:8000/ptplot/ to test the thing.
 
-Deploying
----------
-
-For best performance, run using gunicorn behind a buffering proxy (e.g. nginx). Ensure that gunicorn has enough worker threads to handle separate plotting computations for 2-3 plots per page.
-
 Benchmark points
 ----------------
 
 These are created in the database by running `python manage.py
 populate` which calls `ptplot/management/commands/populate.py`. Edit
 that file to add benchmark points.
+
+Deploying
+---------
+
+For best performance, run using gunicorn behind a buffering proxy (e.g. nginx). Ensure that gunicorn has enough worker threads to handle separate plotting computations for 2-3 plots per page.
 
 Elastic Beanstalk
 -----------------
