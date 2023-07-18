@@ -228,44 +228,6 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         
     return sio
 
-def worker(queue, vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
-           Tstar=100,
-           gstar=100,
-           label_list=None,
-           title_list=None,
-           MissionProfile=0,
-           usetex=False,
-           hugeAlpha=False):           
-
-    try:
-        queue.put(get_SNR_image(vw_list, alpha_list, BetaoverH_list,
-                                Tstar, gstar,
-                                label_list, title_list, MissionProfile, usetex,
-                                hugeAlpha))
-    except Exception as e:
-        sys.stderr.write("Caught exception in SNRubarfrstar worker: %s\n" % str(e))
-        queue.put(None)
-    
-
-
-def get_SNR_image_threaded(vw_list=[0.5], alpha_list=[0.1], BetaoverH_list=[100],
-                           Tstar=100,
-                           gstar=100,
-                           label_list=None,
-                           title_list=None,
-                           MissionProfile=0,
-                           usetex=False,
-                           hugeAlpha=False):
-
-    q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker, args=(q, vw_list, alpha_list, BetaoverH_list,
-                                                     Tstar, gstar,
-                                                     label_list, title_list, MissionProfile, usetex, hugeAlpha))
-    p.start()
-    return_res = q.get()
-    p.join()
-    return return_res
-
 
 if __name__ == '__main__':
     if len(sys.argv) == 5:

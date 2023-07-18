@@ -202,53 +202,6 @@ def get_PS_image(vw=0.95,
 
 
 
-
-def worker(queue,
-           vw=0.95,
-           Tstar=100,
-           gstar=100,
-           alpha=0.1,
-           BetaoverH=100,
-           MissionProfile=0,
-           usetex=False):
-
-    try:
-        queue.put(get_PS_image(vw,
-                               Tstar,
-                               gstar,
-                               alpha,
-                               BetaoverH,
-                               MissionProfile,
-                               usetex))
-    except Exception as e:
-        sys.stderr.write("Caught exception in plot_powerspectrum worker: %s\n" % str(e))
-        queue.put(None)
-
-
-def get_PS_image_threaded(vw=0.95,
-                          Tstar=100,
-                          gstar=100,
-                          alpha=0.1,
-                          BetaoverH=100,
-                          MissionProfile=0,
-                          usetex=False):
-
-    q = multiprocessing.Queue()
-    p = multiprocessing.Process(target=worker,
-                                args=(q,
-                                      vw,
-                                      Tstar,
-                                      gstar,
-                                      alpha,
-                                      BetaoverH,
-                                      MissionProfile,
-                                      usetex))
-    p.start()
-    return_res = q.get()
-    p.join()
-    return return_res
-
-
 if __name__ == '__main__':
     if len(sys.argv) == 6:
         vw = float(sys.argv[1])
