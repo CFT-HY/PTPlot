@@ -42,7 +42,7 @@ def rstar_to_beta(rstar, vw):
     Returns
     -------
     beta : float
-        Nucleation rate
+        Inverse phase transition duration
     """
 
     return math.pow(8.0*math.pi,1.0/3.0)*vw/rstar
@@ -53,13 +53,13 @@ def beta_to_rstar(beta, vw):
     Parameters
     ----------
     beta : float
-        Nucleation rate
+        Inverse phase transition duration
     vw : float
         Wall velocity
 
     Returns
     -------
-    beta : float
+    rstar : float
         Mean bubble separation
     """
 
@@ -89,7 +89,7 @@ def get_SNR_value(fSens, omSens, duration,
     alpha : float, Optional
         Phase transition strength (default to 0.1)
     BetaoverH : float, Optional
-        Inverse phase transition duration (default to 10)
+        Inverse phase transition duration relative to H (default to 10)
 
     Returns
     -------
@@ -116,7 +116,7 @@ class PowerSpectrum:
     Attributes
     ----------
     BetaoverH : float
-        Inverse phase transition duration
+        Inverse phase transition duration relative to H
     Tstar : float
         Transition temperature (default to 180.0)
     gstar : float
@@ -156,7 +156,7 @@ class PowerSpectrum:
         Parameters
         ----------
         BetaoverH : float
-            Inverse phase transition duration
+            Inverse phase transition duration relative to H
         Tstar : float
             Transition temperature (default to 180.0)
         gstar : float
@@ -264,8 +264,8 @@ class PowerSpectrum:
         # and there is no h_planck in eq 45 (it is implicit in the RHS).
         # Note also typo below eq 45, 0.12 -> 0.012 for OmTilde.
         #
-        # The resulting 3*0.687 prefactor is also explained in equation 2 of
-        # the erratum.
+        # The resulting 3*0.687 = 2.061 prefactor is also explained in equation
+        # 2 of the erratum.
         #
         # Fgw0 is 3.57e-5*(100/hstar)^(1/3), and implicitly includes
         # Omega_photons. The implicit Hubble constant dependence of equation
