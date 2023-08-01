@@ -17,7 +17,6 @@ And the following class:
 
 import numpy as np
 import math
-import sys
 
 try:
     from .espinosa import ubarf
@@ -93,7 +92,7 @@ def get_SNR_value(fSens, omSens, duration,
 
     Returns
     -------
-    snr : tuple[float, np.ndarray]
+    snr : np.ndarray
         Signal-to-noise ratio
     """
 

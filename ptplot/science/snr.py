@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 from numpy import pi
 import scipy.integrate
 
+# One year in seconds, needed to convert mission duration
+yr=365.25*86400.
+
 def LoadFile(fNIn, iCol):
     """Load first column and column iCol of a file
 
@@ -111,11 +114,3 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     snr = np.sqrt(Tobs*Itg)
     
     return snr, [fmin,fmax]
-
-
-
-
-
-
-
-
