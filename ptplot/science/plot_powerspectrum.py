@@ -1,58 +1,74 @@
+"""Create the power spectrum plot
+
+This file contains all the functions related to producing the power spectrum plot.
+
+Contains the following functions:
+    * get_PS_data - gets the data for the power spectrum plot and stores it
+    * get_PS_image - creates the power spectrum plot
+"""
+
 #!/usr/bin/env python3
 
-
-import math, sys, string
-
+import math
 import matplotlib
 matplotlib.use('Agg')
 import numpy as np
-import io, base64
-import cgi
+import io
 import os.path
-import sys
-import multiprocessing
 import time
 
 # Fix some things if running standalone
 if __name__ == "__main__" and __package__ is None:
-
     import matplotlib.figure
-
     from calculate_powerspectrum import PowerSpectrum
-    from precomputed import available_sensitivitycurves, available_labels, available_durations
-    
     root = './'
-
-    # eLISATools from Antoine
-    # from eLISATools import *
     from snr import *
-    
 else:
-
     from .calculate_powerspectrum import PowerSpectrum
     from .precomputed import available_sensitivitycurves, available_labels, available_durations
-
     from django.conf import settings
-
     BASE_DIR = getattr(settings, "BASE_DIR", None)
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
-
-
-    # eLISATools from Antoine
-    # from .eLISATools import *
     from .snr import *
-
 sensitivity_root = os.path.join(root, 'sensitivity')
 
-
-def get_PS_data(vw=0.95,
-                 Tstar=100,
+def get_PS_data(vw=0.9,
+                 Tstar=180,
                  gstar=100,
                  alpha=0.1,
-                 BetaoverH=100,
+                 BetaoverH=10,
                  MissionProfile=0,
                  usetex=False,
                  sw_only=True):
+    """Retrieve the data for the power spectrum plot
+
+    Note that this is not then used to create the plot, this stores the data,
+    to be exported as a csv if requested.
+
+    Parameters
+    ----------
+    vw : float
+        Wall velocity (default to 0.9)
+    Tstar : float
+        Transition temperature (default to 180)
+    gstar : float
+        Degrees of freedom (default to 100)
+    alpha : float
+        Phase transition strength (default to 0.1)
+    BetaoverH : float
+        Inverse phase transition duration relative to H (default to 10)
+    MissionProfile : int
+        Which sensitivity curve to use
+    usetex : bool
+        Flag for using latex (default to False)
+    sw_only : bool
+        Flag to decide if we want to ignore turbulence (default to True)
+
+    Returns
+    -------
+    res : string
+        String containing all the data to reproduce the power spectrum plot
+    """
 
     sensitivity_file=available_sensitivitycurves[MissionProfile]
     
@@ -68,29 +84,13 @@ def get_PS_data(vw=0.95,
     f, sensitivity \
         = np.loadtxt(sens_filehandle,usecols=[0,2],unpack=True)
 
-    f_more = np.logspace(math.log(min(f)), math.log(max(f)), num=len(f)*10)
-
-    fS, OmEff = LoadFile(sensitivity_curve, 2)
-    duration = yr*available_durations[MissionProfile]
-    snr, frange = StockBkg_ComputeSNR(fS,
-                                      OmEff,
-                                      fS,
-                                      curves_ps.power_spectrum_sw_conservative(fS),
-                                      duration,
-                                      1.e-6,
-                                      1)
-
-
-    
     res = ''
-
     if sw_only:
         res = res + 'f, omegaSens, omegaSW\n'
     else:
         res = res + 'f, omegaSens, omegaSW, omegaTurb, omegaTot\n'
         
     for x,y in zip(f, sensitivity):
-
         if sw_only:
             res = res + '%g, %g, %g\n' % (x,
                                           y,
@@ -104,14 +104,40 @@ def get_PS_data(vw=0.95,
 
     return res
 
-def get_PS_image(vw=0.95,
-                 Tstar=100,
+def get_PS_image(vw=0.9,
+                 Tstar=180,
                  gstar=100,
                  alpha=0.1,
-                 BetaoverH=100,
+                 BetaoverH=10,
                  MissionProfile=0,
                  usetex=False,
                  sw_only=True):
+    """Produce the power spectrum plot
+
+    Parameters
+    ----------
+    vw : float
+        Wall velocity (default to 0.9)
+    Tstar : float
+        Transition temperature (default to 180)
+    gstar : float
+        Degrees of freedom (default to 100)
+    alpha : float
+        Phase transition strength (default to 0.1)
+    BetaoverH : float
+        Inverse phase transition duration relative to H (default to 10)
+    MissionProfile : int
+        Which sensitivity curve to use
+    usetex : bool
+        Flag for using latex (default to False)
+    sw_only : bool
+        Flag to decide if we want to ignore turbulence (default to True)
+
+    Returns
+    -------
+    sio : bytes
+        svg plot of the power spectrum
+    """
 
     sensitivity_file=available_sensitivitycurves[MissionProfile]
     
@@ -121,13 +147,13 @@ def get_PS_image(vw=0.95,
                               BetaoverH=BetaoverH,
                               gstar=gstar)
 
-    # setup latex plotting
+    # Uncomment to set up latex plotting
     # matplotlib.rc('text', usetex=usetex)
     matplotlib.rc('font', family='serif')
     matplotlib.rc('mathtext', fontset='dejavuserif')
-    # make font size bigger
+    # Uncomment to make font size bigger
     # matplotlib.rcParams.update({'font.size': 16})
-    # but make legend smaller
+    # Uncomment to make legend smaller
     # matplotlib.rcParams.update({'legend.fontsize': 14})
 
     sensitivity_curve = os.path.join(sensitivity_root, sensitivity_file)
@@ -140,7 +166,6 @@ def get_PS_image(vw=0.95,
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
 
-
     fS, OmEff = LoadFile(sensitivity_curve, 2)
     duration = yr*available_durations[MissionProfile]
     snr, frange = StockBkg_ComputeSNR(fS,
@@ -151,8 +176,6 @@ def get_PS_image(vw=0.95,
                                       1.e-6,
                                       1)
 
-#    sys.stderr.write('snr = %g\n' % snr)
-    
     ax.fill_between(f, sensitivity, 1, alpha=0.3, label=r'LISA sensitivity')
 
     if sw_only:
@@ -170,12 +193,9 @@ def get_PS_image(vw=0.95,
     ax.set_ylabel(r'$h^2 \, \Omega_\mathrm{GW}(f)$', fontsize=14)
     ax.set_xlim([1e-5,0.1])
     ax.set_ylim([1e-16,1e-8])
-    # the following lines could be simplified to one command, but we leave it like this for legacy reasons
     ax.set_yscale('log', nonpositive='clip')
     ax.set_xscale('log', nonpositive='clip')
     ax.legend(loc='upper right')
-
-
 
     # July 2023: No longer watermark with LISACosWG
     # # position bottom right
@@ -190,18 +210,13 @@ def get_PS_image(vw=0.95,
 
     
     sio = io.BytesIO()
-
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    canvas = FigureCanvas(fig)
-    
-    # fig.savefig("foo.png",format="png",dpi=400)
     fig.savefig(sio, format="svg")
     sio.seek(0)
 
     return sio
 
-
-
+# If this is used standalone, check the right amount of arguments are being
+# passed. If not, show the user the expected input.
 if __name__ == '__main__':
     if len(sys.argv) == 6:
         vw = float(sys.argv[1])
