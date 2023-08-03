@@ -1,0 +1,156 @@
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=2cm]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{Technical note for PTPlot}}
+\author{Jenni Häkkinen\\ University of Helsinki}
+\date{\today}
+
+% -----------------
+
+\begin{document}
+
+\maketitle
+
+\section{Input parameters}
+
+There are five input parameters when plotting a single parameter point at \href{www.ptplot.org}{ptplot.org}.
+
+\paragraph{Wall velocity $v_\mathrm{w}$} is the bubble wall velocity, or more accurately, the velocity of the phase interface after nucleation in the rest frame of the plasma far away from the wall. It can be given values between $0<v_\mathrm{w}\leq1$.
+
+\paragraph{Phase transition strength $\alpha_\theta$} is defined as the ratio of the trace of the energy momentum tensor and the energy density in the symmetric phase. It can be set freely, but is usually of the order of $\alpha_\theta\sim10^{-2}-10^0$.
+
+\paragraph{Inverse phase transition duration $\beta/H_*$} is the inverted duration of the phase transition $\beta$, which is often expressed relative to the Hubble rate $H_*$ as a dimensionless quantity. We assume the duration to be short enough that the expansion of the universe can be neglected, $\beta/H_*\gtrsim1$, but otherwise it can be set freely. We assume the Hubble rate to be the same right after the phase transition and at nucleation, $H_\mathrm{n}\simeq H_*$.
+
+\paragraph{Transition temperature $T_*$} is the temperature of the universe right after the phase transition. We expect this to be around $T_*\sim150-200$ GeV, close to the Standard Model crossover temperature of $\sim160$ GeV \cite{weir18}, but it can be set freely based on the chosen model. We assume this to be the same as the nucleation temperature, $T_\mathrm{n}\simeq T_*$.
+
+\paragraph{Degrees of freedom $g_*$} is the number of relativistic degrees of freedom at the time of the phase transition. It is related to the temperature and energy density of the universe at that time, not the dynamics of the transition itself. It is highly constrained to the Standard Model value of $g_*=106.75$ \cite{weir18} when we are close to the critical temperature, but it can be varied according to the chosen model.
+
+\vspace{0.5cm} It should be noted that currently the user is responsible for making sure that the parameters given to PTPlot are self-consistent and produce physical results.
+
+\section{Energy budget computations in \texttt{espinosa.py}}
+
+\paragraph{Analytical fits for the efficiency coefficient.}
+We compute the efficiency coefficient $\kappa(v_\mathrm{w},\alpha)$ using analytical fits split into three regions. The approximations for the fits and corresponding four boundary cases are taken from appendix A of \cite{espinosa10}. We define $\kappa$ as a function of the wall velocity $v_\mathrm{w}$ and phase transition strength $\alpha$, with the speed of sound $c_\mathrm{s}=\frac{1}{\sqrt{3}}$. It describes the fraction of kinetic energy transformed into vacuum energy.
+\newpage
+The four boundary cases for small velocities (A), the speed of sound (B), Jouguet detonations (C), and large velocities (D) are
+\begin{align}
+    \kappa_\mathrm{A} &\simeq v_\mathrm{w}^{6/5} \frac{6.9\alpha}{1.36-0.037\sqrt{\alpha}+\alpha} \ (v_\mathrm{w} \ll c_\mathrm{s}) \\
+    \kappa_\mathrm{B} &\simeq \frac{\alpha^{2/5}}{0.017+(0.997+\alpha)^{2/5}} \ (v_\mathrm{w} = c_\mathrm{s}) \\
+    \kappa_\mathrm{C} &\simeq \frac{\sqrt{\alpha}}{0.135+\sqrt{0.98+\alpha}} \ (v_\mathrm{w} = \xi_\mathrm{J}), \ \mathrm{where} \ \xi_\mathrm{J} = \frac{\sqrt{\frac{2}{3}\alpha+\alpha^2}+\sqrt{\frac{1}{3}}}{1+\alpha} \\
+    \kappa_\mathrm{D} &\simeq \frac{\alpha}{0.73+0.083\sqrt{\alpha}+\alpha} \ (v_\mathrm{w} \rightarrow 1).
+\end{align}
+
+The analytical fits for subsonic deflagrations, detonations and supersonic deflagrations (hybrids), respectively, are
+\begin{align}
+    \kappa(v_\mathrm{w} \lesssim c_\mathrm{s}) &\simeq \frac{c_\mathrm{s}^{11/5} \kappa_\mathrm{A}\kappa_\mathrm{B}}{(c_\mathrm{s}^{11/5}-v_\mathrm{w}^{11/5})\kappa_\mathrm{B} + v_\mathrm{w} c_\mathrm{s}^{6/5} \kappa_\mathrm{A}} \\
+    \kappa(v_\mathrm{w} \gtrsim \xi_\mathrm{J}) &\simeq \frac{(\xi_\mathrm{J}-1)^3 \xi_\mathrm{J}^{5/2} v_\mathrm{w}^{-5/2} \kappa_\mathrm{C}\kappa_\mathrm{D}}{[(\xi_\mathrm{J}-1)^3-(v_\mathrm{w}-1)^3] \xi_\mathrm{J}^{5/2} \kappa_\mathrm{C} + (v_\mathrm{w}-1)^3 \kappa_\mathrm{D}} \\
+    \kappa(c_\mathrm{s}<v_\mathrm{w}<\xi_\mathrm{J}) &\simeq \kappa_\mathrm{} + (v_\mathrm{w}-c_\mathrm{s})\delta\kappa + \frac{(v_\mathrm{w}-c_\mathrm{s})^3}{(\xi_\mathrm{J}-c_\mathrm{s})^3}[\kappa_\mathrm{C}-\kappa_\mathrm{B}-(\xi_\mathrm{J}-c_\mathrm{s})\delta\kappa],
+\end{align}
+\begin{equation}
+    \mathrm{where} \ \delta\kappa \simeq -0.9\log{\frac{\sqrt{\alpha}}{1+\sqrt{\alpha}}} \ \mathrm{is \ the \ first \ derivative \ of} \ \kappa \ \mathrm{at} \ v_\mathrm{w}=c_\mathrm{s}.
+\end{equation}
+
+We note that \cite{espinosa10} uses the parameter $\alpha_N$ when defining the analytical fits. We use $\alpha\equiv\alpha_\theta$ instead, which at the current state of knowledge is sufficient for estimating the gravitational wave power spectrum \cite{lisa19}.
+
+\paragraph{The root-mean-square (RMS) fluid velocity.}
+The kinetic energy fraction of the fluid $K$ can be determined in terms of the RMS fluid velocity $\Bar{U}_\mathrm{f}$ and the mean adiabatic index $\Gamma$, or in terms of $\kappa$ and $\alpha$ \cite{lisa19} as
+\begin{equation}
+    K = \Gamma \Bar{U}_\mathrm{f}^2, \ \ K = \frac{\kappa\alpha}{1+\alpha}.
+\end{equation}
+
+We then compute the RMS fluid velocity, with $\Gamma\simeq\frac{4}{3}$ for an ultra-relativistic fluid, as
+\begin{equation}
+    \Bar{U}_\mathrm{f} = \sqrt{\frac{\frac{3}{4}\kappa(v_\mathrm{w},\alpha)}{1+\alpha}}.
+\end{equation}
+
+\section{Power spectra computations in \texttt{calculate\_powerspectrum.py}}
+
+\paragraph{Ansatz for the sound wave power spectrum.}
+The spectral shape of the sound waves is \cite{lisa19, shape17}
+\begin{equation}
+    C_\mathrm{sw}(f) = \left(\frac{f}{f_{\mathrm{p},0}}\right)^3 \left[\frac{7}{4+3\left(\frac{f}{f_{\mathrm{p},0}}\right)^2}\right]^{\frac{7}{2}},
+\end{equation}
+with the peak frequency today of
+\begin{equation}
+    f_{\mathrm{p},0} = 26\times10^{-6} \left(\frac{1}{H_* R_*}\right) \left(\frac{z_\mathrm{p}}{10}\right) \left(\frac{T_*}{10^2 \ \mathrm{GeV}}\right) \left(\frac{h_*}{100}\right)^{\frac{1}{6}} \ \mathrm{Hz}.
+\end{equation}
+The peak angular frequency in units of the mean bubble separation $z_{\mathrm{p}}=(kR_*)_{\mathrm{max}}\simeq10$ based on simulations \cite{lisa19, shape17}. We assume that $H_\mathrm{n}\simeq H_*$ and $T_\mathrm{n}\simeq T_*$. The relation between the mean bubble separation $R_*$ and the inverse phase transition duration $\beta$ is \cite{shape17}
+\begin{equation}
+    R_* = (8\pi)^{\frac{1}{3}} \frac{v_\mathrm{w}}{\beta}.
+\end{equation}
+
+We compute the gravitational wave power spectrum from sound waves for a given frequency $f$ as \cite{shape17}
+\begin{equation}
+    h^2\Omega_\mathrm{gw} = h^2 2.061 F_{\mathrm{gw},0} \Gamma^2 \Bar{U}_\mathrm{f}^4 (H_* R_*) \Tilde{\Omega}_\mathrm{gw} C_\mathrm{sw}(f),
+\end{equation}
+where
+\begin{align}
+    F_{\mathrm{gw},0} &= (3.57\pm0.05)\times10^{-5} \left(\frac{100}{g_*}\right)^{\frac{1}{3}}, \\
+    \Tilde{\Omega}_\mathrm{gw}&=0.012.
+\end{align}
+We use the Planck best-fit value of $h=0.678\pm0.009$ at the time \cite{shape17}. This ansatz is in agreement with Eq. (2) in the erratum of \cite{shape17}, which is written without the customary factors of $h^2$, and Eq. (33) in the erratum of \cite{weir18}.
+It does not agree with Eq. (29) in \cite{lisa19} unless $c_\mathrm{s}=\frac{1}{3}$, which could be considered a typing error.
+
+For a conserved estimate of the sound wave power spectrum we take the shock time to be no larger than one,
+\begin{equation}
+    H_*\tau_\mathrm{sh}=\frac{H_*R_*}{\Bar{U}_\mathrm{f}}<1.
+\end{equation}
+
+\paragraph{Ansatz for the turbulence power spectrum.}
+There is also an option to calculate the contribution from turbulence to the power spectrum, although it is not used by default, as further studies on turbulence are needed.
+
+The spectral shape from turbulence is \cite{weir18}
+\begin{equation}
+    C_\mathrm{turb}(f) = \frac{\left(\frac{f}{f_\mathrm{turb}}\right)^3}{\left[1+\left(\frac{f}{f_\mathrm{turb}}\right)\right]^{\frac{11}{3}} \left(1+\frac{8\pi f}{h_*}\right)},
+\end{equation}
+with the peak frequency today of
+\begin{equation}
+    f_\mathrm{turb} = 27\times10^{-6} \frac{1}{v_\mathrm{w}} \left(\frac{\beta}{H_*}\right) \left(\frac{T_*}{100 \ \mathrm{GeV}}\right) \left(\frac{g_*}{100}\right)^{\frac{1}{6}} \ \mathrm{Hz},
+\end{equation}
+and the reduced Hubble rate at $T_*$,
+\begin{equation}
+    h_* = 16.5\times10^{-6} \left(\frac{T_*}{100 \ \mathrm{GeV}}\right) \left(\frac{g_*}{100}\right)^{\frac{1}{6}} \ \mathrm{Hz}.
+\end{equation}
+
+We compute the gravitational wave power spectrum from turbulence as \cite{weir18}
+\begin{equation}
+    h^2\Omega_\mathrm{turb} = 3.35\times10^{-4} \frac{H_*}{\beta} \left(\frac{\kappa_\mathrm{turb}\alpha}{1+\alpha}\right)^{\frac{3}{2}} \left(\frac{100}{g_*}\right)^{\frac{1}{3}} v_\mathrm{w} C_\mathrm{turb}\left(\frac{f}{f_\mathrm{turb}}\right).
+\end{equation}
+
+% -----------------
+
+\begin{thebibliography}{9}
+
+\bibitem{espinosa10}
+    J.R. Espinosa, T. Konstandin, J. M. No, and G. Servant,
+    \textit{Energy budget of cosmological first-order phase transitions},
+    \href{https://doi.org/10.1088/1475-7516/2010/06/028}{JCAP \textbf{06}, 028 (2010)},
+    \href{https://doi.org/10.48550/arXiv.1004.4187}{arXiv:1004.4187 [hep-ph]}
+
+\bibitem{lisa19}
+    C. Caprini et al.,
+    \textit{Detecting gravitational waves from cosmological phase transitions with LISA: an update},
+    \href{https://doi.org/10.1088/1475-7516/2020/03/024}{JCAP \textbf{03} (2020) 024},
+    \href{https://doi.org/10.48550/arXiv.1910.13125}{arXiv:1910.13125 [astro-ph.CO]}
+
+\bibitem{shape17}
+    M. Hindmarsh, S. J. Huber, K. Rummukainen, and D. J. Weir,
+    \textit{Shape of the acoustic gravitational wave power spectrum from a first order phase transition},
+    \href{https://doi.org/10.1103/PhysRevD.96.103520}{Phys. Rev. D \textbf{96} (2017) 103520},
+    \href{https://doi.org/10.1103/PhysRevD.101.089902}{Phys. Rev. D \textbf{101} (2020) 089902 (Erratum)},
+    \href{https://doi.org/10.48550/arXiv.1704.05871}{arXiv:1704.05871 [astro-ph.CO]}
+
+\bibitem{weir18}
+    D. J. Weir,
+    \textit{Gravitational waves from a first order electroweak phase transition: a brief review},
+    \href{https://doi.org/10.1098/rsta.2017.0126}{Phil. Trans. R. Soc. A. \textbf{376} (2017) 0126},
+    %\href{link here}{Phil. Trans. R. Soc. A. \textbf{xxx} (2023) xxx},
+    \href{https://doi.org/10.48550/arXiv.1705.01783}{arXiv:1705.01783 [hep-ph]}
+
+\end{thebibliography}
+
+\end{document}
