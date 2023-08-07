@@ -115,6 +115,5 @@ def ubarf_to_alpha(vw, this_ubarf):
 #            import sys
 #            sys.stderr.write('vw=%g, this_ubarf=%g\n' % (vw, this_ubarf))
 
-
     vfunc = np.vectorize(ubarf_to_alpha_inner)
     return vfunc(vw, this_ubarf)
