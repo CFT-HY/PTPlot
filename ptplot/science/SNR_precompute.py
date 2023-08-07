@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Precomputation of the SNR curves
 
 This file contains all the functions related to the computation of the signal
@@ -10,8 +12,6 @@ Contains the following functions: #DCH be sure to update this when we remove the
     * get_SNRcurve - calculates the SNR curves
     * main - calculates the SNR curves and stores them in a file
 """
-
-#!/usr/bin/env python
 
 import math
 

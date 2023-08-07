@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Create the AlphaBeta plot
 
 This file contains all the functions related to producing the AlphaBeta plot.
@@ -7,8 +9,6 @@ ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018)
 Contains the following function:
     * get_SNR_alphabeta_image - creates the AlphaBeta plot
 """
-
-#!/usr/bin/env python3
 
 import math
 import matplotlib

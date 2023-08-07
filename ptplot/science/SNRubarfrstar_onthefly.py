@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Create the UbarfRstar plot
 
 This file contains all the functions related to producing the UbarfRstar plot.
@@ -7,8 +9,6 @@ ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018)
 Contains the following function:
     * get_SNR_UbarfRstar_image - creates the UbarfRstar plot
 """
-
-#!/usr/bin/env python3
 
 import math
 import matplotlib
