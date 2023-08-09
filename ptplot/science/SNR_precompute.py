@@ -18,12 +18,12 @@ import math
 if (__name__ == "__main__" and __package__ is None) or __package__ == '':
     from snr import *
     from calculate_powerspectrum import PowerSpectrum
-    from precomputed import available_sensitivitycurves_lite, available_durations
+    from precomputed import available_sensitivitycurves_lite, available_durations, available_labels
     root = './'
 else:
     from .snr import *
     from .calculate_powerspectrum import PowerSpectrum
-    from .precomputed import available_sensitivitycurves_lite, available_durations
+    from .precomputed import available_sensitivitycurves_lite, available_durations, available_labels
     from django.conf import settings
     BASE_DIR = getattr(settings, "BASE_DIR", None)
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
@@ -125,7 +125,8 @@ if __name__ == '__main__':
                          "Where: <Tn> is the nucleation temperature\n"
                          "       <gstar> is the number of relativistic dofs\n"
                          "       <MissionProfile> specifies which sensitivity curve to use:\n"
-                         "        0 for 'Science Requirements Document (3 years)' or\n"
-                         "        1 for 'Science Requirements Document (7 years)'\n"
                          % sys.argv[0])
+        for i in range(len(available_labels)):
+            sys.stderr.write("        %s for %s \n" %(i,available_labels[i]) )
+
         sys.exit(1)
