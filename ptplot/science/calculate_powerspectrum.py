@@ -190,7 +190,7 @@ class PowerSpectrum:
 
         # Either take ubarf_in as-is, or calculate ubarf from the wall velocity
         if (vw is not None) and (ubarf_in is None):
-            self.ubarf = ubarf(vw, alpha)
+            self.ubarf = ubarf(vw, alpha, adiabaticRatio)
         elif (vw is None) and (ubarf_in is not None):
             self.ubarf = ubarf_in
         else:
@@ -211,9 +211,9 @@ class PowerSpectrum:
     # not inherit the class instance information (no self in arguments).
     # Note that this function used to be called Ssw, but it was renamed in 2023
     # to match the notation used in equation 36 of 1704.05871.
-    # Function C(f) (TODO: rename it to Csw)
+    # Function C(f)
     @staticmethod
-    def Ssw(fp, norm=1.0):
+    def Csw(fp, norm=1.0):
         """Calculate spectral shape for gw from sound waves
 
         For a given peak frequency, calculate spectral shape of a single broken
@@ -257,6 +257,8 @@ class PowerSpectrum:
         # See fsw() method, and definition of beta_to_rstar()
         fp = f/self.fsw()
 
+        # Some of the equations below were derived assuming this value for h,
+        # we add it here to remove the h dependence from the final results
         h_planck = 0.678
 
         # Equations 39 and 45 in 1704.05871 are missing the factor of 3 [typo];
@@ -277,7 +279,7 @@ class PowerSpectrum:
         return h_planck*h_planck*3.0 \
             *0.687*3.57e-5*0.012*np.power(100.0/self.gstar,1.0/3.0) \
             *self.adiabaticRatio*self.adiabaticRatio \
-            *np.power(self.ubarf,4.0)*self.H_rstar*self.Ssw(fp)    
+            *np.power(self.ubarf,4.0)*self.H_rstar*self.Csw(fp)    
 
     # The following three functions (*turb) are taken from 1512.06239.
     # However, in later papers the contribution from turbulence is neglected,

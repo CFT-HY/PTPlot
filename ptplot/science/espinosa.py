@@ -14,7 +14,7 @@ import math
 import scipy.optimize
 import numpy as np
 
-def ubarf(vw, alpha):
+def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
     """Calculates the rms fluid velocity
 
     Parameters
@@ -23,6 +23,8 @@ def ubarf(vw, alpha):
         Wall velocity
     alpha : float
         Phase transition strength
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
 
     Returns
     -------
@@ -30,7 +32,7 @@ def ubarf(vw, alpha):
         Measure of the rms fluid velocity
     """
 
-    return math.sqrt((3.0/4.0)*kappav(vw,alpha)*alpha/(1.0 + alpha))
+    return math.sqrt((1.0/adiabaticRatio)*kappav(vw,alpha)*alpha/(1.0 + alpha))
 
 def kappav(vw, alpha):
     """Calculates the fluid efficiency

@@ -147,7 +147,7 @@ def main(sensitivity_curve, Tn, gstar):
             fp = 26.0e-6*(1.0/HnRstar)*(zp/10)*(Tn/100)* (gstar/100)**(1.0/6.0)
 
             s = fS/fp # frequency scaled to peak
-            OmGW0 = Fgw0*PowerSpectrum().Ssw(s, OmMax)
+            OmGW0 = Fgw0*PowerSpectrum().Csw(s, OmMax)
             snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
             tshHn[i,j] = HnRstar/Ubarf
         print('Rstar number', i, "/", len(log10HnRstar))
