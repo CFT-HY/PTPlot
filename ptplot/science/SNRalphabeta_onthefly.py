@@ -39,6 +39,7 @@ else:
 def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             Tstar=180,
                             gstar=100,
+                            adiabaticRatio=4.0/3.0,
                             label_list=None,
                             title_list=None,
                             MissionProfile=0,
@@ -58,6 +59,8 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
         Transition temperature (default to 180)
     gstar : float
         Degrees of freedom (default to 100)
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
     label_list : list[string]
         List of labels
     title_list : list[string]
@@ -93,7 +96,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
                                                      log10HnRstar),
                                                      vw))
-    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf)))
+    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabaticRatio))
 
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])

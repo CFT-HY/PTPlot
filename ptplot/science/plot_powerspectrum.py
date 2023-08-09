@@ -33,13 +33,14 @@ else:
 sensitivity_root = os.path.join(root, 'sensitivity')
 
 def get_PS_data(vw=0.9,
-                 Tstar=180,
-                 gstar=100,
-                 alpha=0.1,
-                 BetaoverH=10,
-                 MissionProfile=0,
-                 usetex=False,
-                 sw_only=True):
+                Tstar=180,
+                gstar=100,
+                alpha=0.1,
+                BetaoverH=10,
+                adiabaticRatio=4.0/3.0,
+                MissionProfile=0,
+                usetex=False,
+                sw_only=True):
     """Retrieve the data for the power spectrum plot
 
     Note that this is not then used to create the plot, this stores the data,
@@ -57,6 +58,8 @@ def get_PS_data(vw=0.9,
         Phase transition strength (default to 0.1)
     BetaoverH : float
         Inverse phase transition duration relative to H (default to 10)
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
     MissionProfile : int
         Which sensitivity curve to use
     usetex : bool
@@ -76,8 +79,8 @@ def get_PS_data(vw=0.9,
                               Tstar=Tstar,
                               alpha=alpha,
                               BetaoverH=BetaoverH,
-                              gstar=gstar)
-
+                              gstar=gstar,
+                              adiabaticRatio=adiabaticRatio)
 
     sensitivity_curve = os.path.join(sensitivity_root, sensitivity_file)
     sens_filehandle = open(sensitivity_curve)
@@ -109,6 +112,7 @@ def get_PS_image(vw=0.9,
                  gstar=100,
                  alpha=0.1,
                  BetaoverH=10,
+                 adiabaticRatio=4.0/3.0,
                  MissionProfile=0,
                  usetex=False,
                  sw_only=True):
@@ -126,6 +130,8 @@ def get_PS_image(vw=0.9,
         Phase transition strength (default to 0.1)
     BetaoverH : float
         Inverse phase transition duration relative to H (default to 10)
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
     MissionProfile : int
         Which sensitivity curve to use
     usetex : bool
@@ -145,7 +151,8 @@ def get_PS_image(vw=0.9,
                               Tstar=Tstar,
                               alpha=alpha,
                               BetaoverH=BetaoverH,
-                              gstar=gstar)
+                              gstar=gstar,
+                              adiabaticRatio=adiabaticRatio)
 
     # Uncomment to set up latex plotting
     # matplotlib.rc('text', usetex=usetex)
