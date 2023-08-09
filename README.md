@@ -44,7 +44,7 @@ Getting started
 
 4. Run `python manage.py makemigrations ptplot` and `python manage.py migrate`.
 
-5. Finally, run `python manage.py runserver --no-threading` and visit http://127.0.0.1:8000/ptplot/ to test the thing.
+5. Finally, run `python manage.py runserver --nothreading` and visit http://127.0.0.1:8000/ptplot/ to test the thing.
 
 Benchmark points
 ----------------
@@ -60,7 +60,7 @@ When deploying the production server we use gunicorn to serve requests using the
 type (https://docs.gunicorn.org/en/latest/design.html#sync-workers) (see below for more details about deploying).
 This helps to prevent issues with non-thread-safe code. When running locally using the `manage.py runserver`
 command (see https://docs.djangoproject.com/en/4.2/ref/django-admin/) we recommend adding the argument
-`--no-threading` to avoid the use of threads. Errors when using threading seem mostly to originate in matplotlib's
+`--nothreading` to avoid the use of threads. Errors when using threading seem mostly to originate in matplotlib's
 mathtext library (https://matplotlib.org/stable/tutorials/text/mathtext.html), so an alternative workaround would be
 to change how text is rendered in plots.
 
