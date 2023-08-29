@@ -92,6 +92,7 @@ def get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax=1):
 
     return tshHn, snr, log10HnRstar, log10Ubarf
 
+
 # If this is used standalone, check the right amount of arguments are being
 # passed. If not, show the user the expected input.
 if __name__ == '__main__':

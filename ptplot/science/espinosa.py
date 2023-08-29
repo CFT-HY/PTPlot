@@ -14,7 +14,7 @@ import math
 import scipy.optimize
 import numpy as np
 
-def ubarf(vw, alpha):
+def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
     """Calculates the rms fluid velocity
 
     Parameters
@@ -23,6 +23,8 @@ def ubarf(vw, alpha):
         Wall velocity
     alpha : float
         Phase transition strength
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
 
     Returns
     -------
@@ -30,7 +32,7 @@ def ubarf(vw, alpha):
         Measure of the rms fluid velocity
     """
 
-    return math.sqrt((3.0/4.0)*kappav(vw,alpha)*alpha/(1.0 + alpha))
+    return math.sqrt((1.0/adiabaticRatio)*kappav(vw,alpha)*alpha/(1.0 + alpha))
 
 def kappav(vw, alpha):
     """Calculates the fluid efficiency
@@ -81,7 +83,7 @@ def kappav(vw, alpha):
                 + (math.pow(vw-cs,3.0)/math.pow(xiJ-cs,3.0))*(kappaC-kappaB-(xiJ-cs)*deltaK)
 
 
-def ubarf_to_alpha(vw, this_ubarf):
+def ubarf_to_alpha(vw, this_ubarf, adiabaticRatio = 4.0/3.0):
     """Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate
@@ -97,6 +99,8 @@ def ubarf_to_alpha(vw, this_ubarf):
         Wall velocity
     this_ubarf : np.ndarray
         List of rms fluid velocities
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
 
     Returns
     -------
@@ -104,10 +108,10 @@ def ubarf_to_alpha(vw, this_ubarf):
         List of phase transition strengths
     """
 
-    def ubarf_to_alpha_inner(vw, this_ubarf):
+    def ubarf_to_alpha_inner(vw, this_ubarf, adiabaticRatio):
 
         def alphatrue(alpha):
-            return ubarf(vw, alpha) - this_ubarf
+            return ubarf(vw, alpha, adiabaticRatio) - this_ubarf
 
 #        try:
         return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-6)
@@ -116,4 +120,4 @@ def ubarf_to_alpha(vw, this_ubarf):
 #            sys.stderr.write('vw=%g, this_ubarf=%g\n' % (vw, this_ubarf))
 
     vfunc = np.vectorize(ubarf_to_alpha_inner)
-    return vfunc(vw, this_ubarf)
+    return vfunc(vw, this_ubarf, adiabaticRatio)

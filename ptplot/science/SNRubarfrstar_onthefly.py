@@ -35,6 +35,7 @@ else:
 def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   Tstar=100,
                   gstar=100,
+                  adiabaticRatio=4.0/3.0,
                   label_list=None,
                   title_list=None,
                   MissionProfile=0,
@@ -54,6 +55,8 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         Transition temperature (default to 100)
     gstar : float
         Degrees of freedom (default to 100)
+    adiabaticRatio : float
+        Adiabatic index (Gamma) (default to 4.0/3.0)
     label_list : list[string]
         List of labels
     title_list : list[string]
@@ -142,7 +145,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         Rstar_set = [math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw/BetaoverH) \
                       for vw, BetaoverH in zip(vw_set, BetaoverH_set)]
 
-        ubarf_set = [math.log10(ubarf(vw, alpha)) \
+        ubarf_set = [math.log10(ubarf(vw, alpha, adiabaticRatio)) \
                       for vw, alpha in zip(vw_set, alpha_set)]
 
         benchmarks = ax.plot(ubarf_set, Rstar_set, '.')
