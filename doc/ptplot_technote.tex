@@ -62,9 +62,9 @@ The kinetic energy fraction of the fluid $K$ can be determined in terms of the R
     K = \Gamma \Bar{U}_\mathrm{f}^2, \ \ K = \frac{\kappa\alpha}{1+\alpha}.
 \end{equation}
 
-We then compute the RMS fluid velocity, with $\Gamma\simeq\frac{4}{3}$ for an ultra-relativistic fluid, as
+We then compute the RMS fluid velocity, with the default value of $\Gamma\simeq\frac{4}{3}$ for an ultra-relativistic fluid, as
 \begin{equation}
-    \Bar{U}_\mathrm{f} = \sqrt{\frac{\frac{3}{4}\kappa(v_\mathrm{w},\alpha)}{1+\alpha}}.
+    \Bar{U}_\mathrm{f} = \sqrt{\frac{1}{\Gamma}\frac{\kappa(v_\mathrm{w},\alpha) \alpha}{1+\alpha}} \simeq \sqrt{\frac{3}{4}\frac{\kappa(v_\mathrm{w},\alpha) \alpha}{1+\alpha}}.
 \end{equation}
 
 \section{Power spectra computations in \texttt{calculate\_powerspectrum.py}}
@@ -76,7 +76,7 @@ The spectral shape of the sound waves is \cite{lisa19, shape17}
 \end{equation}
 with the peak frequency today of
 \begin{equation}
-    f_{\mathrm{p},0} = 26\times10^{-6} \left(\frac{1}{H_* R_*}\right) \left(\frac{z_\mathrm{p}}{10}\right) \left(\frac{T_*}{10^2 \ \mathrm{GeV}}\right) \left(\frac{h_*}{100}\right)^{\frac{1}{6}} \ \mathrm{Hz}.
+    f_{\mathrm{p},0} = 26\times10^{-6} \left(\frac{1}{H_* R_*}\right) \left(\frac{z_\mathrm{p}}{10}\right) \left(\frac{T_*}{10^2 \ \mathrm{GeV}}\right) \left(\frac{g_*}{100}\right)^{\frac{1}{6}} \ \mathrm{Hz}.
 \end{equation}
 The peak angular frequency in units of the mean bubble separation $z_{\mathrm{p}}=(kR_*)_{\mathrm{max}}\simeq10$ based on simulations \cite{lisa19, shape17}. We assume that $H_\mathrm{n}\simeq H_*$ and $T_\mathrm{n}\simeq T_*$. The relation between the mean bubble separation $R_*$ and the inverse phase transition duration $\beta$ is \cite{shape17}
 \begin{equation}
@@ -118,8 +118,9 @@ and the reduced Hubble rate at $T_*$,
 
 We compute the gravitational wave power spectrum from turbulence as \cite{weir18}
 \begin{equation}
-    h^2\Omega_\mathrm{turb} = 3.35\times10^{-4} \frac{H_*}{\beta} \left(\frac{\kappa_\mathrm{turb}\alpha}{1+\alpha}\right)^{\frac{3}{2}} \left(\frac{100}{g_*}\right)^{\frac{1}{3}} v_\mathrm{w} C_\mathrm{turb}\left(\frac{f}{f_\mathrm{turb}}\right).
+    h^2\Omega_\mathrm{turb} = 3.35\times10^{-4} \frac{H_*}{\beta} \left(\frac{\kappa_\mathrm{turb}\alpha}{1+\alpha}\right)^{\frac{3}{2}} \left(\frac{100}{g_*}\right)^{\frac{1}{3}} v_\mathrm{w} C_\mathrm{turb}\left(\frac{f}{f_\mathrm{turb}}\right),
 \end{equation}
+where $\kappa_\mathrm{turb}$ describes the efficiency of converting latent heat into turbulent flows.
 
 % -----------------
 
@@ -148,7 +149,7 @@ We compute the gravitational wave power spectrum from turbulence as \cite{weir18
     D. J. Weir,
     \textit{Gravitational waves from a first order electroweak phase transition: a brief review},
     \href{https://doi.org/10.1098/rsta.2017.0126}{Phil. Trans. R. Soc. A. \textbf{376} (2017) 0126},
-    %\href{link here}{Phil. Trans. R. Soc. A. \textbf{xxx} (2023) xxx},
+    \href{https://doi.org/10.1098/rsta.2023.0212}{Phil. Trans. R. Soc. A. \textbf{381} (2023) 0212},
     \href{https://doi.org/10.48550/arXiv.1705.01783}{arXiv:1705.01783 [hep-ph]}
 
 \end{thebibliography}
