@@ -245,7 +245,7 @@ if __name__ == '__main__':
         T = float(sys.argv[4])
         g = float(sys.argv[5])
         MissionProfile = int(sys.argv[6])
-        b = get_SNR_alphabeta_image(vw, [alpha], [betaoverh], T, g, MissionProfile=MissionProfile)
+        b = get_SNR_alphabeta_image(vw, [[alpha]], [[betaoverh]], T, g, MissionProfile=MissionProfile)
         print(b.read().decode("utf-8"))
     else:
         sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <T*> <g*> <MissionProfile>\n'

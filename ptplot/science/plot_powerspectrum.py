@@ -21,6 +21,7 @@ import time
 if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
     from calculate_powerspectrum import PowerSpectrum
+    from precomputed import available_sensitivitycurves, available_labels, available_durations
     root = './'
     from snr import *
 else:
@@ -33,10 +34,10 @@ else:
 sensitivity_root = os.path.join(root, 'sensitivity')
 
 def get_PS_data(vw=0.9,
-                Tstar=180,
-                gstar=100,
                 alpha=0.1,
                 BetaoverH=10,
+                Tstar=180,
+                gstar=100,
                 adiabaticRatio=4.0/3.0,
                 MissionProfile=0,
                 usetex=False,
@@ -108,10 +109,10 @@ def get_PS_data(vw=0.9,
     return res
 
 def get_PS_image(vw=0.9,
-                 Tstar=180,
-                 gstar=100,
                  alpha=0.1,
                  BetaoverH=10,
+                 Tstar=180,
+                 gstar=100,
                  adiabaticRatio=4.0/3.0,
                  MissionProfile=0,
                  usetex=False,
@@ -227,15 +228,15 @@ def get_PS_image(vw=0.9,
 if __name__ == '__main__':
     if len(sys.argv) == 6:
         vw = float(sys.argv[1])
-        Tstar = float(sys.argv[2])
-        gstar = float(sys.argv[3])
-        alpha = float(sys.argv[4])
-        BetaoverH = float(sys.argv[5]) 
-        sys.stderr.write('vw=%g, Tstar=%g, gstar=%g, alpha=%g, BetaoverH=%g\n'
-                         % (vw, Tstar, gstar, alpha, BetaoverH))
-        b = get_PS_image(vw, Tstar, gstar, alpha, BetaoverH)
+        alpha = float(sys.argv[2])
+        BetaoverH = float(sys.argv[3])
+        Tstar = float(sys.argv[4])
+        gstar = float(sys.argv[5])
+        sys.stderr.write('vw=%g, alpha=%g, BetaoverH=%g, Tstar=%g, gstar=%g\n'
+                         % (vw, alpha, BetaoverH, Tstar, gstar))
+        b = get_PS_image(vw, alpha, BetaoverH, Tstar, gstar)
         print(b.read().decode("utf-8"))
     else:
-        sys.stderr.write('Usage: %s <vw> <Tstar> <alpha> <Beta/H>\n'
+        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <Tstar> <gstar>\n'
                          % sys.argv[0])
         sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
