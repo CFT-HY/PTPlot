@@ -28,7 +28,7 @@ except ImportError:
     from espinosa import ubarf
     from snr import *
 
-def rstar_to_beta(rstar, vw):
+def rstar_to_beta(rstar, vw, cs=1/np.sqrt(3)):
     """Convert R_* to \Beta_* for a given wall velocity
 
     Parameters
@@ -37,6 +37,8 @@ def rstar_to_beta(rstar, vw):
         Mean bubble separation
     vw : float
         Wall velocity
+    cs : float
+        Speed of sound (default to 1/sqrt(3))
 
     Returns
     -------
@@ -44,9 +46,9 @@ def rstar_to_beta(rstar, vw):
         Inverse phase transition duration
     """
 
-    return math.pow(8.0*math.pi,1.0/3.0)*vw/rstar
+    return math.pow(8.0*math.pi,1.0/3.0)*max(vw,cs)/rstar
 
-def beta_to_rstar(beta, vw):
+def beta_to_rstar(beta, vw, cs=1/np.sqrt(3)):
     """Convert \Beta_* to R_* for a given wall velocity
 
     Parameters
@@ -55,6 +57,8 @@ def beta_to_rstar(beta, vw):
         Inverse phase transition duration
     vw : float
         Wall velocity
+    cs : float
+        Speed of sound (default to 1/sqrt(3))
 
     Returns
     -------
@@ -62,7 +66,7 @@ def beta_to_rstar(beta, vw):
         Mean bubble separation
     """
 
-    return math.pow(8.0*math.pi,1.0/3.0)*vw/beta
+    return math.pow(8.0*math.pi,1.0/3.0)*max(vw,cs)/beta
 
 def get_SNR_value(fSens, omSens, duration,
                   Tstar=180.0, gstar=100, vw=0.9, alpha=0.1, BetaoverH=10):
