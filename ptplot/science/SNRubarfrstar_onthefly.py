@@ -7,7 +7,7 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
 
 Contains the following function:
-    * get_SNR_UbarfRstar_image - creates the UbarfRstar plot
+    * get_SNR_image - creates the UbarfRstar plot
 """
 
 import math
@@ -103,7 +103,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
 
         return (log10Ubarf[nearestx],wantedy)
 
-    # location of contour labels
+    # Location of contour labels
     locs = [find_place(snr, -2.5, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)]
 
@@ -187,18 +187,34 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$',
                         r'$10$', r'$10^2$', r'$10^3$']
     else:
-        xtickpos = [-2, -1, 0]
-        xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$1$']
+        xtickpos = list(range(int(math.ceil(min(log10Ubarf))),
+                    int(math.floor(max(log10Ubarf))+1)))
+        xticklabels = [r'$10^{%d}$' % ind
+                for ind in list(range(int(math.ceil(min(log10Ubarf))),
+                                        int(math.floor(max(log10Ubarf))+1)))]
 
-    ytickpos = [-4, -3, -2, -1, 0]
-    yticklabels = [r'$10^{-4}$', r'$10^{-3}$', r'$10^{-2}$', r'$10^{-1}$', r'$1$']
-    
+    ytickpos = list(range(int(math.ceil(min(log10HnRstar))),
+                        int(math.floor(max(log10HnRstar))+1)))
+    yticklabels = [r'$10^{%d}$' % ind
+                    for ind in list(
+                            range(int(math.ceil(min(log10HnRstar))),
+                                    int(math.floor(max(log10HnRstar))+1)))]
+
+    # Find location for minor ticks
+    def make_minorticks(min, max):
+        minorticks = np.array([])
+        for i in range(min,max):
+            minorticks = np.append(minorticks, np.linspace(10**i, 10**(i+1), 9, endpoint=False))
+        return np.log10(minorticks)
+
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
-    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    ax.set_xticks(ticks=make_minorticks(int(math.ceil(min(log10Ubarf))),
+                                        int(math.floor(max(log10Ubarf)))), minor=True)
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    ax.set_yticks(ticks=make_minorticks(int(math.ceil(min(log10HnRstar))),
+                                        int(math.floor(max(log10HnRstar)))), minor=True)
 
     # July 2023: No longer watermark with LISACosWG
     # # position bottom right
@@ -212,7 +228,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
              ha='left', va='top', alpha=1.0)
 
     sio = io.BytesIO()
-    fig.savefig(sio, format="svg") # , bbox_inches='tight')
+    fig.savefig(sio, format="svg")
     sio.seek(0)
         
     return sio
