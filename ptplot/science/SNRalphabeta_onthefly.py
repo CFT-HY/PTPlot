@@ -109,7 +109,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
 
         return (log10alpha[nearestx],wantedy)
 
-    # location of contour labels
+    # Location of contour labels
     locs = [find_place(snr, 2, wantedcontour) for wantedcontour in levels]
     locs_tsh = [(int(math.ceil(min(log10alpha))) + 0.2,x) \
                 for x in range(int(math.ceil(min(log10BetaOverH))),
@@ -211,12 +211,21 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                            range(int(math.ceil(min(log10BetaOverH))),
                                  int(math.floor(max(log10BetaOverH))+1)))]    
 
+    # Find location for minor ticks
+    def make_minorticks(min, max):
+        minorticks = np.array([])
+        for i in range(min,max):
+            minorticks = np.append(minorticks, np.linspace(10**i, 10**(i+1), 9, endpoint=False))
+        return np.log10(minorticks)
+
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
-    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    ax.set_xticks(ticks=make_minorticks(int(math.ceil(min(log10alpha))),
+                                        int(math.floor(max(log10alpha)))), minor=True)
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+    ax.set_yticks(ticks=make_minorticks(int(math.ceil(min(log10BetaOverH))),
+                                        int(math.floor(max(log10BetaOverH)))), minor=True)
 
     # July 2023: No longer watermark with LISACosWG
     # # position bottom right
@@ -230,7 +239,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
              ha='left', va='top', alpha=1.0)
 
     sio = io.BytesIO()
-    fig.savefig(sio, format="svg") # , bbox_inches='tight')
+    fig.savefig(sio, format="svg")
     sio.seek(0)
         
     return sio
