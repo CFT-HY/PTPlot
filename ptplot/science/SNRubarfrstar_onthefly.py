@@ -12,6 +12,7 @@ Contains the following function:
 
 import math
 import matplotlib
+import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 import numpy as np
 import os.path
@@ -75,11 +76,8 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
         svg plot of UbarfRstar
     """
 
-    red = np.array([1,0,0])
-    darkgreen = np.array([0,0.7,0])
-    color_tuple = tuple([tuple(0.5*(np.tanh((0.5-f)*10)+1)*red
-                               + f**0.5*darkgreen)  for f in (np.arange(6)*0.2)])
-    
+    color_tuple = plt.cm.plasma_r(np.linspace(0.1, 1, 6))
+
     # matplotlib.rc('text', usetex=usetex)
     matplotlib.rc('font', family='serif')
     matplotlib.rc('mathtext', fontset='dejavuserif')
@@ -127,9 +125,10 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                                              log10HnRstar[0], log10HnRstar[-1]))
 
     # CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [0.00001, 1], colors=('gray'), alpha=0.3,
-    CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [1, 1000], colors=('gray'), alpha=0.5,
-                          extent=(log10Ubarf[0], log10Ubarf[-1],
-                                  log10HnRstar[0], log10HnRstar[-1]))
+    CSturb = ax.contourf(log10Ubarf, log10HnRstar, tshHn, [0.0001, 1],
+                         colors=('white'), alpha=0.2, hatches='x',
+                         extent=(log10Ubarf[0], log10Ubarf[-1],
+                                 log10HnRstar[0], log10HnRstar[-1]))
 
     ax.clabel(CS, inline=1, fontsize=8, fmt="%.0f", manual=locs)
     ax.clabel(CStsh, inline=1, fontsize=8, fmt="%g", manual=locs_tsh)
