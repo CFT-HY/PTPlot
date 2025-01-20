@@ -1,0 +1,6 @@
+django >= 5.1.5
+dulwich >= 0.22.7
+gunicorn >= 23.0.0
+matplotlib >= 3.10.0
+numpy >= 2.2.1
+scipy >= 1.15.1
