@@ -1,0 +1,56 @@
+name: CI
+on: push
+env:
+  PRIMARY_PYTHON_VERSION: '3.12'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+    - name: Print Python version
+      run: python -V
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Load pip cache
+      uses: actions/cache@v4
+      with:
+        path: .pip
+        key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          pip-${{ runner.os }}-
+          pip-
+    - name: Install requirements
+      run: |
+        pip --cache-dir=.pip install --upgrade pip
+        pip --cache-dir=.pip install --upgrade wheel
+        pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+    - name: Migrate database
+      run: python manage.py migrate
+    - name: Check configuration
+      run: python manage.py check --fail-level WARNING
+    - name: Run tests with coverage
+      run: coverage run
+    - name: Create coverage reports
+      run: |
+        coverage combine
+        coverage report | tee coverage.txt
+        coverage html
+        coverage xml
+        coverage json
+    - name: Upload results
+      uses: actions/upload-artifact@v4
+      with:
+        name: Coverage
+        path: |
+          ${{ github.workspace }}/coverage.txt
+          ${{ github.workspace }}/coverage.xml
+          ${{ github.workspace }}/coverage.json
+          ${{ github.workspace }}/htmlcov
+        if-no-files-found: error
+#    - name: Upload results to Codecov
+#      uses: codecov/codecov-action@v5
+#      with:
+#        token: ${{ secrets.CODECOV_TOKEN }}
