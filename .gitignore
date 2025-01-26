@@ -1,8 +1,10 @@
 *~
 \#*\#
-__pycache__/
+__pycache__
 *.pyc
 *.sqlite3
 .idea
-dist/
+coverage.*
+dist
+htmlcov
 venv
