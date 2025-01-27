@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Weir"
+  given-names: "David"
+  orcid: "https://orcid.org/0000-0001-6986-0517"
+- family-names: "Hooper"
+  given-names: "Deanna"
+  orcid: "https://orcid.org/0000-0003-2811-0917"
+- family-names: "Häkkinen"
+  given-names: "Jenni"
+  orcid: "https://orcid.org/0009-0001-3652-6878"
+- family-names: "Mäki"
+  given-names: "Mika"
+  orcid: "https://orcid.org/0000-0001-8162-7101"
+title: "PTPlot"
+version: 1.1.0
+doi: 10.5281/zenodo.6949106
+date-released: 2023-08-04
+url: "https://www.ptplot.org"
