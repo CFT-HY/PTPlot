@@ -1,7 +1,9 @@
-allure-pytest >= 2.13.5
-lxml >= 5.3.0
-pylint >= 3.3.3
-pytest >= 8.3.4
-pytest-cov >= 6.0.0
-pytest-html >= 4.1.1
-pytest-xdist >= 3.6.1
+allure-pytest >== 2.13.5
+django-coverage-plugin == 3.1.0
+lxml == 5.3.0
+pylint == 3.3.3
+pytest == 8.3.4
+pytest-cov == 6.0.0
+pytest-html == 4.1.1
+pytest-xdist == 3.6.1
+tblib == 3.0.0
