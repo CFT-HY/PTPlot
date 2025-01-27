@@ -5,6 +5,8 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: ptplot_site.settings.dev
     steps:
     - name: Setup Python
       uses: actions/setup-python@v5

@@ -19,14 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5)qw0w+z9)*q145l8$n_@d+$dj0f++p)npdmrddazr5j$yu869'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -122,3 +116,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email
+ADMINS = [
+    ("David Weir", "david.weir@helsinki.fi"),
+    ("Mika Mäki", "mika.x.maki@helsinki.fi")
+]
+MANAGERS = ADMINS
+# DEFAULT_FROM_EMAIL = ""
+# SERVER_EMAIL = DEFAULT_FROM_EMAIL
