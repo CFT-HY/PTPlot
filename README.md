@@ -4,14 +4,6 @@ PTPlot
 PTPlot is a plotting tool for visualising the gravitational wave power
 spectrum from first-order phase transitions.
 
-Prerequisites
--------------
-
-- django
-- dulwich [pure python git implementation]
-- matplotlib
-- scipy
-
 Getting started
 ---------------
 

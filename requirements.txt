@@ -1,3 +1,5 @@
+# When updating the versions here,
+# please also update them in pyproject.toml.
 django >= 5.1.5
 dulwich >= 0.22.7
 gunicorn >= 23.0.0
