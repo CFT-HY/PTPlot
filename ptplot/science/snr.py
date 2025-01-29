@@ -108,7 +108,7 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     
     # Numerical integration over frequency
     rat = OmGWi**2 / OmEff**2
-    Itg = scipy.integrate.trapz(rat, fr)
+    Itg = scipy.integrate.trapezoid(rat, fr)
 
     # Calculate snr taking into account the observation time
     snr = np.sqrt(Tobs*Itg)
