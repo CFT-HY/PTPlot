@@ -26,21 +26,33 @@ classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 5.1",
+    "Framework :: Matplotlib",
     "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Internet :: WWW/HTTP :: Dynamic Content"
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
 ]
+# Keep this up to date with requirements.txt
 dependencies = [
     "django >= 5.1.5",
     "dulwich >= 0.22.7",
     "gunicorn >= 23.0.0",
     "matplotlib >= 3.10.0",
     "numpy >= 2.2.1",
-    "scipy >= 1.15.1"
+    "scipy >= 1.15.1",
 ]
+requires-python = ">= 3.10"
 # dynamic = ["version"]
 
 [project.optional-dependencies]
@@ -74,7 +86,6 @@ exclude_lines = [
     "if __name__ == .__main__.:"
 ]
 show_missing = true
-
 
 [tool.pytest.ini_options]
 # On clusters "--numprocesses=auto" creates processes according to the total number of CPU cores

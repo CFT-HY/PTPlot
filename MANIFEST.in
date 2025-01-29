@@ -1,5 +1,5 @@
 include LICENSE
 include README.md
-recursive-include ptplot/templates *
-recursive-include ptplot/management *
+recursive-include ptplot/templates *.html
+recursive-include ptplot/management *.csv *.dat *.txt
 include ptplot/science/sensitivity/ScienceRequirements.txt
