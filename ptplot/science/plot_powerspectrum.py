@@ -22,16 +22,13 @@ if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
     from calculate_powerspectrum import PowerSpectrum
     from precomputed import available_sensitivitycurves, available_labels, available_durations
-    root = './'
     from snr import *
 else:
     from .calculate_powerspectrum import PowerSpectrum
     from .precomputed import available_sensitivitycurves, available_labels, available_durations
-    from django.conf import settings
-    BASE_DIR = getattr(settings, "BASE_DIR", None)
-    root = os.path.join(BASE_DIR, 'ptplot', 'science')
     from .snr import *
-sensitivity_root = os.path.join(root, 'sensitivity')
+sensitivity_root = os.path.join(os.path.dirname(__file__), 'sensitivity')
+
 
 def get_PS_data(vw=0.9,
                 alpha=0.1,

@@ -19,15 +19,12 @@ if (__name__ == "__main__" and __package__ is None) or __package__ == '':
     from snr import *
     from calculate_powerspectrum import PowerSpectrum
     from precomputed import available_sensitivitycurves_lite, available_durations, available_labels
-    root = './'
 else:
     from .snr import *
     from .calculate_powerspectrum import PowerSpectrum
     from .precomputed import available_sensitivitycurves_lite, available_durations, available_labels
-    from django.conf import settings
-    BASE_DIR = getattr(settings, "BASE_DIR", None)
-    root = os.path.join(BASE_DIR, 'ptplot', 'science')
-sensitivity_root = os.path.join(root, 'sensitivity')
+sensitivity_root = os.path.join(os.path.dirname(__file__), 'sensitivity')
+
 
 def get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax=1):
     """Calculate the SNR curves for the plots
