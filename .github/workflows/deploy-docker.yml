@@ -5,15 +5,19 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [main]
+
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: Deploy
+    # Allow running when the CI pipeline succeeded or when the workflow is triggered manually
+    if: ${{ github.event.release.tag_name != '' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
-      packages: write
+      attestations: write
       contents: read
+      id-token: write
+      packages: write
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -47,3 +51,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
