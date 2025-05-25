@@ -26,7 +26,6 @@ maintainers = [
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 5.1",
     "Framework :: Matplotlib",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
