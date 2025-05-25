@@ -10,7 +10,8 @@ name = "ptplot_gw"
 version = "1.1.0"
 description = "PTPlot tool for plotting phase transitions"
 readme = "README.md"
-# license = "MIT"
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = [
     "cosmology",
     "phase transitions",
@@ -30,7 +31,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.11",
