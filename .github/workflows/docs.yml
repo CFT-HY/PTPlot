@@ -31,6 +31,8 @@ jobs:
         run: |
           pip --cache-dir=.pip install --upgrade pip wheel
           pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt -r docs/requirements.txt
+      - name: Generate PTtools reference data
+        run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Generate documentation
         run: |
           cd docs

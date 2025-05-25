@@ -26,13 +26,16 @@ jobs:
           pip-
     - name: Install requirements
       run: |
-        pip --cache-dir=.pip install --upgrade pip
-        pip --cache-dir=.pip install --upgrade wheel
+        pip --cache-dir=.pip install --upgrade pip wheel
         pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+    - name: Print Numba sysinfo
+      run: numba --sysinfo | tee numba-sysinfo.txt
     - name: Migrate database
       run: python manage.py migrate
     - name: Check configuration
       run: python manage.py check --fail-level WARNING
+    - name: Generate PTtools reference data
+      run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
     - name: Run tests with coverage
       run: coverage run
     - name: Create coverage reports
