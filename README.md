@@ -1,5 +1,8 @@
-PTPlot
-======
+# PTPlot
+[![DOI](https://zenodo.org/badge/917154485.svg)](https://zenodo.org/badge/latestdoi/917154485)
+[![ReadTheDocs](https://readthedocs.org/projects/ptplot/badge/)](https://ptplot.readthedocs.io/)
+[![CI](https://github.com/CFT-HY/PTPlot/actions/workflows/main.yml/badge.svg)](https://github.com/CFT-HY/PTPlot/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/CFT-HY/PTPlot/graph/badge.svg?token=OKVZT4QKP9)](https://codecov.io/gh/CFT-HY/PTPlot)
 
 PTPlot is a plotting tool for visualising the gravitational wave power
 spectrum from first-order phase transitions.
