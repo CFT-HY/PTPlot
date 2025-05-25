@@ -14,22 +14,19 @@ And the following class:
     * PowerSpectrum - contains the quantities and functions to obtain a power spectrum
 """
 
-
 import numpy as np
 import math
 
 try:
     from .espinosa import ubarf
     from .snr import *
-except ValueError:
-    from espinosa import ubarf
-    from snr import *
-except ImportError:
+except (ValueError, ImportError):
     from espinosa import ubarf
     from snr import *
 
+
 def rstar_to_beta(rstar, vw, cs=1/np.sqrt(3)):
-    """Convert R_* to \Beta_* for a given wall velocity
+    r"""Convert R_* to \Beta_* for a given wall velocity
 
     Parameters
     ----------
@@ -48,8 +45,9 @@ def rstar_to_beta(rstar, vw, cs=1/np.sqrt(3)):
 
     return math.pow(8.0*math.pi,1.0/3.0)*max(vw,cs)/rstar
 
+
 def beta_to_rstar(beta, vw, cs=1/np.sqrt(3)):
-    """Convert \Beta_* to R_* for a given wall velocity
+    r"""Convert \Beta_* to R_* for a given wall velocity
 
     Parameters
     ----------
@@ -67,6 +65,7 @@ def beta_to_rstar(beta, vw, cs=1/np.sqrt(3)):
     """
 
     return math.pow(8.0*math.pi,1.0/3.0)*max(vw,cs)/beta
+
 
 def get_SNR_value(fSens, omSens, duration,
                   Tstar=180.0, gstar=100, vw=0.9, alpha=0.1, BetaoverH=10):
@@ -112,7 +111,8 @@ def get_SNR_value(fSens, omSens, duration,
                                       1)
 
     return snr
-    
+
+
 class PowerSpectrum:
     """A class used to define the power spectrum
 
@@ -338,4 +338,3 @@ class PowerSpectrum:
         """
 
         return self.power_spectrum_sw_conservative(f) + self.power_spectrum_turb(f)
-    

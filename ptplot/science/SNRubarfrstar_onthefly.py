@@ -33,6 +33,7 @@ else:
     BASE_DIR = getattr(settings, "BASE_DIR", None)
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
 
+
 def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
                   Tstar=100,
                   gstar=100,
@@ -232,6 +233,7 @@ def get_SNR_image(vw_list=[[0.5]], alpha_list=[[0.1]], BetaoverH_list=[[100]],
     sio.seek(0)
         
     return sio
+
 
 # If this is used standalone, check the right amount of arguments are being
 # passed. If not, show the user the expected input.

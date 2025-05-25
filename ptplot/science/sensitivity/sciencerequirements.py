@@ -9,8 +9,10 @@ Running this module will write 'StochBkg'-style output to stdout.
 Authors:
   2018-      David Weir
 """
+
 import math
 import numpy as np
+
 
 def Sh(f):
     """Compute strain sensitivity for frequency f."""
@@ -20,12 +22,14 @@ def Sh(f):
             (2.0*math.pi*f)*(2.0*math.pi*f)*(2.0*math.pi*f)*(2.0*math.pi*f))
          + SII(f))*R(f)
 
+
 def SI(f):
     """Subsidiary formula S_I for strain sensitivity."""
     
     s = 1
     f1 = 0.4e-3
     return 5.76e-48*(1.0/(s*s*s*s))*(1.0 + (f1/f)*(f1/f))
+
 
 def SII(f):
     """Subsidiary formula S_II for strain sensitivity.
@@ -34,11 +38,13 @@ def SII(f):
     
     return 3.6e-41
 
+
 def R(f):
     """Subsidiary formula R for strain sensitivity."""
     
     f2 = 25e-3
     return 1.0 + (f/f2)*(f/f2)
+
 
 def OmSens(f):
     """Convert strain sensitivity to sensitivity in terms of Omega_GW."""
@@ -59,7 +65,7 @@ def main():
     sensitivity; third is sensitivity in terms of the gravitational
     wave energy density parameter."""
     
-#    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
     x = np.logspace(-6,1,2000)
     y = np.sqrt(Sh(x))
@@ -67,8 +73,8 @@ def main():
     for (mx,my,mz) in zip(x,y,z):
         print("%g %g %g %g" % (mx, my, mz, 0.0))
 
-#    plt.loglog(x, np.sqrt(y))
-#    plt.show()
+    # plt.loglog(x, np.sqrt(y))
+    # plt.show()
 
 
 if __name__ == '__main__':

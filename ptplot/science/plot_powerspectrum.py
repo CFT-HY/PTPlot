@@ -17,6 +17,7 @@ import io
 import os.path
 import time
 
+
 # Fix some things if running standalone
 if __name__ == "__main__" and __package__ is None:
     import matplotlib.figure
@@ -104,6 +105,7 @@ def get_PS_data(vw=0.9,
                                                   curves_ps.power_spectrum_conservative(x))
 
     return res
+
 
 def get_PS_image(vw=0.9,
                  alpha=0.1,
@@ -219,6 +221,7 @@ def get_PS_image(vw=0.9,
     sio.seek(0)
 
     return sio
+
 
 # If this is used standalone, check the right amount of arguments are being
 # passed. If not, show the user the expected input.

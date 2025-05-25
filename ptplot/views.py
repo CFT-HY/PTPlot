@@ -761,15 +761,12 @@ def single(request):
         context = {'form': form}
         return HttpResponse(template.render(context, request))
 
-            
-        
     # No form yet
     template = loader.get_template('ptplot/single.html')
     form = PTPlotForm()
     context = {'form': form}
     return HttpResponse(template.render(context, request))
 
-    
 
 def index(request):
     context = {}
@@ -779,4 +776,3 @@ def index(request):
     
     template = loader.get_template('ptplot/index.html')
     return HttpResponse(template.render(context, request))
-    

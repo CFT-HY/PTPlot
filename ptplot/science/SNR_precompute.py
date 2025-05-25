@@ -2,8 +2,8 @@
 
 """Precomputation of the SNR curves
 
-This file contains all the functions related to the computation of the signal
-to noise ratio curves for the UbarfRstar and AlphaBeta plots. This is done first
+This file contains all the functions related to the computation of the signal-to-noise ratio
+curves for the UbarfRstar and AlphaBeta plots. This is done first
 so the plot can then be built in parts. Can be used as a standalone module.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015)

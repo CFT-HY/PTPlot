@@ -235,7 +235,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
             enumerate(zip(m, a2, Tn, alpha_n, beta_H_n)):
             point = ParameterChoice(model=singlet_jonathan_z2_model,
                                     number=(i+1),
-                                 point_longlabel='$m = %d\, \mathrm{GeV}, \, a_2 = %g$' % (this_m, this_a2),
+                                 point_longlabel=r'$m = %d\, \mathrm{GeV}, \, a_2 = %g$' % (this_m, this_a2),
                                  Tstar=this_Tn,
                                  alpha=this_alpha_n,
                                  BetaoverH=this_beta_H_n)
@@ -282,7 +282,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).''',
 
         darkphoton_moritz_model = \
             Model(model_name=r'Dark photon benchmark points',
-                                  model_description='''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector (supplied by M. Breitbach).''',
+                                  model_description=r'''Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry in a hidden sector (supplied by M. Breitbach).''',
                    model_notes=r'''The underlying random parameter scan contains 1000 points. Note that not all of these points fall into the plotted regions. The Lagrangian as well as the parameter regions used for the scatter plots are given in Section III of https://arxiv.org/abs/1811.11175''',
                    model_Tstar=50,
                    model_gstar=106.75,

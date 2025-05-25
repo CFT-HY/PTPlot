@@ -14,6 +14,7 @@ import math
 import scipy.optimize
 import numpy as np
 
+
 def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
     """Calculates the rms fluid velocity
 
@@ -33,6 +34,7 @@ def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
     """
 
     return math.sqrt((1.0/adiabaticRatio)*kappav(vw,alpha)*alpha/(1.0 + alpha))
+
 
 def kappav(vw, alpha):
     """Calculates the fluid efficiency

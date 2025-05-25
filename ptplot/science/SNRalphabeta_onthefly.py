@@ -36,6 +36,7 @@ else:
     root = os.path.join(BASE_DIR, 'ptplot', 'science')
     from .snr import *
 
+
 def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
                             Tstar=180,
                             gstar=100,
@@ -243,6 +244,7 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
     sio.seek(0)
         
     return sio
+
 
 # If this is used standalone, check the right amount of arguments are being
 # passed. If not, show the user the expected input.

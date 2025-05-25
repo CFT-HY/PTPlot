@@ -10,12 +10,14 @@ from django.utils.translation import gettext_lazy as _
 
 import sys
 
+
 def validate_velocity(value):
     if not ((value > 0.0) and (value <= 1.0)):
         raise ValidationError(
             _('%(value)s must be greater than zero and less than or equal to 1'),
             params={'value': value},
             )
+
 
 class PTPlotForm(forms.Form):
     available_MissionProfiles = [(i, label) for i, label in enumerate(available_labels)]
@@ -49,12 +51,9 @@ class PTPlotForm(forms.Form):
 #                                initial=False,
 #                                required=False)
 
-
     def __init__(self, data=None, *args, **kwargs):
         super(PTPlotForm, self).__init__(data, *args, **kwargs)
 
-
-            
 
 class MultipleForm(forms.Form):
     available_MissionProfiles = [(i, label) for i, label in enumerate(available_labels)]
@@ -77,8 +76,8 @@ class MultipleForm(forms.Form):
     table = forms.CharField(label=r'Input table', widget=forms.Textarea,
                             initial="#alpha_theta,BetaOverH,label")
 
-class ParameterChoiceForm(forms.Form):
 
+class ParameterChoiceForm(forms.Form):
     def __init__(self):
     
         self.models = []
@@ -110,4 +109,3 @@ class ParameterChoiceForm(forms.Form):
                                               localize=False)
             self.MissionProfile = forms.ChoiceField(label=r'MissionProfile',
                                                     choices=available_labels)
-            

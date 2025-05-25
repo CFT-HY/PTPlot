@@ -9,12 +9,16 @@ possible mission duration and labels.
 #available_sensitivitycurves_lite = ['Sens_L6A2M5N2P2D28_Lite.txt']
 #available_labels = ['Cfgv1 L6A2M5N2P2D28']
 
-available_sensitivitycurves = ['ScienceRequirements.txt', \
-                               'ScienceRequirements.txt']
-available_sensitivitycurves_lite = ['ScienceRequirementsLite.txt', \
-                                    'ScienceRequirementsLite.txt']
+available_sensitivitycurves = [
+    'ScienceRequirements.txt',
+    'ScienceRequirements.txt'
+]
+available_sensitivitycurves_lite = [
+    'ScienceRequirementsLite.txt',
+    'ScienceRequirementsLite.txt'
+]
 
 available_durations = [3, 7]
 
-available_labels = ['Science Requirements Document (3 years)', \
+available_labels = ['Science Requirements Document (3 years)',
                     'Science Requirements Document (7 years)']

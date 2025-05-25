@@ -142,5 +142,3 @@ urlpatterns = [
     # Finally, the main page
     path(r'', views.index, name='index'),
 ]
-
-

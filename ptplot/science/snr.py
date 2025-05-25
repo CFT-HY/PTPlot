@@ -19,6 +19,7 @@ import scipy.integrate
 # One year in seconds, needed to convert mission duration
 yr=365.25*86400.
 
+
 def LoadFile(fNIn, iCol):
     """Load first column and column iCol of a file
 
@@ -51,11 +52,12 @@ def LoadFile(fNIn, iCol):
     iL = 0
     for line in lines :
         if line[0]!='#' and len(line)>0 :
-            w = re.split("\s+",line)
+            w = re.split(r"\s+",line)
             x[iL] = float(w[0])
             y[iL] = float(w[iCol])
             iL += 1
     return x,y
+
 
 def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     """Compute signal to noise ratio
