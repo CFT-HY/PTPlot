@@ -1,0 +1,113 @@
+import typing as tp
+
+from django.forms import Form
+from django.http import HttpResponse
+from django.test import TestCase
+
+from ptplot.forms import PTPlotForm
+from ptplot.management.commands.populate import Command as PopulateCommand
+
+ALLOW_CODES = (200, 302)
+ALLOW_CODES_TYPE = tp.Union[tp.List[int], tp.Tuple[int, ...]]
+
+def check_status_code(response: HttpResponse, allow_codes: ALLOW_CODES_TYPE = None) -> int:
+    allow_codes2 = ALLOW_CODES if allow_codes is None else (*ALLOW_CODES, *allow_codes)
+    if response.status_code not in allow_codes2:
+        raise AssertionError("Invalid status code", response.status_code)
+    return response.status_code
+
+
+def test_view(test: TestCase, url: str, form: Form = None, data: tp.Dict[str, tp.Any] = None, allow_codes: ALLOW_CODES_TYPE = None) -> int:
+    if form is None:
+        if data is None:
+            data = {}
+    else:
+        if data is None:
+            data = form.cleaned_data
+        else:
+            data = {**form.cleaned_data, **data}
+        data.update(form.cleaned_data)
+    return check_status_code(test.client.get(url, data=data), allow_codes=allow_codes)
+
+
+class ViewTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        command = PopulateCommand()
+        command.handle()
+        cls.form = PTPlotForm(data={
+            "vw": 0.3,
+            "alpha": 0.1,
+            "BetaoverH": 10000,
+            "Tstar": 100,
+            "gstar": 100,
+            "MissionProfile": 0
+        })
+        cls.form.is_valid()
+
+    def test_form(self):
+        self.assertTrue(self.form.is_valid())
+
+    def test_csv(self):
+        test_view(self, "/ptplot/curvedata.csv", form=self.form)
+
+    def test_snr_alphabeta(self):
+        test_view(self, "/ptplot/snr_alphabeta.svg", form=self.form)
+
+    def test_snr(self):
+        test_view(self, "/ptplot/snr.svg", form=self.form)
+
+    def test_ps(self):
+        test_view(self, "/ptplot/ps.svg", form=self.form)
+
+    def test_single(self):
+        test_view(self, "/ptplot/single", form=self.form)
+
+    # def test_multiple(self):
+    #     test_view(self, "/ptplot/snr_alphabeta.svg", form=self.form)
+
+    def test_models(self):
+        test_view(self, "/ptplot/models")
+
+    def test_model(self):
+        test_view(self, "/ptplot/models/1")
+
+    def test_model_plot(self):
+        test_view(self, "/ptplot/models/1/plot")
+
+    def test_point(self):
+        test_view(self, "/ptplot/models/1/1/plot")
+
+    def test_point_snr(self):
+        test_view(self, "/ptplot/models/1/1/snr.svg")
+
+    def test_point_snr_alphabeta(self):
+        test_view(self, "/ptplot/models/1/1/snr_alphabeta.svg")
+
+    def test_model_ps(self):
+        test_view(self, "/ptplot/models/1/1/ps.svg")
+
+    def test_model_csv(self):
+        test_view(self, "/ptplot/models/1/1/curvedata.csv")
+
+    def test_scenario(self):
+        test_view(self, "/ptplot/models/1/scenarios/1/plot")
+
+    def test_scenario_snr(self):
+        test_view(self, "/ptplot/models/1/scenarios/1/snr.svg")
+
+    def test_scenario_snr_alpha_beta(self):
+        test_view(self, "/ptplot/models/1/scenarios/1/snr_alphabeta.svg")
+
+    def test_model_snr(self):
+        test_view(self, "/ptplot/models/1/snr.svg")
+
+    def test_model_snr_alpha_beta(self):
+        test_view(self, "/ptplot/models/1/snr_alphabeta.svg")
+
+    # def test_parameterchoice(self):
+    #     test_view(self, "/ptplot/parameterchoice")
+
+    def test_index(self):
+        test_view(self, "/ptplot", allow_codes=(301, ))
