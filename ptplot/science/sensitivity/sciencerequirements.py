@@ -58,7 +58,7 @@ def OmSens(f):
     return (2.0*math.pi*math.pi/(3.0*H0*H0))*f*f*f*Sh(f)
 
 
-def main():
+def main(print_points: bool = True):
     """Print StochBkg-style sensitivity data to stdout.
 
     The first column is frequency; second is square root of strain
@@ -70,8 +70,9 @@ def main():
     x = np.logspace(-6,1,2000)
     y = np.sqrt(Sh(x))
     z = OmSens(x)
-    for (mx,my,mz) in zip(x,y,z):
-        print("%g %g %g %g" % (mx, my, mz, 0.0))
+    if print_points:
+        for (mx,my,mz) in zip(x,y,z):
+            print("%g %g %g %g" % (mx, my, mz, 0.0))
 
     # plt.loglog(x, np.sqrt(y))
     # plt.show()

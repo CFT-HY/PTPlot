@@ -12,7 +12,7 @@ import ptplot.science.SNRubarfrstar_onthefly as snr_ubarf
 
 class ScienceTest(TestCase):
     def test_requirements(self):
-        req.main()
+        req.main(print_points=False)
 
     def test_power_spectrum(self):
         PowerSpectrum(vw=0.3, alpha=0.1, BetaoverH=10000)
