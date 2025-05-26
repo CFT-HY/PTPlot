@@ -91,7 +91,7 @@ class ParameterChoiceForm(forms.Form):
             sys.stderr.write(model.model_name + '\n')
 
             self.underlying_model = forms.ChoiceField(label=r'Model',
-                                                       choices=[(model.id,model.model_name) for model in models])
+                                                       choices=[(model.id, model.model_name) for model in self.models])
             
 #            self.precomputed_choices = [(i, r'$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$' % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
             
