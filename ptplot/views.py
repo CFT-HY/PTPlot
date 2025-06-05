@@ -129,7 +129,7 @@ def model(request):
 
     models_list = Model.objects.all()
     
-    template = loader.get_template('ptplot/models.html')
+    template = loader.get_template('models.html')
     
     context = {'models_list': models_list}
     return HttpResponse(template.render(context, request))
@@ -151,7 +151,7 @@ def model_detail(request, model_id):
 #    for i in range(len(point_list)):
 #        point_list[i].update_snrchoice()
     
-    template = loader.get_template('ptplot/model_detail.html')
+    template = loader.get_template('model_detail.html')
 
     MissionProfile_label = available_labels[model.model_MissionProfile]
     
@@ -184,7 +184,7 @@ def model_detail_plot(request, model_id):
 
     MissionProfile_label = available_labels[model.model_MissionProfile]
     
-    template = loader.get_template('ptplot/model_detail_plot.html')
+    template = loader.get_template('model_detail_plot.html')
     
     context = {'model': model,
                'point_list': point_list,
@@ -215,7 +215,7 @@ def model_point_plot(request, model_id, point_id):
 
     MissionProfile_label = available_labels[model.model_MissionProfile]
         
-    template = loader.get_template('ptplot/model_point_plot.html')
+    template = loader.get_template('model_point_plot.html')
     
     context = {'model': model,
                'point_list': point_list,
@@ -450,7 +450,7 @@ def model_scenario_plot(request, model_id, scenario_id):
     
     MissionProfile_label = available_labels[model.model_MissionProfile]
         
-    template = loader.get_template('ptplot/model_scenario_plot.html')
+    template = loader.get_template('model_scenario_plot.html')
     
     context = {'model': model,
                'selected_scenario': selected_scenario,
@@ -646,7 +646,7 @@ def parameterchoice_form(request):
                                                 = model.model_name)
 
     
-    template = loader.get_template('ptplot/parameterchoice.html')
+    template = loader.get_template('parameterchoice.html')
     form = ParameterChoiceForm()
     
     context = {'model': model.model_name,
@@ -713,7 +713,7 @@ def multiple(request):
                                               label_list=label_list_final)
             return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
     # Form not valid or not filled out
-    template = loader.get_template('ptplot/multiple.html')
+    template = loader.get_template('multiple.html')
     form = MultipleForm()
     context = {'form': form}
     return HttpResponse(template.render(context, request))
@@ -744,7 +744,7 @@ def single(request):
             Tstar = form.cleaned_data['Tstar']
             gstar = form.cleaned_data['gstar']
 
-            template = loader.get_template('ptplot/single_result.html')
+            template = loader.get_template('single_result.html')
 
             context = {'form': form,
                        'querystring': querystring,
@@ -757,12 +757,12 @@ def single(request):
             return HttpResponse(template.render(context, request))
 
         # Form not valid
-        template = loader.get_template('ptplot/single.html')
+        template = loader.get_template('single.html')
         context = {'form': form}
         return HttpResponse(template.render(context, request))
 
     # No form yet
-    template = loader.get_template('ptplot/single.html')
+    template = loader.get_template('single.html')
     form = PTPlotForm()
     context = {'form': form}
     return HttpResponse(template.render(context, request))
@@ -774,5 +774,5 @@ def index(request):
     if have_gitver:
         context['git_description'] = git_description
     
-    template = loader.get_template('ptplot/index.html')
+    template = loader.get_template('index.html')
     return HttpResponse(template.render(context, request))
