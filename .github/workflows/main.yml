@@ -30,6 +30,8 @@ jobs:
         pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
     - name: Print Numba sysinfo
       run: numba --sysinfo | tee numba-sysinfo.txt
+    - name: Create migrations
+      run: python manage.py makemigrations
     - name: Migrate database
       run: python manage.py migrate
     - name: Check configuration
