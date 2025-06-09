@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-import sys, datetime
+
+import sys
+
 from lxml import etree
+
 
 if not len(sys.argv) == 3:
     sys.stderr.write('Usage: %s <input> <output>\n')
@@ -21,5 +24,3 @@ for t in to_remove:
 
 with open(outputfile, "wb") as o:
     o.write(etree.tostring(tree, pretty_print=True))
-
-    

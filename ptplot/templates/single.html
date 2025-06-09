@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 
 <h2>PTPlot: Plot a single parameter point</h2>
@@ -26,7 +26,6 @@ point, against a given sensitivity curve and calculate the SNR
 <form action="/ptplot/single" method="get">
   <!--    {% csrf_token %}  -->
 
-    
   <div class="formbox">
     <div class="mainbox">
       <table>

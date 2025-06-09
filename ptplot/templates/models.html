@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 
 <h2>PTPlot: Benchmark points for models</h2>
@@ -7,13 +7,11 @@
   the latest source modelling and sensitivity curves.</p>
 
 {% if models_list %}
-
 <ul>
   {% for model in models_list %}
   <li><a href="models/{{ model.id }}">{{model.model_name}}</a> - {{model.model_description}}</li>
   {% endfor %}
 </ul>
-
 {% endif %}
   
 {% endblock content %}

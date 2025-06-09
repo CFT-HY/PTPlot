@@ -1,8 +1,9 @@
 from django.core import validators
 from django.db import models
 
-NAME_MAX_LENGTH: int = 200
+from ptplot.science import const
 
+NAME_MAX_LENGTH: int = 200
 
 class Model(models.Model):
     model_name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
@@ -16,9 +17,11 @@ class Model(models.Model):
         ],
     )
     model_Tstar = models.FloatField(
+        verbose_name=const.T_STAR_NAME,
         validators=[validators.MinValueValidator(0)]
     )
     model_gstar = models.FloatField(
+        verbose_name=const.G_STAR_NAME,
         validators=[validators.MinValueValidator(0)]
     )
     model_MissionProfile = models.IntegerField(default=0)
@@ -38,6 +41,7 @@ class Scenario(models.Model):
     scenario_number = models.IntegerField()
     scenario_name = models.CharField(max_length=NAME_MAX_LENGTH)
     scenario_Tstar = models.FloatField(
+        verbose_name=const.T_STAR_NAME,
         validators=[validators.MinValueValidator(0)],
         null=True
     )
@@ -58,7 +62,7 @@ class ParameterChoice(models.Model):
     point_shortlabel = models.CharField(max_length=2)
     point_longlabel = models.CharField(max_length=100)
     vw = models.FloatField(
-        verbose_name="wall velocity",
+        verbose_name=const.VW_NAME,
         validators=[
             validators.MinValueValidator(0),
             validators.MaxValueValidator(1)
@@ -66,20 +70,24 @@ class ParameterChoice(models.Model):
         null=True
     )
     alpha = models.FloatField(
+        verbose_name=const.ALPHA_NAME,
         validators=[
             validators.MinValueValidator(0)
         ]
     )
     BetaoverH = models.FloatField(
+        verbose_name=const.BETA_OVER_H_NAME,
         validators=[
             validators.MinValueValidator(0)
         ]
     )
     Tstar = models.FloatField(
+        verbose_name=const.T_STAR_NAME,
         validators=[validators.MinValueValidator(0)],
         null=True
     )
     gstar = models.FloatField(
+        verbose_name=const.G_STAR_NAME,
         validators=[validators.MinValueValidator(0)],
         null=True
     )

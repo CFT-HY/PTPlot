@@ -1,4 +1,4 @@
-{% extends 'model_detail.html' %}
+{% extends "model_detail.html" %}
 {% block results %}
 
 <h3>Results for point
@@ -10,7 +10,6 @@
     [ {{ point.point_longlabel}} ]
   {% endif %}
 </h3>
-
 
 <p>Using the following model specific parameters:
   
@@ -45,7 +44,6 @@
   {{ model.model_gstar }};
   {% endif %}$
 </p>
-
 
 {% if model.model_hugeAlpha %}
 <p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these

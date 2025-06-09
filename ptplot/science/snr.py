@@ -10,24 +10,21 @@ Contains the following functions:
     * StockBkg_ComputeSNR - computes the SNR
 """
 
-import sys, os, re
+import re
+import typing as tp
+
 import numpy as np
-import matplotlib.pyplot as plt
-from numpy import pi
 import scipy.integrate
 
-# One year in seconds, needed to convert mission duration
-yr=365.25*86400.
 
-
-def LoadFile(fNIn, iCol):
-    """Load first column and column iCol of a file
+def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:
+    """Load first column and column col_ind of a file
 
     Parameters
     ----------
-    fNIn : string
+    path : string
         Input file name
-    iCol : int
+    col_ind : int
         Index of the column containing the data (column 0 is the reference)
 
     Returns
@@ -38,28 +35,35 @@ def LoadFile(fNIn, iCol):
         Data read from file
     """
 
-    fIn = open(fNIn,'r')
-    lines = fIn.readlines()
-    fIn.close()
+    with open(path, "r") as fIn:
+        lines = fIn.readlines()
 
     Nd = 0
-    for line in lines :
-        if line[0]!='#' and len(line)>0 :
+    for line in lines:
+        if line[0] != "#" and len(line) > 0:
             Nd += 1
 
     x  = np.zeros(Nd)
     y = np.zeros(Nd)
     iL = 0
-    for line in lines :
-        if line[0]!='#' and len(line)>0 :
-            w = re.split(r"\s+",line)
+    for line in lines:
+        if line[0] != "#" and len(line) > 0:
+            w = re.split(r"\s+", line)
             x[iL] = float(w[0])
-            y[iL] = float(w[iCol])
+            y[iL] = float(w[col_ind])
             iL += 1
-    return x,y
+    return x, y
 
 
-def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
+def StockBkg_ComputeSNR(
+        SensFr: np.ndarray,
+        SensOm: np.ndarray,
+        GWFr: np.ndarray,
+        GWOm: np.ndarray,
+        Tobs: float,
+        # Todo: replace -1 with None
+        fmin: float = -1,
+        fmax: float = -1) -> tp.Tuple[float, tp.Tuple[float, float]]:
     """Compute signal to noise ratio
 
     Compute signal to noise ratio and the used frequency range fmin and fmax for
@@ -94,9 +98,9 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
     """
 
     # If the frequency range has not been given, find it automatically
-    if fmin < 0 :
+    if fmin < 0:
         fmin = max(SensFr[0], GWFr[0])
-    if fmax < 0 :
+    if fmax < 0:
         fmax = min(SensFr[-1], GWFr[-1])
 
     ifmin = np.argmax(SensFr >= fmin)
@@ -104,15 +108,15 @@ def StockBkg_ComputeSNR(SensFr, SensOm, GWFr, GWOm, Tobs, fmin=-1, fmax=-1) :
 
     fr = SensFr[ifmin:ifmax]
     OmEff = SensOm[ifmin:ifmax]
-    
+
     # Make an interpolated data series, interpolate GWOm onto same series as OmEff
     OmGWi = 10.**np.interp(np.log10(fr),np.log10(GWFr),np.log10(GWOm))
-    
+
     # Numerical integration over frequency
     rat = OmGWi**2 / OmEff**2
     Itg = scipy.integrate.trapezoid(rat, fr)
 
     # Calculate snr taking into account the observation time
     snr = np.sqrt(Tobs*Itg)
-    
-    return snr, [fmin,fmax]
+
+    return snr, (fmin, fmax)

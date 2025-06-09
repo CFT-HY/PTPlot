@@ -13,31 +13,38 @@ Contains the following function:
 """
 
 import math
+import os
+import sys
+import typing as tp
 
-# Fix some things if running standalone
-if (__name__ == "__main__" and __package__ is None) or __package__ == '':
-    from snr import *
-    from calculate_powerspectrum import PowerSpectrum
-    from precomputed import available_sensitivitycurves_lite, available_durations, available_labels
-else:
-    from .snr import *
-    from .calculate_powerspectrum import PowerSpectrum
-    from .precomputed import available_sensitivitycurves_lite, available_durations, available_labels
-sensitivity_root = os.path.join(os.path.dirname(__file__), 'sensitivity')
+import numpy as np
+
+if __name__ == "__main__" and __package__ is None:
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from ptplot.science import const, snr
+from ptplot.science.powerspectrum import PowerSpectrum
+from ptplot.science.precomputed import AVAILABLE_SENSITIVITY_CURVES_LITE, AVAILABLE_DURATIONS
+
+SENSITIVITY_ROOT = os.path.join(os.path.dirname(__file__), "sensitivity")
 
 
-def get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax=1):
+def get_SNRcurve(
+        Tn: float,
+        g_star: float,
+        mission_profile: int,
+        ubarf_max: float = 1) -> tp.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculate the SNR curves for the plots
 
     Parameters
     ----------
     Tn : float
         Temperature at nucleation time
-    gstar : float
+    g_star : float
         Degrees of freedom
-    MissionProfile : int
+    mission_profile : int
         Which sensitivity curve to use
-    ubarfmax : float
+    ubarf_max : float
         Maximum of rms fluid velocity (default to 1)
 
     Returns
@@ -53,21 +60,21 @@ def get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax=1):
     """
 
     # Get mission duration in seconds
-    duration = yr*available_durations[MissionProfile]
-    
+    duration = const.YEAR_IN_SECONDS * AVAILABLE_DURATIONS[mission_profile]
+
     # Values of log10(Ubarf) to scan
-    log10Ubarf = np.linspace(-2, math.log10(ubarfmax), 51)
+    log10Ubarf = np.linspace(-2, math.log10(ubarf_max), 51)
 
     # Values of log10(HnRstar) to scan
     log10HnRstar = np.linspace(-4, 0.08, 51)
 
-    sensitivity_curve = os.path.join(sensitivity_root,
-                                     available_sensitivitycurves_lite[
-                                         MissionProfile])
-    fS, OmEff = LoadFile(sensitivity_curve, 2)
+    sensitivity_curve = os.path.join(SENSITIVITY_ROOT,
+                                     AVAILABLE_SENSITIVITY_CURVES_LITE[
+                                         mission_profile])
+    fS, OmEff = snr.load_file(sensitivity_curve, 2)
     
     # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
+    snr_value = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
     tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)  ))
 
     for i in range(len(log10HnRstar)):
@@ -75,20 +82,21 @@ def get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax=1):
             Ubarf = 10.**log10Ubarf[j]
             HnRstar = 10.**log10HnRstar[i]
 
-            ps = PowerSpectrum(Tstar=Tn,
-                               gstar=gstar,
-                               H_rstar=HnRstar,
-                               ubarf_in=Ubarf)
+            ps = PowerSpectrum(
+                T_star=Tn,
+                g_star=g_star,
+                H_rstar=HnRstar,
+                ubarf_in=Ubarf
+            )
 
             OmGW0 = ps.power_spectrum_sw_conservative(fS)
 
             # Get shocktime (H_tsh = HnRstar/Ubarf)
-            tshHn[i,j] = ps.get_shocktime()
+            tshHn[i,j] = ps.get_shock_time()
             
-            snr[i,j], frange = StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
+            snr_value[i,j], frange = snr.StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
 
-    return tshHn, snr, log10HnRstar, log10Ubarf
-
+    return tshHn, snr_value, log10HnRstar, log10Ubarf
 
 # If this is used standalone, check the right amount of arguments are being
 # passed. If not, show the user the expected input.

@@ -4,7 +4,7 @@ Implement LISA sensitivity curve from SciRD.
 Implement the formula for the LISA sensitivity curve from the Science
 Requirements document ESA-L3-EST-SCI-RS-001_LISA_SciRD version 1.0.
 
-Running this module will write 'StochBkg'-style output to stdout.
+Running this module will write "StochBkg"-style output to stdout.
 
 Authors:
   2018-      David Weir
@@ -12,9 +12,10 @@ Authors:
 
 import math
 import numpy as np
+import pttools.type_hints as th
 
 
-def Sh(f):
+def Sh(f: th.FloatOrArr) -> th.FloatOrArr:
     """Compute strain sensitivity for frequency f."""
     
     return (1.0/2.0)*(20.0/3.0)* \
@@ -23,7 +24,7 @@ def Sh(f):
          + SII(f))*R(f)
 
 
-def SI(f):
+def SI(f: th.FloatOrArr) -> th.FloatOrArr:
     """Subsidiary formula S_I for strain sensitivity."""
     
     s = 1
@@ -31,7 +32,7 @@ def SI(f):
     return 5.76e-48*(1.0/(s*s*s*s))*(1.0 + (f1/f)*(f1/f))
 
 
-def SII(f):
+def SII(f: any) -> float:
     """Subsidiary formula S_II for strain sensitivity.
 
     Actually just a constant."""
@@ -39,14 +40,14 @@ def SII(f):
     return 3.6e-41
 
 
-def R(f):
+def R(f: th.FloatOrArr) -> th.FloatOrArr:
     """Subsidiary formula R for strain sensitivity."""
     
     f2 = 25e-3
     return 1.0 + (f/f2)*(f/f2)
 
 
-def OmSens(f):
+def OmSens(f: th.FloatOrArr) -> th.FloatOrArr:
     """Convert strain sensitivity to sensitivity in terms of Omega_GW."""
 
     # Hubble rate - set to 100 km/s/Mpc, thus the
@@ -78,5 +79,5 @@ def main(print_points: bool = True):
     # plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -10,43 +10,44 @@ Contains the following function:
     * get_SNR_alphabeta_image - creates the AlphaBeta plot
 """
 
-import math
-import matplotlib
-import matplotlib.pyplot as plt
-matplotlib.use('Agg')
-import numpy as np
-import os.path
 import io
+import math
+import os.path
+import sys
 import time
+import typing as tp
 
-# Fix some things if running standalone
+import matplotlib
+import matplotlib.figure
+import matplotlib.pyplot as plt
+import numpy as np
+import pttools.type_hints as th
+
 if __name__ == "__main__" and __package__ is None:
-    import matplotlib.figure
-    from espinosa import kappav, ubarf, ubarf_to_alpha
-    from SNR_precompute import get_SNRcurve
-    from calculate_powerspectrum import rstar_to_beta
-    from precomputed import available_labels
-    root = './'
-    from snr import *
-else:
-    from .espinosa import kappav, ubarf, ubarf_to_alpha
-    from .SNR_precompute import get_SNRcurve
-    from .calculate_powerspectrum import rstar_to_beta
-    from django.conf import settings
-    BASE_DIR = getattr(settings, "BASE_DIR", None)
-    root = os.path.join(BASE_DIR, 'ptplot', 'science')
-    from .snr import *
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from ptplot.science import const
+from ptplot.science.espinosa import ubarf_to_alpha
+from ptplot.science.plot_utils import make_minor_ticks
+from ptplot.science.powerspectrum import rstar_to_beta
+from ptplot.science.SNR_precompute import get_SNRcurve
+
+matplotlib.use("Agg")
 
 
-def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
-                            Tstar=180,
-                            gstar=100,
-                            adiabaticRatio=4.0/3.0,
-                            label_list=None,
-                            title_list=None,
-                            MissionProfile=0,
-                            usetex=False,
-                            hugeAlpha=False):
+def get_SNR_alphabeta_image(
+        vw: float,
+        # Todo: fix type hints for alpha_list and BetaoverH_list
+        alpha_list: th.FloatListOrArr = [[const.DEFAULT_ALPHA]],
+        beta_over_H_list: th.FloatListOrArr = [[100]],
+        T_star: float = const.DEFAULT_T_STAR,
+        g_star: float = const.DEFAULT_G_STAR,
+        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        labels: tp.List[str] = None,
+        titles: tp.List[str] = None,
+        mission_profile: int = 0,
+        usetex: bool = False,
+        huge_alpha: bool = False) -> io.BytesIO:
     """Produce the AlphaBeta plot
 
     Parameters
@@ -55,23 +56,23 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
         Wall velocity
     alpha_list : list[float]
         List of phase transition strengths
-    BetaoverH_list : list[float]
+    beta_over_H_list : list[float]
         List of inverse phase transition durations
-    Tstar : float
+    T_star : float
         Transition temperature (default to 180)
-    gstar : float
+    g_star : float
         Degrees of freedom (default to 100)
-    adiabaticRatio : float
+    adiabatic_ratio : float
         Adiabatic index (Gamma) (default to 4.0/3.0)
-    label_list : list[string]
+    labels : list[string]
         List of labels
-    title_list : list[string]
+    titles : list[string]
         List of titles
-    MissionProfile : int
+    mission_profile : int
         Which sensitivity curve to use
     usetex : bool
         Flag for using latex (default to False)
-    hugeAlpha : bool
+    huge_alpha : bool
         Flag for if alpha is very large (default to False)
 
     Returns
@@ -82,166 +83,176 @@ def get_SNR_alphabeta_image(vw, alpha_list=[[0.1]], BetaoverH_list=[[100]],
 
     color_tuple = plt.cm.plasma_r(np.linspace(0.1,1,6))
 
-    # matplotlib.rc('text', usetex=usetex)
-    matplotlib.rc('font', family='serif')
-    matplotlib.rc('mathtext', fontset='dejavuserif')
+    # matplotlib.rc("text", usetex=usetex)
+    matplotlib.rc("font", family="serif")
+    matplotlib.rc("mathtext", fontset="dejavuserif")
 
-    if hugeAlpha:
+    if huge_alpha:
         ubarfmax = 0.866
     else:
         ubarfmax = 0.6
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tstar, gstar, MissionProfile, ubarfmax)
-    log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0,
-                                                     log10HnRstar),
-                                                     vw))
-    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabaticRatio))
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(T_star, g_star, mission_profile, ubarfmax)
+    log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0, log10HnRstar), vw))
+    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabatic_ratio))
 
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])
     levels_tsh_hugeAlpha = np.array([0.0000001,0.000001,0.00001,0.0001])
-    
+
     # Where to put contour label, based on y-coordinate and contour value
     def find_place(snr, wantedy, wantedcontour):
         nearesty = (np.abs(log10BetaOverH-wantedy)).argmin()
         nearestx = (np.abs(snr[nearesty,:]-wantedcontour)).argmin()
 
-        return (log10alpha[nearestx],wantedy)
+        return log10alpha[nearestx], wantedy
 
     # Location of contour labels
     locs = [find_place(snr, 2, wantedcontour) for wantedcontour in levels]
-    locs_tsh = [(int(math.ceil(min(log10alpha))) + 0.2,x) \
-                for x in range(int(math.ceil(min(log10BetaOverH))),
-                               int(math.floor(max(log10BetaOverH))+1))]
+    locs_tsh = [
+        (int(math.ceil(min(log10alpha))) + 0.2,x)
+        for x in range(int(math.ceil(min(log10BetaOverH))), int(math.floor(max(log10BetaOverH))+1))
+    ]
 
     fig = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
-    
-    CS = ax.contour(log10alpha, log10BetaOverH, snr, levels, linewidths=1,
-                    colors=color_tuple,
-                     extent=(log10alpha[0], log10alpha[-1],
-                             log10BetaOverH[0], log10BetaOverH[-1]))
-    CStsh = ax.contour(log10alpha, log10BetaOverH,
-                       tshHn, levels_tsh, linewidths=1,
-                       linestyles='dashed', colors='k',
-                       extent=(log10alpha[0], log10alpha[-1],
-                               log10BetaOverH[0], log10BetaOverH[-1]))
 
-    if hugeAlpha:
-        CStsh_hugeAlpha = ax.contour(log10alpha, log10BetaOverH,
-                           tshHn, levels_tsh_hugeAlpha, linewidths=1,
-                           linestyles='dashed', colors='k',
-                           extent=(log10alpha[0], log10alpha[-1],
-                                   log10BetaOverH[0], log10BetaOverH[-1]))
+    CS = ax.contour(
+        log10alpha, log10BetaOverH, snr, levels, linewidths=1, colors=color_tuple,
+        extent=(log10alpha[0], log10alpha[-1], log10BetaOverH[0], log10BetaOverH[-1])
+    )
+    CStsh = ax.contour(
+        log10alpha, log10BetaOverH, tshHn, levels_tsh,
+        linewidths=1, linestyles="dashed", colors="k",
+        extent=(log10alpha[0], log10alpha[-1], log10BetaOverH[0], log10BetaOverH[-1])
+    )
 
-    CSturb = ax.contourf(log10alpha, log10BetaOverH, tshHn, [0.0001, 1],
-                         colors=('white'), alpha=0.2, hatches='x',
-                         extent=(log10alpha[0], log10alpha[-1],
-                                 log10BetaOverH[0], log10BetaOverH[-1]))
+    if huge_alpha:
+        CStsh_hugeAlpha = ax.contour(
+            log10alpha, log10BetaOverH, tshHn, levels_tsh_hugeAlpha,
+            linewidths=1, linestyles="dashed", colors="k",
+            extent=(log10alpha[0], log10alpha[-1], log10BetaOverH[0], log10BetaOverH[-1])
+        )
+
+    CSturb = ax.contourf(
+        log10alpha, log10BetaOverH, tshHn, [0.0001, 1],
+         colors=("white"), alpha=0.2, hatches="x",
+         extent=(log10alpha[0], log10alpha[-1], log10BetaOverH[0], log10BetaOverH[-1]))
 
     ax.clabel(CS, inline=1, fontsize=8, fmt="%.0f", manual=locs)
     ax.clabel(CStsh, inline=1, fontsize=8, fmt="%g", manual=locs_tsh)
-    # plt.title(r'SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs')
-    # plt.xlabel(r'$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $',fontsize=16)
-    ax.set_ylabel(r'$ \beta/H_* $', fontsize=14)
-    ax.set_xlabel(r'$\alpha$', fontsize=14)
+    # plt.title(r"SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs")
+    # plt.xlabel(r"$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $",fontsize=16)
+    ax.set_ylabel(r"$ \beta/H_* $", fontsize=14)
+    ax.set_xlabel(r"$\alpha$", fontsize=14)
 
     ax.set_xlim(min(log10alpha),max(log10alpha))
     ax.set_ylim(min(log10BetaOverH),max(log10BetaOverH))
 
-    for i, (BetaoverH_set, alpha_set) in enumerate(zip(BetaoverH_list,
-                                                       alpha_list)):
-        BetaOverH_log_set = [math.log10(BetaoverH) \
-                         for BetaoverH in BetaoverH_set]
+    for i, (BetaoverH_set, alpha_set) in enumerate(zip(beta_over_H_list, alpha_list)):
+        BetaOverH_log_set = [math.log10(BetaoverH) for BetaoverH in BetaoverH_set]
 
         alpha_log_set = [math.log10(alpha) for alpha in alpha_set]
-        benchmarks = ax.plot(alpha_log_set, BetaOverH_log_set, '.')
+        benchmarks = ax.plot(alpha_log_set, BetaOverH_log_set, ".")
 
-        if label_list:
-            label_set = label_list[i]
+        if labels:
+            label_set = labels[i]
             for x,y,label in zip(alpha_log_set, BetaOverH_log_set, label_set):
-                ax.annotate(label, xy=(x,y), xycoords='data', xytext=(5,0),
-                        textcoords='offset points')
+                ax.annotate(label, xy=(x,y), xycoords="data", xytext=(5,0), textcoords="offset points")
 
-    if title_list:
-        legends = title_list
-        leg = ax.legend(legends, loc='lower left', framealpha=0.9)
+    if titles:
+        legends = titles
+        leg = ax.legend(legends, loc="lower left", framealpha=0.9)
 
     # Old attempts at getting the ticks in the right place
     # xtickpos = [min(log10alpha)] \
     #     + list(range(int(math.ceil(min(log10alpha))),
     #                  int(math.floor(max(log10alpha))+1))) \
     #     + [max(log10alpha)]
-    # xticklabels = [r'$10^{%.2g}$' % min(log10alpha)] \
-    #     + [r'$10^{%d}$' % ind
+    # xticklabels = [r"$10^{%.2g}$" % min(log10alpha)] \
+    #     + [r"$10^{%d}$" % ind
     #        for ind in list(range(int(math.ceil(min(log10alpha))),
     #                              int(math.floor(max(log10alpha))+1)))] \
-    #     + [r'$10^{%.2g}$' % max(log10alpha)]
+    #     + [r"$10^{%.2g}$" % max(log10alpha)]
 
     # xtickpos = [-2, -1, 0, 1]
-    # xticklabels = [ r'$10^{-2}$', r'$10^{-1}$', r'$10^{0}$', r'$10^{1}$']
+    # xticklabels = [ r"$10^{-2}$", r"$10^{-1}$", r"$10^{0}$", r"$10^{1}$"]
     # ytickpos = [min(log10BetaOverH)] \
     #     + list(range(int(math.ceil(min(log10BetaOverH))),
     #               int(math.floor(max(log10BetaOverH))+1))) \
     #     + [max(log10BetaOverH)]
-    # yticklabels = [r'$10^{%.2g}$' % min(log10BetaOverH)] \
-    #     + [r'$10^{%d}$' % ind
+    # yticklabels = [r"$10^{%.2g}$" % min(log10BetaOverH)] \
+    #     + [r"$10^{%d}$" % ind
     #        for ind in list(range(int(math.ceil(min(log10BetaOverH))),
     #                              int(math.floor(max(log10BetaOverH))+1)))] \
-    #     + [r'$10^{%.2g}$' % max(log10BetaOverH)]
+    #     + [r"$10^{%.2g}$" % max(log10BetaOverH)]
 
     # ytickpos = [0, 1, 2, 3, 4]
-    # yticklabels = [r'$10^{0}$', r'$10^{1}$', r'$10^{2}$', r'$10^{3}$', r'$10^{4}$']
+    # yticklabels = [r"$10^{0}$", r"$10^{1}$", r"$10^{2}$", r"$10^{3}$", r"$10^{4}$"]
 
     # # Remove if too close together
     # if xtickpos[1]/xtickpos[0] < 3:
     #     xtickpos = xtickpos[1:]
     #     xticklabels = xticklabels[1:]
 
-    xtickpos = list(range(int(math.ceil(min(log10alpha))),
-                     int(math.floor(max(log10alpha))+1)))
-    xticklabels = [r'$10^{%d}$' % ind
-           for ind in list(range(int(math.ceil(min(log10alpha))),
-                                 int(math.floor(max(log10alpha))+1)))]
-
-    ytickpos = list(range(int(math.ceil(min(log10BetaOverH))),
-                     int(math.floor(max(log10BetaOverH))+1)))
-    yticklabels = [r'$10^{%d}$' % ind
-                   for ind in list(
-                           range(int(math.ceil(min(log10BetaOverH))),
-                                 int(math.floor(max(log10BetaOverH))+1)))]    
-
-    # Find location for minor ticks
-    def make_minorticks(min, max):
-        minorticks = np.array([])
-        for i in range(min,max):
-            minorticks = np.append(minorticks, np.linspace(10**i, 10**(i+1), 9, endpoint=False))
-        return np.log10(minorticks)
+    xtickpos = list(range(
+        int(math.ceil(min(log10alpha))),
+        int(math.floor(max(log10alpha))+1)
+    ))
+    xticklabels = [
+        r"$10^{%d}$" % ind
+        for ind in list(range(
+            int(math.ceil(min(log10alpha))),
+            int(math.floor(max(log10alpha))+1)
+        ))
+    ]
+    ytickpos = list(range(
+        int(math.ceil(min(log10BetaOverH))),
+        int(math.floor(max(log10BetaOverH))+1)
+    ))
+    yticklabels = [
+        r"$10^{%d}$" % ind
+        for ind in list(range(
+            int(math.ceil(min(log10BetaOverH))),
+            int(math.floor(max(log10BetaOverH))+1)
+        ))
+    ]
 
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
-    ax.set_xticks(ticks=make_minorticks(int(math.ceil(min(log10alpha))),
-                                        int(math.floor(max(log10alpha)))), minor=True)
+    ax.set_xticks(
+        ticks=make_minor_ticks(
+            int(math.ceil(min(log10alpha))),
+            int(math.floor(max(log10alpha)))
+        ),
+        minor=True
+    )
     ax.set_yticks(ytickpos)
     ax.set_yticklabels(yticklabels)
-    ax.set_yticks(ticks=make_minorticks(int(math.ceil(min(log10BetaOverH))),
-                                        int(math.floor(max(log10BetaOverH)))), minor=True)
+    ax.set_yticks(
+        ticks=make_minor_ticks(
+            int(math.ceil(min(log10BetaOverH))),
+            int(math.floor(max(log10BetaOverH)))
+        ),
+        minor=True
+    )
 
     # July 2023: No longer watermark with LISACosWG
     # # position bottom right
-    # fig.text(0.95, 0.05, 'LISACosWG',
-    #          fontsize=50, color='gray',
-    #          ha='right', va='bottom', alpha=0.4)
+    # fig.text(0.95, 0.05, "LISACosWG",
+    #          fontsize=50, color="gray",
+    #          ha="right", va="bottom", alpha=0.4)
 
     # position top left
-    fig.text(0.13, 0.87, time.asctime(),
-             fontsize=8, color='black',
-             ha='left', va='top', alpha=1.0)
+    fig.text(
+        0.13, 0.87, time.asctime(),
+        fontsize=8, color="black",
+        ha="left", va="top", alpha=1.0
+    )
 
     sio = io.BytesIO()
     fig.savefig(sio, format="svg")
     sio.seek(0)
-        
     return sio
 
 

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 
 {% if point_list %}
@@ -67,7 +67,6 @@
 <ul>
   {% for point in point_list %}
   <li>
-
     {% if point.point_shortlabel %}
     ({{point.point_shortlabel}}):
     {% endif %}
@@ -106,4 +105,3 @@
 {% endblock results %}
 
 {% endblock content %}
-

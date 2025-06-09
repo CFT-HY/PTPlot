@@ -7,7 +7,7 @@ from django.test import TestCase
 from ptplot.forms import PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
 
-ALLOW_CODES = (200, 302)
+ALLOW_CODES: tp.Iterable[int] = (200, 302)
 ALLOW_CODES_TYPE = tp.Union[tp.List[int], tp.Tuple[int, ...]]
 
 def check_status_code(response: HttpResponse, allow_codes: ALLOW_CODES_TYPE = None) -> int:

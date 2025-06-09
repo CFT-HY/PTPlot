@@ -14,8 +14,10 @@ import math
 import scipy.optimize
 import numpy as np
 
+from ptplot.science import const
 
-def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
+
+def ubarf(vw, alpha, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
     """Calculates the rms fluid velocity
 
     Parameters
@@ -32,7 +34,6 @@ def ubarf(vw, alpha, adiabaticRatio = 4.0/3.0):
     ubarf : float
         Measure of the rms fluid velocity
     """
-
     return math.sqrt((1.0/adiabaticRatio)*kappav(vw,alpha)*alpha/(1.0 + alpha))
 
 
@@ -64,7 +65,7 @@ def kappav(vw, alpha):
     kappaC = math.sqrt(alpha)/(0.135 + math.sqrt(0.98 + alpha))
     kappaD = alpha/(0.73 + 0.083*math.sqrt(alpha) + alpha)
 
-    cs = math.pow(1.0/3.0,0.5)
+    cs = const.CS0
 
     xiJ = (math.sqrt((2.0/3.0)*alpha + alpha*alpha) + math.sqrt(1.0/3.0))/(1+alpha)
 
@@ -85,7 +86,7 @@ def kappav(vw, alpha):
                 + (math.pow(vw-cs,3.0)/math.pow(xiJ-cs,3.0))*(kappaC-kappaB-(xiJ-cs)*deltaK)
 
 
-def ubarf_to_alpha(vw, this_ubarf, adiabaticRatio = 4.0/3.0):
+def ubarf_to_alpha(vw, this_ubarf, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
     """Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate
@@ -109,17 +110,15 @@ def ubarf_to_alpha(vw, this_ubarf, adiabaticRatio = 4.0/3.0):
     alpha_list : np.ndarray
         List of phase transition strengths
     """
-
-    def ubarf_to_alpha_inner(vw, this_ubarf, adiabaticRatio):
-
+    def ubarf_to_alpha_inner(vw, this_ubarf, adiabaticRatio: float):
         def alphatrue(alpha):
             return ubarf(vw, alpha, adiabaticRatio) - this_ubarf
 
-#        try:
+        # try:
         return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-6)
-#        except ValueError:
-#            import sys
-#            sys.stderr.write('vw=%g, this_ubarf=%g\n' % (vw, this_ubarf))
+        # except ValueError:
+        #     import sys
+        #     sys.stderr.write("vw=%g, this_ubarf=%g\n" % (vw, this_ubarf))
 
     vfunc = np.vectorize(ubarf_to_alpha_inner)
     return vfunc(vw, this_ubarf, adiabaticRatio)
