@@ -49,7 +49,6 @@ mkdir -p $DEST
 # $DEST/${label}_snr_ubarf_cleaned.svg (same with watermark removed)
 # $DEST/${label}_snr_ubarf_cleaned.pdf (same but as PDF)
 handleplot () {
-    
     num=$1
     label=$2
 
@@ -64,7 +63,6 @@ handleplot () {
     $PYTHON $CLEANER $DEST/${label}_snr_ubarf.svg $DEST/${label}_snr_ubarf_cleaned.svg
     # Again, inkscape needs an absolute path.
     inkscape $(pwd)/$DEST/${label}_snr_ubarf_cleaned.svg --export-filename=$(pwd)/$DEST/${label}_snr_ubarf.pdf
-
 
     # [Don't] clean up
     # rm $DEST/${label}_snr.svg $DEST/${label}_snr_cleaned.svg
@@ -102,7 +100,6 @@ handleplot 10 singlet
 # $DEST/single_${type}_cleaned.svg (same but with watermark removed)
 # $DEST/single_${type}.pdf (same but as PDF)
 handlesingle () {
-    
     vw=0.9
     alpha=0.1
     BetaoverH=50
@@ -121,7 +118,7 @@ handlesingle () {
     # As in handleplot(), inkscape needs an absolute directory path
     # for some reason
     inkscape $(pwd)/$DEST/single_${type}_cleaned.svg --export-filename=$(pwd)/$DEST/single_${type}.pdf
-    
+
     echo "done"
 }
 

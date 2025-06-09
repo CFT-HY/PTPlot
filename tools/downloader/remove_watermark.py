@@ -5,8 +5,8 @@ import sys
 from lxml import etree
 
 
-if not len(sys.argv) == 3:
-    sys.stderr.write('Usage: %s <input> <output>\n')
+if len(sys.argv) != 3:
+    print("Usage: %s <input> <output>", file=sys.stderr)
     sys.exit(1)
 
 inputfile = sys.argv[1]
@@ -15,8 +15,9 @@ outputfile = sys.argv[2]
 tree = etree.parse(open(inputfile))
 
 # matches annotations: watermark and timestamp
-to_remove = tree.xpath("/svg:svg/svg:g/svg:g[re:match(@id, \"text_*\")]",
-                       namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"})
+to_remove = tree.xpath(
+    "/svg:svg/svg:g/svg:g[re:match(@id, \"text_*\")]",
+    namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"})
 
 for t in to_remove:
     g = t.getparent()

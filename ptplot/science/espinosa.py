@@ -17,7 +17,7 @@ import numpy as np
 from ptplot.science import const
 
 
-def ubarf(vw, alpha, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
+def ubarf(vw: float, alpha: float, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
     """Calculates the rms fluid velocity
 
     Parameters
@@ -34,10 +34,10 @@ def ubarf(vw, alpha, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
     ubarf : float
         Measure of the rms fluid velocity
     """
-    return math.sqrt((1.0/adiabaticRatio)*kappav(vw,alpha)*alpha/(1.0 + alpha))
+    return math.sqrt((1.0/adiabaticRatio) * kappav(vw,alpha) * alpha/(1.0 + alpha))
 
 
-def kappav(vw, alpha):
+def kappav(vw: float, alpha: float) -> float:
     """Calculates the fluid efficiency
 
     The fluid efficiency gives the fraction of vacuum energy that is
@@ -58,35 +58,31 @@ def kappav(vw, alpha):
 
     # Approximations for the different kappas can be found in Appendix A
     # of arXiv:1004.4187
-    kappaA = math.pow(vw,6.0/5.0)*6.9*alpha/ \
-             (1.36 - 0.037*math.sqrt(alpha) + alpha)
-    kappaB = math.pow(alpha,2.0/5.0)/ \
-             (0.017 + math.pow(0.997 + alpha,2.0/5.0))
-    kappaC = math.sqrt(alpha)/(0.135 + math.sqrt(0.98 + alpha))
-    kappaD = alpha/(0.73 + 0.083*math.sqrt(alpha) + alpha)
+    kappaA = math.pow(vw, 6.0/5.0) * 6.9 * alpha / (1.36 - 0.037 * math.sqrt(alpha) + alpha)
+    kappaB = math.pow(alpha, 2.0/5.0) / (0.017 + math.pow(0.997 + alpha, 2.0/5.0))
+    kappaC = math.sqrt(alpha) / (0.135 + math.sqrt(0.98 + alpha))
+    kappaD = alpha / (0.73 + 0.083 * math.sqrt(alpha) + alpha)
 
     cs = const.CS0
-
-    xiJ = (math.sqrt((2.0/3.0)*alpha + alpha*alpha) + math.sqrt(1.0/3.0))/(1+alpha)
-
-    deltaK = -0.9*math.log((math.sqrt(alpha)/(1 + math.sqrt(alpha))))
+    xiJ = (math.sqrt((2.0/3.0) * alpha + alpha * alpha) + math.sqrt(1.0/3.0)) / (1+alpha)
+    deltaK = -0.9 * math.log((math.sqrt(alpha)/(1 + math.sqrt(alpha))))
 
     if vw < cs:
-        return math.pow(cs,11.0/5.0)*kappaA*kappaB/ \
-                ((math.pow(cs,11.0/5.0)
-                 - math.pow(vw,11.0/5.0))*kappaB
-                 + vw*math.pow(cs,6.0/5.0)*kappaA)
+        return math.pow(cs, 11.0/5.0)*kappaA*kappaB/ \
+                ((math.pow(cs, 11.0/5.0)
+                 - math.pow(vw, 11.0/5.0))*kappaB
+                 + vw*math.pow(cs, 6.0/5.0)*kappaA)
     elif vw > xiJ:
-        return math.pow(xiJ - 1, 3.0)*math.pow(xiJ,5.0/2.0)* \
-                math.pow(vw,-5.0/2.0)*kappaC*kappaD/ \
-                ((math.pow(xiJ-1,3.0) - math.pow(vw -1,3.0))* \
-                 math.pow(xiJ,5.0/2.0)*kappaC + math.pow(vw - 1,3.0)*kappaD)
+        return math.pow(xiJ - 1, 3.0) * math.pow(xiJ,5.0/2.0) * \
+                math.pow(vw, -5.0/2.0)*kappaC*kappaD/ \
+                ((math.pow(xiJ-1, 3.0) - math.pow(vw -1,3.0)) *
+                 math.pow(xiJ, 5.0/2.0)*kappaC + math.pow(vw - 1,3.0)*kappaD)
     else:
-        return kappaB + (vw - cs)*deltaK \
-                + (math.pow(vw-cs,3.0)/math.pow(xiJ-cs,3.0))*(kappaC-kappaB-(xiJ-cs)*deltaK)
+        return kappaB + (vw - cs) * deltaK \
+                + (math.pow(vw-cs, 3.0)/math.pow(xiJ-cs,3.0)) * (kappaC-kappaB-(xiJ-cs) * deltaK)
 
 
-def ubarf_to_alpha(vw, this_ubarf, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
+def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
     """Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate

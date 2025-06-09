@@ -20,7 +20,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("", RedirectView.as_view(url='/ptplot', permanent=True)),
+    path("", RedirectView.as_view(url='/ptplot', permanent=True), name="index_redirect"),
     path("admin/", admin.site.urls),
     path("ptplot/", include("ptplot.urls")),
 ]

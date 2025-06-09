@@ -61,9 +61,8 @@ def StockBkg_ComputeSNR(
         GWFr: np.ndarray,
         GWOm: np.ndarray,
         Tobs: float,
-        # Todo: replace -1 with None
-        fmin: float = -1,
-        fmax: float = -1) -> tp.Tuple[float, tp.Tuple[float, float]]:
+        fmin: float = None,
+        fmax: float = None) -> tp.Tuple[float, tp.Tuple[float, float]]:
     """Compute signal to noise ratio
 
     Compute signal to noise ratio and the used frequency range fmin and fmax for
@@ -98,9 +97,9 @@ def StockBkg_ComputeSNR(
     """
 
     # If the frequency range has not been given, find it automatically
-    if fmin < 0:
+    if fmin is None:
         fmin = max(SensFr[0], GWFr[0])
-    if fmax < 0:
+    if fmax is None:
         fmax = min(SensFr[-1], GWFr[-1])
 
     ifmin = np.argmax(SensFr >= fmin)

@@ -3,7 +3,6 @@ import os
 
 from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
-from django.template import loader
 import dulwich.porcelain
 from dulwich.repo import Repo
 from matplotlib.figure import Figure
@@ -105,9 +104,9 @@ def snr_image(request: HttpRequest) -> HttpResponse:
 
     vw = form.cleaned_data["vw"]
     alpha = form.cleaned_data["alpha"]
-    BetaoverH = form.cleaned_data["BetaoverH"]
+    beta_over_H = form.cleaned_data["BetaoverH"]
 
-    MissionProfile = int(form.cleaned_data["MissionProfile"])
+    mission_profile = int(form.cleaned_data["MissionProfile"])
     # SNRfilename = precomputed_filenames[MissionProfile]
 
     Tstar = form.cleaned_data["Tstar"]
@@ -117,8 +116,8 @@ def snr_image(request: HttpRequest) -> HttpResponse:
         g_star=gstar,
         vw_list=[[vw]],
         alpha_list=[[alpha]],
-        beta_over_H_list=[[BetaoverH]],
-        mission_profile=MissionProfile
+        beta_over_H_list=[[beta_over_H]],
+        mission_profile=mission_profile
     )
     return fig_to_response(fig)
 
@@ -133,21 +132,21 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
 
     vw = form.cleaned_data["vw"]
     alpha = form.cleaned_data["alpha"]
-    BetaoverH = form.cleaned_data["BetaoverH"]
+    beta_over_H = form.cleaned_data["BetaoverH"]
 
-    MissionProfile = int(form.cleaned_data["MissionProfile"])
+    mission_profile = int(form.cleaned_data["MissionProfile"])
     # SNRfilename = precomputed_filenames[MissionProfile]
 
-    Tstar = form.cleaned_data["Tstar"]
-    gstar = form.cleaned_data["gstar"]
+    T_star = form.cleaned_data["Tstar"]
+    g_star = form.cleaned_data["gstar"]
 
     fig = get_SNR_alphabeta_image(
         vw=vw,
         alpha_list=[[alpha]],
-        beta_over_H_list=[[BetaoverH]],
-        T_star=Tstar,
-        g_star=gstar,
-        mission_profile=MissionProfile
+        beta_over_H_list=[[beta_over_H]],
+        T_star=T_star,
+        g_star=g_star,
+        mission_profile=mission_profile
     )
     return fig_to_response(fig)
 
@@ -159,24 +158,17 @@ def model(request: HttpRequest) -> HttpResponse:
 
 def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
     model = get_object_or_404(Model, pk=model_id)
-
-    if model.model_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
-    else:
-        scenario_list = None
-        
     point_list = ParameterChoice.objects.filter(model__id=model_id)
+    scenario_list = Scenario.objects.filter(scenario_model__id=model_id) if model.model_hasScenarios else None
 
    # for i in range(len(point_list)):
    #     point_list[i].update_snrchoice()
 
-    MissionProfile_label = AVAILABLE_LABELS[model.model_MissionProfile]
-    
     context = {
         "model": model,
         "point_list": point_list,
         "scenario_list": scenario_list,
-        "MissionProfile_label": MissionProfile_label
+        "MissionProfile_label": AVAILABLE_LABELS[model.model_MissionProfile]
     }
     return render(request, "model_detail.html", context)
 
@@ -184,48 +176,33 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
 def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
     model = get_object_or_404(Model, pk=model_id)
     point_list = ParameterChoice.objects.filter(model__id=model_id)
+    scenario_list = Scenario.objects.filter(scenario_model__id=model_id) if model.model_hasScenarios else None
 
-    if model.model_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
-    else:
-        scenario_list = None
-    
    # for i in range(len(point_list)):
    #     point_list[i].update_snrchoice()
-
-    mission_profile_label = AVAILABLE_LABELS[model.model_MissionProfile]
 
     context = {
         "model": model,
         "point_list": point_list,
         "scenario_list": scenario_list,
-        "MissionProfile_label": mission_profile_label
+        "MissionProfile_label": AVAILABLE_LABELS[model.model_MissionProfile]
     }
     return render(request, "model_detail_plot.html", context)
 
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int):
     model = get_object_or_404(Model, pk=model_id)
-
-    if model.model_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
-    else:
-        scenario_list = None
-
+    point = get_object_or_404(ParameterChoice, model__id=model_id, id=point_id)
     point_list = ParameterChoice.objects.filter(model__id=model_id)
+    scenario_list = Scenario.objects.filter(scenario_model__id=model_id) if model.model_hasScenarios else None
 
-    try:
-        point = ParameterChoice.objects.get(model__id=model_id,
-                                            number=point_id)
-    except ParameterChoice.DoesNotExist:
-        raise Http404("Parameter choice pont id=%d for model id=%d does not exist" % (point_id,model_id))
-
-    MissionProfile_label = AVAILABLE_LABELS[model.model_MissionProfile]
-    context = {"model": model,
-               "point_list": point_list,
-               "scenario_list": scenario_list,
-               "point": point,
-               "MissionProfile_label": MissionProfile_label}
+    context = {
+        "model": model,
+        "point": point,
+        "point_list": point_list,
+        "scenario_list": scenario_list,
+        "MissionProfile_label": AVAILABLE_LABELS[model.model_MissionProfile]
+    }
     return render(request, "model_point_plot.html", context)
 
 
@@ -233,28 +210,14 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     model = get_object_or_404(Model, pk=model_id)
     point = get_object_or_404(ParameterChoice, model__id=model_id, number=point_id)
 
-    MissionProfile = model.model_MissionProfile
-
+    mission_profile = model.model_MissionProfile
     alpha = point.alpha
     beta_over_H = point.BetaoverH
-
-    if point.vw:
-        vw = point.vw
-    else:
-        vw = model.model_vw
-    
-    if point.Tstar:
-        T_star = point.Tstar
-    else:
-        T_star = model.model_Tstar
-
-    if point.gstar:
-        g_star = point.gstar
-    else:
-        g_star = model.model_gstar
+    vw = point.vw if point.vw else model.model_vw
+    T_star = point.Tstar if point.Tstar else model.model_Tstar
+    g_star = point.gstar if point.gstar else model.model_gstar
 
     label = point.point_shortlabel
-
     huge_alpha = model.model_hugeAlpha
     
     fig = get_SNR_image(
@@ -264,9 +227,9 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         alpha_list=[[alpha]],
         beta_over_H_list=[[beta_over_H]],
         label_list=[[label]],
-        mission_profile=MissionProfile,
-        huge_alpha=huge_alpha)
-    
+        mission_profile=mission_profile,
+        huge_alpha=huge_alpha
+    )
     return fig_to_response(fig)
 
 
@@ -274,28 +237,14 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
     model = get_object_or_404(Model, pk=model_id)
     point = get_object_or_404(ParameterChoice, model__id=model_id, number=point_id)
 
-    MissionProfile = model.model_MissionProfile
-
+    mission_profile = model.model_MissionProfile
     alpha = point.alpha
-    BetaoverH = point.BetaoverH
-
-    if point.vw:
-        vw = point.vw
-    else:
-        vw = model.model_vw
-    
-    if point.Tstar:
-        T_star = point.Tstar
-    else:
-        T_star = model.model_Tstar
-
-    if point.gstar:
-        g_star = point.gstar
-    else:
-        g_star = model.model_gstar
+    beta_over_H = point.BetaoverH
+    vw = point.vw if point.vw else model.model_vw
+    T_star = point.Tstar if point.Tstar else model.model_Tstar
+    g_star = point.gstar if point.gstar else model.model_gstar
 
     label = point.point_shortlabel
-
     huge_alpha = model.model_hugeAlpha
         
     fig = get_SNR_alphabeta_image(
@@ -303,9 +252,9 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
         g_star=g_star,
         vw=vw,
         alpha_list=[[alpha]],
-        beta_over_H_list=[[BetaoverH]],
+        beta_over_H_list=[[beta_over_H]],
         labels=[[label]],
-        mission_profile=MissionProfile,
+        mission_profile=mission_profile,
         huge_alpha=huge_alpha
     )
     return fig_to_response(fig)
@@ -357,21 +306,13 @@ def model_point_ps(request, model_id, point_id):
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
     model = get_object_or_404(Model, pk=model_id)
-
-    if model.model_hasScenarios:
-        scenario_list = Scenario.objects.filter(scenario_model__id=model_id)
-    else:
-        scenario_list = None
-
-    try:
-        selected_scenario = Scenario.objects.get(scenario_model__id=model_id, scenario_number=scenario_id)
-        point_list = ParameterChoice.objects.filter(model__id=model_id, scenario__scenario_number=scenario_id)
-    except Scenario.DoesNotExist:
-        raise Http404(f"Scenario id={scenario_id} does not exist for model id={model_id}")
+    scenario = get_object_or_404(Scenario, scenario_model__id=model_id, scenario_number=scenario_id)
+    scenario_list = Scenario.objects.filter(scenario_model__id=model_id) if model.model_hasScenarios else None
+    point_list = ParameterChoice.objects.filter(model__id=model_id, scenario__scenario_number=scenario_id)
 
     mission_profile_label = AVAILABLE_LABELS[model.model_MissionProfile]
     context = {"model": model,
-               "selected_scenario": selected_scenario,
+               "selected_scenario": scenario,
                "scenario_list": scenario_list,
                "point_list": point_list,
                "MissionProfile_label": mission_profile_label}
@@ -467,8 +408,8 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
         label_list=label_list,
         title_list=title_list,
         mission_profile=model.model_MissionProfile,
-        huge_alpha=model.model_hugeAlpha)
-                                     
+        huge_alpha=model.model_hugeAlpha
+    )
     return fig_to_response(fig)
 
 
@@ -506,7 +447,8 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         labels=label_list,
         titles=title_list,
         mission_profile=model.model_MissionProfile,
-        huge_alpha=model.model_hugeAlpha)
+        huge_alpha=model.model_hugeAlpha
+    )
     return fig_to_response(fig)
 
 
