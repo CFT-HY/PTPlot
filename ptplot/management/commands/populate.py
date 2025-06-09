@@ -889,7 +889,7 @@ $$
 \Delta V = b_1 S +  \frac{1}{2} b_2 S^2 + \frac{1}{2} a_1 S \left| H \right|^2 + \frac{1}{2} a_2 S^2 \left| H \right|^2 + \frac{1}{3} b_3 S^3 + \frac{1}{4} b_4 S^4.
 $$
 
-In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle between $S$ and $H$ is denoted as $\theta$. Masses considered are $m_2 = 170,\, 240\, \mathrm{GeV}$. We show results for points with $m_2= 170,\, 240\, \mathrm{GeV}$ and $\sin \theta = 0.1$, which are likely to be probed by direct searches at the high-luminosity LHC with $3\, \mathrm{ab}^{-1}$, and $\sin\theta = 0.01$, which will likely remain undetected at colliders. The various parameters in the potential are scanned over as described in the text. See also JHEP 1708 (2017) 096 [http://arxiv.org/abs/arXiv:1704.05844] for more details. 
+In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle between $S$ and $H$ is denoted as $\theta$. Masses considered are $m_2 = 170,\, 240\, \mathrm{GeV}$. We show results for points with $m_2= 170,\, 240\, \mathrm{GeV}$ and $\sin \theta = 0.1$, which are likely to be probed by direct searches at the high-luminosity LHC with $3\, \mathrm{ab}^{-1}$, and $\sin\theta = 0.01$, which will likely remain undetected at colliders. The various parameters in the potential are scanned over as described in the text. See also JHEP 1708 (2017) 096 [https://arxiv.org/abs/arXiv:1704.05844] for more details.
 """,
             model_Tstar=50,
             model_gstar=107.75,
