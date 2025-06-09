@@ -24,6 +24,7 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const, snr
+from ptplot.science.parsing import PTPlotParser
 from ptplot.science.powerspectrum import PowerSpectrum
 # from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
 # from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM
@@ -226,24 +227,22 @@ def get_PS_image(
     sio = io.BytesIO()
     fig.savefig(sio, format="svg")
     sio.seek(0)
-
     return sio
 
 
-# If this is used standalone, check the right amount of arguments are being
-# passed. If not, show the user the expected input.
-if __name__ == '__main__':
-    if len(sys.argv) == 6:
-        vw = float(sys.argv[1])
-        alpha = float(sys.argv[2])
-        BetaoverH = float(sys.argv[3])
-        Tstar = float(sys.argv[4])
-        gstar = float(sys.argv[5])
-        sys.stderr.write('vw=%g, alpha=%g, BetaoverH=%g, Tstar=%g, gstar=%g\n'
-                         % (vw, alpha, BetaoverH, Tstar, gstar))
-        b = get_PS_image(vw, alpha, BetaoverH, Tstar, gstar)
-        print(b.read().decode("utf-8"))
-    else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <Tstar> <gstar>\n'
-                         % sys.argv[0])
-        sys.stderr.write('Writes a scalable vector graphic to stdout.\n')
+def main():
+    parser = PTPlotParser(
+        description="Writes a scalable vector graphic to stdout.",
+        methods=True
+    )
+    args = parser.parse_args()
+    b = get_PS_image(
+        vw=args.vw, alpha=args.alpha, beta_over_H=args.BetaoverH,
+        T_star=args.Tstar, g_star=args.gstar,
+        ssm=args.ssm, dbpl=args.dbpl
+    )
+    print(b.read().decode("utf-8"))
+
+
+if __name__ == "__main__":
+    main()

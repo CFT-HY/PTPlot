@@ -28,6 +28,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const
 from ptplot.science.espinosa import ubarf_to_alpha
+from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import make_minor_ticks
 from ptplot.science.powerspectrum import rstar_to_beta
 from ptplot.science.SNR_precompute import get_SNRcurve
@@ -256,22 +257,17 @@ def get_SNR_alphabeta_image(
     return sio
 
 
-# If this is used standalone, check the right amount of arguments are being
-# passed. If not, show the user the expected input.
-if __name__ == '__main__':
-    if len(sys.argv) == 7:
-        vw = float(sys.argv[1])
-        alpha = float(sys.argv[2])
-        betaoverh = float(sys.argv[3])
-        T = float(sys.argv[4])
-        g = float(sys.argv[5])
-        MissionProfile = int(sys.argv[6])
-        b = get_SNR_alphabeta_image(vw, [[alpha]], [[betaoverh]], T, g, MissionProfile=MissionProfile)
-        print(b.read().decode("utf-8"))
-    else:
-        sys.stderr.write('Usage: %s <vw> <alpha> <Beta/H> <T*> <g*> <MissionProfile>\n'
-                         % sys.argv[0])
-        sys.stderr.write('Writes a scalable vector graphic to stdout.\n\n')
-        sys.stderr.write('Available sensitivity curves:\n')
-        for number,label in enumerate(available_labels):
-            sys.stderr.write('%d: %s\n' % (number, label))
+def main():
+    parser = PTPlotParser(
+        description="Writes a scalable vector graphic to stdout.",
+        mission_profile=True
+    )
+    args = parser.parse_args()
+    b = get_SNR_alphabeta_image(
+        args.vw, [args.alpha], [args.BetaoverH],
+        T_star=args.Tstar, g_star=args.gstar, mission_profile=args.mission_profile)
+    print(b.read().decode("utf-8"))
+
+
+if __name__ == "__main__":
+    main()

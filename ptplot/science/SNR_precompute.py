@@ -23,6 +23,7 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const, snr
+from ptplot.science.parsing import PTPlotParser
 from ptplot.science.powerspectrum import PowerSpectrum
 from ptplot.science.precomputed import AVAILABLE_SENSITIVITY_CURVES_LITE, AVAILABLE_DURATIONS
 
@@ -98,41 +99,32 @@ def get_SNRcurve(
 
     return tshHn, snr_value, log10HnRstar, log10Ubarf
 
-# If this is used standalone, check the right amount of arguments are being
-# passed. If not, show the user the expected input.
-if __name__ == '__main__':
-    if len(sys.argv) == 4:
-        Tn = float(sys.argv[1])
-        gstar = float(sys.argv[2])
-        MissionProfile = int(sys.argv[3])
-        ubarfmax = 1.0
 
-        tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(Tn, gstar, MissionProfile, ubarfmax)
+def main():
+    parser = PTPlotParser(
+        description="Computes signal-to-noise contour to a file.",
+        vw_alpha_betaoverh=False,
+        mission_profile=True
+    )
+    args = parser.parse_args()
 
-        # Use the mission profile to load the sensitivity curve name
-        sensitivity_curve = os.path.join(sensitivity_root,
-                                         available_sensitivitycurves_lite[
-                                             MissionProfile])
-        dest_head = os.path.splitext(sensitivity_curve)[0]
-        destination = f'{dest_head}_Tn_{Tn}_gstar_{gstar}_precomputed.npz'
+    # Todo: ensure that Tn = Tstar
+    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(args.Tstar, args.gstar, args.mission_profile, ubarf_max=1)
 
-        np.savez(destination,
-                 tshHn=tshHn,
-                 snr=snr,
-                 log10HnRstar=log10HnRstar,
-                 log10Ubarf=log10Ubarf)
+    # Use the mission profile to load the sensitivity curve name
+    sensitivity_curve = os.path.join(SENSITIVITY_ROOT, AVAILABLE_SENSITIVITY_CURVES_LITE[args.mission_profile])
+    dest_head = os.path.splitext(sensitivity_curve)[0]
+    destination = f"{dest_head}_Tn_{args.Tstar}_gstar_{args.gstar}_precomputed.npz"
 
-        sys.stderr.write('Wrote SNR contour to %s\n'
-                         % destination)
+    np.savez(
+        destination,
+        tshHn=tshHn,
+        snr=snr,
+        log10HnRstar=log10HnRstar,
+        log10Ubarf=log10Ubarf
+    )
+    print("Wrote SNR contour to %s", destination)
 
-    else:
-        sys.stderr.write("Usage: %s <Tn> <gstar> <MissionProfile>\n"
-                         "\n"
-                         "Where: <Tn> is the nucleation temperature\n"
-                         "       <gstar> is the number of relativistic dofs\n"
-                         "       <MissionProfile> specifies which sensitivity curve to use:\n"
-                         % sys.argv[0])
-        for i in range(len(available_labels)):
-            sys.stderr.write("        %s for %s \n" %(i,available_labels[i]) )
 
-        sys.exit(1)
+if __name__ == "__main__":
+    main()
