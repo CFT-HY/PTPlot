@@ -10,7 +10,6 @@ Contains the following function:
     * get_SNR_alphabeta_image - creates the AlphaBeta plot
 """
 
-import io
 import math
 import os.path
 import sys
@@ -18,7 +17,7 @@ import time
 import typing as tp
 
 import matplotlib
-import matplotlib.figure
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pttools.type_hints as th
@@ -29,7 +28,7 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science import const
 from ptplot.science.espinosa import ubarf_to_alpha
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot_utils import make_minor_ticks
+from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.powerspectrum import rstar_to_beta
 from ptplot.science.SNR_precompute import get_SNRcurve
 
@@ -48,7 +47,7 @@ def get_SNR_alphabeta_image(
         titles: tp.List[str] = None,
         mission_profile: int = 0,
         usetex: bool = False,
-        huge_alpha: bool = False) -> io.BytesIO:
+        huge_alpha: bool = False) -> Figure:
     """Produce the AlphaBeta plot
 
     Parameters
@@ -78,8 +77,8 @@ def get_SNR_alphabeta_image(
 
     Returns
     -------
-    sio : bytes
-        svg plot of AlphaBeta
+    sio : Figure
+        plot of AlphaBeta
     """
 
     color_tuple = plt.cm.plasma_r(np.linspace(0.1,1,6))
@@ -115,7 +114,7 @@ def get_SNR_alphabeta_image(
         for x in range(int(math.ceil(min(log10BetaOverH))), int(math.floor(max(log10BetaOverH))+1))
     ]
 
-    fig = matplotlib.figure.Figure()
+    fig = Figure()
     ax = fig.add_subplot(111)
 
     CS = ax.contour(
@@ -250,11 +249,7 @@ def get_SNR_alphabeta_image(
         fontsize=8, color="black",
         ha="left", va="top", alpha=1.0
     )
-
-    sio = io.BytesIO()
-    fig.savefig(sio, format="svg")
-    sio.seek(0)
-    return sio
+    return fig
 
 
 def main():
@@ -263,10 +258,10 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
-    b = get_SNR_alphabeta_image(
+    fig = get_SNR_alphabeta_image(
         args.vw, [args.alpha], [args.BetaoverH],
         T_star=args.Tstar, g_star=args.gstar, mission_profile=args.mission_profile)
-    print(b.read().decode("utf-8"))
+    print(fig_to_svg(fig).decode("utf-8"))
 
 
 if __name__ == "__main__":

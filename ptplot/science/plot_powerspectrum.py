@@ -10,14 +10,13 @@ Contains the following functions:
     * get_PS_image - creates the power spectrum plot
 """
 
-import io
 import math
 import os.path
 import sys
 import time
 
 import matplotlib
-import matplotlib.figure
+from matplotlib.figure import Figure
 import numpy as np
 
 if __name__ == "__main__" and __package__ is None:
@@ -25,6 +24,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const, snr
 from ptplot.science.parsing import PTPlotParser
+from ptplot.science.plot_utils import fig_to_svg
 from ptplot.science.powerspectrum import PowerSpectrum
 # from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
 # from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM
@@ -116,7 +116,7 @@ def get_PS_image(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         mission_profile: int = const.DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
-        sw_only: bool = True) -> io.BytesIO:
+        sw_only: bool = True) -> Figure:
     """Produce the power spectrum plot
 
     Parameters
@@ -142,8 +142,8 @@ def get_PS_image(
 
     Returns
     -------
-    sio : bytes
-        svg plot of the power spectrum
+    sio : Figure
+        plot of the power spectrum
     """
 
     sensitivity_file=AVAILABLE_SENSITIVITY_CURVES[mission_profile]
@@ -171,7 +171,7 @@ def get_PS_image(
     f, sensitivity = np.loadtxt(sens_filehandle,usecols=[0,2], unpack=True)
     f_more = np.logspace(math.log(min(f)), math.log(max(f)), num=len(f)*10)
 
-    fig = matplotlib.figure.Figure()
+    fig = Figure()
     ax = fig.add_subplot(111)
 
     fS, OmEff = snr.load_file(sensitivity_curve, 2)
@@ -223,11 +223,7 @@ def get_PS_image(
         fontsize=8, color="black",
         ha="left", va="top", alpha=1.0
     )
-
-    sio = io.BytesIO()
-    fig.savefig(sio, format="svg")
-    sio.seek(0)
-    return sio
+    return fig
 
 
 def main():
@@ -236,12 +232,12 @@ def main():
         methods=True
     )
     args = parser.parse_args()
-    b = get_PS_image(
+    fig = get_PS_image(
         vw=args.vw, alpha=args.alpha, beta_over_H=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar,
         ssm=args.ssm, dbpl=args.dbpl
     )
-    print(b.read().decode("utf-8"))
+    print(fig_to_svg(fig).decode("utf-8"))
 
 
 if __name__ == "__main__":

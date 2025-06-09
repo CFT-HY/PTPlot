@@ -1,16 +1,18 @@
 import logging
 import os
 
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 import dulwich.porcelain
 from dulwich.repo import Repo
+from matplotlib.figure import Figure
 
 from ptplot.forms import *
 from ptplot.science.SNRubarfrstar_onthefly import get_SNR_image
 from ptplot.science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
 from ptplot.science.plot_powerspectrum import get_PS_image, get_PS_data
+from ptplot.science.plot_utils import fig_to_svg
 from ptplot.science.precomputed import *
 
 logger = logging.getLogger(__name__)
@@ -23,6 +25,14 @@ try:
      HAVE_GITVER = True
 except dulwich.errors.NotGitRepository as err:
      logger.exception("Could not load git repository info.", exc_info=err)
+
+
+# -----
+# Utility functions
+# -----
+
+def fig_to_response(fig: Figure) -> HttpResponse:
+    return HttpResponse(fig_to_svg(fig), content_type="image/svg+xml")
 
 
 # -----
@@ -74,7 +84,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     Tstar = form.cleaned_data["Tstar"]
     gstar = form.cleaned_data["gstar"]
 
-    sio_PS = get_PS_image(
+    fig = get_PS_image(
         T_star=Tstar,
         g_star=gstar,
         vw=vw,
@@ -82,7 +92,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         beta_over_H=beta_over_H,
         mission_profile=mission_profile
     )
-    return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def snr_image(request: HttpRequest) -> HttpResponse:
@@ -102,7 +112,7 @@ def snr_image(request: HttpRequest) -> HttpResponse:
 
     Tstar = form.cleaned_data["Tstar"]
     gstar = form.cleaned_data["gstar"]
-    sio_SNR = get_SNR_image(
+    fig = get_SNR_image(
         T_star=Tstar,
         g_star=gstar,
         vw_list=[[vw]],
@@ -110,7 +120,7 @@ def snr_image(request: HttpRequest) -> HttpResponse:
         beta_over_H_list=[[BetaoverH]],
         mission_profile=MissionProfile
     )
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
@@ -131,7 +141,7 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
     Tstar = form.cleaned_data["Tstar"]
     gstar = form.cleaned_data["gstar"]
 
-    sio_SNR = get_SNR_alphabeta_image(
+    fig = get_SNR_alphabeta_image(
         vw=vw,
         alpha_list=[[alpha]],
         beta_over_H_list=[[BetaoverH]],
@@ -139,7 +149,7 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
         g_star=gstar,
         mission_profile=MissionProfile
     )
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model(request: HttpRequest) -> HttpResponse:
@@ -247,7 +257,7 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
 
     huge_alpha = model.model_hugeAlpha
     
-    sio_SNR = get_SNR_image(
+    fig = get_SNR_image(
         T_star=T_star,
         g_star=g_star,
         vw_list=[[vw]],
@@ -257,7 +267,7 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         mission_profile=MissionProfile,
         huge_alpha=huge_alpha)
     
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
@@ -288,7 +298,7 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
 
     huge_alpha = model.model_hugeAlpha
         
-    sio_SNR = get_SNR_alphabeta_image(
+    fig = get_SNR_alphabeta_image(
         T_star=T_star,
         g_star=g_star,
         vw=vw,
@@ -298,7 +308,7 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
         mission_profile=MissionProfile,
         huge_alpha=huge_alpha
     )
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
@@ -334,7 +344,7 @@ def model_point_ps(request, model_id, point_id):
     T_star = point.Tstar if point.Tstar else model.model_Tstar
     g_star = point.gstar if point.gstar else model.model_gstar
 
-    sio_PS = get_PS_image(
+    fig = get_PS_image(
         T_star=T_star,
         g_star=g_star,
         vw=vw,
@@ -342,7 +352,7 @@ def model_point_ps(request, model_id, point_id):
         beta_over_H=beta_over_H,
         mission_profile=mission_profile
     )
-    return HttpResponse(sio_PS.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -383,7 +393,7 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
 
     T_star = selected_scenario.scenario_Tstar if selected_scenario.scenario_Tstar else model.model_Tstar
 
-    sio_SNR = get_SNR_image(
+    fig = get_SNR_image(
         vw_list=[vw_list],
         alpha_list=[alpha_list],
         beta_over_H_list=[beta_over_H_list],
@@ -394,7 +404,7 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
         mission_profile=model.model_MissionProfile,
         huge_alpha=model.model_hugeAlpha
     )
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -408,7 +418,7 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
 
     T_star = selected_scenario.scenario_Tstar if selected_scenario.scenario_Tstar else model.model_Tstar
 
-    sio_SNR = get_SNR_alphabeta_image(
+    fig = get_SNR_alphabeta_image(
         vw=model.model_vw,
         alpha_list=[alpha_list],
         beta_over_H_list=[BetaoverH_list],
@@ -419,7 +429,7 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
         mission_profile=model.model_MissionProfile,
         huge_alpha=model.model_hugeAlpha
     )
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -448,7 +458,7 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
         label_list = [[point.point_shortlabel for point in point_list]]
         title_list = [model.model_name]
 
-    sio_SNR = get_SNR_image(
+    fig = get_SNR_image(
         vw_list=vw_list,
         alpha_list=alpha_list,
         beta_over_H_list=beta_over_H_list,
@@ -459,7 +469,7 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
         mission_profile=model.model_MissionProfile,
         huge_alpha=model.model_hugeAlpha)
                                      
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -487,7 +497,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         label_list = [[point.point_shortlabel for point in point_list]]
         title_list = [model.model_name]
 
-    sio_SNR = get_SNR_alphabeta_image(
+    fig = get_SNR_alphabeta_image(
         vw=model.model_vw,
         alpha_list=alpha_list,
         beta_over_H_list=beta_over_H_list,
@@ -497,7 +507,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         titles=title_list,
         mission_profile=model.model_MissionProfile,
         huge_alpha=model.model_hugeAlpha)
-    return HttpResponse(sio_SNR.read(), content_type="image/svg+xml")
+    return fig_to_response(fig)
 
 
 def parameterchoice_form(request: HttpRequest) -> HttpResponse:

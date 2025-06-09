@@ -18,7 +18,7 @@ import time
 import typing as tp
 
 import matplotlib
-import matplotlib.figure
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -27,7 +27,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot_utils import make_minor_ticks
+from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.espinosa import ubarf
 from ptplot.science.SNR_precompute import get_SNRcurve
 
@@ -49,7 +49,7 @@ def get_SNR_image(
         usetex: bool = False,
         huge_alpha: bool = False,
         dbpl: bool = False,
-        ssm: bool = False) -> io.BytesIO:
+        ssm: bool = False) -> Figure:
     """Produce the UbarfRstar plot
 
     Parameters
@@ -79,8 +79,8 @@ def get_SNR_image(
 
     Returns
     -------
-    sio : bytes
-        svg plot of UbarfRstar
+    sio : Figure
+        plot of UbarfRstar
     """
 
     color_tuple = plt.cm.plasma_r(np.linspace(0.1, 1, 6))
@@ -237,11 +237,7 @@ def get_SNR_image(
         fontsize=8, color="black",
         ha="left", va="top", alpha=1.0
     )
-
-    sio = io.BytesIO()
-    fig.savefig(sio, format="svg")
-    sio.seek(0)
-    return sio
+    return fig
 
 
 def main():
@@ -250,10 +246,10 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
-    b = get_SNR_image(
+    fig = get_SNR_image(
         [args.vw], [args.alpha], [args.BetaoverH],
         args.Tstar, args.gstar, mission_profile=args.mission_profile)
-    print(b.read().decode("utf-8"))
+    print(fig_to_svg(fig).decode("utf-8"))
 
 
 if __name__ == "__main__":
