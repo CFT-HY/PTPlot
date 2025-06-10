@@ -17,7 +17,7 @@
   $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
 
   {% if point.vw %}
-    $v_\mathrm{w} = {{point.vw}}$;
+    $v_\mathrm{w} = {{ point.vw }}$;
   {% endif %}
   {% if point.g_star %}
     $g_* = {{ point.g_star }}$;
@@ -30,7 +30,7 @@
 <p>
   And the following general parameters:
   {% if not point.vw %}
-    $v_\mathrm{w} = {{model.vw }};
+    $v_\mathrm{w} = {{ model.vw }};
   {% endif %}$
   {% if not point.T_star %}
     $T_* = {{ model.T_star }} \, \mathrm{GeV}$;

@@ -9,10 +9,10 @@
   {% if selected_scenario.T_star %}
   {{ selected_scenario.T_star }}
   {% else %}
-  {{model.T_star }}
+    {{ model.T_star }}
   {% endif %}
   \, \mathrm{GeV}$,
-  $g_* = {{model.g_star }}$.
+  $g_* = {{ model.g_star }}$.
 </p>
 
 {% if model.huge_alpha %}

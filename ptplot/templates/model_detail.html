@@ -10,8 +10,8 @@
 <p>
   General parameters used for plotting:
   $v_\mathrm{w} = {{ model.vw }}$,
-  $T_* = {{model.T_star }} \, \mathrm{GeV}$ (when all points are plotted),
-  $g_* = {{model.g_star }}$.
+  $T_* = {{ model.T_star }} \, \mathrm{GeV}$ (when all points are plotted),
+  $g_* = {{ model.g_star }}$.
 </p>
 
 <p>
@@ -25,7 +25,7 @@
     {% for scenario in list %}
       <li>
         {% if scenario.description %}
-          <b>{{scenario.name}}:</b>
+          <b>{{ scenario.name }}:</b>
           {{ scenario.description }}
         {% else %}
           <b>{{ scenario.name }}</b>
