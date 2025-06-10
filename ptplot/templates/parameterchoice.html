@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if point_list %}
+{% if model.points.all %}
 
 <h4>{{ model }}</h4>
 
 <ul>
-  {% for point in point_list %}
+  {% for point in model.points.all %}
     <li>
       $v_\mathrm{w} = {{ point.vw }}$, $\alpha_\theta = {{ point.alpha }}$,
       $H/\beta = {{ point.beta_over_H }}$, $h_* = xx$, $T_n = xx \, \mathrm{GeV}$

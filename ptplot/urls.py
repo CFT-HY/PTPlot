@@ -31,7 +31,7 @@ urlpatterns: tp.List[URLPattern] = [
     path(r"multiple.svg", views.multiple, name="multiple"),
 
     # Display a list of models from database
-    path(r"models", views.model, name="model"),
+    path(r"models", views.models, name="models"),
 
     # Display a list of benchmark points for a model
     path(r"models/<int:model_id>", views.model_detail, name="model_detail"),

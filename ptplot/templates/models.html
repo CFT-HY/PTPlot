@@ -8,9 +8,9 @@
   using the latest source modelling and sensitivity curves.
 </p>
 
-{% if models_list %}
+{% if models %}
 <ul>
-  {% for model in models_list %}
+  {% for model in models %}
     <li><a href="models/{{ model.id }}">{{ model.name }}</a> - {{ model.description }}</li>
   {% endfor %}
 </ul>

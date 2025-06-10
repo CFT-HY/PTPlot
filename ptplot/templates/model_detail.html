@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if point_list %}
+{% if model.points %}
 
 <h2>PTPlot: {{ model.name }}</h2>
 <p>{{ model.description|urlize }}</p>
@@ -15,14 +15,14 @@
 </p>
 
 <p>
-  Mission profile: <b>{{ mission_profile_label }}</b>
+  Mission profile: <b>{{ model.mission_profile_label }}</b>
   <!--  ({{ model.Senscurve }}) -->
 <p>
 
 {% if model.has_scenarios %}
   <h4>This model has the following scenarios:</h4>
   <ul>
-    {% for scenario in list %}
+    {% for scenario in model.scenarios.all %}
       <li>
         {% if scenario.description %}
           <b>{{ scenario.name }}:</b>
@@ -62,7 +62,7 @@
   <a href="#points" id="points-link">[Show list of points]</a>
   <div id="points-list" style="display: none">
     <ul>
-      {% for point in point_list %}
+      {% for point in model.points.all %}
       <li>
         {% if point.short_label %}
         ({{point.short_label}}):

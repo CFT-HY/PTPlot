@@ -1,13 +1,13 @@
 {% extends "model_detail.html" %}
 {% block results %}
 
-<h3>Results for scenario: {{ selected_scenario.name }}</h3>
+<h3>Results for scenario: {{ scenario.name }}</h3>
 
 <p>NB: using
   $v_\mathrm{w} = {{ model.vw }}$,
   $T_* = 
-  {% if selected_scenario.T_star %}
-  {{ selected_scenario.T_star }}
+  {% if scenario.T_star %}
+    {{ scenario.T_star }}
   {% else %}
     {{ model.T_star }}
   {% endif %}

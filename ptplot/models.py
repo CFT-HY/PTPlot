@@ -2,8 +2,10 @@ from django.core import validators
 from django.db import models
 
 from ptplot.science import const
+from ptplot.science.precomputed import AVAILABLE_LABELS
 
 NAME_MAX_LENGTH: int = 200
+
 
 class Model(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
@@ -31,13 +33,16 @@ class Model(models.Model):
     def __str__(self):
         return self.name
 
+    def mission_profile_label(self) -> str:
+        return AVAILABLE_LABELS[self.mission_profile]
+
     class Meta:
         indexes = [models.Index(fields=["name"])]
         ordering = ["name"]
 
 
 class Scenario(models.Model):
-    model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="scenarios")
     number = models.IntegerField()
     name = models.CharField(max_length=NAME_MAX_LENGTH)
     T_star = models.FloatField(
@@ -50,6 +55,10 @@ class Scenario(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def T_star_value(self) -> float:
+        return self.model.T_star if self.T_star is None else self.T_star
+
     class Meta:
         indexes = [models.Index(fields=["name"])]
         ordering = ["model", "number"]
@@ -57,7 +66,7 @@ class Scenario(models.Model):
 
 
 class ParameterChoice(models.Model):
-    model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="points")
     number = models.IntegerField()
     short_label = models.CharField(max_length=2)
     long_label = models.CharField(max_length=100)
@@ -91,10 +100,22 @@ class ParameterChoice(models.Model):
         validators=[validators.MinValueValidator(0)],
         null=True
     )
-    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=True)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=True, related_name="points")
 
     def __str__(self):
         return self.long_label
+
+    @property
+    def vw_value(self) -> float:
+        return self.model.vw if self.vw is None else self.vw
+
+    @property
+    def T_star_value(self) -> float:
+        return self.model.T_star if self.T_star is None else self.T_star
+
+    @property
+    def g_star_value(self) -> float:
+        return self.model.g_star if self.g_star is None else self.g_star
 
     class Meta:
         indexes = [models.Index(fields=["model", "number"])]

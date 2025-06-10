@@ -1,5 +1,6 @@
 import logging
-import sys
+# import sys
+import typing as tp
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -9,6 +10,7 @@ from ptplot.models import *
 from ptplot.science.precomputed import AVAILABLE_LABELS
 
 logger = logging.getLogger(__name__)
+MISSION_PROFILES: tp.List[tp.Tuple[int, str]] = [(i, label) for i, label in enumerate(AVAILABLE_LABELS)]
 
 
 def validate_velocity(value: float) -> None:
@@ -20,8 +22,6 @@ def validate_velocity(value: float) -> None:
 
 
 class PTPlotForm(forms.Form):
-    available_MissionProfiles = [(i, label) for i, label in enumerate(AVAILABLE_LABELS)]
-
     vw = forms.FloatField(
         label=r"Wall velocity $v_\mathrm{w}$",
         min_value=0.0, max_value=1.0,
@@ -50,19 +50,19 @@ class PTPlotForm(forms.Form):
     )
     mission_profile = forms.ChoiceField(
         label=r"Mission profile",
-        choices=available_MissionProfiles
+        choices=MISSION_PROFILES
     )
-   # usetex = forms.BooleanField(label="Use TeX for labels (slow)?",
-   #                             initial=False,
-   #                             required=False)
+   # usetex = forms.BooleanField(
+   #     label="Use TeX for labels (slow)?",
+   #      initial=False,
+   #      required=False
+   # )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
 
 class MultipleForm(forms.Form):
-    available_MissionProfiles = [(i, label) for i, label in enumerate(AVAILABLE_LABELS)]
-
     vw = forms.FloatField(
         label=r"Wall velocity $v_\mathrm{w}$",
         min_value=0.0, max_value=1.0,
@@ -101,8 +101,7 @@ class ParameterChoiceForm(forms.Form):
             logger.exception("Error retrieving models", exc_info=e)
 
         for model in self.models:
-            print(model.name, file=sys.stderr)
-
+            # print(model.name, file=sys.stderr)
             self.underlying_model = forms.ChoiceField(
                 label=r"Model",
                 choices=[(model.id, model.name) for model in self.models]

@@ -10,7 +10,6 @@ Contains the following function:
     * get_SNR_image - creates the UbarfRstar plot
 """
 
-import io
 import math
 import os.path
 import sys
@@ -148,7 +147,7 @@ def get_SNR_image(
 
     for i, (vw_set, BetaoverH_set, alpha_set) in enumerate(zip(vw_list, beta_over_H_list, alpha_list)):
         Rstar_set = [
-            math.log10(math.pow(8.0*math.pi,1.0/3.0)*vw/BetaoverH)
+            math.log10(math.pow(8.0*math.pi, 1.0/3.0) * vw / BetaoverH)
             for vw, BetaoverH in zip(vw_set, BetaoverH_set)
         ]
         ubarf_set = [
