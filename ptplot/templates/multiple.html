@@ -8,16 +8,17 @@
 
 <form action="/ptplot/multiple.svg" method="post">
   {% csrf_token %}
-<p>Note that the input table should be a comma-separated list of pairs
-  of $\alpha_\theta$, $\beta/H_*$ and (optionally) the label for each point
-  (Math mode TeX is allowed, surrounded by $ signs, in the
-  label). Lines beginning with '#' are ignored.</p>
-<p><em>NB:</em> $\beta/H_*$ against $\alpha$ plots require
-  $v_\mathrm{w}$ to be fixed.</p>
+  <p>
+    Note that the input table should be a comma-separated list of pairs of
+    $\alpha_\theta$, $\beta/H_*$ and (optionally) the label for each point
+    (Math mode TeX is allowed, surrounded by $ signs, in the label).
+    Lines beginning with '#' are ignored.
+  </p>
+  <p><em>NB:</em> $\beta/H_*$ against $\alpha$ plots require $v_\mathrm{w}$ to be fixed.</p>
   <table>
-{{ form.as_table}}
-</table>
-    <input type="submit" value="Render alpha/beta SVG plot" />
+    {{ form.as_table}}
+  </table>
+  <input type="submit" value="Render alpha/beta SVG plot" />
 </form>
 
 {% endblock content %}

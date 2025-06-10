@@ -3,53 +3,57 @@
 
 <h2>PTPlot: Plot a single parameter point</h2>
 
-<p>Plot the gravitational wave power spectrum for a single parameter
-point, against a given sensitivity curve and calculate the SNR
-  for the chosen sensitivity curve and mission profile.</p>
+<p>
+  Plot the gravitational wave power spectrum for a single parameter point,
+  against a given sensitivity curve and
+  calculate the SNR for the chosen sensitivity curve and mission profile.
+</p>
 
-<p><div style="color: red"><b>Note</b>: you are responsible for
-    ensuring that the parameters you enter are
-    self-consistent.</div></p>
+<p>
+  <div style="color: red">
+    <b>Note</b>: you are responsible for ensuring that the parameters you enter are self-consistent.
+  </div>
+</p>
 
 {% block results %}
 {% endblock results %}
 
-
 {% if form.errors %}
-<ul>
-  {% for key,value in form.errors.items %} 
-  <li>{{ key|escape }} : {{ value|escape }}</li>
-  {% endfor %}
-</ul>
+  <ul>
+    {% for key,value in form.errors.items %}
+      <li>{{ key|escape }} : {{ value|escape }}</li>
+    {% endfor %}
+  </ul>
 {% endif %}
 
 <form action="/ptplot/single" method="get">
   <!--    {% csrf_token %}  -->
-
   <div class="formbox">
     <div class="mainbox">
       <table>
-	<tr>
-	  <th><label>{{form.vw.label}}:</label></th>
-	  <td>{{form.vw}}</td>
-	</tr>
-	<tr>
-	  <th><label>{{form.alpha.label}}:</label></th>
-	  <td>{{form.alpha}}</td>
-	</tr>
-	<tr>
-	  <th><label>{{form.beta_over_H.label}}:</label></th>
-	  <td>{{form.beta_over_H}}</td>
-	</tr>
-	<tr>
-	  <th><label>{{form.mission_profile.label}}:</label></th>
-	  <td>{{form.mission_profile}}</td>
-	</tr>
-	<tr>
-	  <th><label>{{form.T_star.label}}:</label></th>
-	  <td>{{form.T_star}} GeV</td></tr>
-	<tr><th><label>{{form.g_star.label}}:</label></th>
-	  <td> {{form.g_star}}</td></tr>
+        <tr>
+          <th><label>{{form.vw.label}}:</label></th>
+          <td>{{ form.vw }}</td>
+        </tr>
+        <tr>
+          <th><label>{{form.alpha.label}}:</label></th>
+          <td>{{ form.alpha }}</td>
+        </tr>
+        <tr>
+          <th><label>{{form.beta_over_H.label}}:</label></th>
+          <td>{{ form.beta_over_H }}</td>
+        </tr>
+        <tr>
+          <th><label>{{form.mission_profile.label}}:</label></th>
+          <td>{{ form.mission_profile }}</td>
+        </tr>
+        <tr>
+          <th><label>{{ form.T_star.label }}:</label></th>
+          <td>{{ form.T_star }} GeV</td>
+        </tr>
+        <tr><th><label>{{form.g_star.label}}:</label></th>
+          <td>{{ form.g_star }}</td>
+        </tr>
       </table>
     </div><br/>
     <input type="submit" value="Submit" />

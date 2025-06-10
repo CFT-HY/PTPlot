@@ -2,78 +2,90 @@
 {% block content %}
 
 <h2>PTPlot: About</h2>
-<p>PTPlot is a tool for exploring the gravitational wave power
+<p>
+  PTPlot is a tool for exploring the gravitational wave power
   spectrum from first-order phase transitions, and evaluating the
-  likelihood of detecting a signal with the LISA mission.</p>
+  likelihood of detecting a signal with the LISA mission.
+</p>
 <ul>
-  <li><a href="single">Plot single point</a> and view the SNR and
-  power spectra</li>
+  <li><a href="single">Plot single point</a> and view the SNR and power spectra</li>
   <li><a href="multiple">Plot multiple points</a> given tabular data</li>
   <li><a href="models">Browse and plot benchmark points</a> for selected models</li>
 </ul>
 {% if git_description %}
-<h3>Current version</h3>
-<p>This server is running version <a href="https://github.com/CFT-HY/PTPlot/tree/{{ git_description }}">{{ git_description }}</a>. A suffix after the version number indicates small updates since the last release, check the repo for details.</p>
+  <h3>Current version</h3>
+  <p>
+    This server is running version
+    <a href="https://github.com/CFT-HY/PTPlot/tree/{{ git_description }}">{{ git_description }}</a>.
+    A suffix after the version number indicates small updates since the last release, check the repo for details.
+  </p>
 {% endif %}
 <h3>What PTPlot does</h3>
-<p>In addition to the papers cited below, you can read
-a <a href="https://github.com/CFT-HY/PTPlot/tree/{{ git_description }}/doc/">Technical
-Note</a> written by Jenni Häkkinen which describes which formulae
-  PTPlot uses, and how they relate to other formulae in the literature.
+<p>
+  In addition to the papers cited below, you can read a
+  <a href="https://github.com/CFT-HY/PTPlot/tree/{{ git_description }}/doc/">Technical Note</a>
+  written by Jenni Häkkinen which describes which formulae PTPlot uses,
+  and how they relate to other formulae in the literature.
 </p>
 <h3>About the output</h3>
 <ul>
-  <li>All <em>output figures</em>
-    are <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
-    Vector Graphics</a> (SVG) and can be downloaded and edited with
-    free tools such
-    as <a href="https://inkscape.org/">Inkscape</a>. They are also
-    easily converted to PDF or bitmapped formats by Inkscape or
-    built-in OS tools, e.g.:
-<pre>$ <b>inkscape input_snr_file.svg
-    --export-pdf=outpout_snr_file.pdf</b></pre> Note that on Macos,
-    Inkscape requires the <em>full path</em> to the source and
-destination files in order to work.
+  <li>
+    All <em>output figures</em> are
+    <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a>
+    (SVG) and can be downloaded and edited with free tools such as
+    <a href="https://inkscape.org/">Inkscape</a>.
+    They are also easily converted to PDF or bitmapped formats by Inkscape or built-in OS tools, e.g.:
+    <pre>$ <b>inkscape input_snr_file.svg --export-pdf=outpout_snr_file.pdf</b></pre>
+    Note that on macOS, Inkscape requires the <em>full path</em> to the source and destination files in order to work.
   </li>
-  <li>The <em>CSV files</em> that can be downloaded on 'single point'
-    plotting pages contain the following columns (these are labeled on
-    the first row):
+  <li>
+    The <em>CSV files</em> that can be downloaded on 'single point' plotting pages contain the following columns
+    (these are labeled on the first row):
     $$
     f,\, h^2 \Omega_\text{sensitivity}, \, h^2 \Omega_\text{GW, sw},\,
     [h^2 \Omega_\text{GW, turb}, \, h^2 \Omega_\text{GW, tot} ].
     $$
-    There is therefore no explicit dependence on the Hubble rate in
-    the data.
+    There is therefore no explicit dependence on the Hubble rate in the data.
   </li>
 </ul>
 <h3 id="crediting">Crediting PTPlot</h3>
-<p>The results plotted by this tool are based on the
-  papers <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>, <em>Shape
-  of the acoustic gravitational wave power spectrum from a first order
-  phase transition</em> (note the erratum)
-  and <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>,
- <em>Detecting gravitational waves from cosmological phase
-  transitions with LISA: an
-  update</em>. You
-  are welcome to include
-  plots from PTPlot in your own work; if you do use PTPlot, please
-  cite at least:
+<p>
+  The results plotted by this tool are based on the papers
+  <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>,
+  <em>Shape of the acoustic gravitational wave power spectrum from a first order phase transition</em>
+  (note the erratum) and
+  <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>,
+  <em>Detecting gravitational waves from cosmological phase transitions with LISA: an update</em>.
+  You are welcome to include plots from PTPlot in your own work; if you do use PTPlot, please cite at least:
   <ul>
-    <li>The above paper <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>, as well as
+    <li>The above paper <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>, as well as</li>
+    <li>
+      The Zenodo snapshot of the latest version, i.e.
+      <a href="https://dx.doi.org/10.5281/zenodo.6949106">doi:10.5281/zenodo.6949106</a>.
+      This helps us track interest and usage of PTPlot in particular and justify its continued development.
     </li>
-    <li>The Zenodo snapshot of the latest version, i.e. <a href="https://dx.doi.org/10.5281/zenodo.6949106">doi:10.5281/zenodo.6949106</a>. This helps us track interest and usage of PTPlot in particular and justify its continued development.</li>
   </ul>
 </p>
-<p>PTPlot now generates plots without a watermark. However if you use figures from PTPlot in a publication please do cite the sources above, and maybe write to <a href="mailto:info@ptplot.org">let us know</a>!</p>
+<p>
+  PTPlot now generates plots without a watermark.
+  However, if you use figures from PTPlot in a publication please do cite the sources above, and maybe write to
+  <a href="mailto:info@ptplot.org">let us know</a>!
+</p>
 <!--  <p>Figures without the LISACosWG watermark are
   available on request; please do not remove it without
   permission.</p> -->
 <h3>Source</h3>
-<p>The source for PTPlot is available
-  at <a href="https://github.com/CFT-HY/PTPlot/">https://github.com/CFT-HY/PTPlot/</a>. The code is provided under the MIT License. Please see the section <a href="#crediting">Crediting PTPlot</a>, above.</p>
+<p>
+  The source for PTPlot is available at
+  <a href="https://github.com/CFT-HY/PTPlot/">https://github.com/CFT-HY/PTPlot/</a>.
+  The code is provided under the MIT License.
+  Please see the section <a href="#crediting">Crediting PTPlot</a>, above.
+</p>
 <h3>Feedback, issues</h3>
-<p>Please get in touch with the
-  authors [<a href="mailto:info@ptplot.org">info@ptplot.org</a>]. Unfortunately due to spam, we had to close the issue tracker, but we take all bug reports and issues seriously. We also try to help with other queries.
+<p>
+  Please get in touch with the authors [<a href="mailto:info@ptplot.org">info@ptplot.org</a>].
+  Unfortunately due to spam, we had to close the issue tracker, but we take all bug reports and issues seriously.
+  We also try to help with other queries.
 </p>
 <h3>Recent news</h3>
 <ul>
@@ -89,29 +101,39 @@ destination files in order to work.
   </li>
   <li><b>1.8.2022</b> - version 1.0.2
     <ul>
-      <li>Relicensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode">CC BY 4.0 International</a> and <a href="https://dx.doi.org/10.5281/zenodo.6949107">made available on Zenodo</a> with a DOI.</li>
-      <li>Corrected value of sound wave power spectrum prefactor (per erratum of <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>).
+      <li>
+        Relicensed under
+        <a href="https://creativecommons.org/licenses/by/4.0/legalcode">CC BY 4.0 International</a> and
+        <a href="https://dx.doi.org/10.5281/zenodo.6949107">made available on Zenodo</a> with a DOI.
+      </li>
+      <li>
+        Corrected value of sound wave power spectrum prefactor (per erratum of
+        <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>).
       <li>Changes to appearance for readability.</li>
-      <li>URLs which return SVG or CSV files now have the extension in the URL to make it a more pleasant experience when saving the file.</li>
-      <li>Use <pre>scipy.integrate.trapz</pre> rather than some weird in-house code for calculating the integrated SNR.</li>
+      <li>
+        URLs which return SVG or CSV files now have the extension in the URL to make it a more pleasant experience
+        when saving the file.
+      </li>
+      <li>
+        Use <pre>scipy.integrate.trapz</pre> rather than some weird in-house code for calculating the integrated SNR.
+      </li>
     </ul>
   <li><b>5.3.2020</b> - version 1.0.1
     <ul>
-      <li>Can be installed with pip3 (for standalone use):
-	<pre>pip3 install --upgrade
-	  --git+https://github.com/CFT-HY/PTPlot.git</pre></li>
-      <li>Fixes a systematic error due to having logarithmically
-      spaced data for the sensitivity curve, while eLISATools.py
-      cannot cope with anything but evenly spaced points. Wrote a new
-      replacement for the relevant commands that does numerical
-	integration with an arbitrary interval.</li>
-      <li>Fixed the value of $\tilde{\Omega}_\text{gw}$ from 0.12 to
-      0.012. This was due to a typo
-      in <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>
-      below Equation 45, which will be corrected in a forthcoming
-	erratum.</li>
-      <li>Power spectra and sensitivity data can now be downloaded as
-	a CSV from individual point pages.</li>
+      <li>
+        Can be installed with pip3 (for standalone use):
+	      <pre>pip3 install --upgrade --git+https://github.com/CFT-HY/PTPlot.git</pre></li>
+      <li>
+        Fixes a systematic error due to having logarithmically spaced data for the sensitivity curve,
+        while eLISATools.py cannot cope with anything but evenly spaced points.
+        Wrote a new replacement for the relevant commands that does numerical integration with an arbitrary interval.
+      </li>
+      <li>
+        Fixed the value of $\tilde{\Omega}_\text{gw}$ from 0.12 to 0.012. This was due to a typo in
+        <a href="https://arxiv.org/abs/1704.05871">arXiv:1704.05871</a>
+        below Equation 45, which will be corrected in a forthcoming erratum.
+      </li>
+      <li>Power spectra and sensitivity data can now be downloaded as a CSV from individual point pages.</li>
       <li>Minor fixes due to changes in Django.</li>
       <li>Some improvements to the benchmark point database.</li>
     </ul>
@@ -119,52 +141,66 @@ destination files in order to work.
   <li><b>7.11.2019</b> - version 1.0.0
     <ul>
       <li>Coincides with release of paper
-	[<a href="https://arxiv.org/abs/arXiv:1910.13125">arXiv:1910.13125</a>].</li>
+	      [<a href="https://arxiv.org/abs/arXiv:1910.13125">arXiv:1910.13125</a>].
+      </li>
       <li>Source data for plots now included in repo.</li>
       <li>Minor tick marks now shown.</li>
-      <li>In plotting power spectra, only the sound wave curve is now
-	shown (other curves remain available in the source code).</li>
-      <li>Bugfixes, including: corrections to definition of $\kappa$
-      and a missing factor of $h^2$ in the sound wave GW power
-      spectrum.</li>
+      <li>
+        In plotting power spectra, only the sound wave curve is now shown
+        (other curves remain available in the source code).
+      </li>
+      <li>
+        Bugfixes, including: corrections to definition of $\kappa$
+        and a missing factor of $h^2$ in the sound wave GW power
+        spectrum.
+      </li>
     </ul>
   </li>
   <li><b>25.6.2019</b> - version 0.9.5
     <ul>
       <li>3- and 7- year mission durations available.</li>
-      <li>Bugfixes to the "energy budget" calculation, which
-      previously had some discrepancies at intermediate
-	velocities.</li>
+      <li>
+        Bugfixes to the "energy budget" calculation,
+        which previously had some discrepancies at intermediate velocities.
+      </li>
       <li>Axis labels cleaned up.</li>
-      <li>"Theories" renamed to "Models" and another layer of
-	granularity, "Scenarios", added to benchmark points.</li>
-      <li>More flexibility in terms of individual points and scenarios
-	having their own $T_*$ and $v_\mathrm{w}$.</li>
-      <li>$\beta/H$ is now plotted (and used as a parameter) rather
-	than $H/\beta$.</li>
+      <li>
+        "Theories" renamed to "Models" and another layer of granularity, "Scenarios", added to benchmark points.
+      </li>
+      <li>More flexibility in terms of individual points and scenarios having their own $T_*$ and $v_\mathrm{w}$.</li>
+      <li>$\beta/H$ is now plotted (and used as a parameter) rather than $H/\beta$.</li>
     </ul>
   <li><b>21.12.2018</b> - version 0.9.2
     <ul>
-      <li>The SNR curves and power spectra now use a single
-	merged <span style="font-family: monospace">PowerSpectrum()</span> class.</li>
-      <li>All plots use a conservative form of the sound wave source
-      where it has lifetime set either by the shock formation time or
-      the Hubble time, whichever is shorter.</li>
-      <li>All plots have a
-	date and timestep to assist with debugging.</li>
-      <li>Power spectrum plots
-	have the SNR (from sound waves only) overplotted, too.</li>
+      <li>
+        The SNR curves and power spectra now use a single merged
+        <span style="font-family: monospace">PowerSpectrum()</span> class.
+      </li>
+      <li>
+        All plots use a conservative form of the sound wave source
+        where it has lifetime set either by the shock formation time or the Hubble time, whichever is shorter.
+      </li>
+      <li>All plots have a date and timestep to assist with debugging.</li>
+      <li>Power spectrum plots have the SNR (from sound waves only) overplotted, too.</li>
     </ul>
   </li>
 </ul>
-      
+
 <h3>References</h3>
 <ul>
-  <li><a href="https://arxiv.org/abs/1512.06239">arXiv:1512.06239</a>
-  - <em> Science with the space-based interferometer eLISA. II:
-      Gravitational waves from cosmological phase transitions</em></li>
-  <li><a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a>
-    - <em>Detecting gravitational waves from cosmological phase transitions with LISA: an update</em></li>
+  <li>
+    <a href="https://arxiv.org/abs/1512.06239">arXiv:1512.06239</a> -
+    <em>
+      Science with the space-based interferometer eLISA. II:
+      Gravitational waves from cosmological phase transitions
+    </em>
+  </li>
+  <li>
+    <a href="https://arxiv.org/abs/1910.13125">arXiv:1910.13125</a> -
+    <em>
+      Detecting gravitational waves from cosmological phase transitions with LISA: an update
+    </em>
+  </li>
 </ul>
 
 {% endblock content %}

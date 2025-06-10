@@ -10,45 +10,50 @@
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
     </script>
-    <script type="text/javascript" async
-	    src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_SVG'></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js" integrity="sha512-docBEeq28CCaXCXN7cINkyQs0pRszdQsVBFWUd+pLNlEk3LDlSDDtN7i1H+nTB8tshJPQHS0yu0GW9YGFd/CRg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      type="text/javascript" async
+	    src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_SVG'
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"
+      integrity="sha512-docBEeq28CCaXCXN7cINkyQs0pRszdQsVBFWUd+pLNlEk3LDlSDDtN7i1H+nTB8tshJPQHS0yu0GW9YGFd/CRg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
   </head>
   <body>
-
     <a id="top"/>
 
     <div id="header-wrapper">
       <div id="header" class="container">
-	<div id="logo">
-	  <h1><a href="/ptplot/">PTPlot</a></h1>
-	</div>
+        <div id="logo">
+          <h1><a href="/ptplot/">PTPlot</a></h1>
+        </div>
       </div>
-    </div>		
+    </div>
 
     <div id="wrapper">
       <div id="page" class="container">
-	<div id="content">
-	  
-	  {% block content %}
-	  {% endblock %}
-
-	  <p>[<a href="#top">Back to top</a>] [<a href="/ptplot/">Home</a>]</p>
-	</div>
+	      <div id="content">
+          {% block content %}
+          {% endblock %}
+          <p>[<a href="#top">Back to top</a>] [<a href="/ptplot/">Home</a>]</p>
+        </div>
       </div>
     </div>
-    
+
     <div id="footer">
-      <h4><em><a href="https://github.com/CFT-HY/PTPlot/">PTPlot</a></em>
-	by
-	<a href="https://www.helsinki.fi/~weir/">David Weir</a>
-	on behalf of the LISA Cosmology Working Group.</h4>
-      <p>Design based
-	on <a href="https://templated.co/joyousness">Joyousness</a>
-	by <a href="https://templated.co" rel="nofollow">TEMPLATED</a>,
-	under <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY
-	</a> license.
-      </p>
+      <h4>
+        <em><a href="https://github.com/CFT-HY/PTPlot/">PTPlot</a></em> by
+        <a href="https://www.helsinki.fi/~weir/">David Weir</a>
+        on behalf of the LISA Cosmology Working Group.
+      </h4>
+          <p>
+            Design based on
+            <a href="https://templated.co/joyousness">Joyousness</a> by
+            <a href="https://templated.co" rel="nofollow">TEMPLATED</a>, under
+            <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY</a> license.
+          </p>
     </div>
   </body>
 </html>

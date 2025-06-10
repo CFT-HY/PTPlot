@@ -2,46 +2,54 @@
 {% block results %}
 
 <h2>Results</h2>
-<p>Results for $v_\mathrm{w} = {{vw}}$, $\alpha_\theta = {{alpha}}$, $\beta/H_*
-  = {{beta_over_H}}$, $g_* ={{g_star}}$, $T_* = {{T_star}} \,
-  \mathrm{GeV}$.</p>
+<p>
+  Results for $v_\mathrm{w} = {{vw}}$, $\alpha_\theta = {{alpha}}$,
+  $\beta/H_* = {{beta_over_H}}$, $g_* ={{g_star}}$, $T_* = {{T_star}} \, \mathrm{GeV}$.
+</p>
 <p>Mission profile is: <em>{{mission_profile_label}}</em>.</p>
 
 <h3>Notes</h3>
 <ul>
-<li>  The computed
-  SNR value, shown below, is from the sound wave source only, and
-  assumes that the source duration is the Hubble time or one fluid
-  turnover time, whichever is smaller.</li>
-<li>Diagonal dashed contours are the ratio of Hubble time to fluid
-  turnover time. Coloured curved contours are LISA SNR for the given
-  mission profile (sensitivity curve and duration).</li>
-<li>The hatched region on the SNR contour plots shows the area in which
-  the sound wave source will last less than a Hubble time.</li>
+  <li>
+    The computed SNR value, shown below, is from the sound wave source only,
+    and assumes that the source duration is the Hubble time or one fluid turnover time, whichever is smaller.
+  </li>
+  <li>
+    Diagonal dashed contours are the ratio of Hubble time to fluid turnover time.
+    Coloured curved contours are LISA SNR for the given mission profile (sensitivity curve and duration).
+  </li>
+  <li>
+    The hatched region on the SNR contour plots shows the area
+    in which the sound wave source will last less than a Hubble time.
+  </li>
 </ul>
 
-<p><span style="color:
-	       red"><b>New</b></span>: <a href="curvedata.csv?{{querystring}}">download</a>
-	       the source points as a CSV [experimental]</p>
+<p>
+  <span style="color: red"><b>New</b></span>:
+  <a href="curvedata.csv?{{querystring}}">download</a>
+  the source points as a CSV [experimental]
+</p>
 
 <p>
-  <img alt="embedded" src="ps.svg?{{querystring}}" width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"/>
+  <img
+    alt="embedded" src="ps.svg?{{querystring}}" width="600px" height="450px"
+    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+  />
 </p>
 <p>
-<!--  (note that the SNR curves <em>only</em> consider the sound wave
-  source for now) -->
-  <img alt="embedded" src="snr.svg?{{querystring}}" width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
+  <!--  (note that the SNR curves <em>only</em> consider the sound wave source for now) -->
+  <img
+    alt="embedded" src="snr.svg?{{querystring}}" width="600px" height="450px"
+    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"/>
 </p>
 <p>
-<!--  (note $\alpha$-$\beta$ plane plot depends on
-  converting $\overline{U}_\mathrm{f}$ SNR curves to $\alpha_\theta$ SNR
-  curves for fixed $v_\mathrm{w}$) -->
-  <img alt="embedded" src="snr_alphabeta.svg?{{querystring}}" width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
+  <!--  (note $\alpha$-$\beta$ plane plot depends on
+    converting $\overline{U}_\mathrm{f}$ SNR curves to $\alpha_\theta$ SNR
+    curves for fixed $v_\mathrm{w}$) -->
+  <img
+    alt="embedded" src="snr_alphabeta.svg?{{querystring}}" width="600px" height="450px"
+    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+  />
 </p>
 
 {% endblock results %}

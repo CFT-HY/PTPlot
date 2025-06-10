@@ -3,13 +3,15 @@
 
 <h2>PTPlot: Benchmark points for models</h2>
 
-<p>Browse models with benchmark points given in the report, using
-  the latest source modelling and sensitivity curves.</p>
+<p>
+  Browse models with benchmark points given in the report,
+  using the latest source modelling and sensitivity curves.
+</p>
 
 {% if models_list %}
 <ul>
   {% for model in models_list %}
-  <li><a href="models/{{ model.id }}">{{model.name}}</a> - {{model.description}}</li>
+    <li><a href="models/{{ model.id }}">{{ model.name }}</a> - {{ model.description }}</li>
   {% endfor %}
 </ul>
 {% endif %}

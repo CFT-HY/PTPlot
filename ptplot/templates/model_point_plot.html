@@ -1,69 +1,70 @@
 {% extends "model_detail.html" %}
 {% block results %}
 
-<h3>Results for point
-    {% if point.short_label %}
-    ({{point.short_label}}):
-    {% endif %}
-
-    {% if point.long_label %}
-    [ {{ point.long_label}} ]
+<h3>
+  Results for point
+  {% if point.short_label %}
+    ({{ point.short_label }}):
+  {% endif %}
+  {% if point.long_label %}
+    [ {{ point.long_label }} ]
   {% endif %}
 </h3>
 
-<p>Using the following model specific parameters:
-  
-    $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
-    $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
-    
-    {% if point.vw %}
+<p>
+  Using the following model specific parameters:
+  $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
+  $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
+
+  {% if point.vw %}
     $v_\mathrm{w} = {{point.vw}}$;
-    {% endif %}
-
-    {% if point.g_star %}
-    $g_* = {{ point.g_star }} $;
-    {% endif %}
-
-    {% if point.T_star %}
+  {% endif %}
+  {% if point.g_star %}
+    $g_* = {{ point.g_star }}$;
+  {% endif %}
+  {% if point.T_star %}
     $T_* = {{ point.T_star|floatformat:"-1" }} \, \mathrm{GeV}$;
-    {% endif %}
+  {% endif %}
 </p>
 
-<p>And the following general parameters:
-
+<p>
+  And the following general parameters:
   {% if not point.vw %}
-  $v_\mathrm{w} =
-  {{model.vw }};
+    $v_\mathrm{w} = {{model.vw }};
   {% endif %}$
   {% if not point.T_star %}
-  $T_* =
-  {{ model.T_star }} \, \mathrm{GeV}$;
+    $T_* = {{ model.T_star }} \, \mathrm{GeV}$;
   {% endif %} 
   {% if not point.g_star %}
-  $g_* =
-  {{ model.g_star }};
+    $g_* = {{ model.g_star }};
   {% endif %}$
 </p>
 
 {% if model.huge_alpha %}
-<p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these
-    phase transition strengths has not been tested.</div></p>
+<p>
+  <div style="color: red">
+    <b>Warning</b>: the reliability of the power spectrum ansatz at these phase transition strengths has not been tested.
+  </div>
+</p>
 {% endif %}
 
-<p><span style="color:
-	       red"><b>New</b></span>: <a href="curvedata.csv">download</a>
-	       the source points as a CSV [experimental]</p>
+<p>
+  <span style="color: red"><b>New</b></span>:
+  <a href="curvedata.csv">download</a>
+  the source points as a CSV [experimental]
+</p>
 
-  <img alt="embedded" src="ps.svg"  width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
-
-  <img alt="embedded" src="snr.svg"  width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
-
-  <img alt="embedded" src="snr_alphabeta.svg"  width="600px"
-  height="450px" style="background-color: #dddddd; border: 10px;
-  padding: 15px; background-clip: content-box"/>
+<img
+  alt="embedded" src="ps.svg" width="600px" height="450px"
+  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+/>
+<img
+  alt="embedded" src="snr.svg"  width="600px" height="450px"
+  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+/>
+<img
+  alt="embedded" src="snr_alphabeta.svg" width="600px" height="450px"
+  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+/>
 
 {% endblock results %}
