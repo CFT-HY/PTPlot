@@ -40,26 +40,25 @@
 {% endif %}
 
 <h4>Full list of points:</h4>
-  
-<script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", initPoints);
 
+<script type="text/javascript">
   function initPoints(){
-      var pointslist = document.getElementById("points-list");
-      var pointslink = document.getElementById("points-link");
-      pointslink.addEventListener("click", function togglePoints(){
-//          window.event.preventDefault();
-//          pointslink.classList.toggle('active');
-//          pointslist.classList.toggle('active');
-	  if(pointslist.style.display == "none") {
-	      pointslist.style.display = "block";
-              pointslink.innerHTML = '[Hide list of points]';
-	  } else {
-	      pointslist.style.display = "none";
-	      pointslink.innerHTML = '[Show list of points]';
-	  }
-      });
-  };
+    const pointsList = document.getElementById("points-list");
+    const pointsLink = document.getElementById("points-link");
+    pointsLink.addEventListener("click", function togglePoints(){
+      // window.event.preventDefault();
+      // pointsLink.classList.toggle("active");
+      // pointsList.classList.toggle("active");
+      if (pointsList.style.display === "none") {
+        pointsList.style.display = "block";
+          pointsLink.innerHTML = "[Hide list of points]";
+      } else {
+        pointsList.style.display = "none";
+        pointsLink.innerHTML = "[Show list of points]";
+      }
+    });
+  }
+  document.addEventListener("DOMContentLoaded", initPoints);
 </script>
 
 <p><a href="#points" id="points-link">[Show list of points]</a>
