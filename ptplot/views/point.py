@@ -1,0 +1,95 @@
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
+
+from ptplot.methods import fig_to_response, get_object_or_404_related
+from ptplot.models import ParameterChoice
+from ptplot.science.plot_powerspectrum import get_PS_data, get_PS_image
+from ptplot.science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
+from ptplot.science.SNRubarfrstar_onthefly import get_SNR_image
+
+
+def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model"],
+        prefetch=["model__points", "model__scenarios"],
+        model__id=model_id,
+        number=point_id
+    )
+    return render(request, "model_point_plot.html", {"point": point})
+
+
+def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model"],
+        model__id=model_id,
+        number=point_id
+    )
+    fig = get_SNR_image(
+        T_star=point.T_star_value,
+        g_star=point.g_star_value,
+        vw_list=[[point.vw_value]],
+        alpha_list=[[point.alpha]],
+        beta_over_H_list=[[point.beta_over_H]],
+        label_list=[[point.short_label]],
+        mission_profile=point.model.mission_profile,
+        huge_alpha=point.model.huge_alpha
+    )
+    return fig_to_response(fig)
+
+
+def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model"],
+        model__id=model_id,
+        number=point_id
+    )
+    fig = get_SNR_alphabeta_image(
+        T_star=point.T_star_value,
+        g_star=point.g_star_value,
+        vw=point.vw_value,
+        alpha_list=[[point.alpha]],
+        beta_over_H_list=[[point.beta_over_H]],
+        labels=[[point.short_label]],
+        mission_profile=point.model.mission_profile,
+        huge_alpha=point.model.huge_alpha
+    )
+    return fig_to_response(fig)
+
+
+def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model"],
+        model__id=model_id,
+        number=point_id
+    )
+    csv = get_PS_data(
+        T_star=point.T_star_value,
+        g_star=point.g_star_value,
+        vw=point.vw_value,
+        alpha=point.alpha,
+        beta_over_H=point.beta_over_H,
+        mission_profile=point.model.mission_profile
+    )
+    return HttpResponse(csv, content_type="text/csv")
+
+
+def model_point_ps(request, model_id, point_id) -> HttpResponse:
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model"],
+        model__id=model_id,
+        number=point_id
+    )
+    fig = get_PS_image(
+        T_star=point.T_star_value,
+        g_star=point.g_star_value,
+        vw=point.vw_value,
+        alpha=point.alpha,
+        beta_over_H=point.beta_over_H,
+        mission_profile=point.model.mission_profile
+    )
+    return fig_to_response(fig)
