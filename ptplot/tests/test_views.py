@@ -39,10 +39,10 @@ class ViewTest(TestCase):
         cls.form = PTPlotForm(data={
             "vw": 0.3,
             "alpha": 0.1,
-            "BetaoverH": 10000,
-            "Tstar": 100,
-            "gstar": 100,
-            "MissionProfile": 0
+            "beta_over_H": 10000,
+            "T_star": 100,
+            "g_star": 100,
+            "mission_profile": 0
         })
         cls.form.is_valid()
 

@@ -3,36 +3,36 @@
 
 {% if point_list %}
 
-<h2>PTPlot: {{ model.model_name }}</h2>
+<h2>PTPlot: {{ model.name }}</h2>
 
-<p>{{ model.model_description|urlize }}</p>
+<p>{{ model.description|urlize }}</p>
 
-<p>{{ model.model_notes|urlize }}</p>
+<p>{{ model.notes|urlize }}</p>
 
 
 <p>General parameters used for plotting:
-  $v_\mathrm{w} = {{ model.model_vw }}$,
-  $T_* = {{model.model_Tstar }} \, \mathrm{GeV}$ (when all points
+  $v_\mathrm{w} = {{ model.vw }}$,
+  $T_* = {{model.T_star }} \, \mathrm{GeV}$ (when all points
   are plotted),
-  $g_* = {{model.model_gstar }}$.</p>
+  $g_* = {{model.g_star }}$.</p>
 
-<p>Mission profile: <b>{{ MissionProfile_label }}</b>
-<!--  ({{ model.model_Senscurve }}) --> <p>
+<p>Mission profile: <b>{{ mission_profile_label }}</b>
+<!--  ({{ model.Senscurve }}) --> <p>
 
-{% if model.model_hasScenarios == True %}
+{% if model.has_scenarios %}
 
 <h4>This model has the following scenarios:</h4>
 
 <ul>
-{% for scenario in scenario_list %}
+{% for scenario in list %}
 <li>
-  {% if scenario.scenario_description %}
-    <b>{{scenario.scenario_name}}:</b>
-    {{ scenario.scenario_description }}
+  {% if scenario.description %}
+    <b>{{scenario.name}}:</b>
+    {{ scenario.description }}
   {% else %}
-    <b>{{scenario.scenario_name}}</b>
+    <b>{{scenario.name}}</b>
   {% endif %}
-  [<a href="/ptplot/models/{{ model.id }}/scenarios/{{scenario.scenario_number }}/plot#results">plot scenario</a>]
+  [<a href="/ptplot/models/{{ model.id }}/scenarios/{{ scenario.number }}/plot#results">plot scenario</a>]
 </li>
 {% endfor %}
 </ul>
@@ -67,27 +67,27 @@
 <ul>
   {% for point in point_list %}
   <li>
-    {% if point.point_shortlabel %}
-    ({{point.point_shortlabel}}):
+    {% if point.short_label %}
+    ({{point.short_label}}):
     {% endif %}
 
-    {% if point.point_longlabel %}
-    [ {{ point.point_longlabel}} ]
+    {% if point.long_label %}
+    [ {{ point.long_label}} ]
     {% endif %}
     
     $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
-    $\beta/H_* = {{point.BetaoverH|floatformat:"0"}}$;
+    $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
 
     {% if point.vw %}
     $v_\mathrm{w} = {{point.vw}}$;
     {% endif %}
     
-    {% if point.gstar %}
-    $g_* = {{ point.gstar }} $;
+    {% if point.g_star %}
+    $g_* = {{ point.g_star }} $;
     {% endif %}
 
-    {% if point.Tstar %}
-    $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
+    {% if point.T_star %}
+    $T_* = {{ point.T_star|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
     
     [<a href="/ptplot/models/{{ model.id }}/{{ point.number }}/plot#results">plot</a>]

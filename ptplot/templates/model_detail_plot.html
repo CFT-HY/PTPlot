@@ -4,11 +4,11 @@
 <h4>Results for all points</h4>
 
 <p>NB: using
-  $v_\mathrm{w} = {{ model.model_vw }}$,
-  $T_* = {{model.model_Tstar }} \, \mathrm{GeV}$,
-  $g_* = {{model.model_gstar }}$.</p>
+  $v_\mathrm{w} = {{ model.vw }}$,
+  $T_* = {{model.T_star }} \, \mathrm{GeV}$,
+  $g_* = {{model.g_star }}$.</p>
 
-{% if model.model_hugeAlpha %}
+{% if model.huge_alpha %}
 <p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these
     phase transition strengths has not been tested.</div></p>
 {% endif %}

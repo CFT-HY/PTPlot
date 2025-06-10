@@ -9,7 +9,7 @@
 {% if models_list %}
 <ul>
   {% for model in models_list %}
-  <li><a href="models/{{ model.id }}">{{model.model_name}}</a> - {{model.model_description}}</li>
+  <li><a href="models/{{ model.id }}">{{model.name}}</a> - {{model.description}}</li>
   {% endfor %}
 </ul>
 {% endif %}

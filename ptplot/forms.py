@@ -33,22 +33,22 @@ class PTPlotForm(forms.Form):
         min_value=0.0,
         localize=False
     )
-    BetaoverH = forms.FloatField(
+    beta_over_H = forms.FloatField(
         label=r"Inverse phase transition duration $\beta/H_*$",
         min_value=0.0,
         localize=False
     )
-    Tstar = forms.FloatField(
+    T_star = forms.FloatField(
         label=r"Transition temperature $T_\star$",
         min_value=0.0,
         localize=False
     )
-    gstar = forms.FloatField(
+    g_star = forms.FloatField(
         label=r"Degrees of freedom $g_\star$",
         min_value=0.0,
         localize=False
     )
-    MissionProfile = forms.ChoiceField(
+    mission_profile = forms.ChoiceField(
         label=r"Mission profile",
         choices=available_MissionProfiles
     )
@@ -69,19 +69,19 @@ class MultipleForm(forms.Form):
         validators=[validate_velocity],
         localize=False
     )
-    Tstar = forms.FloatField(
+    T_star = forms.FloatField(
         label=r"Transition temperature $T_\star$",
         min_value=0.0,
         localize=False
     )
-    gstar = forms.FloatField(
+    g_star = forms.FloatField(
         label=r"Degrees of freedom $g_\star$",
         min_value=0.0,
         localize=False
     )
-    MissionProfile = forms.ChoiceField(
+    mission_profile = forms.ChoiceField(
         label="Mission profile",
-        choices=available_MissionProfiles
+        choices=MISSION_PROFILES
     )
     table = forms.CharField(
         label="Input table",
@@ -101,11 +101,11 @@ class ParameterChoiceForm(forms.Form):
             logger.exception("Error retrieving models", exc_info=e)
 
         for model in self.models:
-            print(model.model_name, file=sys.stderr)
+            print(model.name, file=sys.stderr)
 
             self.underlying_model = forms.ChoiceField(
                 label=r"Model",
-                choices=[(model.id, model.model_name) for model in self.models]
+                choices=[(model.id, model.name) for model in self.models]
             )
 
             # self.precomputed_choices = [(i, r"$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$" % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
@@ -126,12 +126,12 @@ class ParameterChoiceForm(forms.Form):
                 min_value=0.0,
                 localize=False
             )
-            self.BetaoverH = forms.FloatField(
+            self.beta_over_H = forms.FloatField(
                 label=r"Inverse phase transition duration $\beta/H_*$",
                 min_value=0.0,
                 localize=False
             )
-            self.MissionProfile = forms.ChoiceField(
+            self.mission_profile = forms.ChoiceField(
                 label="MissionProfile",
                 choices=AVAILABLE_LABELS
             )

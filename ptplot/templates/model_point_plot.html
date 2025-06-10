@@ -2,30 +2,30 @@
 {% block results %}
 
 <h3>Results for point
-    {% if point.point_shortlabel %}
-    ({{point.point_shortlabel}}):
+    {% if point.short_label %}
+    ({{point.short_label}}):
     {% endif %}
 
-    {% if point.point_longlabel %}
-    [ {{ point.point_longlabel}} ]
+    {% if point.long_label %}
+    [ {{ point.long_label}} ]
   {% endif %}
 </h3>
 
 <p>Using the following model specific parameters:
   
     $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
-    $\beta/H_* = {{point.BetaoverH|floatformat:"0"}}$;
+    $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
     
     {% if point.vw %}
     $v_\mathrm{w} = {{point.vw}}$;
     {% endif %}
 
-    {% if point.gstar %}
-    $g_* = {{ point.gstar }} $;
+    {% if point.g_star %}
+    $g_* = {{ point.g_star }} $;
     {% endif %}
 
-    {% if point.Tstar %}
-    $T_* = {{ point.Tstar|floatformat:"-1" }} \, \mathrm{GeV}$;
+    {% if point.T_star %}
+    $T_* = {{ point.T_star|floatformat:"-1" }} \, \mathrm{GeV}$;
     {% endif %}
 </p>
 
@@ -33,19 +33,19 @@
 
   {% if not point.vw %}
   $v_\mathrm{w} =
-  {{model.model_vw }};
+  {{model.vw }};
   {% endif %}$
-  {% if not point.Tstar %}
+  {% if not point.T_star %}
   $T_* =
-  {{ model.model_Tstar }} \, \mathrm{GeV}$;
+  {{ model.T_star }} \, \mathrm{GeV}$;
   {% endif %} 
-  {% if not point.gstar %}
+  {% if not point.g_star %}
   $g_* =
-  {{ model.model_gstar }};
+  {{ model.g_star }};
   {% endif %}$
 </p>
 
-{% if model.model_hugeAlpha %}
+{% if model.huge_alpha %}
 <p><div style="color: red"><b>Warning</b>: the reliability of the power spectrum ansatz at these
     phase transition strengths has not been tested.</div></p>
 {% endif %}
