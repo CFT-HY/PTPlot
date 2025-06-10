@@ -5,7 +5,7 @@ from django.shortcuts import render
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
-from ptplot.science.precomputed import AVAILABLE_LABELS
+from ptplot.science.mission_profile import MissionProfile
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
@@ -49,7 +49,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 beta_over_Hs=beta_over_Hs,
                 T_star=form.cleaned_data["T_star"],
                 g_star=form.cleaned_data["g_star"],
-                mission_profile=int(form.cleaned_data["mission_profile"]),
+                mission_profile=form.mission_profile,
                 labels=label_list_final
             )
             return fig_to_response(fig)
@@ -75,11 +75,6 @@ def single(request: HttpRequest) -> HttpResponse:
         form = PTPlotForm(request.GET)
 
         if form.is_valid():
-            # usetex = form.cleaned_data["usetex"]
-
-            mission_profile = int(form.cleaned_data["mission_profile"])
-            mission_profile_label = AVAILABLE_LABELS[mission_profile]
-
             context = {
                 "form": form,
                 "querystring": querystring,
@@ -88,7 +83,7 @@ def single(request: HttpRequest) -> HttpResponse:
                 "beta_over_H": form.cleaned_data["beta_over_H"],
                 "T_star": form.cleaned_data["T_star"],
                 "g_star": form.cleaned_data["g_star"],
-                "mission_profile_label": mission_profile_label
+                "mission_profile": form.mission_profile
             }
             return render(request, "single_result.html", context)
 

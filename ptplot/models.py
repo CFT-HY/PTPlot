@@ -1,8 +1,10 @@
+import typing as tp
+
 from django.core import validators
 from django.db import models
 
 from ptplot.science import const
-from ptplot.science.precomputed import AVAILABLE_LABELS
+from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfile
 
 NAME_MAX_LENGTH: int = 200
 
@@ -26,15 +28,32 @@ class Model(models.Model):
         verbose_name=const.G_STAR_NAME,
         validators=[validators.MinValueValidator(0)]
     )
-    mission_profile = models.IntegerField(default=0)
+    mission_profile_ind = models.IntegerField(default=0, choices=MISSION_PROFILE_CHOICES)
     huge_alpha = models.BooleanField(default=False)
     has_scenarios = models.BooleanField()
+
+    def __init__(
+            self,
+            *args,
+            mission_profile: tp.Union[int, MissionProfile] = None,
+            **kwargs):
+        if mission_profile is not None:
+            if "mission_profile_ind" in kwargs:
+                raise ValueError("Cannot set both mission_profile and mission_profile_ind.")
+            if isinstance(mission_profile, MissionProfile):
+                kwargs["mission_profile_ind"] = mission_profile.ind
+            elif isinstance(mission_profile, int):
+                kwargs["mission_profile_ind"] = mission_profile
+            else:
+                raise ValueError("mission_profile must be MissionProfile or int.")
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
-    def mission_profile_label(self) -> str:
-        return AVAILABLE_LABELS[self.mission_profile]
+    @property
+    def mission_profile(self) -> MissionProfile:
+        return MissionProfile.from_ind(self.mission_profile_ind)
 
     class Meta:
         indexes = [models.Index(fields=["name"])]

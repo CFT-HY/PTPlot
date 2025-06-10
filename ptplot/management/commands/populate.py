@@ -4,7 +4,8 @@ import os
 from django.core.management.base import BaseCommand
 import numpy as np
 
-from ptplot.models import *
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
+from ptplot.models import Model, ParameterChoice, Scenario
 
 FILEDIR: str = os.path.dirname(os.path.realpath(__file__))
 
@@ -99,7 +100,7 @@ $m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
             T_star=50,
             g_star=106.75,
             vw=0.7,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         twohdm_josemi_model.save()
@@ -182,7 +183,7 @@ $m_{A_0} \in [m_{H_0}+ 150\,\mathrm{GeV} ,\,\,m_{H_0} + 350\,\mathrm{GeV}]$.
 #                      T_star=50,
 #                      g_star=106.75,
 #                      vw=1.0,
-#                      mission_profile=0,
+#                      mission_profile=DEFAULT_MISSION_PROFILE,
 #                      has_scenarios=False)
 #         singlet_miki_model.save()
 
@@ -221,7 +222,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).""",
             T_star=50,
             g_star=106.75,
             vw=1.0,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         singlet_jonathan_z2_model.save()
@@ -252,7 +253,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).""",
             T_star=100,
             g_star=106.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         singletscalars_moritz_model.save()
@@ -284,7 +285,7 @@ of CosmoTransitions (see https://arxiv.org/abs/1109.4189).""",
             T_star=50,
             g_star=106.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         darkphoton_moritz_model.save()
@@ -324,7 +325,7 @@ considered.""",
             T_star=500,
             g_star=130,
             vw=1.0,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         gaugedlepton_madge_model.save()
@@ -416,7 +417,7 @@ particle) is either a meson-like or a glueball-like state.""",
             T_star=150,
             g_star=106.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
         )
@@ -496,7 +497,7 @@ particle) is either a meson-like or a glueball-like state.""",
             T_star=500,
             g_star=106.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
         )
@@ -680,7 +681,7 @@ a modified version of CosmoTransitions (see https://arxiv.org/abs/1109.4189)."""
             T_star=100,
             g_star=106.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         eft_miki_model.save()
@@ -758,7 +759,7 @@ the corresponding references.""",
             T_star=100,
             g_star=108.75,
             vw=0.95,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         susy_model.save()
@@ -951,7 +952,7 @@ In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle 
             T_star=50,
             g_star=107.75,
             vw=1.0,
-            mission_profile=0,
+            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         singlet_jonathan_model.save()

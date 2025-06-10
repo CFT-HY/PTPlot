@@ -24,6 +24,7 @@ from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg
 from ptplot.science.espinosa import ubarf
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.snr_onthefly import create_snr_figure
 from ptplot.science.snr_precompute import get_snr_curve
 import ptplot.science.type_hints as th
@@ -43,7 +44,7 @@ def get_snr_image(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.STR_OR_LIST_OR_NESTED_LIST = None,
         titles: th.STR_OR_LIST = None,
-        mission_profile: int = 0,
+        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
         huge_alpha: bool = False,
         dbpl: bool = False,
@@ -153,9 +154,11 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
+    mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = get_snr_image(
-        [args.vw], [args.alpha], [args.BetaoverH],
-        args.Tstar, args.gstar, mission_profile=args.mission_profile)
+        vws=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
+        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile
+    )
     print(fig_to_svg(fig).decode("utf-8"))
 
 

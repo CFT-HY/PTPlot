@@ -8,7 +8,6 @@ DEFAULT_BETA_OVER_H: float = 10
 DEFAULT_T_STAR: float = 180
 DEFAULT_G_STAR: float = 100
 DEFAULT_ADIABATIC_RATIO: float = 4 / 3
-DEFAULT_MISSION_PROFILE: int = 0
 
 CS0: float = 1 / np.sqrt(3)
 CS0_2: float = 1 / 3

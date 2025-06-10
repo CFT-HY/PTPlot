@@ -10,49 +10,50 @@ Contains the following functions:
     * stock_bkg_compute_snr - computes the SNR
 """
 
-import re
+# import re
 import typing as tp
 
 import numpy as np
 import scipy.integrate
 
 
-def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:
-    """Load first column and column col_ind of a file
-
-    Parameters
-    ----------
-    path : string
-        Input file name
-    col_ind : int
-        Index of the column containing the data (column 0 is the reference)
-
-    Returns
-    -------
-    x : np.ndarray
-        Reference column
-    y : np.ndarray
-        Data read from file
-    """
-
-    with open(path, "r") as fIn:
-        lines = fIn.readlines()
-
-    Nd = 0
-    for line in lines:
-        if line[0] != "#" and len(line) > 0:
-            Nd += 1
-
-    x  = np.zeros(Nd)
-    y = np.zeros(Nd)
-    iL = 0
-    for line in lines:
-        if line[0] != "#" and len(line) > 0:
-            w = re.split(r"\s+", line)
-            x[iL] = float(w[0])
-            y[iL] = float(w[col_ind])
-            iL += 1
-    return x, y
+# Replaced by np.loadtxt
+# def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:
+#     """Load first column and column col_ind of a file
+#
+#     Parameters
+#     ----------
+#     path : string
+#         Input file name
+#     col_ind : int
+#         Index of the column containing the data (column 0 is the reference)
+#
+#     Returns
+#     -------
+#     x : np.ndarray
+#         Reference column
+#     y : np.ndarray
+#         Data read from file
+#     """
+#
+#     with open(path, "r") as fIn:
+#         lines = fIn.readlines()
+#
+#     Nd = 0
+#     for line in lines:
+#         if line[0] != "#" and len(line) > 0:
+#             Nd += 1
+#
+#     x  = np.zeros(Nd)
+#     y = np.zeros(Nd)
+#     iL = 0
+#     for line in lines:
+#         if line[0] != "#" and len(line) > 0:
+#             w = re.split(r"\s+", line)
+#             x[iL] = float(w[0])
+#             y[iL] = float(w[col_ind])
+#             iL += 1
+#     return x, y
 
 
 def stock_bkg_compute_snr(

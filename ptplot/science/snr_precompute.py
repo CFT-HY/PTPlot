@@ -22,18 +22,16 @@ import numpy as np
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ptplot.science import const, snr
+from ptplot.science import snr
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.powerspectrum import PowerSpectrum
-from ptplot.science.precomputed import AVAILABLE_SENSITIVITY_CURVES_LITE, AVAILABLE_DURATIONS
-
-SENSITIVITY_ROOT = os.path.join(os.path.dirname(__file__), "sensitivity")
+from ptplot.science.mission_profile import MISSION_PROFILES, MissionProfile
 
 
 def get_snr_curve(
         Tn: float,
         g_star: float,
-        mission_profile: int,
+        mission_profile: MissionProfile,
         ubarf_max: float = 1) -> tp.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculate the SNR curves for the plots
 
@@ -60,23 +58,15 @@ def get_snr_curve(
         Scanned values of log10(Ubarf)
     """
 
-    # Get mission duration in seconds
-    duration = const.YEAR_IN_SECONDS * AVAILABLE_DURATIONS[mission_profile]
-
     # Values of log10(Ubarf) to scan
     log10Ubarf = np.linspace(-2, math.log10(ubarf_max), 51)
 
     # Values of log10(HnRstar) to scan
     log10HnRstar = np.linspace(-4, 0.08, 51)
 
-    sensitivity_curve = os.path.join(SENSITIVITY_ROOT,
-                                     AVAILABLE_SENSITIVITY_CURVES_LITE[
-                                         mission_profile])
-    fS, OmEff = snr.load_file(sensitivity_curve, 2)
-    
     # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr_value = np.zeros(( len(log10HnRstar), len(log10Ubarf) ))
-    tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)  ))
+    snr_value = np.zeros((len(log10HnRstar), len(log10Ubarf)))
+    tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)))
 
     for i in range(len(log10HnRstar)):
         for j in range(len(log10Ubarf)):
@@ -89,13 +79,20 @@ def get_snr_curve(
                 H_rstar=HnRstar,
                 ubarf_in=Ubarf
             )
-
-            OmGW0 = ps.power_spectrum_sw_conservative(fS)
+            OmGW0 = ps.power_spectrum_sw_conservative(mission_profile.f)
 
             # Get shocktime (H_tsh = HnRstar/Ubarf)
-            tshHn[i,j] = ps.get_shock_time()
-            
-            snr_value[i,j], frange = snr.stock_bkg_compute_snr(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
+            tshHn[i, j] = ps.get_shock_time()
+
+            snr_value[i, j], frange = snr.stock_bkg_compute_snr(
+                SensFr=mission_profile.f,
+                SensOm=mission_profile.sensitivity,
+                GWFr=mission_profile.f,
+                GWOm=OmGW0,
+                Tobs=mission_profile.duration_seconds,
+                fmin=1.e-6,
+                fmax=1.
+            )
 
     return tshHn, snr_value, log10HnRstar, log10Ubarf
 
@@ -107,14 +104,13 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
-
-    # Todo: ensure that Tn = Tstar
-    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(args.Tstar, args.gstar, args.mission_profile, ubarf_max=1)
+    mission_profile = MissionProfile.from_ind(args.mission_profile)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
+        Tn=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, ubarf_max=1
+    )
 
     # Use the mission profile to load the sensitivity curve name
-    sensitivity_curve = os.path.join(SENSITIVITY_ROOT, AVAILABLE_SENSITIVITY_CURVES_LITE[args.mission_profile])
-    dest_head = os.path.splitext(sensitivity_curve)[0]
-    destination = f"{dest_head}_Tn_{args.Tstar}_gstar_{args.gstar}_precomputed.npz"
+    destination = f"{mission_profile.sensitivity_file_name}_Tn_{args.Tstar}_gstar_{args.gstar}_precomputed.npz"
 
     np.savez(
         destination,
@@ -123,7 +119,7 @@ def main():
         log10HnRstar=log10HnRstar,
         log10Ubarf=log10Ubarf
     )
-    print("Wrote SNR contour to %s", destination)
+    print("Wrote SNR contour to:", destination)
 
 
 if __name__ == "__main__":

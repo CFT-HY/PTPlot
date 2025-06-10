@@ -35,7 +35,7 @@ def csv(request: HttpRequest) -> HttpResponse:
         vw=form.cleaned_data["vw"],
         alpha=form.cleaned_data["alpha"],
         beta_over_H=form.cleaned_data["beta_over_H"],
-        mission_profile=int(form.cleaned_data["mission_profile"])
+        mission_profile=form.mission_profile
     )
     return HttpResponse(csv, content_type="text/csv")
 

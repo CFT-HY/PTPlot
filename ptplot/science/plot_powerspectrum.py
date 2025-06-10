@@ -28,10 +28,10 @@ from ptplot.science.plot_utils import fig_to_svg
 from ptplot.science.powerspectrum import PowerSpectrum
 # from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
 # from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM
-from ptplot.science.precomputed import AVAILABLE_SENSITIVITY_CURVES, AVAILABLE_DURATIONS
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 matplotlib.use("Agg")
-SENSITIVITY_ROOT = os.path.join(os.path.dirname(__file__), "sensitivity")
+
 
 
 def get_ps_data(
@@ -41,7 +41,7 @@ def get_ps_data(
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        mission_profile: int = const.DEFAULT_MISSION_PROFILE,
+        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         sw_only: bool = True) -> str:
     """Retrieve the data for the power spectrum plot
 
@@ -72,9 +72,6 @@ def get_ps_data(
     res : string
         String containing all the data to reproduce the power spectrum plot
     """
-
-    sensitivity_file = AVAILABLE_SENSITIVITY_CURVES[mission_profile]
-    
     curves_ps = PowerSpectrum(
         vw=vw,
         T_star=T_star,
@@ -83,26 +80,23 @@ def get_ps_data(
         g_star=g_star,
         adiabatic_ratio=adiabatic_ratio
     )
-    sensitivity_curve = os.path.join(SENSITIVITY_ROOT, sensitivity_file)
-    f, sensitivity = np.loadtxt(sensitivity_curve, usecols=[0,2], unpack=True)
 
     res = ""
     if sw_only:
         res = res + "f, omegaSens, omegaSW\n"
     else:
         res = res + "f, omegaSens, omegaSW, omegaTurb, omegaTot\n"
-        
-    for x,y in zip(f, sensitivity):
+
+    for x,y in zip(mission_profile.f, mission_profile.sensitivity):
         if sw_only:
-            res = res + "%g, %g, %g\n" % (x,
-                                          y,
-                                          curves_ps.power_spectrum_sw_conservative(x))
+            res = res + "%g, %g, %g\n" % (x, y, curves_ps.power_spectrum_sw_conservative(x))
         else:
-            res = res + "%g, %g, %g, %g, %g\n" % (x,
-                                                  y,
-                                                  curves_ps.power_spectrum_sw_conservative(x),
-                                                  curves_ps.power_spectrum_turb(x),
-                                                  curves_ps.power_spectrum_conservative(x))
+            res = res + "%g, %g, %g, %g, %g\n" % (
+                x, y,
+                curves_ps.power_spectrum_sw_conservative(x),
+                curves_ps.power_spectrum_turb(x),
+                curves_ps.power_spectrum_conservative(x)
+            )
 
     return res
 
@@ -114,7 +108,7 @@ def get_ps_image(
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        mission_profile: int = const.DEFAULT_MISSION_PROFILE,
+        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
         sw_only: bool = True) -> Figure:
     """Produce the power spectrum plot
@@ -145,9 +139,6 @@ def get_ps_image(
     sio : Figure
         plot of the power spectrum
     """
-
-    sensitivity_file=AVAILABLE_SENSITIVITY_CURVES[mission_profile]
-    
     curves_ps = PowerSpectrum(
         vw=vw,
         T_star=T_star,
@@ -166,26 +157,21 @@ def get_ps_image(
     # Uncomment to make legend smaller
     # matplotlib.rcParams.update({"legend.fontsize": 14})
 
-    sensitivity_curve = os.path.join(SENSITIVITY_ROOT, sensitivity_file)
-    sens_filehandle = open(sensitivity_curve)
-    f, sensitivity = np.loadtxt(sens_filehandle,usecols=[0,2], unpack=True)
-    f_more = np.logspace(math.log(min(f)), math.log(max(f)), num=len(f)*10)
+    f_more = np.logspace(math.log(min(mission_profile.f)), math.log(max(mission_profile.f)), num=len(mission_profile.f)*10)
 
     fig = Figure()
     ax = fig.add_subplot(111)
 
-    fS, OmEff = snr.load_file(sensitivity_curve, 2)
-    duration = const.YEAR_IN_SECONDS * AVAILABLE_DURATIONS[mission_profile]
     snr_value, frange = snr.stock_bkg_compute_snr(
-        fS,
-        OmEff,
-        fS,
-        curves_ps.power_spectrum_sw_conservative(fS),
-        duration,
-        1.e-6,
-        1
+        SensFr=mission_profile.f,
+        SensOm=mission_profile.sensitivity,
+        GWFr= mission_profile.f,
+        GWOm=curves_ps.power_spectrum_sw_conservative(mission_profile.f),
+        Tobs=mission_profile.duration_seconds,
+        fmin=1.e-6,
+        fmax=1
     )
-    ax.fill_between(f, sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
+    ax.fill_between(mission_profile.f, mission_profile.sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
 
     if sw_only:
         ax.plot(
@@ -235,7 +221,7 @@ def main():
     fig = get_ps_image(
         vw=args.vw, alpha=args.alpha, beta_over_H=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar,
-        ssm=args.ssm, dbpl=args.dbpl
+        # ssm=args.ssm, dbpl=args.dbpl
     )
     print(fig_to_svg(fig).decode("utf-8"))
 

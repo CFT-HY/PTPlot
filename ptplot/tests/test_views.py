@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from ptplot.forms import PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 ALLOW_CODES: tp.Iterable[int] = (200, 302)
 ALLOW_CODES_TYPE = tp.Union[tp.List[int], tp.Tuple[int, ...]]
@@ -42,7 +43,7 @@ class ViewTest(TestCase):
             "beta_over_H": 10000,
             "T_star": 100,
             "g_star": 100,
-            "mission_profile": 0
+            "mission_profile_ind": 0
         })
         cls.form.is_valid()
 

@@ -1,16 +1,12 @@
 import logging
-# import sys
-import typing as tp
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from ptplot.models import *
-from ptplot.science.precomputed import AVAILABLE_LABELS
 
 logger = logging.getLogger(__name__)
-MISSION_PROFILES: tp.List[tp.Tuple[int, str]] = [(i, label) for i, label in enumerate(AVAILABLE_LABELS)]
 
 
 def validate_velocity(value: float) -> None:
@@ -19,6 +15,24 @@ def validate_velocity(value: float) -> None:
             _("%(value)s must be greater than zero and less than or equal to 1"),
             params={"value": value},
         )
+
+
+class MissionProfileField(forms.TypedChoiceField):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(
+            *args,
+            label=r"Mission profile",
+            choices=MISSION_PROFILE_CHOICES,
+            coerce=int,
+            empty_value=None,
+            **kwargs
+        )
+
+    # def to_python(self, value) -> tp.Optional[MissionProfile]:
+    #     if value is None or value == "":
+    #         return None
+    #     converted = int(super().to_python(value))
+    #     return MissionProfile.from_ind(converted)
 
 
 class PTPlotForm(forms.Form):
@@ -48,18 +62,20 @@ class PTPlotForm(forms.Form):
         min_value=0.0,
         localize=False
     )
-    mission_profile = forms.ChoiceField(
-        label=r"Mission profile",
-        choices=MISSION_PROFILES
-    )
-   # usetex = forms.BooleanField(
-   #     label="Use TeX for labels (slow)?",
-   #      initial=False,
-   #      required=False
-   # )
+    mission_profile_ind = MissionProfileField()
+    # engine = forms.ChoiceField()
+    # usetex = forms.BooleanField(
+    #     label="Use TeX for labels (slow)?",
+    #      initial=False,
+    #      required=False
+    # )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
+
+    @property
+    def mission_profile(self) -> MissionProfile:
+        return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 
 class MultipleForm(forms.Form):
@@ -79,15 +95,16 @@ class MultipleForm(forms.Form):
         min_value=0.0,
         localize=False
     )
-    mission_profile = forms.ChoiceField(
-        label="Mission profile",
-        choices=MISSION_PROFILES
-    )
+    mission_profile_ind = MissionProfileField()
     table = forms.CharField(
         label="Input table",
         widget=forms.Textarea,
         initial="#alpha_theta,BetaOverH,label"
     )
+
+    @property
+    def mission_profile(self) -> MissionProfile:
+        return MissionProfile.from_ind(self.cleaned_data["mission_profile"])
 
 
 class ParameterChoiceForm(forms.Form):
@@ -102,9 +119,11 @@ class ParameterChoiceForm(forms.Form):
 
         for model in self.models:
             # print(model.name, file=sys.stderr)
-            self.underlying_model = forms.ChoiceField(
+            self.underlying_model = forms.TypedChoiceField(
                 label=r"Model",
-                choices=[(model.id, model.name) for model in self.models]
+                choices=[(model.id, model.name) for model in self.models],
+                coerce=int,
+                empty_value=None
             )
 
             # self.precomputed_choices = [(i, r"$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$" % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
@@ -130,7 +149,4 @@ class ParameterChoiceForm(forms.Form):
                 min_value=0.0,
                 localize=False
             )
-            self.mission_profile = forms.ChoiceField(
-                label="MissionProfile",
-                choices=AVAILABLE_LABELS
-            )
+            self.mission_profile = MissionProfileField()
