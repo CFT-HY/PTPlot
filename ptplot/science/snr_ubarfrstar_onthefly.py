@@ -7,7 +7,7 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
 
 Contains the following function:
-    * get_SNR_image - creates the UbarfRstar plot
+    * get_snr_image - creates the UbarfRstar plot
 """
 
 import math
@@ -28,12 +28,12 @@ from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.espinosa import ubarf
-from ptplot.science.snr_precompute import get_SNRcurve
+from ptplot.science.snr_precompute import get_snr_curve
 
 matplotlib.use("Agg")
 
 
-def get_SNR_image(
+def get_snr_image(
         # Todo: Why are some of these defaults different to the ones in const.py?
         # Todo: Fix types for vw_list, alpha_list and BetaoverH_list
         vw_list: tp.List[float] = [[0.5]],
@@ -93,7 +93,7 @@ def get_SNR_image(
     else:
         ubarfmax = 1
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(T_star, g_star, mission_profile, ubarfmax)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(T_star, g_star, mission_profile, ubarfmax)
 
     levels = np.array([1,5,10,20,50,100])
     levels_tsh = np.array([0.001,0.01,0.1,1,10,100])
@@ -245,7 +245,7 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
-    fig = get_SNR_image(
+    fig = get_snr_image(
         [args.vw], [args.alpha], [args.BetaoverH],
         args.Tstar, args.gstar, mission_profile=args.mission_profile)
     print(fig_to_svg(fig).decode("utf-8"))

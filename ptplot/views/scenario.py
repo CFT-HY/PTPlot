@@ -3,8 +3,8 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Scenario
-from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_SNR_image
+from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
+from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -31,7 +31,7 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
         scenario.model.vw if point.vw is None else point.vw
         for point in points
     ]
-    fig = get_SNR_image(
+    fig = get_snr_image(
         vw_list=[vws],
         alpha_list=[[point.alpha for point in points]],
         beta_over_H_list=[[point.beta_over_H for point in points]],
@@ -55,7 +55,7 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
     )
     points = scenario.points.all()
 
-    fig = get_SNR_alphabeta_image(
+    fig = get_snr_alphabeta_image(
         vw=scenario.model.vw,
         alpha_list=[[point.alpha for point in points]],
         beta_over_H_list=[[point.beta_over_H for point in points]],

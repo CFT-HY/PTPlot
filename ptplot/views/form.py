@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
+from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
 from ptplot.science.precomputed import AVAILABLE_LABELS
 
 
@@ -48,7 +48,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
             else:
                 label_list_final = [labels]
 
-            fig = get_SNR_alphabeta_image(
+            fig = get_snr_alphabeta_image(
                 vw=vw,
                 alpha_list=[alphas],
                 beta_over_H_list=[beta_over_Hs],

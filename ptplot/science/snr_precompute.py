@@ -30,7 +30,7 @@ from ptplot.science.precomputed import AVAILABLE_SENSITIVITY_CURVES_LITE, AVAILA
 SENSITIVITY_ROOT = os.path.join(os.path.dirname(__file__), "sensitivity")
 
 
-def get_SNRcurve(
+def get_snr_curve(
         Tn: float,
         g_star: float,
         mission_profile: int,
@@ -95,7 +95,7 @@ def get_SNRcurve(
             # Get shocktime (H_tsh = HnRstar/Ubarf)
             tshHn[i,j] = ps.get_shock_time()
             
-            snr_value[i,j], frange = snr.StockBkg_ComputeSNR(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
+            snr_value[i,j], frange = snr.stock_bkg_compute_snr(fS, OmEff, fS, OmGW0, duration, 1.e-6, 1.)
 
     return tshHn, snr_value, log10HnRstar, log10Ubarf
 
@@ -109,7 +109,7 @@ def main():
     args = parser.parse_args()
 
     # Todo: ensure that Tn = Tstar
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(args.Tstar, args.gstar, args.mission_profile, ubarf_max=1)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(args.Tstar, args.gstar, args.mission_profile, ubarf_max=1)
 
     # Use the mission profile to load the sensitivity curve name
     sensitivity_curve = os.path.join(SENSITIVITY_ROOT, AVAILABLE_SENSITIVITY_CURVES_LITE[args.mission_profile])

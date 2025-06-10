@@ -33,22 +33,22 @@ class ScienceTest(TestCase):
         PowerSpectrumSSM(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
 
     def test_ps_data(self):
-        plot_ps.get_PS_data()
+        plot_ps.get_ps_data()
 
     def test_ps_image(self):
-        plot_ps.get_PS_image()
+        plot_ps.get_ps_image()
 
     def test_requirements(self):
         req.main(print_points=False)
 
     def test_snr_alpha_beta_image(self):
-        snr_ab.get_SNR_alphabeta_image(vw=0.3)
+        snr_ab.get_snr_alphabeta_image(vw=0.3)
 
     # def test_snr_curve(self):
     #     snr_pre.get_SNRcurve()
 
     def test_snr_ubarf(self):
-        snr_ubarf.get_SNR_image()
+        snr_ubarf.get_snr_image()
 
     # def test_stock_bkg_compute_snr(self):
     #     snr.StockBkg_ComputeSNR()

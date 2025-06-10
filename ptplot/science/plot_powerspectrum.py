@@ -6,8 +6,8 @@ Create the power spectrum plot
 This file contains all the functions related to producing the power spectrum plot.
 
 Contains the following functions:
-    * get_PS_data - gets the data for the power spectrum plot and stores it
-    * get_PS_image - creates the power spectrum plot
+    * get_ps_data - gets the data for the power spectrum plot and stores it
+    * get_ps_image - creates the power spectrum plot
 """
 
 import math
@@ -34,7 +34,7 @@ matplotlib.use("Agg")
 SENSITIVITY_ROOT = os.path.join(os.path.dirname(__file__), "sensitivity")
 
 
-def get_PS_data(
+def get_ps_data(
         vw: float = const.DEFAULT_VW,
         alpha: float = const.DEFAULT_ALPHA,
         beta_over_H: float = const.DEFAULT_BETA_OVER_H,
@@ -107,7 +107,7 @@ def get_PS_data(
     return res
 
 
-def get_PS_image(
+def get_ps_image(
         vw: float = const.DEFAULT_VW,
         alpha: float = const.DEFAULT_ALPHA,
         beta_over_H: float = const.DEFAULT_BETA_OVER_H,
@@ -176,7 +176,7 @@ def get_PS_image(
 
     fS, OmEff = snr.load_file(sensitivity_curve, 2)
     duration = const.YEAR_IN_SECONDS * AVAILABLE_DURATIONS[mission_profile]
-    snr_value, frange = snr.StockBkg_ComputeSNR(
+    snr_value, frange = snr.stock_bkg_compute_snr(
         fS,
         OmEff,
         fS,
@@ -232,7 +232,7 @@ def main():
         methods=True
     )
     args = parser.parse_args()
-    fig = get_PS_image(
+    fig = get_ps_image(
         vw=args.vw, alpha=args.alpha, beta_over_H=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar,
         ssm=args.ssm, dbpl=args.dbpl

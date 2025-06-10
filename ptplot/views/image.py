@@ -2,9 +2,9 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpR
 
 from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
-from ptplot.science.plot_powerspectrum import get_PS_image
-from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_SNR_image
+from ptplot.science.plot_powerspectrum import get_ps_image
+from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
+from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
 
 
 def ps_image(request: HttpRequest) -> HttpResponse:
@@ -15,7 +15,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    fig = get_PS_image(
+    fig = get_ps_image(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
         vw=form.cleaned_data["vw"],
@@ -34,7 +34,7 @@ def snr_image(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    fig = get_SNR_image(
+    fig = get_snr_image(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
         vw_list=[[form.cleaned_data["vw"]]],
@@ -53,7 +53,7 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    fig = get_SNR_alphabeta_image(
+    fig = get_snr_alphabeta_image(
         vw=form.cleaned_data["vw"],
         alpha_list=[[form.cleaned_data["alpha"]]],
         beta_over_H_list=[[form.cleaned_data["beta_over_H"]]],

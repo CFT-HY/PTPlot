@@ -7,7 +7,7 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
 
 Contains the following function:
-    * get_SNR_alphabeta_image - creates the AlphaBeta plot
+    * get_snr_alphabeta_image - creates the AlphaBeta plot
 """
 
 import math
@@ -30,12 +30,12 @@ from ptplot.science.espinosa import ubarf_to_alpha
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.powerspectrum import rstar_to_beta
-from ptplot.science.snr_precompute import get_SNRcurve
+from ptplot.science.snr_precompute import get_snr_curve
 
 matplotlib.use("Agg")
 
 
-def get_SNR_alphabeta_image(
+def get_snr_alphabeta_image(
         vw: float,
         # Todo: fix type hints for alpha_list and BetaoverH_list
         alpha_list: th.FloatListOrArr = [[const.DEFAULT_ALPHA]],
@@ -92,7 +92,7 @@ def get_SNR_alphabeta_image(
     else:
         ubarfmax = 0.6
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_SNRcurve(T_star, g_star, mission_profile, ubarfmax)
+    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(T_star, g_star, mission_profile, ubarfmax)
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0, log10HnRstar), vw))
     log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabatic_ratio))
 
@@ -258,7 +258,7 @@ def main():
         mission_profile=True
     )
     args = parser.parse_args()
-    fig = get_SNR_alphabeta_image(
+    fig = get_snr_alphabeta_image(
         args.vw, [args.alpha], [args.BetaoverH],
         T_star=args.Tstar, g_star=args.gstar, mission_profile=args.mission_profile)
     print(fig_to_svg(fig).decode("utf-8"))

@@ -6,8 +6,8 @@ These functions are inspired by the ones in Antoine Petiteau's eLISAToolBox aka
 eLISATools.py, adapted to use a trapezium rule integration with nonuniform interval.
 
 Contains the following functions:
-    * LoadFile - reads arrays from a file
-    * StockBkg_ComputeSNR - computes the SNR
+    * load_file - reads arrays from a file
+    * stock_bkg_compute_snr - computes the SNR
 """
 
 import re
@@ -55,7 +55,7 @@ def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:
     return x, y
 
 
-def StockBkg_ComputeSNR(
+def stock_bkg_compute_snr(
         SensFr: np.ndarray,
         SensOm: np.ndarray,
         GWFr: np.ndarray,

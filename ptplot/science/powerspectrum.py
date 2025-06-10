@@ -9,7 +9,7 @@ Phys.Rev.D 96 (2017) 10, 103520, Phys.Rev.D 101 (2020) 8, 089902 (erratum)
 Contains the following functions:
     * rstar_to_beta - converts from rstar to beta
     * beta_to_rstar - converts from beta to rstar
-    * get_SNR_value - calculates the SNR for a specific power spectrum
+    * get_snr_value - calculates the SNR for a specific power spectrum
 And the following class:
     * PowerSpectrum - contains the quantities and functions to obtain a power spectrum
 """
@@ -21,7 +21,7 @@ import numpy as np
 
 from ptplot.science import const
 from ptplot.science.espinosa import ubarf
-from ptplot.science.snr import StockBkg_ComputeSNR
+from ptplot.science.snr import stock_bkg_compute_snr
 
 
 def rstar_to_beta(rstar: float, vw: float, cs: float = const.CS0) -> float:
@@ -64,7 +64,7 @@ def beta_to_rstar(beta: float, vw: float, cs: float = const.CS0) -> float:
     return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw,cs) / beta
 
 
-def get_SNR_value(
+def get_snr_value(
         fSens: np.ndarray,
         omSens: np.ndarray,
         duration: float,
@@ -106,7 +106,7 @@ def get_SNR_value(
         T_star=Tstar, g_star=gstar,
         vw=vw, alpha=alpha, beta_over_H=BetaoverH
     )
-    snr_value, frange = StockBkg_ComputeSNR(
+    snr_value, frange = stock_bkg_compute_snr(
         fSens,
         omSens,
         fSens,

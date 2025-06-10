@@ -7,7 +7,7 @@ import dulwich.porcelain
 from dulwich.repo import Repo
 
 from ptplot.forms import PTPlotForm
-from ptplot.science.plot_powerspectrum import get_PS_data
+from ptplot.science.plot_powerspectrum import get_ps_data
 
 logger = logging.getLogger(__name__)
 GIT_DESCRIPTION: str = "unknown"
@@ -29,7 +29,7 @@ def csv(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    csv = get_PS_data(
+    csv = get_ps_data(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
         vw=form.cleaned_data["vw"],

@@ -3,9 +3,9 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import ParameterChoice
-from ptplot.science.plot_powerspectrum import get_PS_data, get_PS_image
-from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_SNR_image
+from ptplot.science.plot_powerspectrum import get_ps_data, get_ps_image
+from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
+from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
 
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
@@ -26,7 +26,7 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         model__id=model_id,
         number=point_id
     )
-    fig = get_SNR_image(
+    fig = get_snr_image(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw_list=[[point.vw_value]],
@@ -46,7 +46,7 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
         model__id=model_id,
         number=point_id
     )
-    fig = get_SNR_alphabeta_image(
+    fig = get_snr_alphabeta_image(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
@@ -66,7 +66,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         model__id=model_id,
         number=point_id
     )
-    csv = get_PS_data(
+    csv = get_ps_data(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
@@ -84,7 +84,7 @@ def model_point_ps(request, model_id, point_id) -> HttpResponse:
         model__id=model_id,
         number=point_id
     )
-    fig = get_PS_image(
+    fig = get_ps_image(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
