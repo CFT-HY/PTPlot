@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
+from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
 from ptplot.science.precomputed import AVAILABLE_LABELS
 
 

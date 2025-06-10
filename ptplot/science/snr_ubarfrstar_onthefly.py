@@ -28,7 +28,7 @@ from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.espinosa import ubarf
-from ptplot.science.SNR_precompute import get_SNRcurve
+from ptplot.science.snr_precompute import get_SNRcurve
 
 matplotlib.use("Agg")
 

@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404, render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
-from ptplot.science.SNRubarfrstar_onthefly import get_SNR_image
+from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
+from ptplot.science.snr_ubarfrstar_onthefly import get_SNR_image
 
 
 def models(request: HttpRequest) -> HttpResponse:

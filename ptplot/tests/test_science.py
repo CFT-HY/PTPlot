@@ -8,8 +8,8 @@ from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
 from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM
 # import ptplot.science.snr as snr
 # import ptplot.science.SNR_precompute as snr_pre
-import ptplot.science.SNRalphabeta_onthefly as snr_ab
-import ptplot.science.SNRubarfrstar_onthefly as snr_ubarf
+import ptplot.science.snr_alphabeta_onthefly as snr_ab
+import ptplot.science.snr_ubarfrstar_onthefly as snr_ubarf
 
 VW: float = 0.3
 ALPHA: float = 0.1

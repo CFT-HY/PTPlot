@@ -3,8 +3,8 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpR
 from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
 from ptplot.science.plot_powerspectrum import get_PS_image
-from ptplot.science.SNRalphabeta_onthefly import get_SNR_alphabeta_image
-from ptplot.science.SNRubarfrstar_onthefly import get_SNR_image
+from ptplot.science.snr_alphabeta_onthefly import get_SNR_alphabeta_image
+from ptplot.science.snr_ubarfrstar_onthefly import get_SNR_image
 
 
 def ps_image(request: HttpRequest) -> HttpResponse:

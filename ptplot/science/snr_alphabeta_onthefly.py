@@ -30,7 +30,7 @@ from ptplot.science.espinosa import ubarf_to_alpha
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg, make_minor_ticks
 from ptplot.science.powerspectrum import rstar_to_beta
-from ptplot.science.SNR_precompute import get_SNRcurve
+from ptplot.science.snr_precompute import get_SNRcurve
 
 matplotlib.use("Agg")
 
