@@ -16,12 +16,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
             # querystring = request.GET.urlencode()
             # usetex = form.cleaned_data["usetex"]
 
-            vw = form.cleaned_data["vw"]
-            T_star = form.cleaned_data["T_star"]
-            g_star = form.cleaned_data["g_star"]
-            mission_profile = int(form.cleaned_data["mission_profile"])
             table_lines = form.cleaned_data["table"].splitlines()
-
             alphas = []
             beta_over_Hs = []
             labels = []
@@ -49,12 +44,12 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 label_list_final = [labels]
 
             fig = get_snr_alphabeta_image(
-                vw=vw,
-                alpha_list=[alphas],
-                beta_over_H_list=[beta_over_Hs],
-                T_star=T_star,
-                g_star=g_star,
-                mission_profile=mission_profile,
+                vw=form.cleaned_data["vw"],
+                alphas=alphas,
+                beta_over_Hs=beta_over_Hs,
+                T_star=form.cleaned_data["T_star"],
+                g_star=form.cleaned_data["g_star"],
+                mission_profile=int(form.cleaned_data["mission_profile"]),
                 labels=label_list_final
             )
             return fig_to_response(fig)

@@ -29,10 +29,10 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     fig = get_snr_image(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
-        vw_list=[[point.vw_value]],
-        alpha_list=[[point.alpha]],
-        beta_over_H_list=[[point.beta_over_H]],
-        label_list=[[point.short_label]],
+        vws=point.vw_value,
+        alphas=point.alpha,
+        beta_over_Hs=point.beta_over_H,
+        labels=point.short_label,
         mission_profile=point.model.mission_profile,
         huge_alpha=point.model.huge_alpha
     )
@@ -50,9 +50,9 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
-        alpha_list=[[point.alpha]],
-        beta_over_H_list=[[point.beta_over_H]],
-        labels=[[point.short_label]],
+        alphas=point.alpha,
+        beta_over_Hs=point.beta_over_H,
+        labels=point.short_label,
         mission_profile=point.model.mission_profile,
         huge_alpha=point.model.huge_alpha
     )

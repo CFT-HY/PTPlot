@@ -32,13 +32,13 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
         for point in points
     ]
     fig = get_snr_image(
-        vw_list=[vws],
-        alpha_list=[[point.alpha for point in points]],
-        beta_over_H_list=[[point.beta_over_H for point in points]],
+        vws=vws,
+        alphas=[point.alpha for point in points],
+        beta_over_Hs=[point.beta_over_H for point in points],
         T_star=scenario.T_star_value,
         g_star=scenario.model.g_star,
-        label_list=[[point.short_label for point in points]],
-        title_list=[scenario.model.name],
+        labels=[point.short_label for point in points],
+        titles=scenario.model.name,
         mission_profile=scenario.model.mission_profile,
         huge_alpha=scenario.model.huge_alpha
     )
@@ -57,12 +57,12 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
 
     fig = get_snr_alphabeta_image(
         vw=scenario.model.vw,
-        alpha_list=[[point.alpha for point in points]],
-        beta_over_H_list=[[point.beta_over_H for point in points]],
+        alphas=[point.alpha for point in points],
+        beta_over_Hs=[point.beta_over_H for point in points],
         T_star=scenario.T_star_value,
         g_star=scenario.model.g_star,
-        labels=[[point.short_label for point in points]],
-        titles=[scenario.model.name],
+        labels=[point.short_label for point in points],
+        titles=scenario.model.name,
         mission_profile=scenario.model.mission_profile,
         huge_alpha=scenario.model.huge_alpha
     )

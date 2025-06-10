@@ -49,20 +49,20 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
             titles.append(scenario.name)
     else:
         points = model.points.all()
-        vws=[[model.vw] * len(points)]
-        alphas = [[point.alpha for point in points]]
-        beta_over_Hs = [[point.beta_over_H for point in points]]
-        labels = [[point.short_label for point in points]]
-        titles = [model.name]
+        vws = [model.vw] * len(points)
+        alphas = [point.alpha for point in points]
+        beta_over_Hs = [point.beta_over_H for point in points]
+        labels = [point.short_label for point in points]
+        titles = model.name
 
     fig = get_snr_image(
-        vw_list=vws,
-        alpha_list=alphas,
-        beta_over_H_list=beta_over_Hs,
+        vws=vws,
+        alphas=alphas,
+        beta_over_Hs=beta_over_Hs,
         T_star=model.T_star,
         g_star=model.g_star,
-        label_list=labels,
-        title_list=titles,
+        labels=labels,
+        titles=titles,
         mission_profile=model.mission_profile,
         huge_alpha=model.huge_alpha
     )
@@ -70,7 +70,7 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
-    model = get_object_or_404(Model, pk=model_id)
+    model: Model = get_object_or_404(Model, pk=model_id)
 
     if model.has_scenarios:
         scenarios = model.scenarios.prefetch_related("points").all()
@@ -88,15 +88,15 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
 
     else:
         points = model.points.all()
-        alphas = [[point.alpha for point in points]]
-        beta_over_Hs = [[point.beta_over_H for point in points]]
-        labels = [[point.short_label for point in points]]
-        titles = [model.name]
+        alphas = [point.alpha for point in points]
+        beta_over_Hs = [point.beta_over_H for point in points]
+        labels = [point.short_label for point in points]
+        titles = model.name
 
     fig = get_snr_alphabeta_image(
         vw=model.vw,
-        alpha_list=alphas,
-        beta_over_H_list=beta_over_Hs,
+        alphas=alphas,
+        beta_over_Hs=beta_over_Hs,
         T_star=model.T_star,
         g_star=model.g_star,
         labels=labels,
