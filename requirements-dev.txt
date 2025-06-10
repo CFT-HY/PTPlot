@@ -1,6 +1,7 @@
 allure-pytest == 2.14.1
 build == 1.2.2.post1
 django-coverage-plugin == 3.1.0
+django-debug-toolbar = 5.2.0
 lxml == 5.4.0
 psutil == 7.0.0
 pylint == 3.3.7
