@@ -27,36 +27,14 @@
 {% endif %}
 
 <form action="/ptplot/single" method="get">
-  <!--    {% csrf_token %}  -->
   <div class="formbox">
     <div class="mainbox">
       <table>
-        <tr>
-          <th><label>{{ form.vw.label }}:</label></th>
-          <td>{{ form.vw }}</td>
-        </tr>
-        <tr>
-          <th><label>{{ form.alpha.label }}:</label></th>
-          <td>{{ form.alpha }}</td>
-        </tr>
-        <tr>
-          <th><label>{{ form.beta_over_H.label }}:</label></th>
-          <td>{{ form.beta_over_H }}</td>
-        </tr>
-        <tr>
-          <th><label>{{ form.mission_profile_ind.label }}:</label></th>
-          <td>{{ form.mission_profile_ind }}</td>
-        </tr>
-        <tr>
-          <th><label>{{ form.T_star.label }}:</label></th>
-          <td>{{ form.T_star }} GeV</td>
-        </tr>
-        <tr><th><label>{{ form.g_star.label }}:</label></th>
-          <td>{{ form.g_star }}</td>
-        </tr>
+        {{ form.as_table }}
       </table>
-    </div><br/>
-    <input type="submit" value="Submit" />
+    </div>
+    <br>
+    <input type="submit" value="Submit">
   </div>
 </form>
 
