@@ -4,7 +4,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from ptplot.models import *
+from ptplot.forms.fields import MissionProfileField
+from ptplot.models import Model
+from ptplot.science.mission_profile import MissionProfile
 
 logger = logging.getLogger(__name__)
 
@@ -15,24 +17,6 @@ def validate_velocity(value: float) -> None:
             _("%(value)s must be greater than zero and less than or equal to 1"),
             params={"value": value},
         )
-
-
-class MissionProfileField(forms.TypedChoiceField):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(
-            *args,
-            label=r"Mission profile",
-            choices=MISSION_PROFILE_CHOICES,
-            coerce=int,
-            empty_value=None,
-            **kwargs
-        )
-
-    # def to_python(self, value) -> tp.Optional[MissionProfile]:
-    #     if value is None or value == "":
-    #         return None
-    #     converted = int(super().to_python(value))
-    #     return MissionProfile.from_ind(converted)
 
 
 class PTPlotForm(forms.Form):
