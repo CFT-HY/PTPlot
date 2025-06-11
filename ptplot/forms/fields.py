@@ -22,7 +22,7 @@ def validate_velocity(value: float) -> None:
 class UnitInput(forms.NumberInput):
     def __init__(self, attrs=None, units: str = None):
         super().__init__(attrs)
-        self.units_string = None if units is None else SafeString(f"&nbsp;&nbsp;{units}")
+        self.units_string = None if units is None else SafeString(f"&nbsp;{units}")
 
     def render(
             self,
@@ -40,13 +40,17 @@ class UnitInput(forms.NumberInput):
 # Field classes for specific parameters
 # -----
 
+# Disabling localization for FloatField enables the use of NumberInput
+# https://docs.djangoproject.com/en/5.2/ref/forms/fields/#floatfield
+
 class AlphaField(forms.FloatField):
     def __init__(
             self,
             label: str = r"Phase transition strength $\alpha_\theta$",
             min_value: float = 0.,
+            localize: bool = False,
             **kwargs):
-        super().__init__(label=label, min_value=min_value, **kwargs)
+        super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
 class BetaOverHField(forms.FloatField):
@@ -54,8 +58,10 @@ class BetaOverHField(forms.FloatField):
             self,
             label: str = r"Inverse phase transition duration $\beta/H_*$",
             min_value: float = 0.,
+            localize: bool = False,
             **kwargs):
-        super().__init__(label=label, min_value=min_value, **kwargs)
+        super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
+
 
 
 class GStarField(forms.FloatField):
@@ -63,8 +69,9 @@ class GStarField(forms.FloatField):
             self,
             label: str = r"Degrees of freedom $g_\star$",
             min_value: float = 0.,
+            localize: bool = False,
             **kwargs):
-        super().__init__(label=label, min_value=min_value, **kwargs)
+        super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
 class MissionProfileField(forms.TypedChoiceField):
@@ -106,9 +113,10 @@ class TStarField(forms.FloatField):
             label: str = r"Transition temperature $T_\star$",
             min_value: float = 0.,
             widget: forms.NumberInput = UnitInput(units="GeV"),
+            localize: bool = False,
             **kwargs):
         super().__init__(
-            label=label, min_value=min_value, widget=widget,
+            label=label, min_value=min_value, widget=widget, localize=localize,
             **kwargs
         )
 
@@ -120,10 +128,12 @@ class VWField(forms.FloatField):
             min_value: float = 0.,
             max_value: float = 1.,
             validators: tp.Sequence[tp.Callable] = (validate_velocity, ),
+            localize: bool = False,
             **kwargs):
         super().__init__(
             label=label,
             min_value=min_value, max_value=max_value,
             validators=validators,
+            localize=localize,
             **kwargs
         )

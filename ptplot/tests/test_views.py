@@ -18,17 +18,21 @@ def check_status_code(response: HttpResponse, allow_codes: ALLOW_CODES_TYPE = No
     return response.status_code
 
 
-def test_view(test: TestCase, url: str, form: Form = None, data: tp.Dict[str, tp.Any] = None, allow_codes: ALLOW_CODES_TYPE = None) -> int:
+def test_view(
+        test: TestCase,
+        url: str,
+        form: Form = None,
+        data: tp.Dict[str, tp.Any] = None,
+        allow_codes: ALLOW_CODES_TYPE = None) -> int:
     if form is None:
-        if data is None:
-            data = {}
+        data2 = {} if data is None else data.copy()
     else:
-        if data is None:
-            data = form.cleaned_data
-        else:
-            data = {**form.cleaned_data, **data}
-        data.update(form.cleaned_data)
-    return check_status_code(test.client.get(url, data=data), allow_codes=allow_codes)
+        data2 = form.cleaned_data.copy() if data is None else {**form.cleaned_data, **data}
+    # Remove None values from data2, as they cannot be encoded in the query string.
+    delete = [key for key in data2 if data2[key] is None]
+    for key in delete:
+        del data2[key]
+    return check_status_code(test.client.get(url, data=data2), allow_codes=allow_codes)
 
 
 class ViewTest(TestCase):
