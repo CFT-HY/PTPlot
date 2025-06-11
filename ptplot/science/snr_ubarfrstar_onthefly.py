@@ -36,14 +36,14 @@ TICKPOS_HUGE_ALPHA = np.array([-2, -1, 0, 1, 2, 3])
 
 def get_snr_image(
         # Todo: Why are some of these defaults different to the ones in const.py?
-        vws: th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR = 0.5,
-        alphas: th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR = const.DEFAULT_ALPHA,
-        beta_over_Hs: th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR = 100,
+        vws: th.FloatOrListOrNestedLisOrArr = 0.5,
+        alphas: th.FloatOrListOrNestedLisOrArr = const.DEFAULT_ALPHA,
+        beta_over_Hs: th.FloatOrListOrNestedLisOrArr = 100,
         T_star: float = 100,
         g_star: float = const.DEFAULT_G_STAR,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        labels: th.STR_OR_LIST_OR_NESTED_LIST = None,
-        titles: th.STR_OR_LIST = None,
+        labels: th.StrOrListOrNestedList = None,
+        titles: th.StrOrList = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
         huge_alpha: bool = False,

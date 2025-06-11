@@ -20,7 +20,7 @@ def create_snr_figure(
         y: np.ndarray,
         xlabel: str,
         ylabel: str,
-        titles: th.STR_OR_LIST,
+        titles: th.StrOrList,
         snr: np.ndarray,
         tshHn: np.ndarray,
         locs_tsh: np.ndarray,

@@ -7,7 +7,7 @@ from ptplot.science import const
 import ptplot.science.type_hints as th
 
 
-def atleast_2d(*args: tp.Union[th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR]) -> tp.Union[th.ARR_OR_LIST_OF_ARRS, tp.List[th.ARR_OR_LIST_OF_ARRS]]:
+def atleast_2d(*args: tp.Union[th.FloatOrListOrNestedLisOrArr]) -> tp.Union[th.ArrOrListOfArrs, tp.List[th.ArrOrListOfArrs]]:
     """Convert a scalar, 1D array or 2D array into a 2D numpy array.
 
     Similar to numpy.atleast_2d, but supports nested lists with varying lenghts.
@@ -20,7 +20,7 @@ def atleast_2d(*args: tp.Union[th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR]) -> tp.Un
     return [atleast_2d_single(values) for values in args]
 
 
-def atleast_2d_single(values: tp.Union[th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR]) -> th.ARR_OR_LIST_OF_ARRS:
+def atleast_2d_single(values: tp.Union[th.FloatOrListOrNestedLisOrArr]) -> th.ArrOrListOfArrs:
     if isinstance(values, np.ndarray):
         return np.atleast_2d(values)
     if np.isscalar(values):

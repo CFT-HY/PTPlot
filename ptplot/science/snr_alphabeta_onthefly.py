@@ -33,13 +33,13 @@ import ptplot.science.type_hints as th
 
 def get_snr_alphabeta_image(
         vw: float,
-        alphas: th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR = const.DEFAULT_ALPHA,
-        beta_over_Hs: th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR = 100,
+        alphas: th.FloatOrListOrNestedLisOrArr = const.DEFAULT_ALPHA,
+        beta_over_Hs: th.FloatOrListOrNestedLisOrArr = 100,
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        labels: th.STR_OR_LIST_OR_NESTED_LIST = None,
-        titles: th.STR_OR_LIST = None,
+        labels: th.StrOrListOrNestedList = None,
+        titles: th.StrOrList = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
         huge_alpha: bool = False) -> Figure:
