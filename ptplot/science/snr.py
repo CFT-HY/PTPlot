@@ -16,6 +16,63 @@ import typing as tp
 import numpy as np
 import scipy.integrate
 
+from ptplot.science import const
+from ptplot.science.powerspectrum import PowerSpectrum
+
+
+def get_snr_value(
+        fSens: np.ndarray,
+        omSens: np.ndarray,
+        duration: float,
+        Tstar: float = const.DEFAULT_T_STAR,
+        gstar: float = const.DEFAULT_G_STAR,
+        vw: float = const.DEFAULT_VW,
+        alpha: float = const.DEFAULT_ALPHA,
+        BetaoverH: float = const.DEFAULT_BETA_OVER_H) -> np.ndarray:
+    """Calculate the SNR value for a given power spectrum
+
+    Note that this function is currently not being used by the code, but it
+    is included here for legacy reasons.
+
+    Parameters
+    ----------
+    fSens : np.ndarray
+        List of frequencies in Hz corresponding to omSens
+    omSens : np.ndarray
+        List of sensitivities in Omega units
+    duration : float
+        Observation time in seconds
+    Tstar : float, Optional
+        Transition temperature (default to 180.0)
+    gstar : float, Optional
+        Degrees of freedom (default to 100)
+    vw : float, Optional
+        Wall velocity (default to 0.9)
+    alpha : float, Optional
+        Phase transition strength (default to 0.1)
+    BetaoverH : float, Optional
+        Inverse phase transition duration relative to H (default to 10)
+
+    Returns
+    -------
+    snr : np.ndarray
+        Signal-to-noise ratio
+    """
+    ps = PowerSpectrum(
+        T_star=Tstar, g_star=gstar,
+        vw=vw, alpha=alpha, beta_over_H=BetaoverH
+    )
+    snr_value, frange = stock_bkg_compute_snr(
+        fSens,
+        omSens,
+        fSens,
+        ps.power_spectrum_sw_conservative(fSens),
+        duration,
+        1.e-6,
+        1
+    )
+    return snr_value
+
 
 # Replaced by np.loadtxt
 # def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:

@@ -25,10 +25,9 @@ from ptplot.science.espinosa import ubarf_to_alpha
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg
-from ptplot.science.powerspectrum import rstar_to_beta
 from ptplot.science.snr_onthefly import create_snr_figure
 from ptplot.science.snr_precompute import get_snr_curve
-from ptplot.science.utils import atleast_2d
+from ptplot.science.utils import atleast_2d, rstar_to_beta
 import ptplot.science.type_hints as th
 
 

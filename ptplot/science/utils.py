@@ -1,7 +1,9 @@
+import math
 import typing as tp
 
 import numpy as np
 
+from ptplot.science import const
 import ptplot.science.type_hints as th
 
 
@@ -29,3 +31,43 @@ def atleast_2d_single(values: tp.Union[th.FLOAT_OR_LIST_OR_NESTED_LIST_OR_ARR]) 
     if np.all([len(sub_values) == len(values[0]) for sub_values in values]):
         return np.array(values)
     return [np.array(sub_values) for sub_values in values]
+
+
+def rstar_to_beta(rstar: float, vw: float, cs: float = const.CS0) -> float:
+    r"""Convert R_* to \Beta_* for a given wall velocity
+
+    Parameters
+    ----------
+    rstar : float
+        Mean bubble separation
+    vw : float
+        Wall velocity
+    cs : float
+        Speed of sound (default to 1/sqrt(3))
+
+    Returns
+    -------
+    beta : float
+        Inverse phase transition duration
+    """
+    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / rstar
+
+
+def beta_to_rstar(beta: float, vw: float, cs: float = const.CS0) -> float:
+    r"""Convert \Beta_* to R_* for a given wall velocity
+
+    Parameters
+    ----------
+    beta : float
+        Inverse phase transition duration
+    vw : float
+        Wall velocity
+    cs : float
+        Speed of sound (default to 1/sqrt(3))
+
+    Returns
+    -------
+    rstar : float
+        Mean bubble separation
+    """
+    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / beta
