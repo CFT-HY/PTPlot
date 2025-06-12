@@ -4,10 +4,24 @@ import typing as tp
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 import numpy as np
 
 
-def create_ticks(
+def add_text(
+        fig: Figure,
+        text: str,
+        x: float = 0.13,
+        y: float = 0.87,
+        fontsize: int = 8,
+        color: str = "black",
+        ha: str = "left",
+        va: str = "top",
+        alpha: float = 1.0) -> Text:
+    return fig.text(x=x, y=y, s=text, fontsize=fontsize, color=color, ha=ha, va=va, alpha=alpha)
+
+
+def add_ticks(
         ax: Axes,
         x_min: float,
         x_max: float,
@@ -63,7 +77,8 @@ def find_label_place(
 
 
 def make_minor_ticks(min: int, max: int) -> np.ndarray:
-    ticks = np.array([])
-    for i in range(min, max):
-        ticks = np.append(ticks, np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
-    return np.log10(ticks)
+    # Todo: This may be possible with one call of np.logspace
+    return np.concatenate([
+        np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
+        for i in range(min, max)
+    ])

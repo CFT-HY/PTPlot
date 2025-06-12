@@ -23,16 +23,18 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import snr
+from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.powerspectrum import PowerSpectrum
-from ptplot.science.mission_profile import MISSION_PROFILES, MissionProfile
+from ptplot.science.powerspectrum_create import power_spectrum
+from ptplot.science.mission_profile import MissionProfile
 
 
 def get_snr_curve(
         Tn: float,
         g_star: float,
         mission_profile: MissionProfile,
-        ubarf_max: float = 1) -> tp.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        ubarf_max: float = 1,
+        engine: Engine = Engine.DEFAULT) -> tp.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculate the SNR curves for the plots
 
     Parameters
@@ -41,7 +43,7 @@ def get_snr_curve(
         Temperature at nucleation time
     g_star : float
         Degrees of freedom
-    mission_profile : int
+    mission_profile :
         Which sensitivity curve to use
     ubarf_max : float
         Maximum of rms fluid velocity (default to 1)
@@ -70,14 +72,15 @@ def get_snr_curve(
 
     for i in range(len(log10HnRstar)):
         for j in range(len(log10Ubarf)):
-            Ubarf = 10.**log10Ubarf[j]
-            HnRstar = 10.**log10HnRstar[i]
+            Ubarf: float = 10.**log10Ubarf[j]
+            HnRstar: float = 10.**log10HnRstar[i]
 
-            ps = PowerSpectrum(
+            ps = power_spectrum(
                 T_star=Tn,
                 g_star=g_star,
                 H_rstar=HnRstar,
-                ubarf_in=Ubarf
+                ubarf_in=Ubarf,
+                engine=engine
             )
             OmGW0 = ps.power_spectrum_sw_conservative(mission_profile.f)
 
@@ -85,13 +88,13 @@ def get_snr_curve(
             tshHn[i, j] = ps.get_shock_time()
 
             snr_value[i, j], frange = snr.stock_bkg_compute_snr(
-                SensFr=mission_profile.f,
-                SensOm=mission_profile.sensitivity,
-                GWFr=mission_profile.f,
-                GWOm=OmGW0,
-                Tobs=mission_profile.duration_seconds,
-                fmin=1.e-6,
-                fmax=1.
+                sens_freq=mission_profile.f,
+                sens_omega=mission_profile.sensitivity,
+                gw_freq=mission_profile.f,
+                gw_omega=OmGW0,
+                obs_time=mission_profile.duration_seconds,
+                f_min=1.e-6,
+                f_max=1.
             )
 
     return tshHn, snr_value, log10HnRstar, log10Ubarf

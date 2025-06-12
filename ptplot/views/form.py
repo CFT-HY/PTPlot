@@ -4,8 +4,8 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
+from ptplot.science.engine import ENGINE_NAMES
 from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
-from ptplot.science.mission_profile import MissionProfile
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
@@ -50,7 +50,8 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 T_star=form.cleaned_data["T_star"],
                 g_star=form.cleaned_data["g_star"],
                 mission_profile=form.mission_profile,
-                labels=label_list_final
+                labels=label_list_final,
+                engine=form.cleaned_data["engine"]
             )
             return fig_to_response(fig)
     # Form not valid or not filled out
@@ -83,7 +84,8 @@ def single(request: HttpRequest) -> HttpResponse:
                 "beta_over_H": form.cleaned_data["beta_over_H"],
                 "T_star": form.cleaned_data["T_star"],
                 "g_star": form.cleaned_data["g_star"],
-                "mission_profile": form.mission_profile
+                "mission_profile": form.mission_profile,
+                "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
             }
             return render(request, "single_result.html", context)
 

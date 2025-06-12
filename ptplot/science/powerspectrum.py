@@ -15,19 +15,14 @@ And the following class:
 """
 
 import math
-import typing as tp
 
 import numpy as np
 
 from ptplot.science import const
+from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.espinosa import ubarf
+import ptplot.science.type_hints as th
 from ptplot.science.utils import beta_to_rstar
-
-
-
-
-
-
 
 
 class PowerSpectrum:
@@ -60,6 +55,10 @@ class PowerSpectrum:
     H_tsh : float
         Shock time
     """
+    ENGINE: Engine = Engine.DEFAULT
+    NAME: str = ENGINE_NAMES[ENGINE]
+    SHORT_NAME: str = ENGINE.name
+
     def __init__(
             self,
             beta_over_H: float = None,
@@ -67,9 +66,9 @@ class PowerSpectrum:
             g_star: float = const.DEFAULT_G_STAR,
             vw: float = None,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-            zp: float = 10,
-            alpha: tp.Optional[float] = None,
-            k_turb: float = 1.97 / 65.0,
+            zp: float = const.DEFAULT_ZP,
+            alpha: float = None,
+            k_turb: float = const.DEFAULT_K_TURB,
             H_rstar: float = None,
             ubarf_in: float = None):
         """
@@ -96,18 +95,24 @@ class PowerSpectrum:
         ubarf_in : float
             Input value of the rms fluid velocity
         """
-        self.beta_over_H: float = beta_over_H
-        self.T_star: float = T_star
-        self.g_star: float = g_star
-        self.vw: float = vw
+        # Parameters that are guaranteed to be set
         self.adiabatic_ratio: float = adiabatic_ratio
-        self.zp: float = zp
-        self.alpha: float = alpha
+        self.g_star: float = g_star
         self.k_turb: float = k_turb
+        self.T_star: float = T_star
+        self.zp: float = zp
 
-        self.h_star: float = 16.5e-6 * (self.T_star / 100.0) * np.power(self.g_star / 100.0, 1.0 / 6.0)
+        # Parameters that may be set
+        self.alpha: float | None = alpha
+        self.vw: float | None = vw
+        self.beta_over_H: float | None = beta_over_H
+
+        # -----
+        # Computed parameters
+        # -----
 
         # Either take ubarf_in as-is, or calculate ubarf from the wall velocity
+        self.ubarf: float
         if (vw is not None) and (ubarf_in is None):
             self.ubarf = ubarf(vw, alpha, adiabatic_ratio)
         elif (vw is None) and (ubarf_in is not None):
@@ -116,14 +121,17 @@ class PowerSpectrum:
             raise ValueError("Either ubarf_in or vw must be set, but not both")
 
         # Calculate typical bubble radius
+        self.H_rstar: float
         if (H_rstar is None) and (beta_over_H is not None):
             self.H_rstar = beta_to_rstar(self.beta_over_H, self.vw)
         elif (H_rstar is not None) and (beta_over_H is None):
             self.H_rstar = H_rstar
         else:
-            raise ValueError("Either H_rstar or BetaoverH must be set, but not both")
+            raise ValueError("Either H_rstar or beta_over_H must be set, but not both")
 
-        # Compute shock time
+        self.h_star: float = 16.5e-6 * (self.T_star / 100.0) * np.power(self.g_star / 100.0, 1.0 / 6.0)
+
+        #: Shock time
         self.H_tsh: float = self.H_rstar / self.ubarf
 
     # This function does not depend on the power spectrum itself, and so does
@@ -132,13 +140,13 @@ class PowerSpectrum:
     # to match the notation used in equation 36 of 1704.05871.
     # Function C(f)
     @staticmethod
-    def Csw(fp, norm=1.0):
+    def Csw(fp: th.FloatOrArr, norm: float = 1.0) -> th.FloatOrArr:
         """Calculate spectral shape for gw from sound waves
 
         For a given peak frequency, calculate spectral shape of a single broken
         power law fit to simulation results for gw from sound waves.
         """
-        return norm*np.power(fp, 3.0) * np.power(7.0/(4.0 + 3.0 * np.power(fp, 2.0)), 7.0/2.0)
+        return norm * np.power(fp, 3.0) * np.power(7.0 / (4.0 + 3.0 * np.power(fp, 2.0)), 7.0/2.0)
 
     def get_shock_time(self) -> float:
         """Calculate shock time"""
@@ -155,7 +163,7 @@ class PowerSpectrum:
             * (self.T_star/100) * np.power(self.g_star/100, 1.0/6.0)
 
     # This follows equations 39 - 45 in 1704.05871 (and the paper erratum)
-    def power_spectrum_sw(self, f):
+    def power_spectrum_sw(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate power spectrum from sound waves for a given frequency f
 
         This function follows equation 45 (erratum equation 2) of 1704.05871.
@@ -207,34 +215,34 @@ class PowerSpectrum:
         """
         return 27e-6 * (1.0/self.vw) * self.beta_over_H * (self.T_star/100.0) * np.power(self.g_star/100, 1.0/6.0)
 
-    def Sturb(self, f, fp):
+    def Sturb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
         """Calculate the spectral shape from turbulence
 
         This function follows equation 17 equation of 1512.06239.
         """
         return np.power(fp,3.0) / (np.power(1 + fp, 11.0/3.0) * (1 + 8 * math.pi * f / self.h_star))
 
-    def power_spectrum_turb(self, f):
+    def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate power spectrum from turbulence for a given frequency f
 
         This function follows equation 16 equation of 1512.06239.
         """
-        fp = f/self.fturb()
+        fp = f / self.fturb()
         return 3.35e-4 / self.beta_over_H \
             * np.power(self.k_turb * self.alpha / (1 + self.alpha), 3.0/2.0) \
             * np.power(100/self.g_star, 1.0/3.0) * self.vw * self.Sturb(f, fp)
 
-    def power_spectrum_sw_conservative(self, f):
+    def power_spectrum_sw_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate power spectrum from sound waves (conservative)
 
         For the conservative estimate, take the shock time no larger than 1.
         """
         return min(self.H_tsh, 1.0) * self.power_spectrum_sw(f)
     
-    def power_spectrum(self, f):
+    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate total power spectrum from sound waves and turbulence"""
         return self.power_spectrum_sw(f) + self.power_spectrum_turb(f)
 
-    def power_spectrum_conservative(self, f):
+    def power_spectrum_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate total power spectrum from sound waves (conservative) and turbulence"""
         return self.power_spectrum_sw_conservative(f) + self.power_spectrum_turb(f)

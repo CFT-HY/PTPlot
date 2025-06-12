@@ -77,7 +77,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     return HttpResponse(csv, content_type="text/csv")
 
 
-def model_point_ps(request, model_id, point_id) -> HttpResponse:
+def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model"],

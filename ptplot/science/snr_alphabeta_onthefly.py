@@ -21,6 +21,7 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const
+from ptplot.science.engine import Engine
 from ptplot.science.espinosa import ubarf_to_alpha
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
@@ -41,6 +42,7 @@ def get_snr_alphabeta_image(
         labels: th.StrOrListOrNestedList = None,
         titles: th.StrOrList = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+        engine: Engine = Engine.DEFAULT,
         usetex: bool = False,
         huge_alpha: bool = False) -> Figure:
     """Produce the AlphaBeta plot
@@ -63,7 +65,7 @@ def get_snr_alphabeta_image(
         List of labels
     titles : list[string]
         List of titles
-    mission_profile : int
+    mission_profile :
         Which sensitivity curve to use
     usetex : bool
         Flag for using latex (default to False)
@@ -76,7 +78,9 @@ def get_snr_alphabeta_image(
         plot of AlphaBeta
     """
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
-        Tn=T_star, g_star=g_star, mission_profile=mission_profile, ubarf_max=0.866 if huge_alpha else 0.6
+        Tn=T_star, g_star=g_star, mission_profile=mission_profile,
+        ubarf_max=0.866 if huge_alpha else 0.6,
+        engine=engine
     )
     log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0, log10HnRstar), vw))
     log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabatic_ratio))
@@ -160,7 +164,7 @@ def main():
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = get_snr_alphabeta_image(
         vw=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
-        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile
+        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))
 

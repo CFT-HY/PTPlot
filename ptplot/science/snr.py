@@ -10,7 +10,6 @@ Contains the following functions:
     * stock_bkg_compute_snr - computes the SNR
 """
 
-# import re
 import typing as tp
 
 import numpy as np
@@ -114,13 +113,13 @@ def get_snr_value(
 
 
 def stock_bkg_compute_snr(
-        SensFr: np.ndarray,
-        SensOm: np.ndarray,
-        GWFr: np.ndarray,
-        GWOm: np.ndarray,
-        Tobs: float,
-        fmin: float = None,
-        fmax: float = None) -> tp.Tuple[float, tp.Tuple[float, float]]:
+        sens_freq: np.ndarray,
+        sens_omega: np.ndarray,
+        gw_freq: np.ndarray,
+        gw_omega: np.ndarray,
+        obs_time: float,
+        f_min: float = None,
+        f_max: float = None) -> tp.Tuple[float, tp.Tuple[float, float]]:
     """Compute signal to noise ratio
 
     Compute signal to noise ratio and the used frequency range fmin and fmax for
@@ -133,19 +132,19 @@ def stock_bkg_compute_snr(
 
     Parameters
     ----------
-    SensFr : np.ndarray
+    sens_freq : np.ndarray
         Array of frequencies (in Hz) corresponding to SensOm
-    SensOm : np.ndarray
+    sens_omega : np.ndarray
         Array of sensitivities in Omega units
-    GWFr : np.ndarray
+    gw_freq : np.ndarray
         Array of frequencies (in Hz) corresponding to GWOm
-    GWOm : np.ndarray
+    gw_omega : np.ndarray
         Array of GW stochastic background
-    Tobs : float
+    obs_time : float
         Total observation time / mission duration (in seconds)
-    fmin : float
+    f_min : float
         Minimum frequency for frange (in Hz)
-    fmax : float
+    f_max : float
         Maximum frequency for frange (in Hz)
 
     Returns
@@ -155,25 +154,25 @@ def stock_bkg_compute_snr(
     """
 
     # If the frequency range has not been given, find it automatically
-    if fmin is None:
-        fmin = max(SensFr[0], GWFr[0])
-    if fmax is None:
-        fmax = min(SensFr[-1], GWFr[-1])
+    if f_min is None:
+        f_min = max(sens_freq[0], gw_freq[0])
+    if f_max is None:
+        f_max = min(sens_freq[-1], gw_freq[-1])
 
-    ifmin = np.argmax(SensFr >= fmin)
-    ifmax = np.argmax(SensFr >= fmax)
+    i_f_min = np.argmax(sens_freq >= f_min)
+    i_f_max = np.argmax(sens_freq >= f_max)
 
-    fr = SensFr[ifmin:ifmax]
-    OmEff = SensOm[ifmin:ifmax]
+    fr = sens_freq[i_f_min:i_f_max]
+    omega_eff = sens_omega[i_f_min:i_f_max]
 
-    # Make an interpolated data series, interpolate GWOm onto same series as OmEff
-    OmGWi = 10.**np.interp(np.log10(fr),np.log10(GWFr),np.log10(GWOm))
+    # Make an interpolated data series, interpolate GWOm onto same series as omega_eff
+    omega_gw_interp = 10.**np.interp(np.log10(fr), np.log10(gw_freq), np.log10(gw_omega))
 
     # Numerical integration over frequency
-    rat = OmGWi**2 / OmEff**2
+    rat = omega_gw_interp**2 / omega_eff**2
     Itg = scipy.integrate.trapezoid(rat, fr)
 
     # Calculate snr taking into account the observation time
-    snr = np.sqrt(Tobs*Itg)
+    snr = np.sqrt(obs_time * Itg)
 
-    return snr, (fmin, fmax)
+    return snr, (f_min, f_max)

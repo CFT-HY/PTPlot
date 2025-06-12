@@ -21,6 +21,7 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const
+from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg
 from ptplot.science.espinosa import ubarf
@@ -47,8 +48,7 @@ def get_snr_image(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         usetex: bool = False,
         huge_alpha: bool = False,
-        dbpl: bool = False,
-        ssm: bool = False) -> Figure:
+        engine: Engine = Engine.DEFAULT) -> Figure:
     """Produce the UbarfRstar plot
 
     Parameters
@@ -69,7 +69,7 @@ def get_snr_image(
         List of labels
     titles : list[string]
         List of titles
-    mission_profile : int
+    mission_profile :
         Which sensitivity curve to use
     usetex : bool
         Flag for using latex (default to False)
@@ -83,7 +83,8 @@ def get_snr_image(
     """
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
         Tn=T_star, g_star=g_star, mission_profile=mission_profile,
-        ubarf_max=1000 if huge_alpha else 1
+        ubarf_max=1000 if huge_alpha else 1,
+        engine=engine
     )
     fig, ax = create_snr_figure(
         x=log10Ubarf,
@@ -157,7 +158,7 @@ def main():
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = get_snr_image(
         vws=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
-        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile
+        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))
 

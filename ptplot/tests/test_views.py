@@ -6,10 +6,11 @@ from django.test import TestCase
 
 from ptplot.forms import PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
+from ptplot.science.engine import Engine
 
 ALLOW_CODES: tp.Iterable[int] = (200, 302)
 ALLOW_CODES_TYPE = tp.Union[tp.List[int], tp.Tuple[int, ...]]
+
 
 def check_status_code(response: HttpResponse, allow_codes: ALLOW_CODES_TYPE = None) -> int:
     allow_codes2 = ALLOW_CODES if allow_codes is None else (*ALLOW_CODES, *allow_codes)
@@ -47,7 +48,8 @@ class ViewTest(TestCase):
             "beta_over_H": 10000,
             "T_star": 100,
             "g_star": 100,
-            "mission_profile_ind": 0
+            "mission_profile_ind": 0,
+            "engine": Engine.DEFAULT
         })
         cls.form.is_valid()
 

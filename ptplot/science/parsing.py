@@ -1,6 +1,8 @@
 import argparse
 
 from ptplot.science import const
+from ptplot.science.engine import ENGINE_SHORT_NAMES, Engine
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 
 class PTPlotParser(argparse.ArgumentParser):
@@ -9,8 +11,8 @@ class PTPlotParser(argparse.ArgumentParser):
             *args,
             vw_alpha_betaoverh: bool = True,
             Tstar_gstar: bool = True,
-            methods: bool = False,
             mission_profile: bool = False,
+            engine: bool = False,
             **kwargs):
         super().__init__(
             *args,
@@ -41,15 +43,15 @@ class PTPlotParser(argparse.ArgumentParser):
             )
         if mission_profile:
             self.add_argument(
-                "-mission_profile", "--mission_profile", type=int, default=const.DEFAULT_MISSION_PROFILE,
+                "-mission_profile", "--mission_profile",
+                type=int,
+                default=DEFAULT_MISSION_PROFILE,
                 help="mission profile for the sensitivity curve"
             )
-        if methods:
+        if engine:
             self.add_argument(
-                "-ssm", "--ssm", action="store_true",
-                help="Use the Sound Shell Model (SSM) from PTtools to compute the power spectrum."
-            )
-            self.add_argument(
-                "-dbpl", "--dbpl", action="store_true",
-                help="Use double-broken power law to compute the power spectrum."
+                "-engine", "--engine", "-ps", "--ps",
+                default=Engine.DEFAULT.name,
+                choices=ENGINE_SHORT_NAMES,
+                help="Method for computing the power spectrum"
             )

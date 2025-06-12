@@ -32,6 +32,8 @@ class MissionProfile:
 
         self.f, self.sensitivity = self.load(self.sensitivity_path)
         self.f_lite, self.sensitivity_lite = self.load(self.sensitivity_path_lite)
+        self.f_min = np.min(self.f)
+        self.f_max = np.max(self.f)
 
     def __str__(self):
         return self.name

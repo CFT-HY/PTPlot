@@ -14,7 +14,9 @@ class PTPlotForm(forms.Form):
     T_star = TStarField()
     g_star = GStarField()
     mission_profile_ind = MissionProfileField()
-    # engine = forms.ChoiceField()
+    css2 = CSS2Field(required=False)
+    csb2 = CSB2Field(required=False)
+    engine = EngineField()
     # usetex = forms.BooleanField(
     #     label="Use TeX for labels (slow)?",
     #      initial=False,

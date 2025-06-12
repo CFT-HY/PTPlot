@@ -3,9 +3,8 @@ from django.test import TestCase
 import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
 import ptplot.science.plot_powerspectrum as plot_ps
-from ptplot.science.powerspectrum import PowerSpectrum
-# from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
-# from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM
+from ptplot.science.engine import Engine
+from ptplot.science.powerspectrum_create import power_spectrum
 # import ptplot.science.snr as snr
 # import ptplot.science.SNR_precompute as snr_pre
 import ptplot.science.snr_alphabeta_onthefly as snr_ab
@@ -24,13 +23,16 @@ class ScienceTest(TestCase):
     #     snr.LoadFile()
 
     def test_power_spectrum(self):
-        PowerSpectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
+        power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
 
-    # def test_power_spectrum_dbpl(self):
-    #     PowerSpectrumDBPL(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
-    #
-    # def test_power_spectrum_ssm(self):
-    #     PowerSpectrumSSM(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
+    def test_power_spectrum_dbpl(self):
+        power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.DBPL)
+
+    def test_power_spectrum_ssm(self):
+        power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM)
+
+    def test_power_spectrum_ssm_const_cs(self):
+        power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1/4, csb2=1/4)
 
     def test_ps_data(self):
         plot_ps.get_ps_data()

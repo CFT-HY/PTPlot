@@ -1,3 +1,4 @@
+from fractions import Fraction
 import typing as tp
 
 from django import forms
@@ -7,6 +8,7 @@ from django.forms.renderers import BaseRenderer
 from django.utils.safestring import SafeString
 
 from ptplot.models import Model
+from ptplot.science.engine import ENGINE_CHOICES, Engine
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES
 
 
@@ -18,6 +20,16 @@ def validate_velocity(value: float) -> None:
 # -----
 # Base field classes
 # -----
+
+class FractionField(forms.CharField):
+    def to_python(self, value: str) -> tp.Optional[tp.Union[float, Fraction]]:
+        if not value:
+            return None
+        try:
+            return Fraction(value) if "/" in value else float(value)
+        except (TypeError, ValueError):
+            raise ValidationError("Enter a float or a fraction.")
+
 
 class UnitInput(forms.NumberInput):
     def __init__(self, attrs=None, units: str = None):
@@ -62,6 +74,49 @@ class BetaOverHField(forms.FloatField):
             **kwargs):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
+
+class CS2Field(FractionField):
+    def __init__(
+            self,
+            label: str = r"Sound speed squared $c_s^2$",
+            help_text: str = "Sound Shell Model only",
+            # min_value: float = 0.,
+            # max_value: float = 1.,
+            validators: tp.Sequence[tp.Callable] = (validate_velocity, ),
+            **kwargs):
+        super().__init__(
+            label=label, help_text=help_text,
+            # min_value=min_value, max_value=max_value,
+            validators=validators,
+            **kwargs
+        )
+
+
+class CSS2Field(CS2Field):
+    def __init__(
+            self,
+            label: str = r"Sound speed squared in the symmetric phase $c_{s,s}^2$",
+            **kwargs):
+        super().__init__(label=label, **kwargs)
+
+
+class CSB2Field(CS2Field):
+    def __init__(
+            self,
+            label: str = r"Sound speed squared in the broken phase $c_{s,b}^2$",
+            **kwargs):
+        super().__init__(label=label, **kwargs)
+
+
+class EngineField(forms.TypedChoiceField):
+    def __init__(
+            self,
+            label: str = "Engine",
+            choices=ENGINE_CHOICES,
+            coerce=Engine.from_str,
+            empty_value=None,
+            **kwargs):
+        super().__init__(label=label, choices=choices, coerce=coerce, empty_value=empty_value, **kwargs)
 
 
 class GStarField(forms.FloatField):

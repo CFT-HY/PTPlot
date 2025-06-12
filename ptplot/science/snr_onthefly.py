@@ -6,7 +6,8 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import numpy as np
 
-from ptplot.science.plot_utils import create_ticks, find_label_place
+from ptplot.science import const
+from ptplot.science.plot_utils import add_text, add_ticks, find_label_place
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))
@@ -34,14 +35,9 @@ def create_snr_figure(
         ytickpos: np.ndarray = None,
         xticklabels: tp.List[str] = None,
         yticklabels: tp.List[str] = None,
-        label_fontsize: int = 14,
+        label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
         contour_label_fontsize: int = 8) -> tp.Tuple[Figure, Axes]:
-    with rc_context({
-        "backend": "Agg",
-        "font.family": "serif",
-        "mathtext.fontset": "dejavuserif",
-        # "text": {"usetex": usetex},
-    }):
+    with rc_context(const.DEFAULT_RC_CONTEXT):
         x_min = np.min(x)
         x_max = np.max(x)
         y_min = np.min(y)
@@ -98,17 +94,11 @@ def create_snr_figure(
         #     ha="right", va="bottom", alpha=0.4
         # )
 
-        create_ticks(
+        add_ticks(
             ax,
             x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max,
             xtickpos=xtickpos, ytickpos=ytickpos,
             xticklabels=xticklabels, yticklabels=yticklabels
         )
-
-        # position top left
-        fig.text(
-            0.13, 0.87, time.asctime(),
-            fontsize=contour_label_fontsize, color="black",
-            ha="left", va="top", alpha=1.0
-        )
+        add_text(fig, time.asctime())
         return fig, ax
