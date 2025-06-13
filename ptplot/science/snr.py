@@ -10,8 +10,6 @@ Contains the following functions:
     * stock_bkg_compute_snr - computes the SNR
 """
 
-import typing as tp
-
 import numpy as np
 import scipy.integrate
 
@@ -74,7 +72,7 @@ def get_snr_value(
 
 
 # Replaced by np.loadtxt
-# def load_file(path: str, col_ind: int) -> tp.Tuple[np.ndarray, np.ndarray]:
+# def load_file(path: str, col_ind: int) -> tuple[np.ndarray, np.ndarray]:
 #     """Load first column and column col_ind of a file
 #
 #     Parameters
@@ -119,7 +117,7 @@ def stock_bkg_compute_snr(
         gw_omega: np.ndarray,
         obs_time: float,
         f_min: float = None,
-        f_max: float = None) -> tp.Tuple[float, tp.Tuple[float, float]]:
+        f_max: float = None) -> tuple[float, tuple[float, float]]:
     """Compute signal to noise ratio
 
     Compute signal to noise ratio and the used frequency range fmin and fmax for

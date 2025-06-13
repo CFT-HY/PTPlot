@@ -1,5 +1,4 @@
 import time
-import typing as tp
 
 from matplotlib import cm, rc_context
 from matplotlib.axes import Axes
@@ -33,10 +32,10 @@ def create_snr_figure(
         levels_tsh_huge_alpha: np.ndarray = LEVELS_TSH_HUGE_ALPHA,
         xtickpos: np.ndarray = None,
         ytickpos: np.ndarray = None,
-        xticklabels: tp.List[str] = None,
-        yticklabels: tp.List[str] = None,
+        xticklabels: list[str] = None,
+        yticklabels: list[str] = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
-        contour_label_fontsize: int = 8) -> tp.Tuple[Figure, Axes]:
+        contour_label_fontsize: int = 8) -> tuple[Figure, Axes]:
     with rc_context(const.DEFAULT_RC_CONTEXT):
         x_min = np.min(x)
         x_max = np.max(x)

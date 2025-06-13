@@ -1,6 +1,5 @@
 import io
 import math
-import typing as tp
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -29,8 +28,8 @@ def add_ticks(
         y_max: float,
         xtickpos: np.ndarray = None,
         ytickpos: np.ndarray = None,
-        xticklabels: tp.List[str] = None,
-        yticklabels: tp.List[str] = None) -> None:
+        xticklabels: list[str] = None,
+        yticklabels: list[str] = None) -> None:
     x_min_int = int(math.ceil(x_min))
     x_max_int = int(math.floor(x_max))
     y_min_int = int(math.ceil(y_min))
@@ -69,7 +68,7 @@ def find_label_place(
         y: np.ndarray,
         snr: np.ndarray,
         wanted_y: float,
-        wanted_contour: float) -> tp.Tuple[float, float]:
+        wanted_contour: float) -> tuple[float, float]:
     """Determines where to put contour label, based on y-coordinate and contour value"""
     nearest_y = np.abs(y - wanted_y).argmin()
     nearest_x = (np.abs(snr[nearest_y, :] - wanted_contour)).argmin()

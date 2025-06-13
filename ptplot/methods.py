@@ -1,5 +1,3 @@
-import typing as tp
-
 from django.http import Http404, HttpResponse
 from django.db.models import Model as DjangoModel
 from matplotlib.figure import Figure
@@ -12,9 +10,9 @@ def fig_to_response(fig: Figure) -> HttpResponse:
 
 
 def get_object_or_404_related(
-        model: tp.Type[DjangoModel],
-        related: tp.List[str] = None,
-        prefetch: tp.List[str] = None,
+        model: type[DjangoModel],
+        related: list[str] = None,
+        prefetch: list[str] = None,
         **kwargs):
     try:
         obj = model.objects

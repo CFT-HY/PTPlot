@@ -1,12 +1,10 @@
-import typing as tp
-
 from django.urls import URLPattern, path, re_path
 from django.views.generic import RedirectView
 
 from . import views
 
 
-urlpatterns: tp.List[URLPattern] = [
+urlpatterns: list[URLPattern] = [
     # CSV
     path(r"curvedata.csv", views.csv, name="csv"),
 

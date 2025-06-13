@@ -5,7 +5,6 @@ with possible mission duration and labels.
 """
 
 import os.path
-import typing as tp
 
 import numpy as np
 
@@ -18,7 +17,7 @@ class MissionProfile:
     def __init__(
             self,
             name: str,
-            duration: tp.Union[int, float],
+            duration: int | float,
             sensitivity_path: str,
             sensitivity_path_lite: str,
             notes: str = None):
@@ -39,7 +38,7 @@ class MissionProfile:
         return self.name
 
     @staticmethod
-    def from_ind(index: tp.Optional[int]) -> "MissionProfile":
+    def from_ind(index: int = None) -> "MissionProfile":
         return DEFAULT_MISSION_PROFILE if index is None else MISSION_PROFILES[index]
 
     @staticmethod
@@ -57,7 +56,7 @@ class MissionProfile:
         return os.path.splitext(self.sensitivity_path)[0]
 
 
-MISSION_PROFILES: tp.List[MissionProfile] = [
+MISSION_PROFILES: list[MissionProfile] = [
     MissionProfile(
         name="Science Requirements Document (3 years)",
         duration=3,
@@ -81,5 +80,5 @@ MISSION_PROFILES: tp.List[MissionProfile] = [
 for i, profile in enumerate(MISSION_PROFILES):
     profile.ind = i
 
-MISSION_PROFILE_CHOICES: tp.List[tp.Tuple[int, str]] = [(i, profile.name) for i, profile in enumerate(MISSION_PROFILES)]
+MISSION_PROFILE_CHOICES: list[tuple[int, str]] = [(i, profile.name) for i, profile in enumerate(MISSION_PROFILES)]
 DEFAULT_MISSION_PROFILE: MissionProfile = MISSION_PROFILES[0]

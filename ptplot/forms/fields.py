@@ -22,7 +22,7 @@ def validate_velocity(value: float) -> None:
 # -----
 
 class FractionField(forms.CharField):
-    def to_python(self, value: str) -> tp.Optional[tp.Union[float, Fraction]]:
+    def to_python(self, value: str) -> float | Fraction | None:
         if not value:
             return None
         try:
@@ -142,7 +142,7 @@ class MissionProfileField(forms.TypedChoiceField):
             empty_value=empty_value, **kwargs
         )
 
-    # def to_python(self, value) -> tp.Optional[MissionProfile]:
+    # def to_python(self, value) -> MissionProfile | None:
     #     if value is None or value == "":
     #         return None
     #     converted = int(super().to_python(value))

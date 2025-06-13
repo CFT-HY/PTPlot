@@ -15,7 +15,6 @@ Contains the following function:
 import math
 import os
 import sys
-import typing as tp
 
 import numpy as np
 
@@ -34,7 +33,7 @@ def get_snr_curve(
         g_star: float,
         mission_profile: MissionProfile,
         ubarf_max: float = 1,
-        engine: Engine = Engine.DEFAULT) -> tp.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        engine: Engine = Engine.DEFAULT) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculate the SNR curves for the plots
 
     Parameters
