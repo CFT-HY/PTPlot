@@ -57,7 +57,7 @@ jobs:
           ${{ github.workspace }}/coverage.json
           ${{ github.workspace }}/htmlcov
         if-no-files-found: error
-#    - name: Upload results to Codecov
-#      uses: codecov/codecov-action@v5
-#      with:
-#        token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
