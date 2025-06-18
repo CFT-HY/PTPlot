@@ -18,10 +18,14 @@ keywords = [
     "gravitational waves"
 ]
 authors = [
-    {name = "David Weir", email = "david.weir@helsinki.fi"}
+    {name = "David Weir", email = "david.weir@helsinki.fi"},
+    {name = "Deanna Hooper", email = "deanna.hooper@helsinki.fi"},
+    {name = "Jenni Häkkinen", email = "jenni.hakkinen@helsinki.fi"},
+    {name = "Mika Mäki", email = "mika.x.maki@helsinki.fi"}
 ]
 maintainers = [
-    {name = "David Weir", email = "david.weir@helsinki.fi"}
+    {name = "David Weir", email = "david.weir@helsinki.fi"},
+    {name = "Mika Mäki", email = "mika.x.maki@helsinki.fi"}
 ]
 classifiers = [
     "Environment :: Web Environment",
@@ -39,7 +43,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Visualization"
 ]
 # Keep this up to date with requirements.txt
 dependencies = [
