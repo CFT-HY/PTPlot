@@ -121,5 +121,5 @@ ADMINS = [
     ("Mika Mäki", "mika.x.maki@helsinki.fi")
 ]
 MANAGERS = ADMINS
-# DEFAULT_FROM_EMAIL = ""
-# SERVER_EMAIL = DEFAULT_FROM_EMAIL
+DEFAULT_FROM_EMAIL = "ptplot@ptplot.org"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL

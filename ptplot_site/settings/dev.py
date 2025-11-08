@@ -10,3 +10,5 @@ INTERNAL_IPS = ["127.0.0.1"]
 SECRET_KEY = "django-insecure-5)qw0w+z9)*q145l8$n_@d+$dj0f++p)npdmrddazr5j$yu869"
 
 TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
