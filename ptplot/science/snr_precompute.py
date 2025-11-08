@@ -53,37 +53,37 @@ def get_snr_curve(
         Shocktimes
     snr : np.ndarray
         SNR values
-    log10HnRstar : np.ndarray
-        Scanned values of log10(HnRstar)
-    log10Ubarf : np.ndarray
+    log10_r_star : np.ndarray
+        Scanned values of log10(r_star)
+    log10_Ubarf : np.ndarray
         Scanned values of log10(Ubarf)
     """
 
     # Values of log10(Ubarf) to scan
-    log10Ubarf = np.linspace(-2, math.log10(ubarf_max), 51)
+    log10_Ubarf: np.ndarray[int, np.float64] = np.linspace(-2, math.log10(ubarf_max), 51)
 
-    # Values of log10(HnRstar) to scan
-    log10HnRstar = np.linspace(-4, 0.08, 51)
+    # Values of log10(r_star) to scan
+    log10_r_star: np.ndarray[int, np.float64] = np.linspace(-4, 0.08, 51)
 
     # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr_value = np.zeros((len(log10HnRstar), len(log10Ubarf)))
-    tshHn = np.zeros((len(log10HnRstar), len(log10Ubarf)))
+    snr_value = np.zeros((len(log10_r_star), len(log10_Ubarf)))
+    tshHn = np.zeros((len(log10_r_star), len(log10_Ubarf)))
 
-    for i in range(len(log10HnRstar)):
-        for j in range(len(log10Ubarf)):
-            Ubarf: float = 10.**log10Ubarf[j]
-            HnRstar: float = 10.**log10HnRstar[i]
+    for i in range(len(log10_r_star)):
+        for j in range(len(log10_Ubarf)):
+            Ubarf: float = 10.**log10_Ubarf[j]
+            r_star: float = 10.**log10_r_star[i]
 
             ps = power_spectrum(
                 T_star=Tn,
                 g_star=g_star,
-                H_rstar=HnRstar,
+                r_star=r_star,
                 ubarf_in=Ubarf,
                 engine=engine
             )
             OmGW0 = ps.power_spectrum_sw_conservative(mission_profile.f)
 
-            # Get shocktime (H_tsh = HnRstar/Ubarf)
+            # Get shocktime (H_tsh = r_star/Ubarf)
             tshHn[i, j] = ps.get_shock_time()
 
             snr_value[i, j], frange = snr.stock_bkg_compute_snr(
@@ -96,7 +96,7 @@ def get_snr_curve(
                 f_max=1.
             )
 
-    return tshHn, snr_value, log10HnRstar, log10Ubarf
+    return tshHn, snr_value, log10_r_star, log10_Ubarf
 
 
 def main():

@@ -26,12 +26,12 @@ class PowerSpectrumDBPL(PowerSpectrum):
             zp: float = const.DEFAULT_ZP,
             alpha: float = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            H_rstar: float = None,
+            r_star: float = None,
             ubarf_in: float = None,
             zb = 1):
         super().__init__(
             beta_over_H=beta_over_H, T_star=T_star, vw=vw, alpha=alpha,
-            H_rstar=H_rstar, g_star=g_star, adiabatic_ratio=adiabatic_ratio, ubarf_in=ubarf_in, zp=zp
+            r_star=r_star, g_star=g_star, adiabatic_ratio=adiabatic_ratio, ubarf_in=ubarf_in, zp=zp
         )
         self.zb = zb
 
@@ -70,7 +70,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         is absorbed in the definition of beta_to_rstar() above;
         (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
         """
-        return 26.0e-6 * (1.0/self.H_rstar) * (self.zp/10.0) \
+        return 26.0e-6 * (1.0 / self.r_star) * (self.zp / 10.0) \
             * (self.T_star/100) * np.power(self.g_star/100, 1.0/6.0)
 
     def J(self) -> float:
@@ -83,7 +83,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         # K_frac = adiabaticRatio*Ubarf**2 (eq 22 in 1910.13125).
         K_frac = self.adiabatic_ratio * np.power(self.ubarf, 2.0)
 
-        return self.H_rstar * (1.0 - 1.0 / (np.sqrt(1.0 + 2.0 * self.H_rstar / np.sqrt(K_frac))))
+        return self.r_star * (1.0 - 1.0 / (np.sqrt(1.0 + 2.0 * self.r_star / np.sqrt(K_frac))))
 
     def power_spectrum(self, f: np.ndarray) -> np.ndarray:
         """Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz

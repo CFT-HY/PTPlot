@@ -32,41 +32,27 @@ def atleast_2d_single(values: th.FloatOrListOrNestedLisOrArr) -> th.ArrOrListOfA
     return [np.array(sub_values) for sub_values in values]
 
 
-def rstar_to_beta(rstar: float, vw: float, cs: float = const.CS0) -> float:
-    r"""Convert R_* to \Beta_* for a given wall velocity
+def rstar_to_beta(R_star: th.FloatOrArr, vw: float, cs: float = const.CS0) -> th.FloatOrArr:
+    r"""Convert R_* to \beta for a given wall velocity
 
-    Parameters
-    ----------
-    rstar : float
-        Mean bubble separation
-    vw : float
-        Wall velocity
-    cs : float
-        Speed of sound (default to 1/sqrt(3))
+    $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
 
-    Returns
-    -------
-    beta : float
-        Inverse phase transition duration
+    :param R_star: Mean bubble separation $R_*$
+    :param vw: Wall velocity $v_w$
+    :param cs: Sound speed $c_s$
+    :return: Inverse phase transition duration $\beta$
     """
-    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / rstar
+    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / R_star
 
 
-def beta_to_rstar(beta: float, vw: float, cs: float = const.CS0) -> float:
-    r"""Convert \Beta_* to R_* for a given wall velocity
+def beta_to_R_star(beta: th.FloatOrArr, vw: float, cs: float = const.CS0) -> th.FloatOrArr:
+    r"""Convert \beta to R_* for a given wall velocity $v_w$
 
-    Parameters
-    ----------
-    beta : float
-        Inverse phase transition duration
-    vw : float
-        Wall velocity
-    cs : float
-        Speed of sound (default to 1/sqrt(3))
+    $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$
 
-    Returns
-    -------
-    rstar : float
-        Mean bubble separation
+    :param beta: Inverse phase transition duration $\beta$
+    :param vw: Wall velocity $v_w$
+    :param cs: Sound speed $c_s$
+    :return: Mean bubble separation $R_*$
     """
     return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / beta

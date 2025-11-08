@@ -25,7 +25,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             zp: float = const.DEFAULT_ZP,
             alpha: float = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            H_rstar: float = None,
+            r_star: float = None,
             ubarf_in: float = None,
             suppression: SuppressionMethod = SuppressionMethod.NONE,
             model: Model = bag):
@@ -38,7 +38,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             zp=zp,
             alpha=alpha,
             k_turb=k_turb,
-            H_rstar=H_rstar,
+            r_star=r_star,
             ubarf_in=ubarf_in,
         )
         self.suppression: SuppressionMethod = suppression
@@ -47,7 +47,7 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def power_spectrum(self, f: np.ndarray) -> np.ndarray:
         # Todo: add proper conversion here
-        r_star = self.H_rstar
+        r_star = self.r_star
         # Todo: add this function to PTtools
         z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * r_star
         spectrum = Spectrum(bubble=self.bubble, y=z, g_star=self.g_star, Tn=self.T_star)

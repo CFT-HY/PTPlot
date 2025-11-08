@@ -22,7 +22,7 @@ from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.espinosa import ubarf
 import ptplot.science.type_hints as th
-from ptplot.science.utils import beta_to_rstar
+from ptplot.science.utils import beta_to_R_star
 
 
 class PowerSpectrum:
@@ -69,7 +69,7 @@ class PowerSpectrum:
             zp: float = const.DEFAULT_ZP,
             alpha: float = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            H_rstar: float = None,
+            r_star: float = None,
             ubarf_in: float = None):
         """
         Parameters
@@ -90,7 +90,7 @@ class PowerSpectrum:
             Phase transition strength
         k_turb : float
             Fraction of latent heat that is transformed into magnetohydrodynamic turbulence (default 1.97/65.0) (default 1.97/65.0)
-        H_rstar : float
+        r_star : float
             Typical bubble radius
         ubarf_in : float
             Input value of the rms fluid velocity
@@ -121,18 +121,18 @@ class PowerSpectrum:
             raise ValueError("Either ubarf_in or vw must be set, but not both")
 
         # Calculate typical bubble radius
-        self.H_rstar: float
-        if (H_rstar is None) and (beta_over_H is not None):
-            self.H_rstar = beta_to_rstar(self.beta_over_H, self.vw)
-        elif (H_rstar is not None) and (beta_over_H is None):
-            self.H_rstar = H_rstar
+        self.r_star: float
+        if (r_star is None) and (beta_over_H is not None):
+            self.r_star = beta_to_R_star(self.beta_over_H, self.vw)
+        elif (r_star is not None) and (beta_over_H is None):
+            self.r_star = r_star
         else:
             raise ValueError("Either H_rstar or beta_over_H must be set, but not both")
 
         self.h_star: float = 16.5e-6 * (self.T_star / 100.0) * np.power(self.g_star / 100.0, 1.0 / 6.0)
 
         #: Shock time
-        self.H_tsh: float = self.H_rstar / self.ubarf
+        self.H_tsh: float = self.r_star / self.ubarf
 
     # This function does not depend on the power spectrum itself, and so does
     # not inherit the class instance information (no self in arguments).
@@ -159,7 +159,7 @@ class PowerSpectrum:
         is absorbed in the definition of beta_to_rstar() above;
         (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
         """
-        return 26.0e-6 * (1.0/self.H_rstar) * (self.zp/10.0) \
+        return 26.0e-6 * (1.0 / self.r_star) * (self.zp / 10.0) \
             * (self.T_star/100) * np.power(self.g_star/100, 1.0/6.0)
 
     # This follows equations 39 - 45 in 1704.05871 (and the paper erratum)
@@ -201,7 +201,7 @@ class PowerSpectrum:
         return const.H_PLANCK**2 * 3.0 \
             * 0.687 * 3.57e-5 * 0.012 * np.power(100.0 / self.g_star, 1.0/3.0) \
             * self.adiabatic_ratio * self.adiabatic_ratio \
-            * np.power(self.ubarf, 4.0) * self.H_rstar * self.Csw(fp)
+            * np.power(self.ubarf, 4.0) * self.r_star * self.Csw(fp)
 
     # The following three functions (*turb) are taken from 1512.06239.
     # However, in later papers the contribution from turbulence is neglected,
