@@ -1,7 +1,6 @@
 *~
 \#*\#
 __pycache__
-_build
 *.egg-info
 *.npz
 *.pyc
@@ -10,6 +9,11 @@ _build
 .idea
 coverage.*
 dist
+docs/_build
+docs/_static
+docs/auto_examples
+docs/gen_modules
+docs/sg_execution_times.rst
 env/django.env
 htmlcov
 pylint.txt
