@@ -64,6 +64,8 @@ pttools = [
 
 [project.urls]
 homepage = "https://www.ptplot.org"
+documentation = "https://ptplot.readthedocs.io"
+issues = "https://github.com/CFT-HY/PTPlot/issues"
 repository = "https://github.com/CFT-HY/PTPlot"
 
 [tool.coverage.run]
