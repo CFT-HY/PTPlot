@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path("blog/", include("blog.urls"))
 """
 
-from debug_toolbar.toolbar import debug_toolbar_urls
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
@@ -24,5 +24,8 @@ urlpatterns = [
     path("", RedirectView.as_view(url='/ptplot', permanent=True), name="index_redirect"),
     path("admin/", admin.site.urls),
     path("ptplot/", include("ptplot.urls")),
-    *debug_toolbar_urls()
 ]
+
+if settings.DEBUG:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()
