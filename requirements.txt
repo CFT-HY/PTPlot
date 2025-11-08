@@ -1,9 +1,9 @@
 # When updating the versions here,
 # please also update them in pyproject.toml.
-django == 5.2
-dulwich == 0.22.8
+django == 5.2.8
+dulwich == 0.24.8
 gunicorn == 23.0.0
-matplotlib == 3.10.1
-numpy == 2.2.5
+matplotlib == 3.10.7
+numpy == 2.3.4
 pttools-gw[numbalsoda,performance] == 0.9.0
-scipy == 1.15.2
+scipy == 1.16.3
