@@ -1,0 +1,16 @@
+.coverage
+.idea
+.pytest_cache
+coverage.xml
+docs/_build
+docs/auto_examples
+docs/gen_examples
+docs/modules/gen_modules
+docs/modules/tests/gen_modules
+examples/fig
+examples/test-results
+htmlcov
+logs
+pylint.txt
+test-results
+venv
