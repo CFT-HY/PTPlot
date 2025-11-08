@@ -15,6 +15,39 @@ jobs:
         uses: djdefi/cloc-action@6
         with:
           options: ${{ github.workspace }} --exclude-list-file=.clocignore
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+      - name: Print Python version
+        run: python -V
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Load pip cache
+        uses: actions/cache@v4
+        with:
+          path: .pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+            pip-
+      - name: Install requirements
+        run: |
+          pip --cache-dir=.pip install --upgrade pip wheel
+          pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+      - name: Run Pylint
+        run: pylint ptplot ptplot_site tools 2>&1 | tee pylint.txt
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lint
+          path: |
+            ${{ github.workspace }}/pylint.txt
+          if-no-files-found: error
   mypy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
