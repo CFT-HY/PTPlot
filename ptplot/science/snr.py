@@ -11,10 +11,10 @@ Contains the following functions:
 """
 
 import numpy as np
-import scipy.integrate
 
 from ptplot.science import const
 from ptplot.science.powerspectrum import PowerSpectrum
+from pttools.omgw0 import signal_to_noise_ratio
 
 
 def get_snr_value(
@@ -127,11 +127,5 @@ def stock_bkg_compute_snr(
     # Make an interpolated data series, interpolate GWOm onto same series as omega_eff
     omega_gw_interp = 10.**np.interp(np.log10(fr), np.log10(gw_freq), np.log10(gw_omega))
 
-    # Numerical integration over frequency
-    rat = omega_gw_interp**2 / omega_eff**2
-    Itg = scipy.integrate.trapezoid(rat, fr)
-
-    # Calculate snr taking into account the observation time
-    snr = np.sqrt(obs_time * Itg)
-
+    snr = signal_to_noise_ratio(f=fr, signal=omega_gw_interp, noise=omega_eff, obs_time=obs_time)
     return snr, (f_min, f_max)
