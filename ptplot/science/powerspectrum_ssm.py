@@ -46,9 +46,12 @@ class PowerSpectrumSSM(PowerSpectrum):
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.vw, alpha_n=self.alpha)
 
     def power_spectrum(self, f: np.ndarray) -> np.ndarray:
+        if self.g_star is None:
+            raise ValueError("g_star is required for converting Sound Shell Model spectra to present frequencies.")
         # Todo: add proper conversion here
         r_star = self.r_star
         # Todo: add this function to PTtools
         z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * r_star
-        spectrum = Spectrum(bubble=self.bubble, y=z, g_star=self.g_star, Tn=self.T_star)
+        # TODO: Remove gs_star when the typo in PTtools is fixed
+        spectrum = Spectrum(bubble=self.bubble, y=z, r_star=r_star, g_star=self.g_star, gs_star=self.g_star, Tn=self.T_star)
         return const.H_PLANCK2 * spectrum.omgw0(suppression=self.suppression)
