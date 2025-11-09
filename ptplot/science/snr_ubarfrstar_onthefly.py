@@ -5,9 +5,6 @@
 This file contains all the functions related to producing the UbarfRstar plot.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
-
-Contains the following function:
-    * get_snr_image - creates the UbarfRstar plot
 """
 
 import math

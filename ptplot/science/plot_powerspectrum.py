@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 
-"""
-Create the power spectrum plot
-
-This file contains all the functions related to producing the power spectrum plot.
-
-Contains the following functions:
-    * get_ps_data - gets the data for the power spectrum plot and stores it
-    * get_ps_image - creates the power spectrum plot
-"""
+"""Power spectrum plotting"""
 
 import math
 import os.path

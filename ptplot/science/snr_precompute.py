@@ -7,9 +7,6 @@ curves for the UbarfRstar and AlphaBeta plots. This is done first
 so the plot can then be built in parts. Can be used as a standalone module.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015)
-
-Contains the following function:
-    * get_SNRcurve - calculates the SNR curves
 """
 
 import math

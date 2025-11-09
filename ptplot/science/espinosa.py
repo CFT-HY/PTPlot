@@ -3,11 +3,6 @@
 This file contains all the functions related to the calculation of
 the energy budget of a First-order Phase Transition, following J. R.
 Espinosa et al. JCAP06 (2010) 028 (arXiv:1004.4187).
-
-Contains the following functions:
-    * ubarf - calculates ubarf from alpha and vw
-    * kappav - calculates kappav from alpha and vw
-    * ubarf_to_alpha - converts from ubarf to alpha
 """
 
 import math

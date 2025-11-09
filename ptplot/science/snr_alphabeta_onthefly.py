@@ -5,9 +5,6 @@
 This file contains all the functions related to producing the AlphaBeta plot.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
-
-Contains the following function:
-    * get_snr_alphabeta_image - creates the AlphaBeta plot
 """
 
 import math

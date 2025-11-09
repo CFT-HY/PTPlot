@@ -4,10 +4,6 @@ This file contains all the functions related to the calculation of the
 signal to noise ratio for a given sensitivity, spectrum and observation time.
 These functions are inspired by the ones in Antoine Petiteau's eLISAToolBox aka
 eLISATools.py, adapted to use a trapezium rule integration with nonuniform interval.
-
-Contains the following functions:
-    * load_file - reads arrays from a file
-    * stock_bkg_compute_snr - computes the SNR
 """
 
 import numpy as np
