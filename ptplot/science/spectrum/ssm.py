@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel, Model
@@ -8,6 +10,8 @@ from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.spectrum.base import PowerSpectrum
 
 bag = BagModel()
+
+logger = logging.getLogger(__name__)
 
 
 class PowerSpectrumSSM(PowerSpectrum):
@@ -41,6 +45,9 @@ class PowerSpectrumSSM(PowerSpectrum):
             r_star=r_star,
             ubarf_in=ubarf_in,
         )
+        if self.vw is None or np.isnan(vw):
+            raise ValueError(f"Sound Shell Model requires vw to be set. Got vw={vw}.")
+
         self.suppression: SuppressionMethod = suppression
         self.model: Model = model
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.vw, alpha_n=self.alpha)
@@ -53,5 +60,9 @@ class PowerSpectrumSSM(PowerSpectrum):
         # Todo: add this function to PTtools
         z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * r_star
         # TODO: Remove gs_star when the typo in PTtools is fixed
-        spectrum = Spectrum(bubble=self.bubble, y=z, r_star=r_star, g_star=self.g_star, gs_star=self.g_star, Tn=self.T_star)
+        try:
+            spectrum = Spectrum(bubble=self.bubble, y=z, r_star=r_star, g_star=self.g_star, gs_star=self.g_star, Tn=self.T_star)
+        except ValueError as e:
+            logger.error("Could not create SSM spectrum with z=%s", z)
+            raise e
         return const.H_PLANCK2 * spectrum.omgw0(suppression=self.suppression)

@@ -86,6 +86,8 @@ def single(request: HttpRequest) -> HttpResponse:
                 "g_star": form.cleaned_data["g_star"],
                 "mission_profile": form.mission_profile,
                 "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
+                "css2": form.cleaned_data["css2"],
+                "csb2": form.cleaned_data["csb2"]
             }
             return render(request, "single_result.html", context)
 

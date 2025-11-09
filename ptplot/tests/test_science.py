@@ -4,7 +4,7 @@ import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
 import ptplot.science.plot_powerspectrum as plot_ps
 from ptplot.science.engine import Engine
-from ptplot.science.spectrum.create import power_spectrum
+from ptplot.science.spectrum.create import PowerSpectrumBPL, power_spectrum
 # import ptplot.science.snr as snr
 # import ptplot.science.SNR_precompute as snr_pre
 import ptplot.science.snr_alphabeta_onthefly as snr_ab
@@ -16,11 +16,13 @@ BETA_OVER_H: float = 10000
 
 
 class ScienceTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.spectrum = PowerSpectrumBPL(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
+
     def test_kappav(self):
         esp.kappav(vw=0.7, alpha=0.1)
-
-    # def test_load_file(self):
-    #     snr.LoadFile()
 
     def test_power_spectrum(self):
         power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
@@ -35,10 +37,10 @@ class ScienceTest(TestCase):
         power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1/4, csb2=1/4)
 
     def test_ps_data(self):
-        plot_ps.get_ps_data()
+        plot_ps.get_ps_data(self.spectrum)
 
     def test_ps_image(self):
-        plot_ps.get_ps_image()
+        plot_ps.get_ps_image(self.spectrum, sw_only=False)
 
     def test_requirements(self):
         req.main(print_points=False)

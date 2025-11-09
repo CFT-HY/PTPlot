@@ -7,6 +7,7 @@ import dulwich.porcelain
 from dulwich.repo import Repo
 
 from ptplot.forms import PTPlotForm
+from ptplot.science.spectrum.bpl import PowerSpectrumBPL
 from ptplot.science.plot_powerspectrum import get_ps_data
 
 logger = logging.getLogger(__name__)
@@ -29,15 +30,18 @@ def csv(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    csv = get_ps_data(
+    spectrum = PowerSpectrumBPL(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
         vw=form.cleaned_data["vw"],
         alpha=form.cleaned_data["alpha"],
         beta_over_H=form.cleaned_data["beta_over_H"],
+    )
+    csv_data = get_ps_data(
+        spectrum=spectrum,
         mission_profile=form.mission_profile
     )
-    return HttpResponse(csv, content_type="text/csv")
+    return HttpResponse(csv_data, content_type="text/csv")
 
 
 def index(request: HttpRequest) -> HttpResponse:

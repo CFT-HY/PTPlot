@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-"""Create the UbarfRstar plot
+"""Create the $\bar{U}_f-R_*$ plot
 
-This file contains all the functions related to producing the UbarfRstar plot.
+This file contains all the functions related to producing the $\bar{U}_f-R_*$ plot.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
 """
@@ -62,7 +62,11 @@ def get_snr_image(
     :return: Figure of $\bar{U}_f-R_*$
     """
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
-        Tn=T_star, g_star=g_star, mission_profile=mission_profile,
+        Tn=T_star,
+        g_star=g_star,
+        # vw=vws if np.isscalar(vws) else vws[0],
+        alpha=alphas if np.isscalar(alphas) else alphas[0],
+        mission_profile=mission_profile,
         ubarf_max=1000 if huge_alpha else 1,
         engine=engine
     )

@@ -1,12 +1,4 @@
-"""
-Broken power law (BPL) power spectrum
-
-This file contains the ansätze needed to calculate the power spectrum from
-sound waves and from turbulence (although the latter is not used).
-Unless stated otherwise, the equations here follow those in M. Hindmarsh et al.
-Phys.Rev.D 96 (2017) 10, 103520, Phys.Rev.D 101 (2020) 8, 089902 (erratum)
-(1704.05871).
-"""
+"""Broken power law (BPL) power spectrum"""
 
 import math
 
@@ -18,26 +10,35 @@ import ptplot.science.type_hints as th
 
 
 class PowerSpectrumBPL(PowerSpectrum):
-    """Broken power law (BPL) power spectrum"""
+    """Broken power law (BPL) power spectrum
 
-    # This function does not depend on the power spectrum itself, and so does
-    # not inherit the class instance information (no self in arguments).
-    # Note that this function used to be called Ssw, but it was renamed in 2023
-    # to match the notation used in equation 36 of 1704.05871.
-    # Function C(f)
+    Based on :hindmarsh_2017:`\ ` and `hindmarsh_2017_erratum:`\ `.
+
+    Also contains functions for turbulence.
+    However, in later papers the contribution from turbulence is neglected,
+    as further studies to understand turbulence are needed.
+    As such, the turbulence functions are not called anywhere in the code by default.
+    However, they can still be turned on by overriding the sw_only flag.
+    """
     @staticmethod
     def Csw(fp: th.FloatOrArr, norm: float = 1.0) -> th.FloatOrArr:
         """Calculate spectral shape for gw from sound waves
 
         For a given peak frequency, calculate spectral shape of a single broken
         power law fit to simulation results for gw from sound waves.
+        :hindmarsh_2017:`\ ` eq. 36
+
+        This function was previously known as $S_{sw}$,
+        but was renamed in 2023 to match the notation in the article.
         """
         return norm * np.power(fp, 3.0) * np.power(7.0 / (4.0 + 3.0 * np.power(fp, 2.0)), 7.0 / 2.0)
 
     def fsw(self) -> float:
-        """Calculate true peak frequency
+        r"""True peak frequency
 
-        This follows equation 43 in 1704.05871. Note that the numerical prefactor
+        :hindmarsh_2017:`\ ` eq. 43
+
+        Note that the numerical prefactor
         is absorbed in the definition of beta_to_rstar() above;
         (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
         """
@@ -46,9 +47,10 @@ class PowerSpectrumBPL(PowerSpectrum):
 
     # This follows equations 39 - 45 in 1704.05871 (and the paper erratum)
     def power_spectrum_sw(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate power spectrum from sound waves for a given frequency f
+        r"""Power spectrum from sound waves for a given frequency f
 
-        This function follows equation 45 (erratum equation 2) of 1704.05871.
+        :hindmarsh_2017:`\ ` eq. 45
+        :hindmarsh_2017_erratum:`\ ` eq. 2
         """
 
         # This is based on equation 45 in 1704.05871, with the numerical
@@ -85,30 +87,25 @@ class PowerSpectrumBPL(PowerSpectrum):
             * self.adiabatic_ratio * self.adiabatic_ratio \
             * np.power(self.ubarf, 4.0) * self.r_star * self.Csw(fp)
 
-    # The following three functions (*turb) are taken from 1512.06239.
-    # However, in later papers the contribution from turbulence is neglected,
-    # as further studies to understand turbulence are needed. As such, these
-    # three functions are not called anywhere in the code by default.
-    # However, these can still be turned on by overriding the sw_only flag.
     def fturb(self):
-        """Calculate peak frequency for turbulence
+        r"""Calculate peak frequency for turbulence
 
-        This function follows equation 18 equation of 1512.06239.
+        :caprini_2015:`\ ` eq. 18
         """
         return 27e-6 * (1.0 / self.vw) * self.beta_over_H * (self.T_star / 100.0) * np.power(self.g_star / 100,
                                                                                              1.0 / 6.0)
 
     def Sturb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
-        """Calculate the spectral shape from turbulence
+        r"""Calculate the spectral shape from turbulence
 
-        This function follows equation 17 equation of 1512.06239.
+        :caprini_2015:`\ ` eq. 17
         """
         return np.power(fp, 3.0) / (np.power(1 + fp, 11.0 / 3.0) * (1 + 8 * math.pi * f / self.h_star))
 
     def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate power spectrum from turbulence for a given frequency f
+        r"""Calculate power spectrum from turbulence for a given frequency f
 
-        This function follows equation 16 equation of 1512.06239.
+        :caprini_2015:`\ ` eq. 16
         """
         fp = f / self.fturb()
         return 3.35e-4 / self.beta_over_H \
@@ -123,9 +120,13 @@ class PowerSpectrumBPL(PowerSpectrum):
         return min(self.H_tsh, 1.0) * self.power_spectrum_sw(f)
 
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate total power spectrum from sound waves and turbulence"""
-        return self.power_spectrum_sw(f)  # + self.power_spectrum_turb(f)
+        """Power spectrum from sound waves (conservative)"""
+        return self.power_spectrum_sw_conservative(f)
 
-    def power_spectrum_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate total power spectrum from sound waves (conservative) and turbulence"""
+    def power_spectrum_full(self, f: th.FloatOrArr) -> th.FloatOrArr:
+        """Total power spectrum from sound waves and turbulence"""
+        return self.power_spectrum_sw(f) + self.power_spectrum_turb(f)
+
+    def power_spectrum_full_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
+        """Total power spectrum from sound waves (conservative) and turbulence"""
         return self.power_spectrum_sw_conservative(f) + self.power_spectrum_turb(f)

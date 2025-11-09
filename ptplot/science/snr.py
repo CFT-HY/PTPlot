@@ -1,7 +1,7 @@
 """SNR computation
 
 This file contains all the functions related to the calculation of the
-signal to noise ratio for a given sensitivity, spectrum and observation time.
+signal-to-noise ratio for a given sensitivity, spectrum and observation time.
 These functions are inspired by the ones in Antoine Petiteau's eLISAToolBox aka
 eLISATools.py, adapted to use a trapezium rule integration with nonuniform interval.
 """
@@ -21,7 +21,7 @@ def get_snr_value(
         gstar: float = const.DEFAULT_G_STAR,
         vw: float = const.DEFAULT_VW,
         alpha: float = const.DEFAULT_ALPHA,
-        BetaoverH: float = const.DEFAULT_BETA_OVER_H) -> np.ndarray:
+        BetaoverH: float = const.DEFAULT_BETA_OVER_H) -> float:
     """Calculate the SNR value for a given power spectrum
 
     Note that this function is currently not being used by the code, but it
@@ -60,13 +60,13 @@ def stock_bkg_compute_snr(
         obs_time: float,
         f_min: float = None,
         f_max: float = None) -> tuple[float, tuple[float, float]]:
-    """Compute signal to noise ratio
+    """Compute signal-to-noise ratio
 
-    Compute signal to noise ratio and the used frequency range fmin and fmax for
+    Compute signal-to-noise ratio and the used frequency range fmin and fmax for
     a given sensitivity, defined by the two numpy arrays (of the same size)
     SensFr (for frequency) and SensOm for sensitivity in Omega unit; a given
     spectrum, defined by the two numpy arrays (same size) GWFr for frequency
-    and GWOm for GW in Omega units; and a given observation time Tobs in years.
+    and GWOm for GW in Omega units; and a given observation time Tobs in seconds.
     If the frequency range frange is not defined, the frequency range will be
     adjusted based on the two frequency arrays.
 

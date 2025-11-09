@@ -15,101 +15,57 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const, snr
-from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import add_text, fig_to_svg
-from ptplot.science.spectrum.create import power_spectrum
+from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, power_spectrum
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 
 def get_ps_data(
-        vw: float = const.DEFAULT_VW,
-        alpha: float = const.DEFAULT_ALPHA,
-        beta_over_H: float = const.DEFAULT_BETA_OVER_H,
-        T_star: float = const.DEFAULT_T_STAR,
-        g_star: float = const.DEFAULT_G_STAR,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        spectrum: PowerSpectrumBPL,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-        engine: Engine = Engine.DEFAULT,
         sw_only: bool = True) -> str:
     r"""Retrieve the data for the power spectrum plot
 
     Note that this is not then used to create the plot, this stores the data,
     to be exported as a csv if requested.
 
-    :param vw: Wall velocity $v_\text{wall}$
-    :param T_star: Transition temperature $T_*$
-    :param g_star: Degrees of freedom $g_*$
-    :param alpha: Phase transition strength $\alpha$
-    :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
-    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param spectrum: power spectrum
     :param mission_profile: Which sensitivity curve to use
     :param sw_only: Whether to ignore turbulence
     :return: String containing all the data to reproduce the power spectrum plot
     """
-    curves_ps = power_spectrum(
-        vw=vw,
-        T_star=T_star,
-        alpha=alpha,
-        beta_over_H=beta_over_H,
-        g_star=g_star,
-        adiabatic_ratio=adiabatic_ratio,
-        engine=engine
-    )
     res = "f, omegaSens, omegaSW\n" if sw_only else "f, omegaSens, omegaSW, omegaTurb, omegaTot\n"
 
     for x, y in zip(mission_profile.f, mission_profile.sensitivity):
         if sw_only:
-            res = res + "%g, %g, %g\n" % (x, y, curves_ps.power_spectrum_sw_conservative(x))
+            res = res + "%g, %g, %g\n" % (x, y, spectrum.power_spectrum_sw_conservative(x))
         else:
             res = res + "%g, %g, %g, %g, %g\n" % (
                 x, y,
-                curves_ps.power_spectrum_sw_conservative(x),
-                curves_ps.power_spectrum_turb(x),
-                curves_ps.power_spectrum_conservative(x)
+                spectrum.power_spectrum_sw_conservative(x),
+                spectrum.power_spectrum_turb(x),
+                spectrum.power_spectrum_conservative(x)
             )
-
     return res
 
 
 def get_ps_image(
-        vw: float = const.DEFAULT_VW,
-        alpha: float = const.DEFAULT_ALPHA,
-        beta_over_H: float = const.DEFAULT_BETA_OVER_H,
-        T_star: float = const.DEFAULT_T_STAR,
-        g_star: float = const.DEFAULT_G_STAR,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        spectrum: PowerSpectrum,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-        engine: Engine = Engine.DEFAULT,
-        usetex: bool = False,
         sw_only: bool = True) -> Figure:
     r"""Produce the power spectrum plot
 
-    :param vw: Wall velocity $v_\text{wall}$
-    :param T_star: Transition temperature $T_*$
-    :param g_star: Degrees of freedom $g_*$
-    :param alpha: Phase transition strength $\alpha$
-    :param beta_over_H: Inverse phase transition duration relative to H $\frac{\beta}{H}$
-    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param spectrum: power spectrum
     :param mission_profile: Which sensitivity curve to use
-    :param usetex: Whether to use LaTeX
     :param sw_only: Whether to ignore turbulence
     :return: Power spectrum figure
     """
-    ps = power_spectrum(
-        vw=vw,
-        T_star=T_star,
-        alpha=alpha,
-        beta_over_H=beta_over_H,
-        g_star=g_star,
-        adiabatic_ratio=adiabatic_ratio,
-        engine=engine
-    )
     snr_value, frange = snr.stock_bkg_compute_snr(
         sens_freq=mission_profile.f,
         sens_omega=mission_profile.sensitivity,
         gw_freq= mission_profile.f,
-        gw_omega=ps.power_spectrum_sw_conservative(mission_profile.f),
+        gw_omega=spectrum.power_spectrum(mission_profile.f),
         obs_time=mission_profile.duration_seconds,
         f_min=1.e-6,
         f_max=1
@@ -131,16 +87,16 @@ def get_ps_image(
         ax.fill_between(mission_profile.f, mission_profile.sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
 
         ax.plot(
-            f_more, ps.power_spectrum_sw_conservative(f_more), "k" if sw_only else "r",
+            f_more, spectrum.power_spectrum(f_more), "k" if sw_only else "r",
             label=r"$\Omega_\mathrm{sw}$"
         )
-        if not sw_only:
+        if not sw_only and isinstance(spectrum, PowerSpectrumBPL):
             ax.plot(
-                f_more, ps.power_spectrum_turb(f_more), "b",
+                f_more, spectrum.power_spectrum_turb(f_more), "b",
                 label=r"$\Omega_\mathrm{turb}$"
             )
             ax.plot(
-                f_more, ps.power_spectrum_conservative(f_more), "k",
+                f_more, spectrum.power_spectrum_full_conservative(f_more), "k",
                 label=r"Total"
             )
 
@@ -168,11 +124,12 @@ def main():
         engine=True
     )
     args = parser.parse_args()
-    fig = get_ps_image(
+    spectrum = power_spectrum(
         vw=args.vw, alpha=args.alpha, beta_over_H=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar,
         engine=args.engine
     )
+    fig = get_ps_image(spectrum)
     print(fig_to_svg(fig).decode("utf-8"))
 
 

@@ -20,7 +20,7 @@ def ubarf(vw: float, alpha: float, adiabaticRatio: float = const.DEFAULT_ADIABAT
     :param adiabaticRatio: Adiabatic index $\Gamma$
     :return: Measure of the rms fluid velocity $\bar{U}_f$
     """
-    return math.sqrt((1.0/adiabaticRatio) * kappav(vw,alpha) * alpha/(1.0 + alpha))
+    return math.sqrt((1.0/adiabaticRatio) * kappav(vw, alpha) * alpha/(1.0 + alpha))
 
 
 def kappav(vw: float, alpha: float) -> float:
@@ -60,7 +60,14 @@ def kappav(vw: float, alpha: float) -> float:
                 + (math.pow(vw-cs, 3.0)/math.pow(xiJ-cs,3.0)) * (kappaC-kappaB-(xiJ-cs) * deltaK)
 
 
-def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
+def ubarf_to_alpha_scalar(vw: float, this_ubarf: float, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO) -> float:
+    def alpha_true(alpha: float):
+        return ubarf(vw, alpha, adiabaticRatio) - this_ubarf
+
+    return scipy.optimize.brentq(alpha_true, a=1e-8, b=1e12, xtol=1e-6)
+
+
+def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO) -> np.ndarray:
     r"""Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate
@@ -75,15 +82,5 @@ def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = co
     :param adiabaticRatio: Adiabatic index $\Gamma$
     :return: Array of phase transition strengths $\alpha$
     """
-    def ubarf_to_alpha_inner(vw, this_ubarf, adiabaticRatio: float):
-        def alphatrue(alpha):
-            return ubarf(vw, alpha, adiabaticRatio) - this_ubarf
-
-        # try:
-        return scipy.optimize.brentq(alphatrue, 1e-8, 1e12, xtol=1e-6)
-        # except ValueError:
-        #     import sys
-        #     sys.stderr.write("vw=%g, this_ubarf=%g\n" % (vw, this_ubarf))
-
-    vfunc = np.vectorize(ubarf_to_alpha_inner)
+    vfunc = np.vectorize(ubarf_to_alpha_scalar)
     return vfunc(vw, this_ubarf, adiabaticRatio)

@@ -6,7 +6,8 @@ import numpy as np
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.espinosa import ubarf
+from ptplot.science.espinosa import ubarf, ubarf_to_alpha_scalar
+import ptplot.science.type_hints as th
 from ptplot.science.utils import beta_to_R_star
 
 
@@ -18,16 +19,16 @@ class PowerSpectrum(abc.ABC):
 
     def __init__(
             self,
-            beta_over_H: float = None,
+            beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float = None,
+            vw: float | None = None,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            alpha: float = None,
+            alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float = None,
-            ubarf_in: float = None):
+            r_star: float | None = None,
+            ubarf_in: float | None = None):
         r"""
         :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
         :param T_star: Transition temperature $T_*$
@@ -51,7 +52,6 @@ class PowerSpectrum(abc.ABC):
         self.zp: float = zp
 
         # Parameters that may be set
-        self.alpha: float | None = alpha
         self.vw: float | None = vw
         self.beta_over_H: float | None = beta_over_H
 
@@ -59,14 +59,25 @@ class PowerSpectrum(abc.ABC):
         # Computed parameters
         # -----
 
-        # Either take ubarf_in as-is, or calculate ubarf from the wall velocity
+        self.alpha: float
         self.ubarf: float
-        if (vw is not None) and (ubarf_in is None):
+        if (vw is not None) and (alpha is not None) and (ubarf_in is None):
+            self.alpha = alpha
             self.ubarf = ubarf(vw, alpha, adiabatic_ratio)
-        elif (vw is None) and (ubarf_in is not None):
+        elif (vw is not None) and (alpha is None) and (ubarf_in is not None):
+            self.alpha = ubarf_to_alpha_scalar(vw=vw, this_ubarf=ubarf_in, adiabaticRatio=adiabatic_ratio)
             self.ubarf = ubarf_in
+        elif (vw is None) and (alpha is not None) and (ubarf_in is not None):
+            self.alpha = alpha
+            self.ubarf = ubarf_in
+            # raise NotImplementedError(
+            #     "Determining vw(alpha, ubarf) has not been implemented. "
+            #     f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}"
+            # )
         else:
-            raise ValueError("Either ubarf_in or vw must be set, but not both")
+            raise ValueError(
+                "Exactly two of vw, alpha, ubarf_in must be set. "
+                f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}.")
 
         # Calculate typical bubble radius
         self.r_star: float
@@ -75,13 +86,22 @@ class PowerSpectrum(abc.ABC):
         elif (r_star is not None) and (beta_over_H is None):
             self.r_star = r_star
         else:
-            raise ValueError("Either H_rstar or beta_over_H must be set, but not both")
+            raise ValueError(
+                "Either r_star or beta_over_H must be set, but not both. "
+                f"Got r_star={r_star}, beta_over_H={beta_over_H}."
+            )
 
         self.h_star: float = 16.5e-6 * (self.T_star / 100.0) * np.power(self.g_star / 100.0, 1.0 / 6.0)
 
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
 
-    def get_shock_time(self) -> float:
-        """Calculate shock time"""
+    @property
+    def shock_time(self) -> float:
+        """Shock time"""
         return self.H_tsh
+
+    @abc.abstractmethod
+    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
+        """GW power spectrum"""
+        pass

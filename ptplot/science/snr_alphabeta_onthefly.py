@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Create the AlphaBeta plot
+"""AlphaBeta plotting
 
 This file contains all the functions related to producing the AlphaBeta plot.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
@@ -58,7 +58,11 @@ def get_snr_alphabeta_image(
     :return: Figure of $\alpha-\beta$
     """
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
-        Tn=T_star, g_star=g_star, mission_profile=mission_profile,
+        Tn=T_star,
+        # vw=vw,
+        alpha=alphas if np.isscalar(alphas) else alphas[0],
+        g_star=g_star,
+        mission_profile=mission_profile,
         ubarf_max=0.866 if huge_alpha else 0.6,
         engine=engine
     )

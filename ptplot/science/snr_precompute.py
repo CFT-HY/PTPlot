@@ -21,7 +21,7 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science import snr
 from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.spectrum.bpl import PowerSpectrumBPL
+from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.mission_profile import MissionProfile
 
 
@@ -29,8 +29,9 @@ def get_snr_curve(
         Tn: float,
         g_star: float,
         mission_profile: MissionProfile,
+        alpha: float = None,
         ubarf_max: float = 1,
-        engine: Engine = Engine.DEFAULT) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        engine: Engine = Engine.DEFAULT) -> tuple[np.ndarray[tuple[int, int], np.float64], np.ndarray[tuple[int, int], np.float64], np.ndarray[tuple[int], np.float64], np.ndarray[tuple[int], np.float64]]:
     """Calculate the SNR curves for the plots
 
     :param Tn: Nucleation temperature $T_n$
@@ -44,31 +45,32 @@ def get_snr_curve(
     """
 
     # Values of log10(Ubarf) to scan
-    log10_Ubarf: np.ndarray[int, np.float64] = np.linspace(-2, math.log10(ubarf_max), 51)
+    log10_Ubarf: np.ndarray[tuple[int], np.float64] = np.linspace(-2, math.log10(ubarf_max), 51)
 
     # Values of log10(r_star) to scan
-    log10_r_star: np.ndarray[int, np.float64] = np.linspace(-4, 0.08, 51)
+    log10_r_star: np.ndarray[tuple[int], np.float64] = np.linspace(-4, 0.08, 51)
 
     # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr_value = np.zeros((len(log10_r_star), len(log10_Ubarf)))
-    tshHn = np.zeros((len(log10_r_star), len(log10_Ubarf)))
+    snr_value: np.ndarray[tuple[int, int], np.float64] = np.zeros((len(log10_r_star), len(log10_Ubarf)))
+    tshHn: np.ndarray[tuple[int, int], np.float64] = np.zeros((len(log10_r_star), len(log10_Ubarf)))
 
     for i in range(len(log10_r_star)):
         for j in range(len(log10_Ubarf)):
             Ubarf: float = 10.**log10_Ubarf[j]
             r_star: float = 10.**log10_r_star[i]
 
-            ps = PowerSpectrumBPL(
+            spectrum = power_spectrum(
                 T_star=Tn,
                 g_star=g_star,
+                alpha=alpha,
                 r_star=r_star,
                 ubarf_in=Ubarf,
                 engine=engine
             )
-            OmGW0 = ps.power_spectrum(mission_profile.f)
+            OmGW0 = spectrum.power_spectrum(mission_profile.f)
 
             # Get shocktime (H_tsh = r_star/Ubarf)
-            tshHn[i, j] = ps.get_shock_time()
+            tshHn[i, j] = spectrum.shock_time
 
             snr_value[i, j], frange = snr.stock_bkg_compute_snr(
                 sens_freq=mission_profile.f,

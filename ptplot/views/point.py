@@ -6,6 +6,7 @@ from ptplot.models import ParameterChoice
 from ptplot.science.plot_powerspectrum import get_ps_data, get_ps_image
 from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
 from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
+from ptplot.science.spectrum.create import power_spectrum
 
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
@@ -66,12 +67,15 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         model__id=model_id,
         number=point_id
     )
-    csv = get_ps_data(
+    spectrum = power_spectrum(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
         alpha=point.alpha,
         beta_over_H=point.beta_over_H,
+    )
+    csv = get_ps_data(
+        spectrum=spectrum,
         mission_profile=point.model.mission_profile
     )
     return HttpResponse(csv, content_type="text/csv")
@@ -84,12 +88,16 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
         model__id=model_id,
         number=point_id
     )
-    fig = get_ps_image(
+    # Todo: configure the engine here
+    spectrum = power_spectrum(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vw=point.vw_value,
         alpha=point.alpha,
         beta_over_H=point.beta_over_H,
+    )
+    fig = get_ps_image(
+        spectrum=spectrum,
         mission_profile=point.model.mission_profile
     )
     return fig_to_response(fig)
