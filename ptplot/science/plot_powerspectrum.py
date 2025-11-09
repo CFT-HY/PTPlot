@@ -40,34 +40,20 @@ def get_ps_data(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         engine: Engine = Engine.DEFAULT,
         sw_only: bool = True) -> str:
-    """Retrieve the data for the power spectrum plot
+    r"""Retrieve the data for the power spectrum plot
 
     Note that this is not then used to create the plot, this stores the data,
     to be exported as a csv if requested.
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity (default to 0.9)
-    T_star : float
-        Transition temperature (default to 180)
-    g_star : float
-        Degrees of freedom (default to 100)
-    alpha : float
-        Phase transition strength (default to 0.1)
-    beta_over_H : float
-        Inverse phase transition duration relative to H (default to 10)
-    adiabatic_ratio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-    mission_profile : int
-        Which sensitivity curve to use
-    sw_only : bool
-        Flag to decide if we want to ignore turbulence (default to True)
-
-    Returns
-    -------
-    res : string
-        String containing all the data to reproduce the power spectrum plot
+    :param vw: Wall velocity $v_\text{wall}$
+    :param T_star: Transition temperature $T_*$
+    :param g_star: Degrees of freedom $g_*$
+    :param alpha: Phase transition strength $\alpha$
+    :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param mission_profile: Which sensitivity curve to use
+    :param sw_only: Whether to ignore turbulence
+    :return: String containing all the data to reproduce the power spectrum plot
     """
     curves_ps = power_spectrum(
         vw=vw,
@@ -105,33 +91,18 @@ def get_ps_image(
         engine: Engine = Engine.DEFAULT,
         usetex: bool = False,
         sw_only: bool = True) -> Figure:
-    """Produce the power spectrum plot
+    r"""Produce the power spectrum plot
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity (default to 0.9)
-    T_star : float
-        Transition temperature (default to 180)
-    g_star : float
-        Degrees of freedom (default to 100)
-    alpha : float
-        Phase transition strength (default to 0.1)
-    beta_over_H : float
-        Inverse phase transition duration relative to H (default to 10)
-    adiabatic_ratio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-    mission_profile :
-        Which sensitivity curve to use
-    usetex : bool
-        Flag for using latex (default to False)
-    sw_only : bool
-        Flag to decide if we want to ignore turbulence (default to True)
-
-    Returns
-    -------
-    sio : Figure
-        plot of the power spectrum
+    :param vw: Wall velocity $v_\text{wall}$
+    :param T_star: Transition temperature $T_*$
+    :param g_star: Degrees of freedom $g_*$
+    :param alpha: Phase transition strength $\alpha$
+    :param beta_over_H: Inverse phase transition duration relative to H $\frac{\beta}{H}$
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param mission_profile: Which sensitivity curve to use
+    :param usetex: Whether to use LaTeX
+    :param sw_only: Whether to ignore turbulence
+    :return: Power spectrum figure
     """
     ps = power_spectrum(
         vw=vw,

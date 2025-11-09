@@ -36,27 +36,14 @@ def get_snr_curve(
         engine: Engine = Engine.DEFAULT) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Calculate the SNR curves for the plots
 
-    Parameters
-    ----------
-    Tn : float
-        Temperature at nucleation time
-    g_star : float
-        Degrees of freedom
-    mission_profile :
-        Which sensitivity curve to use
-    ubarf_max : float
-        Maximum of rms fluid velocity (default to 1)
-
-    Returns
-    -------
-    tshHn : np.ndarray
-        Shocktimes
-    snr : np.ndarray
-        SNR values
-    log10_r_star : np.ndarray
-        Scanned values of log10(r_star)
-    log10_Ubarf : np.ndarray
-        Scanned values of log10(Ubarf)
+    :param Tn: Nucleation temperature $T_n$
+    :param g_star: Degrees of freedom $g_*$
+    :param mission_profile: Which sensitivity curve to use
+    :param ubarf_max: Maximum rms fluid velocity $\bar{U}_f$
+    :return: tshHn (shock times),
+      snr (SNR values),
+      log10_r_star (Scanned values of log10(r_star),
+      log10_Ubarf (scanned values of log10(Ubarf)
     """
 
     # Values of log10(Ubarf) to scan

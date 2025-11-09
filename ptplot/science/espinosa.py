@@ -18,42 +18,25 @@ from ptplot.science import const
 
 
 def ubarf(vw: float, alpha: float, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
-    """Calculates the rms fluid velocity
+    r"""Calculate the rms fluid velocity
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity
-    alpha : float
-        Phase transition strength
-    adiabaticRatio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-
-    Returns
-    -------
-    ubarf : float
-        Measure of the rms fluid velocity
+    :param vw: Wall velocity $v_\text{wall}$
+    :param alpha: Phase transition strength $\alpha$
+    :param adiabaticRatio: Adiabatic index $\Gamma$
+    :return: Measure of the rms fluid velocity $\bar{U}_f$
     """
     return math.sqrt((1.0/adiabaticRatio) * kappav(vw,alpha) * alpha/(1.0 + alpha))
 
 
 def kappav(vw: float, alpha: float) -> float:
-    """Calculates the fluid efficiency
+    r"""Calculate the fluid efficiency
 
     The fluid efficiency gives the fraction of vacuum energy that is
     turned into kinetic energy during the phase transition.
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity
-    alpha : float
-        Phase transition strength
-
-    Returns
-    -------
-    kappav : float
-        Fluid efficiency
+    :param vw: Wall velocity $v_\text{wall}$
+    :param alpha: Phase transition strength $\alpha$
+    :return: Fluid efficiency $\kappa_v$
     """
 
     # Approximations for the different kappas can be found in Appendix A
@@ -83,7 +66,7 @@ def kappav(vw: float, alpha: float) -> float:
 
 
 def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
-    """Calculates alpha from ubarf
+    r"""Calculates alpha from ubarf
 
     For a given wall velocity and list of ubarf values, calculate
     the corresponding list of alpha values. As the calculation of
@@ -92,19 +75,10 @@ def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = co
     that minimises the difference between the calculated ubarf and
     this_ubarf (input) value.
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity
-    this_ubarf : np.ndarray
-        List of rms fluid velocities
-    adiabaticRatio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-
-    Returns
-    -------
-    alpha_list : np.ndarray
-        List of phase transition strengths
+    :param vw: Wall velocity $v_\text{wall}$
+    :param this_ubarf: List of rms fluid velocities $\bar{U}_f$
+    :param adiabaticRatio: Adiabatic index $\Gamma$
+    :return: Array of phase transition strengths $\alpha$
     """
     def ubarf_to_alpha_inner(vw, this_ubarf, adiabaticRatio: float):
         def alphatrue(alpha):

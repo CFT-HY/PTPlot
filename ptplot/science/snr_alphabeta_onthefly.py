@@ -45,37 +45,20 @@ def get_snr_alphabeta_image(
         engine: Engine = Engine.DEFAULT,
         usetex: bool = False,
         huge_alpha: bool = False) -> Figure:
-    """Produce the AlphaBeta plot
+    r"""Produce the $\alpha-\beta$ plot
 
-    Parameters
-    ----------
-    vw : float
-        Wall velocity
-    alphas : list[float]
-        List of phase transition strengths
-    beta_over_Hs : list[float]
-        List of inverse phase transition durations
-    T_star : float
-        Transition temperature (default to 180)
-    g_star : float
-        Degrees of freedom (default to 100)
-    adiabatic_ratio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-    labels : list[string]
-        List of labels
-    titles : list[string]
-        List of titles
-    mission_profile :
-        Which sensitivity curve to use
-    usetex : bool
-        Flag for using latex (default to False)
-    huge_alpha : bool
-        Flag for if alpha is very large (default to False)
-
-    Returns
-    -------
-    fig : Figure
-        plot of AlphaBeta
+    :param vw: Wall velocity $v_\text{wall}$
+    :param alphas: Phase transition strengths $\alpha$
+    :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$
+    :param T_star: Transition temperature $T_*$
+    :param g_star: Degrees of freedom $g_*$
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param labels: Labels for the points
+    :param titles: Titles for the points
+    :param mission_profile: Which sensitivity curve to use
+    :param usetex: Whether to use LaTeX
+    :param huge_alpha: Whether $\alpha$ is very large
+    :return: Figure of $\alpha-\beta$
     """
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
         Tn=T_star, g_star=g_star, mission_profile=mission_profile,

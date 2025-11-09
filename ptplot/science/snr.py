@@ -31,29 +31,14 @@ def get_snr_value(
     Note that this function is currently not being used by the code, but it
     is included here for legacy reasons.
 
-    Parameters
-    ----------
-    fSens : np.ndarray
-        List of frequencies in Hz corresponding to omSens
-    omSens : np.ndarray
-        List of sensitivities in Omega units
-    duration : float
-        Observation time in seconds
-    Tstar : float, Optional
-        Transition temperature (default to 180.0)
-    gstar : float, Optional
-        Degrees of freedom (default to 100)
-    vw : float, Optional
-        Wall velocity (default to 0.9)
-    alpha : float, Optional
-        Phase transition strength (default to 0.1)
-    BetaoverH : float, Optional
-        Inverse phase transition duration relative to H (default to 10)
-
-    Returns
-    -------
-    snr : np.ndarray
-        Signal-to-noise ratio
+    :param fSens: Frequencies in Hz corresponding to omSens
+    :param omSens: Sensitivities in Omega units
+    :param Tstar: Transition temperature $T_*$
+    :param gstar: Degrees of freedom $g_*$
+    :param vw: Wall velocity $v_\text{wall}$
+    :param alpha: Phase transition strengh $\alpha$
+    :param BetaoverH: Inverse phase transition duration relative to $H$
+    :return: signal-to-noise ratio
     """
     ps = PowerSpectrumBPL(
         T_star=Tstar, g_star=gstar,
@@ -89,28 +74,17 @@ def stock_bkg_compute_snr(
     If the frequency range frange is not defined, the frequency range will be
     adjusted based on the two frequency arrays.
 
-    Parameters
-    ----------
-    sens_freq : np.ndarray
-        Array of frequencies (in Hz) corresponding to SensOm
-    sens_omega : np.ndarray
-        Array of sensitivities in Omega units
-    gw_freq : np.ndarray
-        Array of frequencies (in Hz) corresponding to GWOm
-    gw_omega : np.ndarray
-        Array of GW stochastic background
-    obs_time : float
-        Total observation time / mission duration (in seconds)
-    f_min : float
-        Minimum frequency for frange (in Hz)
-    f_max : float
-        Maximum frequency for frange (in Hz)
-
-    Returns
-    -------
-    snr: float
-        Signal to noise ratio
+    :param sens_freq: Frequencies (in Hz) corresponding to SensOm
+    :param sens_omega: Sensitivities in Omega units
+    :param gw_freq: Frequencies (in Hz) corresponding to GWOm
+    :param gw_omega: GW stochastic background
+    :param obs_time: Total observation time / mission duration (in seconds)
+    :param f_min: Minimum frequency for frange (in Hz)
+    :param f_max: Maximum frequency for frange (in Hz)
+    :return: signal-to-noise ratio, (f_min, f_max)
     """
+    # TODO: Replace this function with the PTtools signal-to-noise ratio,
+    #   when its updated version is included in a PTtools release.
 
     # If the frequency range has not been given, find it automatically
     if f_min is None:

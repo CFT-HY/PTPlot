@@ -11,74 +11,34 @@ from ptplot.science.utils import beta_to_R_star
 
 
 class PowerSpectrum(abc.ABC):
-    """The base class for defining power spectra
-
-    Attributes
-    ----------
-    beta_over_H : float
-        Inverse phase transition duration relative to H
-    T_star : float
-        Transition temperature (default to 180.0)
-    g_star : float
-        Degrees of freedom (default to 100)
-    vw : float
-        Wall velocity
-    adiabatic_ratio : float
-        Adiabatic index (Gamma) (default to 4.0/3.0)
-    zp : float
-        Peak angular frequency in units of the mean bubble separation (default to 10)
-    alpha : float, Optional
-        Phase transition strength
-    k_turb : float
-         Fraction of latent heat that is transformed into magnetohydrodynamic turbulence (default 1.97/65.0)
-    H_rstar : float
-        Typical bubble radius
-    ubarf : float
-        rms fluid velocity
-    h_star : float
-        Reduced Hubble rate, needed for turbulence
-    H_tsh : float
-        Shock time
-    """
+    """The base class for defining power spectra"""
     ENGINE: Engine = Engine.DEFAULT
     NAME: str = ENGINE_NAMES[ENGINE]
     SHORT_NAME: str = ENGINE.name
 
     def __init__(
-        self,
-        beta_over_H: float = None,
-        T_star: float = const.DEFAULT_T_STAR,
-        g_star: float = const.DEFAULT_G_STAR,
-        vw: float = None,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        zp: float = const.DEFAULT_ZP,
-        alpha: float = None,
-        k_turb: float = const.DEFAULT_K_TURB,
-        r_star: float = None,
-        ubarf_in: float = None):
-        """
-        Parameters
-        ----------
-        beta_over_H : float
-            Inverse phase transition duration relative to H
-        T_star : float
-            Transition temperature (default to 180.0)
-        g_star : float
-            Degrees of freedom (default to 100)
-        vw : float
-            Wall velocity
-        adiabatic_ratio : float
-            Adiabatic index (Gamma) (default to 4.0/3.0)
-        zp : float
-            Peak angular frequency in units of the mean bubble separation (default to 10)
-        alpha : float, Optional
-            Phase transition strength
-        k_turb : float
-            Fraction of latent heat that is transformed into magnetohydrodynamic turbulence (default 1.97/65.0) (default 1.97/65.0)
-        r_star : float
-            Typical bubble radius
-        ubarf_in : float
-            Input value of the rms fluid velocity
+            self,
+            beta_over_H: float = None,
+            T_star: float = const.DEFAULT_T_STAR,
+            g_star: float = const.DEFAULT_G_STAR,
+            vw: float = None,
+            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            zp: float = const.DEFAULT_ZP,
+            alpha: float = None,
+            k_turb: float = const.DEFAULT_K_TURB,
+            r_star: float = None,
+            ubarf_in: float = None):
+        r"""
+        :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
+        :param T_star: Transition temperature $T_*$
+        :param g_star: Degrees of freedom $g_*$
+        :param vw: Wall velocity $v_\text{wall}$
+        :param adiabatic_ratio: Adiabatic index $\Gamma$
+        :param zp: Peak angular frequency in units of the mean bubble separation, $z_p$
+        :param alpha: Phase transition strength $\alpha$
+        :param k_turb: Fraction of latent heat that is transformed into magnetohydrodynamic turbulence, $k_\text{turb}$
+        :param r_star: Typical bubble radius
+        :param ubarf_in: rms fluid velocity $\bar{U}_f$
         """
         if g_star is None:
             raise ValueError(f"Invalid g_star={g_star}")
