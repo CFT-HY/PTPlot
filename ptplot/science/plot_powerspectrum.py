@@ -26,7 +26,7 @@ from ptplot.science import const, snr
 from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import add_text, fig_to_svg
-from ptplot.science.powerspectrum_create import power_spectrum
+from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 

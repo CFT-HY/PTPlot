@@ -5,7 +5,7 @@ from pttools.omgw0 import Spectrum, SuppressionMethod, f_star0
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.powerspectrum import PowerSpectrum
+from ptplot.science.spectrum.base import PowerSpectrum
 
 bag = BagModel()
 

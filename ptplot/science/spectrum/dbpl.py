@@ -1,13 +1,15 @@
+"""Double broken power law (DBPL) power spectrum"""
+
 import numpy as np
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.powerspectrum import PowerSpectrum
+from ptplot.science.spectrum.base import PowerSpectrum
 
 
 class PowerSpectrumDBPL(PowerSpectrum):
     """
-    Double broken power law power spectrum
+    Double broken power law (DBPL) power spectrum
 
     Based on
     https://version.helsinki.fi/hakkijen/ptplot-with-pttools
@@ -28,7 +30,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float = None,
             ubarf_in: float = None,
-            zb = 1):
+            zb: float = 1):
         super().__init__(
             beta_over_H=beta_over_H, T_star=T_star, vw=vw, alpha=alpha,
             r_star=r_star, g_star=g_star, adiabatic_ratio=adiabatic_ratio, ubarf_in=ubarf_in, zp=zp
@@ -63,6 +65,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             (9.0 - b) / 4.0) * np.power((b + 4.0) / (b + 4.0 - m + m * np.power(s, 2.0)),
             (b + 4.0) / 2.0)
 
+    @property
     def fsw(self) -> float:
         """Calculate true peak frequency
 
@@ -92,7 +95,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         """
 
         # See fsw() method, and definition of beta_to_rstar().
-        s = f / self.fsw()
+        s = f / self.fsw
 
         # Some of the equations below were derived assuming this value for h,
         # we add it here to remove the h dependence from the final results.

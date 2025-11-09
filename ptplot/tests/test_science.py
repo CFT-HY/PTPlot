@@ -4,7 +4,7 @@ import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
 import ptplot.science.plot_powerspectrum as plot_ps
 from ptplot.science.engine import Engine
-from ptplot.science.powerspectrum_create import power_spectrum
+from ptplot.science.spectrum.create import power_spectrum
 # import ptplot.science.snr as snr
 # import ptplot.science.SNR_precompute as snr_pre
 import ptplot.science.snr_alphabeta_onthefly as snr_ab

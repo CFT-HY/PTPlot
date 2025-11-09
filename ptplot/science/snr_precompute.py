@@ -24,7 +24,7 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science import snr
 from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.powerspectrum_create import power_spectrum
+from ptplot.science.spectrum.bpl import PowerSpectrumBPL
 from ptplot.science.mission_profile import MissionProfile
 
 
@@ -74,14 +74,14 @@ def get_snr_curve(
             Ubarf: float = 10.**log10_Ubarf[j]
             r_star: float = 10.**log10_r_star[i]
 
-            ps = power_spectrum(
+            ps = PowerSpectrumBPL(
                 T_star=Tn,
                 g_star=g_star,
                 r_star=r_star,
                 ubarf_in=Ubarf,
                 engine=engine
             )
-            OmGW0 = ps.power_spectrum_sw_conservative(mission_profile.f)
+            OmGW0 = ps.power_spectrum(mission_profile.f)
 
             # Get shocktime (H_tsh = r_star/Ubarf)
             tshHn[i, j] = ps.get_shock_time()

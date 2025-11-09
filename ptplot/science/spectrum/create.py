@@ -3,9 +3,10 @@ from pttools.omgw0 import SuppressionMethod
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
-from ptplot.science.powerspectrum import PowerSpectrum
-from ptplot.science.powerspectrum_dbpl import PowerSpectrumDBPL
-from ptplot.science.powerspectrum_ssm import PowerSpectrumSSM, bag
+from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.bpl import PowerSpectrumBPL
+from ptplot.science.spectrum.dbpl import PowerSpectrumDBPL
+from ptplot.science.spectrum.ssm import PowerSpectrumSSM, bag
 
 
 def power_spectrum(
@@ -25,7 +26,7 @@ def power_spectrum(
         suppression: SuppressionMethod = SuppressionMethod.NONE,
         model: Model = bag) -> PowerSpectrum:
     if engine == Engine.DEFAULT:
-        return PowerSpectrum(
+        return PowerSpectrumBPL(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=H_rstar, ubarf_in=ubarf_in

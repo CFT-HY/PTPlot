@@ -13,7 +13,7 @@ Contains the following functions:
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.powerspectrum import PowerSpectrum
+from ptplot.science.spectrum.bpl import PowerSpectrumBPL
 from pttools.omgw0 import signal_to_noise_ratio
 
 
@@ -55,7 +55,7 @@ def get_snr_value(
     snr : np.ndarray
         Signal-to-noise ratio
     """
-    ps = PowerSpectrum(
+    ps = PowerSpectrumBPL(
         T_star=Tstar, g_star=gstar,
         vw=vw, alpha=alpha, beta_over_H=BetaoverH
     )
