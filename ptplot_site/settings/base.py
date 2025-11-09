@@ -111,12 +111,12 @@ GITHUB_SSO_UNIQUE_EMAIL = True
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "Europe/Helsinki"
-
 USE_I18N = True
-
 USE_TZ = True
+DATE_FORMAT = "Y-m-d"
+DATETIME_FORMAT = "Y-m-d H:i:s"
+TIME_FORMAT = "H:i:s"
 
 
 # Static files (CSS, JavaScript, Images)
