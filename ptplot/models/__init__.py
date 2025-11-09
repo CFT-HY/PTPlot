@@ -1,5 +1,6 @@
 """Database model configuration"""
 
+from .auth import *
 from .const import *
 from .model import *
 from .parameter_choice import *
