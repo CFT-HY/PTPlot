@@ -1,4 +1,5 @@
 from django.core import validators
+from django.core.validators import ValidationError
 from django.db import models
 
 from ptplot.models.model import Model
@@ -45,6 +46,14 @@ class ParameterChoice(models.Model):
 
     def __str__(self):
         return self.long_label
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.scenario is not None and self.scenario.model != self.model:
+            errors["scenario"] = ValidationError("The scenario must be for the same model as the parameter choice.")
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def vw_value(self) -> float:
