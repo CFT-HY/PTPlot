@@ -16,14 +16,15 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from ptplot.admin import admin_site
 
 urlpatterns = [
     path("", RedirectView.as_view(url='/ptplot', permanent=True), name="index_redirect"),
-    path("admin/", admin.site.urls),
+    path("admin/", admin_site.urls),
     path("ptplot/", include("ptplot.urls")),
+    path("github_sso/", include("django_github_sso.urls", namespace="django_github_sso")),
 ]
 
 if settings.DEBUG:
