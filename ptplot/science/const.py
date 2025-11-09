@@ -32,5 +32,6 @@ YEAR_IN_SECONDS: float = 365.25 * 86400
 ALPHA_NAME: str = "transition strength (α)"
 BETA_OVER_H_NAME: str = "inverse phase transition duration (β/H)"
 G_STAR_NAME: str = "degrees of freedom (g*)"
+HUGE_ALPHA_NAME: str = "huge α"
 T_STAR_NAME: str = "nucleation temperature (T*, GeV)"
 VW_NAME: str = "wall velocity (v_w)"

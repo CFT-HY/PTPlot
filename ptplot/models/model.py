@@ -26,7 +26,10 @@ class Model(models.Model):
         validators=[validators.MinValueValidator(0)]
     )
     mission_profile_ind = models.IntegerField(default=0, choices=MISSION_PROFILE_CHOICES)
-    huge_alpha = models.BooleanField(default=False)
+    huge_alpha = models.BooleanField(
+        verbose_name=const.HUGE_ALPHA_NAME,
+        default=False
+    )
     has_scenarios = models.BooleanField()
 
     def __init__(
