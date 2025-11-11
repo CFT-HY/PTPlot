@@ -17,7 +17,7 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science import const, snr
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import add_text, fig_to_svg
-from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, power_spectrum
+from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 
@@ -32,11 +32,12 @@ def get_ps_image(
     :param sw_only: Whether to ignore turbulence
     :return: Power spectrum figure
     """
+    pow_spec = spectrum.power_spectrum(mission_profile.f)
     snr_value, frange = snr.stock_bkg_compute_snr(
         sens_freq=mission_profile.f,
         sens_omega=mission_profile.sensitivity,
         gw_freq= mission_profile.f,
-        gw_omega=spectrum.power_spectrum(mission_profile.f),
+        gw_omega=pow_spec,
         obs_time=mission_profile.duration_seconds,
         f_min=1.e-6,
         f_max=1
@@ -57,8 +58,16 @@ def get_ps_image(
 
         ax.fill_between(mission_profile.f, mission_profile.sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
 
+        # Avoid expensive recomputation with the SSM
+        if isinstance(spectrum, PowerSpectrumSSM):
+            f2 = mission_profile.f
+            pow_spec2 = pow_spec
+        else:
+            f2 = f_more
+            pow_spec2 = spectrum.power_spectrum(f_more)
+
         ax.plot(
-            f_more, spectrum.power_spectrum(f_more), "k" if sw_only else "r",
+            f2, pow_spec2, "k" if sw_only else "r",
             label=r"$\Omega_\mathrm{sw}$"
         )
         if not sw_only and isinstance(spectrum, PowerSpectrumBPL):
