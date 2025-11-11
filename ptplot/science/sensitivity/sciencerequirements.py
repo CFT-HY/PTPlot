@@ -1,16 +1,14 @@
-"""@package sciencerequirements.py
-Implement LISA sensitivity curve from SciRD.
+"""LISA sensitivity curve from SciRD.
 
 Implement the formula for the LISA sensitivity curve from the Science
 Requirements document ESA-L3-EST-SCI-RS-001_LISA_SciRD version 1.0.
 
 Running this module will write "StochBkg"-style output to stdout.
-
-Authors:
-  2018-      David Weir
 """
 
 import math
+
+# import matplotlib.pyplot as plt
 import numpy as np
 import pttools.type_hints as th
 
@@ -65,8 +63,6 @@ def main(print_points: bool = True):
     The first column is frequency; second is square root of strain
     sensitivity; third is sensitivity in terms of the gravitational
     wave energy density parameter."""
-    
-    # import matplotlib.pyplot as plt
 
     x = np.logspace(-6,1,2000)
     y = np.sqrt(Sh(x))

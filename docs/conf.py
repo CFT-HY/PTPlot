@@ -104,7 +104,7 @@ autodoc_typehints = "description"
 # and all other "%" need to be escaped as "%%".
 extlinks: dict[str, tuple[str, str]] = {
     "caprini_2015": ("https://arxiv.org/abs/1512.06239%s", "Caprini et al., 2015%s"),
-    "hindmarsh_2017": ("https://arxiv.org/abs/1704.05871", "Hindmarsh et al., 2017%s"),
+    "hindmarsh_2017": ("https://arxiv.org/abs/1704.05871%s", "Hindmarsh et al., 2017%s"),
     "hindmarsh_2017_erratum": ("https://doi.org/10.1103/PhysRevD.101.089902", "Hindmarsh et al., 2017 erratum%s"),
 }
 

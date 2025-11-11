@@ -46,7 +46,7 @@ def get_snr_image(
         usetex: bool = False,
         huge_alpha: bool = False,
         engine: Engine = Engine.DEFAULT) -> Figure:
-    """Produce the $\bar{U}_f-R_*$ plot
+    r"""Produce the $\bar{U}_f-R_*$ plot
 
     :param vws: Wall velocities $v_\text{wall}$
     :param alphas: Phase transition strengths $\alpha$

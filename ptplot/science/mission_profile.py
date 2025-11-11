@@ -29,6 +29,11 @@ class MissionProfile:
         # This will be set immediately after instantiation
         self.ind: int = -1
 
+        #: Frequencies $f$ corresponding to the sensitivity values
+        self.f: np.ndarray
+        #: Sensitivities $\Omega_\text{sens}$
+        self.sensitivity: np.ndarray
+
         self.f, self.sensitivity = self.load(self.sensitivity_path)
         self.f_lite, self.sensitivity_lite = self.load(self.sensitivity_path_lite)
         self.f_min = np.min(self.f)

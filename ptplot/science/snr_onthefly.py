@@ -36,6 +36,7 @@ def create_snr_figure(
         yticklabels: list[str] = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
         contour_label_fontsize: int = 8) -> tuple[Figure, Axes]:
+    """Common code for creating SNR figures"""
     with rc_context(const.DEFAULT_RC_CONTEXT):
         x_min = np.min(x)
         x_max = np.max(x)

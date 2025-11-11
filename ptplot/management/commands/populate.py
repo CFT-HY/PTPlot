@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def _populate_db() -> None:
-        print("populating DB...")
+        print("Populating DB...")
 
 #         singlet_model = Model(
 #             name=r"Singlet (Higgs Portal) benchmark points",
@@ -1012,8 +1012,8 @@ In the mass basis, the mass-ordered eigenstates are $m_{1,2}$. The mixing angle 
                 )
             point.save()
 
-        print("Done populating.")
-        print("NOTE: Run python3 manage.py flush to clear tables")
+        print("DB populated.")
+        print("NOTE: If you want to clear the tables, run \"python3 manage.py flush\".")
 
     def handle(self, *args, **options):
         self._populate_db()
