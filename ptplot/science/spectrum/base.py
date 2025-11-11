@@ -43,8 +43,10 @@ class PowerSpectrum(abc.ABC):
         :param r_star: Typical bubble radius
         :param ubarf_in: rms fluid velocity $\bar{U}_f$
         """
-        if g_star is None:
+        if g_star is None or np.isnan(g_star):
             raise ValueError(f"Invalid g_star={g_star}")
+        if T_star is None or np.isnan(T_star):
+            raise ValueError(f"Invalid T_star={T_star}")
 
         # Parameters that are guaranteed to be set
         self.adiabatic_ratio: float = adiabatic_ratio
@@ -83,9 +85,9 @@ class PowerSpectrum(abc.ABC):
 
         # Calculate typical bubble radius
         self.r_star: float
-        if (r_star is None) and (beta_over_H is not None):
+        if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
             self.r_star = beta_to_R_star(self.beta_over_H, self.vw)
-        elif (r_star is not None) and (beta_over_H is None):
+        elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             self.r_star = r_star
         else:
             raise ValueError(
