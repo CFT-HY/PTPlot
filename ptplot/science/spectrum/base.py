@@ -2,11 +2,13 @@
 
 import abc
 
+from pandas import DataFrame
 import numpy as np
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.espinosa import ubarf, ubarf_to_alpha_scalar
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
 from ptplot.science.utils import beta_to_R_star
 
@@ -95,6 +97,20 @@ class PowerSpectrum(abc.ABC):
 
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
+
+    def csv(self, path: str | None = None, mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE) -> str | None:
+        """Export the power spectrum as CSV
+
+        :param path: A path in which to save the data
+        :param mission_profile: Which sensitivity curve to use
+        :return: If a path is not given, the data will be returned as a string.
+        """
+        df = DataFrame({
+            "f": mission_profile.f,
+            "omegaSens": mission_profile.sensitivity,
+            "omegaSW": self.power_spectrum(mission_profile.f)
+        })
+        return df.to_csv(path_or_buf=path)
 
     @property
     def shock_time(self) -> float:

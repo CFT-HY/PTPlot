@@ -21,35 +21,6 @@ from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, power_spect
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 
-def get_ps_data(
-        spectrum: PowerSpectrumBPL,
-        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-        sw_only: bool = True) -> str:
-    r"""Retrieve the data for the power spectrum plot
-
-    Note that this is not then used to create the plot, this stores the data,
-    to be exported as a csv if requested.
-
-    :param spectrum: power spectrum
-    :param mission_profile: Which sensitivity curve to use
-    :param sw_only: Whether to ignore turbulence
-    :return: String containing all the data to reproduce the power spectrum plot
-    """
-    res = "f, omegaSens, omegaSW\n" if sw_only else "f, omegaSens, omegaSW, omegaTurb, omegaTot\n"
-
-    for x, y in zip(mission_profile.f, mission_profile.sensitivity):
-        if sw_only:
-            res = res + "%g, %g, %g\n" % (x, y, spectrum.power_spectrum_sw_conservative(x))
-        else:
-            res = res + "%g, %g, %g, %g, %g\n" % (
-                x, y,
-                spectrum.power_spectrum_sw_conservative(x),
-                spectrum.power_spectrum_turb(x),
-                spectrum.power_spectrum_conservative(x)
-            )
-    return res
-
-
 def get_ps_image(
         spectrum: PowerSpectrum,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,

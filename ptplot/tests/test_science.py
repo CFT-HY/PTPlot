@@ -21,6 +21,9 @@ class ScienceTest(TestCase):
         super().setUpClass()
         cls.spectrum = PowerSpectrumBPL(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
 
+    def test_csv(self):
+        self.spectrum.csv()
+
     def test_kappav(self):
         esp.kappav(vw=0.7, alpha=0.1)
 
@@ -35,9 +38,6 @@ class ScienceTest(TestCase):
 
     def test_power_spectrum_ssm_const_cs(self):
         power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1/4, csb2=1/4)
-
-    def test_ps_data(self):
-        plot_ps.get_ps_data(self.spectrum)
 
     def test_ps_image(self):
         plot_ps.get_ps_image(self.spectrum, sw_only=False)

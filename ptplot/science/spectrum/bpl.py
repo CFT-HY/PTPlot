@@ -3,14 +3,16 @@
 import math
 
 import numpy as np
+from pandas import DataFrame
 
 from ptplot.science import const
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.spectrum.base import PowerSpectrum
 import ptplot.science.type_hints as th
 
 
 class PowerSpectrumBPL(PowerSpectrum):
-    """Broken power law (BPL) power spectrum
+    r"""Broken power law (BPL) power spectrum
 
     Based on :hindmarsh_2017:`\ ` and `hindmarsh_2017_erratum:`\ `.
 
@@ -20,9 +22,33 @@ class PowerSpectrumBPL(PowerSpectrum):
     As such, the turbulence functions are not called anywhere in the code by default.
     However, they can still be turned on by overriding the sw_only flag.
     """
+    def csv(
+            self,
+            path: str | None = None,
+            mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+            sw_only: bool = True) -> str | None:
+        r"""Export the power spectrum as CSV
+
+        :param path: A path in which to save the data
+        :param mission_profile: Which sensitivity curve to use
+        :param sw_only: Whether to ignore turbulence
+        :return: If a path is not given, the data will be returned as a string.
+        """
+        if sw_only:
+            return super().csv(path=path, mission_profile=mission_profile)
+        f = mission_profile.f
+        df = DataFrame({
+            "f": f,
+            "omegaSens": mission_profile.sensitivity,
+            "omegaSW": self.power_spectrum(f),
+            "omegaTurb": self.power_spectrum_turb(f),
+            "omegaTot": self.power_spectrum_full_conservative(f)
+        })
+        return df.to_csv(path)
+
     @staticmethod
     def Csw(fp: th.FloatOrArr, norm: float = 1.0) -> th.FloatOrArr:
-        """Calculate spectral shape for gw from sound waves
+        r"""Calculate spectral shape for gw from sound waves
 
         For a given peak frequency, calculate spectral shape of a single broken
         power law fit to simulation results for gw from sound waves.

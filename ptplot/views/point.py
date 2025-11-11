@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import ParameterChoice
-from ptplot.science.plot_powerspectrum import get_ps_data, get_ps_image
+from ptplot.science.plot_powerspectrum import get_ps_image
 from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
 from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
 from ptplot.science.spectrum.create import power_spectrum
@@ -74,10 +74,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         alpha=point.alpha,
         beta_over_H=point.beta_over_H,
     )
-    csv = get_ps_data(
-        spectrum=spectrum,
-        mission_profile=point.model.mission_profile
-    )
+    csv = spectrum.csv(mission_profile=point.model.mission_profile)
     return HttpResponse(csv, content_type="text/csv")
 
 
