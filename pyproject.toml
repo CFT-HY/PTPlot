@@ -47,12 +47,15 @@ classifiers = [
 ]
 # Keep this up to date with requirements.txt
 dependencies = [
-    "django >= 5.2",
-    "dulwich >= 0.22.8",
-    "gunicorn >= 23.0.0",
-    "matplotlib >= 3.10.1",
-    "numpy >= 2.2.5",
+    "django >= 6.0.2",
+    "django-github-sso >= 5.0.2",
+    "dulwich >= 1.0.0",
+    "gunicorn >= 25.0.1",
+    "matplotlib >= 3.10.8",
+    "numpy >= 2.3.5",
+    "pandas >= 3.0.0",
     "scipy >= 1.15.2",
+    "scipy >= 1.17.0"
 ]
 requires-python = ">= 3.11"
 # dynamic = ["version"]
