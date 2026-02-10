@@ -7,6 +7,7 @@ Running this module will write "StochBkg"-style output to stdout.
 """
 
 import math
+import typing as tp
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -15,34 +16,24 @@ import ptplot.science.type_hints as th
 
 def Sh(f: th.FloatOrArr) -> th.FloatOrArr:
     """Compute strain sensitivity for frequency f."""
-    
-    return (1.0/2.0)*(20.0/3.0)* \
-        (SI(f)/(
-            (2.0*math.pi*f)*(2.0*math.pi*f)*(2.0*math.pi*f)*(2.0*math.pi*f))
-         + SII(f))*R(f)
+    return (1.0/2.0) * (20.0/3.0) * (SI(f) / (2.0 * math.pi * f)**4 + SII(f)) * R(f)
 
 
-def SI(f: th.FloatOrArr) -> th.FloatOrArr:
+def SI(f: th.FloatOrArr, s: float = 1., f1: float = 0.4e-3) -> th.FloatOrArr:
     """Subsidiary formula S_I for strain sensitivity."""
-    
-    s = 1
-    f1 = 0.4e-3
-    return 5.76e-48*(1.0/(s*s*s*s))*(1.0 + (f1/f)*(f1/f))
+    return 5.76e-48 * (s**-4) * (1.0 + (f1/f)**2)
 
 
-def SII(f: any) -> float:
+def SII(f: tp.Any) -> float:
     """Subsidiary formula S_II for strain sensitivity.
 
     Actually just a constant."""
-    
     return 3.6e-41
 
 
-def R(f: th.FloatOrArr) -> th.FloatOrArr:
+def R(f: th.FloatOrArr, f2: float = 25e-3) -> th.FloatOrArr:
     """Subsidiary formula R for strain sensitivity."""
-    
-    f2 = 25e-3
-    return 1.0 + (f/f2)*(f/f2)
+    return 1.0 + (f/f2)**2
 
 
 def OmSens(f: th.FloatOrArr) -> th.FloatOrArr:
@@ -54,7 +45,7 @@ def OmSens(f: th.FloatOrArr) -> th.FloatOrArr:
     H0 = 100.0 / 3.09e19
 
     # Standard formula
-    return (2.0*math.pi*math.pi/(3.0*H0*H0)) * f*f*f * Sh(f)
+    return (2.0 * math.pi**2 / (3.0 * H0**2)) * f**3 * Sh(f)
 
 
 def main(print_points: bool = True):
@@ -68,8 +59,8 @@ def main(print_points: bool = True):
     y = np.sqrt(Sh(x))
     z = OmSens(x)
     if print_points:
-        for (mx,my,mz) in zip(x,y,z):
-            print("%g %g %g %g" % (mx, my, mz, 0.0))
+        for (mx, my, mz) in zip(x, y, z):
+            print(f"{mx:g} {my:g} {mz:g} {0.0:g}")
 
     # plt.loglog(x, np.sqrt(y))
     # plt.show()

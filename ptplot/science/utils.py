@@ -1,5 +1,4 @@
 """Utilities for PTPlot science module"""
-import math
 
 import numpy as np
 
@@ -49,7 +48,7 @@ def rstar_to_beta[T: (float, FloatArr)](R_star: T, vw: float, cs: float = const.
     :param cs: Sound speed $c_s$
     :return: Inverse phase transition duration $\beta$
     """
-    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / R_star
+    return (8 * np.pi)**(1/3) * max(vw, cs) / R_star
 
 
 def beta_to_R_star[T: (float, FloatArr)](beta: T, vw: float, cs: float = const.CS0) -> T:
@@ -62,4 +61,4 @@ def beta_to_R_star[T: (float, FloatArr)](beta: T, vw: float, cs: float = const.C
     :param cs: Sound speed $c_s$
     :return: Mean bubble separation $R_*$
     """
-    return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / beta
+    return (8 * np.pi)**(1/3) * max(vw, cs) / beta

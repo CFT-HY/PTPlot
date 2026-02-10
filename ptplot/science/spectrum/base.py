@@ -95,7 +95,7 @@ class PowerSpectrum(abc.ABC):
                 f"Got r_star={r_star}, beta_over_H={beta_over_H}."
             )
 
-        self.h_star: float = 16.5e-6 * (self.T_star / 100.0) * np.power(self.g_star / 100.0, 1.0 / 6.0)
+        self.h_star: float = 16.5e-6 * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf

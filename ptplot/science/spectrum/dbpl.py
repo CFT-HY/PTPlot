@@ -49,7 +49,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         mu(rb)*A = 3*(adiabaticRatio*Ubarf**2**2*Omegatilde.
         We take Omegatilde=0.012 when calculating the power spectrum.
         """
-        return 4.78 - 6.27 * self.rb + 3.34 * np.power(self.rb, 2.0)
+        return 4.78 - 6.27 * self.rb + 3.34 * self.rb**2
 
     def Msw(self, s, b: float = 1.0) -> float:
         """Calculate spectral shape for gw from sound waves
@@ -59,12 +59,8 @@ class PowerSpectrumDBPL(PowerSpectrum):
         This follows equation 2.16 in 2106.05984, with the value b = 1 defining the spectral slope
         between the two breaks in the spectrum, as in 1909.10040.
         """
-        m = (9.0 * np.power(self.rb, 4.0) + b) / (np.power(self.rb, 4.0) + 1)
-
-        return \
-            np.power(s, 9.0) * np.power((1.0 + np.power(self.rb, 4.0)) / (np.power(self.rb, 4.0) + np.power(s, 4.0)),
-            (9.0 - b) / 4.0) * np.power((b + 4.0) / (b + 4.0 - m + m * np.power(s, 2.0)),
-            (b + 4.0) / 2.0)
+        m: float = (9 * self.rb**4 + b) / (self.rb**4 + 1)
+        return s**9 * ((1 + self.rb**4) / (self.rb**4 + s**4))**((9 - b) / 4) * ((b + 4) / (b + 4 - m + m * s**2))**((b + 4) / 2)
 
     @property
     def fsw(self) -> float:
@@ -74,8 +70,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         is absorbed in the definition of beta_to_rstar() above;
         (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
         """
-        return 26.0e-6 * (1.0 / self.r_star) * (self.zp / 10.0) \
-            * (self.T_star/100) * np.power(self.g_star/100, 1.0/6.0)
+        return 26.0e-6 * (1 / self.r_star) * (self.zp / 10) * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
     def J(self) -> float:
         """Calculate the source lifetime
@@ -85,9 +80,9 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
         # K_frac is the kinetic energy fraction in the fluid, given by
         # K_frac = adiabaticRatio*Ubarf**2 (eq 22 in 1910.13125).
-        K_frac = self.adiabatic_ratio * np.power(self.ubarf, 2.0)
+        K_frac = self.adiabatic_ratio * self.ubarf**2
 
-        return self.r_star * (1.0 - 1.0 / (np.sqrt(1.0 + 2.0 * self.r_star / np.sqrt(K_frac))))
+        return self.r_star * (1 - 1 / (np.sqrt(1 + 2 * self.r_star / np.sqrt(K_frac))))
 
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
@@ -110,6 +105,6 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
         # Thus, this returns h^2 OmGW, which does not depend on a
         # particular value of the Hubble constant.
-        return const.H_PLANCK2 * 3.0 * 3.57e-5 * 0.012 * np.power(100.0/self.g_star, 1.0/3.0) \
-            * self.adiabatic_ratio * self.adiabatic_ratio * np.power(self.ubarf, 4.0) / self.mu() \
+        return const.H_PLANCK2 * 3 * 3.57e-5 * 0.012 * (100/self.g_star)**(1/3) \
+            * self.adiabatic_ratio * self.adiabatic_ratio * self.ubarf**4 / self.mu() \
             * self.J() * self.Msw(s)

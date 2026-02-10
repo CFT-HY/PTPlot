@@ -66,8 +66,8 @@ def get_snr_alphabeta_image(
         ubarf_max=0.866 if huge_alpha else 0.6,
         engine=engine
     )
-    log10BetaOverH = np.log10(rstar_to_beta(np.power(10.0, log10HnRstar), vw))
-    log10alpha = np.log10(ubarf_to_alpha(vw, np.power(10.0, log10Ubarf), adiabatic_ratio))
+    log10BetaOverH = np.log10(rstar_to_beta(10.**log10HnRstar, vw))
+    log10alpha = np.log10(ubarf_to_alpha(vw, 10.**log10Ubarf, adiabatic_ratio))
 
     # Location of contour labels
     locs_tsh = np.array([
