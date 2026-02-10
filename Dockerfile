@@ -1,4 +1,5 @@
 # Todo: Use the PTtools container as the base image once it has proper version tags
+# When updating the Python version here, also update it in the GitHub Actions workflows and .readthedocs.yaml
 FROM python:3.14
 
 ENV PYTHONBUFFERED=1
