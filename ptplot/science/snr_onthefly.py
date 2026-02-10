@@ -1,3 +1,5 @@
+"""Utilities that are common to various SNR plotting functions"""
+
 import time
 
 from matplotlib import cm, rc_context

@@ -1,4 +1,4 @@
-"""Power spectra"""
+"""GW power spectra"""
 
 from .bpl import *
 from .create import *

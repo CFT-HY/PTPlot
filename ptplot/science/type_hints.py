@@ -1,3 +1,4 @@
+"""Type hints for PTPlot science module"""
 import typing as tp
 
 import numpy as np

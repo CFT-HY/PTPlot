@@ -1,3 +1,5 @@
+"""Tests for views"""
+
 import typing as tp
 
 from django.forms import Form

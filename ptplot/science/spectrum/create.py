@@ -1,3 +1,5 @@
+"""Utilities for creating power spectra"""
+
 from pttools.models import ConstCSModel, Model
 
 from ptplot.science import const

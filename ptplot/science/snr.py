@@ -1,4 +1,4 @@
-"""SNR computation
+"""Signal-to-noise ratio computation
 
 This file contains all the functions related to the calculation of the
 signal-to-noise ratio for a given sensitivity, spectrum and observation time.

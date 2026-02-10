@@ -1,3 +1,5 @@
+"""Plotting utilities"""
+
 import io
 import math
 

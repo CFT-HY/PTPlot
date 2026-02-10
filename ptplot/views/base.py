@@ -1,3 +1,5 @@
+"""Basic views"""
+
 import logging
 import os
 

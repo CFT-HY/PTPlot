@@ -1,3 +1,5 @@
+"""Scenarios for particle physics models"""
+
 from django.core import validators
 from django.db import models
 

@@ -1,3 +1,5 @@
+"""Argument parsing for command-line use"""
+
 import argparse
 
 from ptplot.science import const

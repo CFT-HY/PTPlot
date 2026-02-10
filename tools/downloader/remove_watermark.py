@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Remove the watermark from PTPlot figures"""
+
 import sys
 
 from lxml import etree

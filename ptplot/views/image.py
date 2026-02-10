@@ -1,3 +1,5 @@
+"""Views for images"""
+
 from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 
 from ptplot.forms import PTPlotForm

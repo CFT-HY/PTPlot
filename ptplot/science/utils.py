@@ -1,3 +1,4 @@
+"""Utilities for PTPlot science module"""
 import math
 
 import numpy as np

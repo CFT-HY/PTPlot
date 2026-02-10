@@ -1,3 +1,5 @@
+"""Production settings for PTPlot"""
+
 import os
 from .base import *
 

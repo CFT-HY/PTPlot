@@ -1,3 +1,5 @@
+"""Tests for the science module"""
+
 from django.test import TestCase
 
 import ptplot.science.sensitivity.sciencerequirements as req

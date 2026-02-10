@@ -1,3 +1,5 @@
+"""GW spectrum engine choices"""
+
 import enum
 
 

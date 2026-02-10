@@ -1,3 +1,5 @@
+"""Populate the database with models, scenarios and parameter choices"""
+
 from collections import defaultdict
 from inspect import cleandoc
 import os

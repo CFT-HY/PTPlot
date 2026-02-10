@@ -1,3 +1,5 @@
+"""Sound Shell Model (SSM) power spectrum"""
+
 import logging
 
 import numpy as np

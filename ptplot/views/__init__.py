@@ -1,3 +1,5 @@
+"""PTPlot views"""
+
 from .base import *
 from .form import *
 from .image import *
