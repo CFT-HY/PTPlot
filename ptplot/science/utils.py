@@ -5,12 +5,14 @@ import numpy as np
 
 from ptplot.science import const
 import ptplot.science.type_hints as th
+from ptplot.science.type_hints import FloatArr
 
 
 def atleast_2d(*args: th.FloatOrListOrNestedListOrArr) -> th.ArrOrListOfArrs | list[list[np.ndarray]]:
     """Convert a scalar, 1D array or 2D array into a 2D numpy array.
 
-    Similar to numpy.atleast_2d, but supports nested lists with varying lenghts.
+    You can convert multiple arguments at once, and the output will be a list of 2D numpy arrays.
+    Similar to numpy.atleast_2d, but supports nested lists with varying lengths.
     """
     num_args = len(args)
     if not num_args:
@@ -22,7 +24,11 @@ def atleast_2d(*args: th.FloatOrListOrNestedListOrArr) -> th.ArrOrListOfArrs | l
 
 def atleast_2d_single(values: th.FloatOrListOrNestedListOrArr) -> th.ArrOrListOfArrs:
     if isinstance(values, np.ndarray):
-        return np.atleast_2d(values)
+        if values.ndim == 0:
+            return np.array([[values]])
+        if values.ndim == 1:
+            return np.array([values])
+        return values
     if np.isscalar(values):
         return np.array([[values]])
     if np.isscalar(values[0]):
@@ -33,7 +39,7 @@ def atleast_2d_single(values: th.FloatOrListOrNestedListOrArr) -> th.ArrOrListOf
     return [np.array(sub_values) for sub_values in values]
 
 
-def rstar_to_beta(R_star: th.FloatOrArr, vw: float, cs: float = const.CS0) -> th.FloatOrArr:
+def rstar_to_beta[T: (float, FloatArr)](R_star: T, vw: float, cs: float = const.CS0) -> T:
     r"""Convert R_* to \beta for a given wall velocity
 
     $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
@@ -46,7 +52,7 @@ def rstar_to_beta(R_star: th.FloatOrArr, vw: float, cs: float = const.CS0) -> th
     return math.pow(8.0 * math.pi, 1.0/3.0) * max(vw, cs) / R_star
 
 
-def beta_to_R_star(beta: th.FloatOrArr, vw: float, cs: float = const.CS0) -> th.FloatOrArr:
+def beta_to_R_star[T: (float, FloatArr)](beta: T, vw: float, cs: float = const.CS0) -> T:
     r"""Convert \beta to R_* for a given wall velocity $v_w$
 
     $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$

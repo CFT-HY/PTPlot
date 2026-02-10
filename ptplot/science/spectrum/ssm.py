@@ -11,6 +11,7 @@ from pttools.omgw0.suppression import DEFAULT as SUPPRESSION_DEFAULT
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.spectrum.base import PowerSpectrum
+import ptplot.science.type_hints as th
 
 bag = BagModel()
 
@@ -24,16 +25,16 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def __init__(
             self,
-            beta_over_H: float = None,
+            beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float = None,
+            vw: float | None = None,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            alpha: float = None,
+            alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float = None,
-            ubarf_in: float = None,
+            r_star: float | None = None,
+            ubarf_in: float | None = None,
 
             model: Model = bag):
         super().__init__(
@@ -56,11 +57,11 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def power_spectrum(
             self,
-            f: np.ndarray,
+            f: th.FloatArr1D,
             g0: float = omgw0_const.G0,
             gs0: float = omgw0_const.GS0,
             sup: Suppression = SUPPRESSION_DEFAULT,
-            sup_method: SuppressionMethod = SuppressionMethod.NONE) -> np.ndarray:
+            sup_method: SuppressionMethod = SuppressionMethod.NONE) -> th.FloatArr1D:
         if np.isnan(f).any():
             raise ValueError("f must not contain nan values.")
         # Todo: Use pttools.omgw0.freq.z() instead when it's available

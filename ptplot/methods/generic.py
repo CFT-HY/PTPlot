@@ -11,8 +11,8 @@ def fig_to_response(fig: Figure) -> HttpResponse:
 
 def get_object_or_404_related(
         model: type[DjangoModel],
-        related: list[str] = None,
-        prefetch: list[str] = None,
+        related: list[str] | None = None,
+        prefetch: list[str] | None = None,
         **kwargs):
     try:
         obj = model.objects

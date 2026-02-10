@@ -102,7 +102,7 @@ django_settings_module = "ptplot_site.settings.dev"
 plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
-module = ["debug_toolbar.*", "plotly.*"]
+module = ["django_github_sso.*", "debug_toolbar.*", "plotly.*", "sphinx_gallery.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

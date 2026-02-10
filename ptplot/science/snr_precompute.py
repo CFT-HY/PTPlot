@@ -23,15 +23,16 @@ from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.mission_profile import MissionProfile
+import ptplot.science.type_hints as th
 
 
 def get_snr_curve(
         Tn: float,
         g_star: float,
         mission_profile: MissionProfile,
-        alpha: float = None,
+        alpha: float | None = None,
         ubarf_max: float = 1,
-        engine: Engine = Engine.DEFAULT) -> tuple[np.ndarray[tuple[int, int], np.float64], np.ndarray[tuple[int, int], np.float64], np.ndarray[tuple[int], np.float64], np.ndarray[tuple[int], np.float64]]:
+        engine: Engine = Engine.DEFAULT) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
     """Calculate the SNR curves for the plots
 
     :param Tn: Nucleation temperature $T_n$
@@ -45,14 +46,14 @@ def get_snr_curve(
     """
 
     # Values of log10(Ubarf) to scan
-    log10_Ubarf: np.ndarray[tuple[int], np.float64] = np.linspace(-2, math.log10(ubarf_max), 51)
+    log10_Ubarf = np.linspace(-2, math.log10(ubarf_max), 51)
 
     # Values of log10(r_star) to scan
-    log10_r_star: np.ndarray[tuple[int], np.float64] = np.linspace(-4, 0.08, 51)
+    log10_r_star = np.linspace(-4, 0.08, 51)
 
     # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr_value: np.ndarray[tuple[int, int], np.float64] = np.zeros((len(log10_r_star), len(log10_Ubarf)))
-    tshHn: np.ndarray[tuple[int, int], np.float64] = np.zeros((len(log10_r_star), len(log10_Ubarf)))
+    snr_value = np.zeros((len(log10_r_star), len(log10_Ubarf)))
+    tshHn = np.zeros((len(log10_r_star), len(log10_Ubarf)))
 
     for i in range(len(log10_r_star)):
         for j in range(len(log10_Ubarf)):

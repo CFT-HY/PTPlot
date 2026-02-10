@@ -10,7 +10,7 @@ import math
 
 # import matplotlib.pyplot as plt
 import numpy as np
-import pttools.type_hints as th
+import ptplot.science.type_hints as th
 
 
 def Sh(f: th.FloatOrArr) -> th.FloatOrArr:

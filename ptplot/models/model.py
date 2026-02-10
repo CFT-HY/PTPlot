@@ -37,7 +37,7 @@ class Model(models.Model):
     def __init__(
             self,
             *args,
-            mission_profile: int | MissionProfile = None,
+            mission_profile: int | MissionProfile | None = None,
             **kwargs):
         if mission_profile is not None:
             if "mission_profile_ind" in kwargs:

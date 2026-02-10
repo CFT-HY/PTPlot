@@ -20,7 +20,7 @@ class MissionProfile:
             duration: int | float,
             sensitivity_path: str,
             sensitivity_path_lite: str,
-            notes: str = None):
+            notes: str | None = None):
         self.name = name
         self.duration_years = duration
         self.sensitivity_path = sensitivity_path
@@ -43,7 +43,7 @@ class MissionProfile:
         return self.name
 
     @staticmethod
-    def from_ind(index: int = None) -> "MissionProfile":
+    def from_ind(index: int | None = None) -> "MissionProfile":
         return DEFAULT_MISSION_PROFILE if index is None else MISSION_PROFILES[index]
 
     @staticmethod

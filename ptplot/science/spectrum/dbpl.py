@@ -5,6 +5,7 @@ import numpy as np
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.spectrum.base import PowerSpectrum
+import ptplot.science.type_hints as th
 
 
 class PowerSpectrumDBPL(PowerSpectrum):
@@ -20,25 +21,25 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
     def __init__(
             self,
-            beta_over_H: float = None,
+            beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float = None,
+            vw: float | None = None,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            alpha: float = None,
+            alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float = None,
-            ubarf_in: float = None,
-            zb: float = 1):
+            r_star: float | None = None,
+            ubarf_in: float | None = None,
+            zb: float = 1.):
         super().__init__(
             beta_over_H=beta_over_H, T_star=T_star, vw=vw, alpha=alpha,
             r_star=r_star, g_star=g_star, adiabatic_ratio=adiabatic_ratio, ubarf_in=ubarf_in, zp=zp
         )
-        self.zb = zb
+        self.zb: float = zb
 
         # Compute ratio of the two breaks in the spectrum
-        self.rb = self.zb / self.zp
+        self.rb: float = self.zb / self.zp
 
     def mu(self) -> float:
         """Calculate prefactor for the peak power of the gw power spectrum
@@ -50,7 +51,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         """
         return 4.78 - 6.27 * self.rb + 3.34 * np.power(self.rb, 2.0)
 
-    def Msw(self, s, b: float = 1.0) -> tuple[float, float, float]:
+    def Msw(self, s, b: float = 1.0) -> float:
         """Calculate spectral shape for gw from sound waves
 
         For a given peak frecuency, calculate spectral shape of a double broken power law fit to the Sound Shell Model power spectrum.
@@ -88,7 +89,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
         return self.r_star * (1.0 - 1.0 / (np.sqrt(1.0 + 2.0 * self.r_star / np.sqrt(K_frac))))
 
-    def power_spectrum(self, f: np.ndarray) -> np.ndarray:
+    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
 
         This follows equations 2.15 and 2.16 in 2106.05984 and 5.6 - 5.8 in 1909.10040.

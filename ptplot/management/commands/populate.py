@@ -148,7 +148,7 @@ class Command(BaseCommand):
         for row in josemi_points.itertuples():
             point = ParameterChoice(
                 model=twohdm_josemi_model,
-                number=row.Index + 1,
+                number=row.Index + 1,  # type: ignore
                 long_label=rf"$(m_H,m_A) = ({row.mH:.0f},{row.mA:.0f}) \, \mathrm{{GeV}}$, $\tan \beta = {row.tanb:.0f}$",
                 T_star=row.Tn,
                 alpha=row.alpha_n,
@@ -182,7 +182,7 @@ class Command(BaseCommand):
         for row in josemi_points2.itertuples():
             point = ParameterChoice(
                 model=twohdm_josemi_model,
-                number=first_set_point_count + row.Index + 1,
+                number=first_set_point_count + row.Index + 1,  # type: ignore
                 long_label=rf"$(m_H,m_A) = ({row.mH:.0f},{row.mA:.0f}) \, \mathrm{{GeV}}$, $\tan \beta = {row.tanb:.0f}$",
                 T_star=row.Tn,
                 alpha=row.alpha_n,
@@ -268,7 +268,7 @@ class Command(BaseCommand):
         for row in jonathan_z2_points.itertuples():
             point = ParameterChoice(
                 model=singlet_jonathan_z2_model,
-                number=row.Index + 1,
+                number=row.Index + 1,  # type: ignore
                 long_label=rf"$m = {row.m:.0f}\, \mathrm{{GeV}}, \, a_2 = {row.a2:.0f}$",
                 T_star=row.Tstar,
                 alpha=row.alpha,
@@ -306,8 +306,8 @@ class Command(BaseCommand):
         for row in moritz_points.itertuples():
             point = ParameterChoice(
                 model=singletscalars_moritz_model,
-                number=row.Index + 1,
-                long_label=f"Point {row.Index + 1:d}",
+                number=row.Index + 1,  # type: ignore
+                long_label=f"Point {row.Index + 1:d}",  # type: ignore
                 T_star=row.T_nuc,
                 alpha=row.alpha,
                 beta_over_H=row.beta_per_H,
@@ -345,8 +345,8 @@ class Command(BaseCommand):
         for row in moritz_points2.itertuples():
             point = ParameterChoice(
                 model=darkphoton_moritz_model,
-                number=row.Index + 1,
-                long_label=f"Point {row.Index + 1:d}",
+                number=row.Index + 1,  # type: ignore
+                long_label=f"Point {row.Index + 1:d}",  # type: ignore
                 T_star=row.T_nuc,
                 alpha=row.alpha,
                 beta_over_H=row.beta_per_H,
@@ -440,7 +440,7 @@ class Command(BaseCommand):
             letter = row.label[0]
             point = ParameterChoice(
                 model=gaugedlepton_madge_model,
-                number=row.Index+1,
+                number=row.Index+1,  # type: ignore
                 long_label=rf"{letter}: $(m_\phi, m_{{Z'}}) = ({row.mPhi:d},{row.mZp:d})\, \mathrm{{GeV}}$"  ,
                 T_star=row.Tn,
                 alpha=row.alpha,
@@ -780,7 +780,7 @@ class Command(BaseCommand):
         for row in eft_points_A.itertuples():
             point = ParameterChoice(
                 model=eft_miki_model,
-                number=row.Index + 1,
+                number=row.Index + 1,  # type: ignore
                 long_label=rf"$f/\sqrt{{c}} = {row.effscale:.2f} \, \text{{GeV}}$",
                 T_star=50,
                 alpha=row.alpha,
@@ -800,7 +800,7 @@ class Command(BaseCommand):
         for row in eft_points_B.itertuples():
             point = ParameterChoice(
                 model=eft_miki_model,
-                number=first_set_point_count + row.Index + 1,
+                number=first_set_point_count + row.Index + 1,  # type: ignore
                 long_label=rf"$f/\sqrt{{c}} = {row.effscale:.2f} \, \text{{GeV}}$",
                 T_star=100,
                 alpha=row.alpha,
@@ -1067,7 +1067,7 @@ class Command(BaseCommand):
         for row in jonathan_points.itertuples():
             point = ParameterChoice(
                 model=singlet_jonathan_model,
-                number=row.Index + 1,
+                number=row.Index + 1,  # type: ignore
                 long_label=(
                     rf"$m_2 = {row.m2:.0f}\, \mathrm{{GeV}}$, $\sin \theta = {row.sinTheta:g}$, "
                     rf"$a_2 = {row.a2:g}$, $b_3 = {row.b3:g}$, $b_4  = {row.b4:g}$"

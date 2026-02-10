@@ -14,7 +14,7 @@ def admin_change_url(obj: models.Model):
     return reverse(f"admin:{app_label}_{model_name}_change", args=(obj.pk, ))
 
 
-def generate_link(target: str, name: str = None) -> tp.Callable:
+def generate_link(target: str, name: str | None = None) -> tp.Callable:
     """
     Create a link column to a related model
     :param target: target field

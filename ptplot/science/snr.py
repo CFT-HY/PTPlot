@@ -7,10 +7,11 @@ eLISATools.py, adapted to use a trapezium rule integration with nonuniform inter
 """
 
 import numpy as np
+from pttools.omgw0 import signal_to_noise_ratio
 
 from ptplot.science import const
 from ptplot.science.spectrum.bpl import PowerSpectrumBPL
-from pttools.omgw0 import signal_to_noise_ratio
+import ptplot.science.type_hints as th
 
 
 def get_snr_value(
@@ -53,13 +54,13 @@ def get_snr_value(
 
 
 def stock_bkg_compute_snr(
-        sens_freq: np.ndarray,
-        sens_omega: np.ndarray,
-        gw_freq: np.ndarray,
-        gw_omega: np.ndarray,
+        sens_freq: th.FloatArr1D,
+        sens_omega: th.FloatArr1D,
+        gw_freq: th.FloatArr1D,
+        gw_omega: th.FloatArr1D,
         obs_time: float,
-        f_min: float = None,
-        f_max: float = None) -> tuple[float, tuple[float, float]]:
+        f_min: float | None = None,
+        f_max: float | None = None) -> tuple[float, tuple[float, float]]:
     """Compute signal-to-noise ratio
 
     Compute signal-to-noise ratio and the used frequency range fmin and fmax for

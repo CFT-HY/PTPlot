@@ -22,7 +22,7 @@ def validate_velocity(value: float) -> None:
 # -----
 
 class FractionField(forms.CharField):
-    def to_python(self, value: str) -> float | Fraction | None:
+    def to_python(self, value: str) -> float | Fraction | None:  # type: ignore
         if not value:
             return None
         try:
@@ -32,7 +32,7 @@ class FractionField(forms.CharField):
 
 
 class UnitInput(forms.NumberInput):
-    def __init__(self, attrs=None, units: str = None):
+    def __init__(self, attrs=None, units: str | None = None):
         super().__init__(attrs)
         self.units_string = None if units is None else SafeString(f"&nbsp;{units}")
 
@@ -40,8 +40,8 @@ class UnitInput(forms.NumberInput):
             self,
             name: str,
             value: tp.Any,
-            attrs: dict[str, tp.Any] = None,
-            renderer: BaseRenderer = None):
+            attrs: dict[str, tp.Any] | None = None,
+            renderer: BaseRenderer | None = None):
         ret = super().render(name, value, attrs, renderer)
         if self.units_string is None:
             return ret
@@ -152,7 +152,7 @@ class MissionProfileField(forms.TypedChoiceField):
 class ModelField(forms.ModelChoiceField):
     def __init__(
             self,
-            queryset: QuerySet = None,
+            queryset: QuerySet | None = None,
             label: str = "Model",
             **kwargs):
         super().__init__(

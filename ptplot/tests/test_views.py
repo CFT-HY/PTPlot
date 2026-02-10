@@ -13,7 +13,7 @@ from ptplot.science.engine import Engine
 ALLOW_CODES: tp.Iterable[int] = (200, 302)
 
 
-def check_status_code(response: HttpResponse, allow_codes: tp.Iterable[int] = None) -> int:
+def check_status_code(response: HttpResponse, allow_codes: tp.Iterable[int] | None = None) -> int:
     allow_codes2 = ALLOW_CODES if allow_codes is None else (*ALLOW_CODES, *allow_codes)
     if response.status_code not in allow_codes2:
         raise AssertionError("Invalid status code", response.status_code)
@@ -23,9 +23,9 @@ def check_status_code(response: HttpResponse, allow_codes: tp.Iterable[int] = No
 def test_view(
         test: TestCase,
         url: str,
-        form: Form = None,
-        data: dict[str, tp.Any] = None,
-        allow_codes: tp.Iterable[int] = None) -> int:
+        form: Form | None = None,
+        data: dict[str, tp.Any] | None = None,
+        allow_codes: tp.Iterable[int] | None = None) -> int:
     if form is None:
         data2 = {} if data is None else data.copy()
     else:

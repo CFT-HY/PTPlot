@@ -28,21 +28,21 @@ def add_ticks(
         x_max: float,
         y_min: float,
         y_max: float,
-        xtickpos: np.ndarray = None,
-        ytickpos: np.ndarray = None,
-        xticklabels: list[str] = None,
-        yticklabels: list[str] = None) -> None:
+        xtickpos: np.ndarray | None = None,
+        ytickpos: np.ndarray | None = None,
+        xticklabels: list[str] | None = None,
+        yticklabels: list[str] | None = None) -> None:
     x_min_int = int(math.ceil(x_min))
     x_max_int = int(math.floor(x_max))
     y_min_int = int(math.ceil(y_min))
     y_max_int = int(math.floor(y_max))
 
     if xtickpos is None:
-        xtickpos = list(range(x_min_int, x_max_int + 1))
+        xtickpos = np.array(range(x_min_int, x_max_int + 1))
     if xticklabels is None:
         xticklabels = [r"$10^{%d}$" % ind for ind in xtickpos]
     if ytickpos is None:
-        ytickpos = list(range(y_min_int, y_max_int + 1))
+        ytickpos = np.array(range(y_min_int, y_max_int + 1))
     if yticklabels is None:
         yticklabels = [r"$10^{%d}$" % ind for ind in ytickpos]
     ax.set_xticks(xtickpos)

@@ -1,7 +1,7 @@
 """Parameter choices for particle physics models"""
 
 from django.core import validators
-from django.core.validators import ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from ptplot.models.model import Model
