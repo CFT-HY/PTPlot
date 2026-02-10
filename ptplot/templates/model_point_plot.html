@@ -30,17 +30,17 @@
 <p>
   And the following general parameters:
   {% if not point.vw %}
-    $v_\mathrm{w} = {{ model.vw }};
+    $v_\mathrm{w} = {{ point.model.vw }};
   {% endif %}$
   {% if not point.T_star %}
-    $T_* = {{ model.T_star }} \, \mathrm{GeV}$;
+    $T_* = {{ point.model.T_star }} \, \mathrm{GeV}$;
   {% endif %} 
   {% if not point.g_star %}
-    $g_* = {{ model.g_star }};
+    $g_* = {{ point.model.g_star }};
   {% endif %}$
 </p>
 
-{% if model.huge_alpha %}
+{% if point.model.huge_alpha %}
 <p>
   <div style="color: red">
     <b>Warning</b>: the reliability of the power spectrum ansatz at these phase transition strengths has not been tested.
@@ -50,20 +50,26 @@
 
 <p>
   <span style="color: red"><b>New</b></span>:
-  <a href="curvedata.csv">download</a>
+  <a href="{% url "model_point_csv" model_id=point.model.id point_id=point.number %}">download</a>
   the source points as a CSV [experimental]
 </p>
 
 <img
-  alt="embedded" src="ps.svg" width="600px" height="450px"
+  alt="embedded"
+  src="{% url "model_point_ps" model_id=point.model.id point_id=point.number %}"
+  width="600px" height="450px"
   style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
-  alt="embedded" src="snr.svg"  width="600px" height="450px"
+  alt="embedded"
+  src="{% url "model_point_snr" model_id=point.model.id point_id=point.number %}"
+  width="600px" height="450px"
   style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
-  alt="embedded" src="snr_alphabeta.svg" width="600px" height="450px"
+  alt="embedded"
+  src="{% url "model_point_snr_alphabeta" model_id=point.model.id point_id=point.number %}"
+  width="600px" height="450px"
   style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 

@@ -16,7 +16,7 @@
 
 {% endif %}
 
-<form action="/ptplot/" method="get">
+<form action="{% url "index" %}" method="get">
   <!--    {% csrf_token %}  -->
   <table>
     {{ form.as_table }}

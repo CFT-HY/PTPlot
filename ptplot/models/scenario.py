@@ -2,6 +2,7 @@
 
 from django.core import validators
 from django.db import models
+from django.urls import reverse
 
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.model import Model
@@ -21,6 +22,9 @@ class Scenario(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("model_scenario_plot", kwargs={"model_id": self.model.id, "scenario_id": self.number})
 
     @property
     def T_star_value(self) -> float:

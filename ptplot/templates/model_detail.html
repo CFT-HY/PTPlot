@@ -16,7 +16,7 @@
 
 <p>
   Mission profile: <b>{{ model.mission_profile }}</b>
-  <!--  ({{ model.Senscurve }}) -->
+  <!--  ( model.Senscurve ) -->
 <p>
 
 {% if model.has_scenarios %}
@@ -30,7 +30,7 @@
         {% else %}
           <b>{{ scenario.name }}</b>
         {% endif %}
-        [<a href="/ptplot/models/{{ model.id }}/scenarios/{{ scenario.number }}/plot#results">plot scenario</a>]
+        [<a href="{{ scenario.get_absolute_url }}#results">plot scenario</a>]
       </li>
     {% endfor %}
   </ul>
@@ -72,8 +72,8 @@
         [ {{ point.long_label}} ]
         {% endif %}
 
-        $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
-        $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
+        $\alpha_\theta = {{ point.alpha|floatformat:"-4" }}$;
+        $\beta/H_* = {{ point.beta_over_H|floatformat:"0" }}$;
 
         {% if point.vw %}
         $v_\mathrm{w} = {{point.vw}}$;
@@ -87,7 +87,7 @@
         $T_* = {{ point.T_star|floatformat:"-1" }} \, \mathrm{GeV}$;
         {% endif %}
 
-        [<a href="/ptplot/models/{{ model.id }}/{{ point.number }}/plot#results">plot</a>]
+        [<a href="{{ point.get_absolute_url }}#results">plot</a>]
     </li>
       {% endfor %}
     </ul>
@@ -95,7 +95,7 @@
 </p>
 {% endif %}
 
-<p>[<a href="/ptplot/models/{{ model.id }}/plot#results">plot all points with these parameters</a>]</p>
+<p>[<a href="{% url "model_detail_plot" model_id=model.id %}#results">plot all points with these parameters</a>]</p>
 
 <a id="results" />
 {% block results %}

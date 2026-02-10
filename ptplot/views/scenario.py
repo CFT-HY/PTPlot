@@ -17,7 +17,11 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
         model__id=model_id,
         number=scenario_id
     )
-    return render(request, "model_scenario_plot.html", {"scenario": scenario})
+    return render(
+        request,
+        "model_scenario_plot.html",
+        {"model": scenario.model, "scenario": scenario}
+    )
 
 
 def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:

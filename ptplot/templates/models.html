@@ -11,7 +11,7 @@
 {% if models %}
 <ul>
   {% for model in models %}
-    <li><a href="models/{{ model.id }}">{{ model.name }}</a> - {{ model.description }}</li>
+    <li><a href="{{ model.get_absolute_url }}">{{ model.name }}</a> - {{ model.description }}</li>
   {% endfor %}
 </ul>
 {% endif %}

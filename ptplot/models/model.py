@@ -2,6 +2,7 @@
 
 from django.core import validators
 from django.db import models
+from django.urls import reverse
 
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.science import const
@@ -52,6 +53,9 @@ class Model(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("model_detail", kwargs={"model_id": self.id})
 
     @property
     def mission_profile(self) -> MissionProfile:

@@ -3,6 +3,7 @@
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 
 from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
@@ -10,6 +11,7 @@ from ptplot.science import const
 
 
 class ParameterChoice(models.Model):
+    """A parameter choice, aka. a point, for a particle physics model"""
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="points")
     number = models.IntegerField()
     short_label = models.CharField(max_length=2)
@@ -56,6 +58,9 @@ class ParameterChoice(models.Model):
             errors["scenario"] = ValidationError("The scenario must be for the same model as the parameter choice.")
         if errors:
             raise ValidationError(errors)
+
+    def get_absolute_url(self) -> str:
+        return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
     @property
     def vw_value(self) -> float:

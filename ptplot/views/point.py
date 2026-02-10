@@ -19,7 +19,7 @@ def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> Http
         model__id=model_id,
         number=point_id
     )
-    return render(request, "model_point_plot.html", {"point": point})
+    return render(request, "model_point_plot.html", {"model": point.model, "point": point})
 
 
 def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:

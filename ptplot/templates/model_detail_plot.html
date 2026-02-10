@@ -19,11 +19,11 @@
 {% endif %}
 
 <img
-  alt="embedded" src="snr.svg" width="600px" height="450px"
+  alt="embedded" src="{% url "model_snr" model_id=model.id %}" width="600px" height="450px"
   style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
-  alt="embedded" src="snr_alphabeta.svg" width="600px" height="450px"
+  alt="embedded" src="{% url "model_snr_alphabeta" model_id=model.id %}" width="600px" height="450px"
   style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 

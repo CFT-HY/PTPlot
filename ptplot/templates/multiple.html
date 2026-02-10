@@ -6,7 +6,7 @@
 {% block results %}
 {% endblock results %}
 
-<form action="/ptplot/multiple.svg" method="post">
+<form action="{% url "multiple" %}" method="post">
   {% csrf_token %}
   <p>
     Note that the input table should be a comma-separated list of pairs of
