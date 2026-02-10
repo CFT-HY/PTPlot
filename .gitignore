@@ -15,7 +15,9 @@ docs/auto_examples
 docs/gen_modules
 docs/sg_execution_times.rst
 env/django.env
+env/wud.env
 htmlcov
 pylint.txt
 test-results
 venv
+wud

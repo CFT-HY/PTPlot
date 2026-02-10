@@ -8,27 +8,34 @@ services:
 #      - "443:443"
 #    depends_on:
 #      - web
-#    labels:
-#      - "com.centurylinklabs.watchtower.scope=ptplot"
 #    restart: always
   web:
     container_name: ptplot-web
-    build: .
+    # build: .
+    image: cfthy/ptplot:main
     env_file:
       - ./env/django.env
     ports:
       - "8000:8000"
-    labels:
-      - "com.centurylinklabs.watchtower.scope=ptplot"
     restart: always
-  watchtower:
-    container_name: ptplot-watchtower
-    image: containrrr/watchtower:latest
+    labels:
+      - "wud.tag.include=main"
+      - "wud.trigger.include=dockercompose.ptplot,smtp.ptplot"
+      - "wud.watch=true"
+      - "wud.watch.digest=true"
+  whatsupdocker:
+    image: getwud/wud:latest
+    container_name: ptplot-wud
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
-    # Run once a week on Sunday at 04:45
-    command: --cleanup --schedule "0 45 4 * * 0" --scope ptplot
+      - ./wud/store:/store
+      - ./docker-compose.yml:/wud/compose/docker-compose.yml
+    env_file:
+      - env/wud.env
     labels:
-      - "com.centurylinklabs.watchtower.scope=ptplot"
-    restart: always
+      - "wud.trigger.include=dockercompose.ptplot,smtp.ptplot"
+      - "wud.watch=true"
