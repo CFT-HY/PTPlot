@@ -1,86 +1,246 @@
-"""Energy budget computations
+r"""Energy budget computations
 
 This file contains all the functions related to the calculation of
-the energy budget of a First-order Phase Transition, following J. R.
-Espinosa et al. JCAP06 (2010) 028 (arXiv:1004.4187).
+the energy budget of a first-order phase transition.
+:espinosa_2010:`\ `
 """
 
-import math
+import numba
 import scipy.optimize
 import numpy as np
+from pttools.bubble import Phase
+from pttools.models import Model
 
 from ptplot.science import const
+import ptplot.science.type_hints as th
+from ptplot.science.type_hints import FloatArr
 
 
-def ubarf(vw: float, alpha: float, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO):
-    r"""Calculate the rms fluid velocity
+@np.vectorize
+def alpha_n_from_ubarf(
+        v_wall: th.FloatOrArr,
+        ubarf: th.FloatOrArr,
+        cs: th.FloatOrArr = const.CS0,
+        adiabatic_ratio: th.FloatOrArr = const.DEFAULT_ADIABATIC_RATIO,
+        alpha_n_min: float = 1e-8,
+        alpha_n_max: float = 1e12,
+        xtol: float = 1e-6) -> th.FloatOrArr:
+    r"""Phase transition strength $\alpha(\bar{U}_f)$
 
-    :param vw: Wall velocity $v_\text{wall}$
-    :param alpha: Phase transition strength $\alpha$
-    :param adiabaticRatio: Adiabatic index $\Gamma$
-    :return: Measure of the rms fluid velocity $\bar{U}_f$
+    The calculation of $\bar{U}_f$ is not easy to invert,
+    so we calculate $\bar{U}_f$ for different $\alpha$
+    until we find an $\alpha$ that minimizes the difference
+    between the calculated $\bar{U}_f$ and the input $\bar{U}_f$ value.
+
+    :param v_wall: Wall velocity $v_\text{wall}$
+    :param ubarf: List of rms fluid velocities $\bar{U}_f$
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :return: Array of phase transition strengths $\alpha$
     """
-    return math.sqrt((1.0/adiabaticRatio) * kappav(vw, alpha) * alpha/(1.0 + alpha))
+    # try:
+    return scipy.optimize.brentq(
+        alpha_n_from_ubarf_solvable,
+        args=(ubarf, v_wall, cs, adiabatic_ratio),
+        a=alpha_n_min, b=alpha_n_max, xtol=xtol
+    )
+    # except ValueError as err:
+    #     print(
+    #         "Ubarf at a:", _ubarf(v_wall=v_wall, alpha_n=a, cs=cs, adiabatic_ratio=adiabatic_ratio),
+    #         "Ubarf at b:", _ubarf(v_wall=v_wall, alpha_n=b, cs=cs, adiabatic_ratio=adiabatic_ratio),
+    #         "Target ubarf:", ubarf
+    #     )
+    #     raise err
 
 
-def kappav(vw: float, alpha: float) -> float:
-    r"""Calculate the fluid efficiency
+@numba.njit
+def alpha_n_from_ubarf_solvable(alpha_n: float, ubarf_target: float, v_wall: float, cs: float, adiabatic_ratio: float) -> float:
+    return ubarf(v_wall=v_wall, alpha_n=alpha_n, cs=cs, adiabatic_ratio=adiabatic_ratio) - ubarf_target
+
+
+@numba.njit
+def chapman_jouguet[T: (float, FloatArr)](alpha_n: T) -> T:
+    r"""Approximation for the Chapman-Jouguet velocity $\v_{CJ}$, aka. $\xi_J$
+
+    $$\v_{CJ} \approx \frac{\sqrt{\frac{2}{3} \alpha_n + \alpha_n^2} + \sqrt{\frac{1}{3}}{1 + \alpha_n}$$
+    :espinosa_2010:`\ `, eq. 97
+    """
+    return (np.sqrt(2/3 * alpha_n + alpha_n**2) + np.sqrt(1/3)) / (1 + alpha_n)
+
+
+@numba.njit
+def delta_kappa[T: (float, FloatArr)](alpha_n: T) -> T:
+    r"""Approximation for $\delta \kappa$
+
+    $$\delta \kappa \approx -0.9 \log \frac{\sqrt{\alpha_n}}{1 + \sqrt{\alpha_n}}$$
+    :espinosa_2010:`\ `, eq. 101
+    """
+    return -0.9 * np.log(np.sqrt(alpha_n) / (1 + np.sqrt(alpha_n)))
+
+
+@numba.njit
+def delta_n[T: (float, FloatArr)](model: "Model", wn: T) -> T:
+    r"""$\delta_n$ for $K$
+
+    $$\delta_n = \frac{4 \theta_-}{3 w_s}$$
+    For the bag model with $V_- = 0$, $\delta_n = 0$.
+    :notes:`\ `, eq. 7.43
+    """
+    # Todo: Check which enthalpies this expression should use.
+    return 4 * model.theta(wn, Phase.BROKEN) / (3 * wn)
+
+
+@numba.njit
+def kappa_a(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr) -> th.FloatOrArr:
+    r"""Approximation for $\kappa_a$
+
+    $$\kappa_A \approx \v_\text{wall} \frac{6.9 \alpha_n}{1.36 - 0.037 \sqrt{\alpha_n} + \alpha_n}$$
+    :espinosa_2010:`\ `, eq. 95
+    """
+    return v_wall**(6/5) * 6.9 * alpha_n / (1.36 - 0.037 * np.sqrt(alpha_n) + alpha_n)
+
+
+@numba.njit
+def kappa_b[T: (float, FloatArr)](alpha_n: T) -> T:
+    r"""Approximation for $\kappa_b$
+
+    $$\kappa_B \approx \frac{\alpha_n^\frac{2}{5}}{0.017 + (0.997 + \alpha_n)^\frac{2}{5}}$$
+    :espinosa_2010:`\ `, eq. 96
+    """
+    return alpha_n**(2/5) / (0.017 + (0.997 + alpha_n)**(2/5))
+
+
+@numba.njit
+def kappa_c[T: (float, FloatArr)](alpha_n: T) -> T:
+    r"""Approximation for $\kappa_c$
+
+    $$\kappa_C \approx \frac{\sqrt{\alpha_n}}{0.135 + \sqrt{0.98 + \alpha_n}}$$
+    :espinosa_2010:`\ `, eq. 97
+    """
+    return np.sqrt(alpha_n) / (0.135 + np.sqrt(0.98 + alpha_n))
+
+
+@numba.njit
+def kappa_d[T: (float, FloatArr)](alpha_n: T) -> T:
+    r"""Approximation for $\kappa_d$
+
+    $$\kappa_D \approx \frac{\alpha_n}{0.73 + 0.083 \sqrt{\alpha_n} + \alpha_n}$$
+    :espinosa_2010:`\ `, eq. 98
+    """
+    return alpha_n / (0.73 + 0.083 * np.sqrt(alpha_n) + alpha_n)
+
+
+@numba.njit
+def kappa_detonation(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, v_cj: float | None = None) -> th.FloatOrArr:
+    r"""Approximation of $\kappa$ for detonations
+
+    $$
+    \kappa(v_\text{wall} > v_{CJ}) \approx \frac{
+        (v_{CJ} - 1)^3 * v_{CJ}^{5/2} * v_\text{wall}^{-5/2} * \kappa_C * \kappa_D
+    }{
+        ((v_{CJ} - 1)^3 - (v_\text{wall} - 1)^3)) * v_{CJ}^{5/2} + \kappa_C + (v_\text{wall} - 1)^3 * \kappa_D
+    }
+    $$
+    :espinosa_2010:`\ `, eq. 100
+    """
+    kc = kappa_c(alpha_n)
+    kd = kappa_d(alpha_n)
+    if v_cj is None:
+        v_cj = chapman_jouguet(alpha_n)
+    return (
+        ((v_cj - 1)**3 * v_cj**(5/2) * v_wall**(-5/2) * kc * kd) /
+        (((v_cj - 1)**3 - (v_wall - 1)**3) * v_cj**(5/2) * kc + (v_wall - 1)**3 * kd)
+    )
+
+
+@numba.njit
+def kappa_hybrid(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
+    r"""Approximation of $\kappa$ for hybrids, aka. supersonic deflagrations
+
+    $$
+    \kappa(c_s < v_\text{wall} < v_{CJ}) \approx \kappa_B
+    + (v_\text{wall} - c_s) \delta \kappa
+    + \frac{(v_\text{wall} - c_s)^3}{(v_{CJ} - c_s)^3} \left(\kappa_C - \kappa_B - (v_{CJ} - c_s) \delta \kappa \right)
+    $$
+    :espinosa_2010:`\ `, eq. 102
+    """
+    kb = kappa_b(alpha_n)
+    kc = kappa_c(alpha_n)
+    dk = delta_kappa(alpha_n)
+    v_cj = chapman_jouguet(alpha_n)
+    return kb + (v_wall - cs) * dk + ((v_wall - cs)**3 / (v_cj - cs)**3) * (kc - kb - (v_cj - cs) * dk)
+
+
+@numba.njit
+def kappa_sub_def(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
+    r"""Approximation of $\kappa$ for subsonic deflagrations
+
+    $$\kappa(v_\text{wall} < c_s) \approx \frac{
+        c_s^\frac{11}{5} \kappa_A \kappa_B
+    }{
+        (c_s^\frac{11}{5} - v_\text{wall}^\frac{11}{5}) \kappa_B + v_\text{wall} c_s^\frac{6}{5} \kappa_A
+    }$$
+    :espinosa_2010:`\ `, eq. 99
+    """
+    ka = kappa_a(v_wall, alpha_n)
+    kb = kappa_b(alpha_n)
+    return cs**(11/5) * ka * kb / ((cs**(11/5) - v_wall**(11/5)) * kb + v_wall * cs**(6/5) * ka)
+
+
+@numba.njit
+def kappa_v(
+        v_wall: float,
+        alpha_n: th.FloatOrArr,
+        cs: float = const.CS0,
+        v_cj: float | None = None) -> th.FloatOrArr:
+    r"""Fluid efficiency $\kappa_v$
 
     The fluid efficiency gives the fraction of vacuum energy that is
     turned into kinetic energy during the phase transition.
 
-    :param vw: Wall velocity $v_\text{wall}$
-    :param alpha: Phase transition strength $\alpha$
+    :param v_wall: Wall velocity $v_\text{wall}$
+    :param alpha_n: Phase transition strength $\alpha_n$
+    :param cs: Sound speed $c_s$
+    :param v_cj: Chapman-Jouguet speed $v_{CJ}$. If not provided, it will be calculated from $\alpha_n$.
     :return: Fluid efficiency $\kappa_v$
     """
+    if v_cj is None:
+        v_cj = chapman_jouguet(alpha_n)
 
-    # Approximations for the different kappas can be found in Appendix A
-    # of arXiv:1004.4187
-    kappaA = math.pow(vw, 6.0/5.0) * 6.9 * alpha / (1.36 - 0.037 * math.sqrt(alpha) + alpha)
-    kappaB = math.pow(alpha, 2.0/5.0) / (0.017 + math.pow(0.997 + alpha, 2.0/5.0))
-    kappaC = math.sqrt(alpha) / (0.135 + math.sqrt(0.98 + alpha))
-    kappaD = alpha / (0.73 + 0.083 * math.sqrt(alpha) + alpha)
-
-    cs = const.CS0
-    xiJ = (math.sqrt((2.0/3.0) * alpha + alpha * alpha) + math.sqrt(1.0/3.0)) / (1+alpha)
-    deltaK = -0.9 * math.log((math.sqrt(alpha)/(1 + math.sqrt(alpha))))
-
-    if vw < cs:
-        return math.pow(cs, 11.0/5.0)*kappaA*kappaB/ \
-                ((math.pow(cs, 11.0/5.0)
-                 - math.pow(vw, 11.0/5.0))*kappaB
-                 + vw*math.pow(cs, 6.0/5.0)*kappaA)
-    elif vw > xiJ:
-        return math.pow(xiJ - 1, 3.0) * math.pow(xiJ,5.0/2.0) * \
-                math.pow(vw, -5.0/2.0)*kappaC*kappaD/ \
-                ((math.pow(xiJ-1, 3.0) - math.pow(vw -1,3.0)) *
-                 math.pow(xiJ, 5.0/2.0)*kappaC + math.pow(vw - 1,3.0)*kappaD)
-    else:
-        return kappaB + (vw - cs) * deltaK \
-                + (math.pow(vw-cs, 3.0)/math.pow(xiJ-cs,3.0)) * (kappaC-kappaB-(xiJ-cs) * deltaK)
+    if v_wall < cs:
+        return kappa_sub_def(v_wall, alpha_n, cs)
+    elif v_wall > v_cj:
+        return kappa_detonation(v_wall, alpha_n, v_cj)
+    return kappa_hybrid(v_wall, alpha_n, cs)
 
 
-def ubarf_to_alpha_scalar(vw: float, this_ubarf: float, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO) -> float:
-    def alpha_true(alpha: float):
-        return ubarf(vw, alpha, adiabaticRatio) - this_ubarf
+@numba.njit
+def ubarf(
+        v_wall: float,
+        alpha_n: th.FloatOrArr,
+        delta_n: th.FloatOrArr = 0.,
+        cs: float = const.CS0,
+        adiabatic_ratio: th.FloatOrArr = const.DEFAULT_ADIABATIC_RATIO) -> th.FloatOrArr:
+    r"""RMS fluid velocity $\bar{U}_f$
 
-    return scipy.optimize.brentq(alpha_true, a=1e-8, b=1e12, xtol=1e-6)
+    $$
+    \bar{U}_f = \sqrt{\frac{K}{\Gamma}}
+    = \sqrt{\frac{\kappa \alpha_n}{\Gamma (1 + \alpha_n + \delta_n)}}
+    \approx \sqrt{\frac{\kappa \alpha_n}{\Gamma (1 + \alpha_n)}}
+    $$
+    :notes:`\ `, eq. 7.39, 7.43,
+    :caprini_2020:`\ `, eq. 10
 
-
-def ubarf_to_alpha(vw: float, this_ubarf: np.ndarray, adiabaticRatio: float = const.DEFAULT_ADIABATIC_RATIO) -> np.ndarray:
-    r"""Calculates alpha from ubarf
-
-    For a given wall velocity and list of ubarf values, calculate
-    the corresponding list of alpha values. As the calculation of
-    the rms fluid velocity for a given alpha is not easy to invert,
-    we calculate ubarf for different alphas until finding an alpha
-    that minimises the difference between the calculated ubarf and
-    this_ubarf (input) value.
-
-    :param vw: Wall velocity $v_\text{wall}$
-    :param this_ubarf: List of rms fluid velocities $\bar{U}_f$
-    :param adiabaticRatio: Adiabatic index $\Gamma$
-    :return: Array of phase transition strengths $\alpha$
+    :param v_wall: Wall velocity $v_\text{wall}$
+    :param alpha_n: Phase transition strength $\alpha_n$
+    :param delta_n: $\delta_n$
+    :param cs: Sound speed $c_s$
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :return: Measure of the RMS fluid velocity $\bar{U}_f$
     """
-    vfunc = np.vectorize(ubarf_to_alpha_scalar)
-    return vfunc(vw, this_ubarf, adiabaticRatio)
+    return np.sqrt(
+        kappa_v(v_wall=v_wall, alpha_n=alpha_n, cs=cs) * alpha_n /
+        (adiabatic_ratio * (1. + alpha_n + delta_n))
+    )
+
+
+_ubarf = ubarf

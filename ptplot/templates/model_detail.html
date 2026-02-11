@@ -14,10 +14,12 @@
   $g_* = {{ model.g_star }}$.
 </p>
 
+{% comment %}
 <p>
   Mission profile: <b>{{ model.mission_profile }}</b>
   <!--  ( model.Senscurve ) -->
 <p>
+{% endcomment %}
 
 {% if model.has_scenarios %}
   <h4>This model has the following scenarios:</h4>
@@ -30,11 +32,23 @@
         {% else %}
           <b>{{ scenario.name }}</b>
         {% endif %}
-        [<a href="{{ scenario.get_absolute_url }}#results">plot scenario</a>]
+        [<a href="{{ scenario.get_absolute_url }}{% querystring %}#results">plot scenario</a>]
       </li>
     {% endfor %}
   </ul>
 {% endif %}
+
+<form action="{{ request.path }}" method="get">
+  <div class="formbox">
+    <div class="mainbox">
+      <table>
+        {{ form.as_table }}
+      </table>
+    </div>
+    <br>
+    <input type="submit" value="Set">
+  </div>
+</form>
 
 <h4>Full list of points:</h4>
 
@@ -87,7 +101,7 @@
         $T_* = {{ point.T_star|floatformat:"-1" }} \, \mathrm{GeV}$;
         {% endif %}
 
-        [<a href="{{ point.get_absolute_url }}#results">plot</a>]
+        [<a href="{{ point.get_absolute_url }}{% querystring %}#results">plot</a>]
     </li>
       {% endfor %}
     </ul>
@@ -95,7 +109,9 @@
 </p>
 {% endif %}
 
-<p>[<a href="{% url "model_detail_plot" model_id=model.id %}#results">plot all points with these parameters</a>]</p>
+<p>
+  [<a href="{% url "model_detail_plot" model_id=model.id %}{% querystring %}#results">plot all points with these parameters</a>]
+</p>
 
 <a id="results" />
 {% block results %}

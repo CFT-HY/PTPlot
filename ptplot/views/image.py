@@ -62,7 +62,7 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     fig = get_snr_alphabeta_image(
-        vw=form.cleaned_data["vw"],
+        v_wall=form.cleaned_data["vw"],
         alphas=form.cleaned_data["alpha"],
         beta_over_Hs=form.cleaned_data["beta_over_H"],
         T_star=form.cleaned_data["T_star"],

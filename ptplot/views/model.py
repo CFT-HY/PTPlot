@@ -1,8 +1,10 @@
 """Views for models"""
 
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
+import numpy as np
 
+from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
@@ -19,7 +21,10 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
         prefetch=["points", "scenarios"],
         id=model_id
     )
-    return render(request, "model_detail.html", {"model": model})
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    return render(request, "model_detail.html", {"model": model, "form": form})
 
 
 def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -28,11 +33,21 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
         prefetch=["points", "scenarios"],
         id=model_id
     )
-    return render(request, "model_detail_plot.html", {"model": model})
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    return render(request, "model_detail_plot.html", {"model": model, "form": form})
 
 
 def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
-    model: Model = get_object_or_404(Model, pk=model_id)
+    model: Model = get_object_or_404_related(
+        Model,
+        prefetch=["scenarios"],
+        id=model_id
+    )
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     if model.has_scenarios:
         scenarios = model.scenarios.prefetch_related("points").all()
@@ -44,16 +59,16 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
 
         for scenario in scenarios:
             points = scenario.points.all()
-            vws.append([model.vw if point.vw is None else point.vw for point in points])
-            alphas.append([point.alpha for point in points])
-            beta_over_Hs.append([point.beta_over_H for point in points])
-            labels.append([point.short_label for point in points])
+            vws.append(np.array([model.vw if point.vw is None else point.vw for point in points]))
+            alphas.append(np.array([point.alpha for point in points]))
+            beta_over_Hs.append(np.array([point.beta_over_H for point in points]))
+            labels.append(np.array([point.short_label for point in points]))
             titles.append(scenario.name)
     else:
         points = model.points.all()
-        vws = [model.vw] * len(points)
-        alphas = [point.alpha for point in points]
-        beta_over_Hs = [point.beta_over_H for point in points]
+        vws = np.full(len(points), model.vw)
+        alphas = np.array([point.alpha for point in points])
+        beta_over_Hs = np.array([point.beta_over_H for point in points])
         labels = [point.short_label for point in points]
         titles = model.name
 
@@ -66,13 +81,21 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
         labels=labels,
         titles=titles,
         mission_profile=model.mission_profile,
-        huge_alpha=model.huge_alpha
+        huge_alpha=model.huge_alpha,
+        engine=form.cleaned_data["engine"]
     )
     return fig_to_response(fig)
 
 
 def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
-    model: Model = get_object_or_404(Model, pk=model_id)
+    model: Model = get_object_or_404_related(
+        Model,
+        prefetch=["scenarios"],
+        pk=model_id
+    )
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     if model.has_scenarios:
         scenarios = model.scenarios.prefetch_related("points").all()
@@ -96,7 +119,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         titles = model.name
 
     fig = get_snr_alphabeta_image(
-        vw=model.vw,
+        v_wall=model.vw,
         alphas=alphas,
         beta_over_Hs=beta_over_Hs,
         T_star=model.T_star,
@@ -104,6 +127,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         labels=labels,
         titles=titles,
         mission_profile=model.mission_profile,
-        huge_alpha=model.huge_alpha
+        huge_alpha=model.huge_alpha,
+        engine=form.cleaned_data["engine"]
     )
     return fig_to_response(fig)

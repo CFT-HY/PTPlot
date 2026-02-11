@@ -10,6 +10,7 @@ from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfi
 
 
 class Model(models.Model):
+    """A particle physics model"""
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)

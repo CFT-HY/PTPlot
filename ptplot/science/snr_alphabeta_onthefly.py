@@ -19,62 +19,61 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
-from ptplot.science.espinosa import ubarf_to_alpha
+from ptplot.science.espinosa import alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot_utils import fig_to_svg
-from ptplot.science.snr_onthefly import create_snr_figure
+from ptplot.science.snr_onthefly import snr_figure
 from ptplot.science.snr_precompute import get_snr_curve
-from ptplot.science.utils import atleast_2d, rstar_to_beta
+from ptplot.science.utils import atleast_2d, beta_from_R_star
 import ptplot.science.type_hints as th
 
 
 def get_snr_alphabeta_image(
-        vw: float,
-        alphas: th.FloatOrListOrNestedListOrArr = const.DEFAULT_ALPHA,
-        beta_over_Hs: th.FloatOrListOrNestedListOrArr = 100,
+        v_wall: float,
+        alphas: th.FloatOrArrOrList1D2D = const.DEFAULT_ALPHA,
+        beta_over_Hs: th.FloatOrArrOrList1D2D = 100,
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
+        cs: float = const.CS0,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         engine: Engine = Engine.DEFAULT,
-        usetex: bool = False,
         huge_alpha: bool = False) -> Figure:
-    r"""Produce the $\alpha-\beta$ plot
+    r"""Produce the $\alpha,\beta$ plot
 
-    :param vw: Wall velocity $v_\text{wall}$
-    :param alphas: Phase transition strengths $\alpha$
-    :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$
+    :param v_wall: Wall velocity $v_\text{wall}$
+    :param alphas: Phase transition strengths $\alpha$[scenario, point]
+    :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$[scenario, point]
     :param T_star: Transition temperature $T_*$
     :param g_star: Degrees of freedom $g_*$
     :param adiabatic_ratio: Adiabatic index $\Gamma$
     :param labels: Labels for the points
     :param titles: Titles for the points
     :param mission_profile: Which sensitivity curve to use
-    :param usetex: Whether to use LaTeX
     :param huge_alpha: Whether $\alpha$ is very large
-    :return: Figure of $\alpha-\beta$
+    :return: Figure of $\alpha,\beta$
     """
+    # Todo: do this with (alpha, beta)
     tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
-        Tn=T_star,
-        # vw=vw,
-        alpha=alphas if np.isscalar(alphas) else alphas[0],
+        v_wall=v_wall,
+        T_star=T_star,
         g_star=g_star,
         mission_profile=mission_profile,
         ubarf_max=0.866 if huge_alpha else 0.6,
         engine=engine
     )
-    log10BetaOverH = np.log10(rstar_to_beta(10.**log10HnRstar, vw))
-    log10alpha = np.log10(ubarf_to_alpha(vw, 10.**log10Ubarf, adiabatic_ratio))
+    log10BetaOverH = np.log10(beta_from_R_star(R_star=10.**log10HnRstar, v_wall=v_wall))
+    log10alpha = np.log10(alpha_n_from_ubarf(v_wall=v_wall, ubarf=10.**log10Ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio))
 
     # Location of contour labels
     locs_tsh = np.array([
         (int(math.ceil(min(log10alpha))) + 0.2, x)
         for x in range(int(math.ceil(min(log10BetaOverH))), int(math.floor(max(log10BetaOverH)) + 1))
     ])
-    fig, ax = create_snr_figure(
+    fig, ax = snr_figure(
         x=log10alpha,
         y=log10BetaOverH,
         xlabel=r"$\alpha$",
@@ -93,17 +92,21 @@ def get_snr_alphabeta_image(
         elif isinstance(labels[0], str):
             labels = [labels]
 
+    # Iterate over scenarios
     for i, (BetaoverH_set, alpha_set) in enumerate(zip(beta_over_Hs, alphas)):
-        BetaOverH_log_set = [math.log10(BetaoverH) for BetaoverH in BetaoverH_set]
+        alpha_log_set = np.log10(alpha_set)
+        BetaOverH_log_set = np.log10(BetaoverH_set)
 
-        alpha_log_set = [math.log10(alpha) for alpha in alpha_set]
-        # Benchmarks
+        # Plot points
         ax.plot(alpha_log_set, BetaOverH_log_set, ".")
-
+        # Add labels to points
         if labels:
             label_set = labels[i]
             for x, y, label in zip(alpha_log_set, BetaOverH_log_set, label_set):
                 ax.annotate(label, xy=(x, y), xycoords="data", xytext=(5, 0), textcoords="offset points")
+
+    if titles:
+        ax.legend([titles] if isinstance(titles, str) else titles, loc="lower left", framealpha=0.9)
 
     # Old attempts at getting the ticks in the right place
     # xtickpos = [min(log10alpha)] \
@@ -147,7 +150,7 @@ def main():
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = get_snr_alphabeta_image(
-        vw=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
+        v_wall=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))

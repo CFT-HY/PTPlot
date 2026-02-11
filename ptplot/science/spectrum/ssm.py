@@ -13,7 +13,7 @@ from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.spectrum.base import PowerSpectrum
 import ptplot.science.type_hints as th
 
-bag = BagModel()
+bag = BagModel(alpha_n_min=0.001)
 
 logger = logging.getLogger(__name__)
 

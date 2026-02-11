@@ -7,10 +7,10 @@ import numpy as np
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.espinosa import ubarf, ubarf_to_alpha_scalar
+from ptplot.science.espinosa import ubarf, alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
-from ptplot.science.utils import beta_to_R_star
+from ptplot.science.utils import R_star_from_beta
 
 
 class PowerSpectrum(abc.ABC):
@@ -25,6 +25,7 @@ class PowerSpectrum(abc.ABC):
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             vw: float | None = None,
+            cs: float = const.CS0,  # Todo: implement this properly
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
             alpha: float | None = None,
@@ -67,9 +68,12 @@ class PowerSpectrum(abc.ABC):
         self.ubarf: float
         if (vw is not None) and (alpha is not None) and (ubarf_in is None):
             self.alpha = alpha
-            self.ubarf = ubarf(vw, alpha, adiabatic_ratio)
+            self.ubarf = ubarf(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
         elif (vw is not None) and (alpha is None) and (ubarf_in is not None):
-            self.alpha = ubarf_to_alpha_scalar(vw=vw, this_ubarf=ubarf_in, adiabaticRatio=adiabatic_ratio)
+            try:
+                self.alpha = alpha_n_from_ubarf(v_wall=vw, ubarf=ubarf_in, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
+            except ValueError:
+                self.alpha = np.nan
             self.ubarf = ubarf_in
         elif (vw is None) and (alpha is not None) and (ubarf_in is not None):
             self.alpha = alpha
@@ -86,7 +90,7 @@ class PowerSpectrum(abc.ABC):
         # Calculate typical bubble radius
         self.r_star: float
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
-            self.r_star = beta_to_R_star(self.beta_over_H, self.vw)
+            self.r_star = R_star_from_beta(self.beta_over_H, self.vw)
         elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             self.r_star = r_star
         else:

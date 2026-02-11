@@ -17,23 +17,23 @@ LEVELS_TSH = np.array([0.001, 0.01, 0.1, 1, 10, 100])
 LEVELS_TSH_HUGE_ALPHA = np.array([1e-7, 1e-6, 1e-5, 1e-4])
 
 
-def create_snr_figure(
-        x: np.ndarray,
-        y: np.ndarray,
+def snr_figure(
+        x: th.FloatArr1D,
+        y: th.FloatArr1D,
         xlabel: str,
         ylabel: str,
         titles: th.StrOrList,
-        snr: np.ndarray,
-        tshHn: np.ndarray,
-        locs_tsh: np.ndarray,
+        snr: th.FloatArr1D,
+        tshHn: th.FloatArr1D,
+        locs_tsh: th.FloatArr1D,
         label_wanted_y: float,
         huge_alpha: bool = False,
-        locs: np.ndarray | None = None,
-        levels: np.ndarray = LEVELS,
-        levels_tsh: np.ndarray = LEVELS_TSH,
-        levels_tsh_huge_alpha: np.ndarray = LEVELS_TSH_HUGE_ALPHA,
-        xtickpos: np.ndarray | None = None,
-        ytickpos: np.ndarray | None = None,
+        locs: th.FloatArr1D | None = None,
+        levels: th.FloatArr1D = LEVELS,
+        levels_tsh: th.FloatArr1D = LEVELS_TSH,
+        levels_tsh_huge_alpha: th.FloatArr1D = LEVELS_TSH_HUGE_ALPHA,
+        xtickpos: th.FloatArr1D | None = None,
+        ytickpos: th.FloatArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
@@ -84,9 +84,6 @@ def create_snr_figure(
         ax.set_ylim(y_min, y_max)
         ax.set_xlabel(xlabel, fontsize=label_fontsize)
         ax.set_ylabel(ylabel, fontsize=label_fontsize)
-
-        if titles:
-            ax.legend(titles, loc="lower left", framealpha=0.9)
 
         # July 2023: No longer watermark with LISACosWG
         # # position bottom right

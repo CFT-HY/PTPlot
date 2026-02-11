@@ -46,7 +46,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 label_list_final = [labels]
 
             fig = get_snr_alphabeta_image(
-                vw=form.cleaned_data["vw"],
+                v_wall=form.cleaned_data["vw"],
                 alphas=alphas,
                 beta_over_Hs=beta_over_Hs,
                 T_star=form.cleaned_data["T_star"],
@@ -71,30 +71,29 @@ def parameterchoice_form(request: HttpRequest) -> HttpResponse:
 
 
 def single(request: HttpRequest) -> HttpResponse:
-    querystring = request.GET.urlencode()
-
-    # If this is a POST request we need to process the form data
-    if request.method == "GET" and querystring:
+    if request.method == "GET":
         form = PTPlotForm(request.GET)
+        querystring = request.GET.urlencode()
+    elif request.method == "POST":
+        form = PTPlotForm(request.POST)
+        querystring = request.POST.urlencode()
+    else:
+        return render(request, "single.html", {"form": PTPlotForm()})
 
-        if form.is_valid():
-            context = {
-                "form": form,
-                "querystring": querystring,
-                "vw": form.cleaned_data["vw"],
-                "alpha": form.cleaned_data["alpha"],
-                "beta_over_H": form.cleaned_data["beta_over_H"],
-                "T_star": form.cleaned_data["T_star"],
-                "g_star": form.cleaned_data["g_star"],
-                "mission_profile": form.mission_profile,
-                "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
-                "css2": form.cleaned_data["css2"],
-                "csb2": form.cleaned_data["csb2"]
-            }
-            return render(request, "single_result.html", context)
-
-        # Form not valid
+    if not form.is_valid():
         return render(request, "single.html", {"form": form})
 
-    # No form yet
-    return render(request, "single.html", {"form": PTPlotForm()})
+    context = {
+        "form": form,
+        "querystring": querystring,
+        "vw": form.cleaned_data["vw"],
+        "alpha": form.cleaned_data["alpha"],
+        "beta_over_H": form.cleaned_data["beta_over_H"],
+        "T_star": form.cleaned_data["T_star"],
+        "g_star": form.cleaned_data["g_star"],
+        "mission_profile": form.mission_profile,
+        "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
+        "css2": form.cleaned_data["css2"],
+        "csb2": form.cleaned_data["csb2"]
+    }
+    return render(request, "single_result.html", context)

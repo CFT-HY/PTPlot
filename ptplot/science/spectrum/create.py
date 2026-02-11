@@ -32,6 +32,7 @@ def power_spectrum(
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf_in=ubarf_in
         )
     elif engine == Engine.SSM:
+        # If css2 or csb2 is provided, but the model has not been specified, use ConstCSModel.
         if (css2 is not None or csb2 is not None) and model is bag:
             model = ConstCSModel(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(

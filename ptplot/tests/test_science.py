@@ -26,8 +26,8 @@ class ScienceTest(TestCase):
     def test_csv(self):
         self.spectrum.csv()
 
-    def test_kappav(self):
-        esp.kappav(vw=0.7, alpha=0.1)
+    def test_kappa_v(self):
+        esp.kappa_v(v_wall=0.7, alpha_n=0.1)
 
     def test_power_spectrum(self):
         power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H)
@@ -48,7 +48,7 @@ class ScienceTest(TestCase):
         req.main(print_points=False)
 
     def test_snr_alpha_beta_image(self):
-        snr_ab.get_snr_alphabeta_image(vw=0.3)
+        snr_ab.get_snr_alphabeta_image(v_wall=0.3)
 
     # def test_snr_curve(self):
     #     snr_pre.get_SNRcurve()
@@ -60,8 +60,8 @@ class ScienceTest(TestCase):
     #     snr.StockBkg_ComputeSNR()
 
     def test_ubarf(self):
-        esp.ubarf(vw=0.7, alpha=0.1)
+        esp.ubarf(v_wall=0.7, alpha_n=0.1)
 
     def test_ubarf_to_alpha(self, vw: float = 0.7):
-        ubarf = esp.ubarf(vw=0.7, alpha=0.1)
-        esp.ubarf_to_alpha(ubarf, this_ubarf=ubarf)
+        ubarf = esp.ubarf(v_wall=0.7, alpha_n=0.1)
+        esp.alpha_n_from_ubarf(ubarf, ubarf=ubarf)

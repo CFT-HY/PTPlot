@@ -1,10 +1,42 @@
 import logging
 
 from ptplot.forms.fields import *
-from ptplot.models import Model
+from ptplot.models import Model, ParameterChoice, Scenario
+from ptplot.science.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 
 logger = logging.getLogger(__name__)
+
+
+class BenchmarkForm(forms.Form):
+    mission_profile_ind = MissionProfileField()
+    engine = EngineField()
+
+    def __init__(
+            self,
+            data: tp.Mapping[str, tp.Any] | None = None,
+            model: Model | None = None,
+            point: ParameterChoice | None = None,
+            scenario: Scenario | None = None,
+            **kwargs):
+        if data is None or "mission_profile_ind" not in data:
+            if point is not None:
+                model = point.model
+            elif scenario is not None:
+                model = scenario.model
+
+            if model is not None:
+                data = {"mission_profile_ind": model.mission_profile_ind} \
+                    if data is None else \
+                    {**data, "mission_profile_ind": model.mission_profile_ind}
+        if "engine" not in data:
+            data["engine"] = Engine.DEFAULT
+
+        super().__init__(data, **kwargs)
+
+    @property
+    def mission_profile(self) -> MissionProfile:
+        return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 
 class PTPlotForm(forms.Form):
