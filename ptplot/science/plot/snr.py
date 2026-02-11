@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.plot_utils import add_text, add_ticks, find_label_place
+from ptplot.science.plot.utils import add_text, add_ticks, find_label_place
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))

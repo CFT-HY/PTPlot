@@ -6,9 +6,9 @@ from django.shortcuts import render
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import ParameterChoice
-from ptplot.science.plot_powerspectrum import get_ps_image
-from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
+from ptplot.science.plot.power_spectrum import ps_figure
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.spectrum.create import power_spectrum
 
 
@@ -41,7 +41,7 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    fig = get_snr_image(
+    fig = snr_figure_ubarf_rstar(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         vws=point.vw_value,
@@ -66,7 +66,7 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    fig = get_snr_alphabeta_image(
+    fig = snr_figure_alpha_beta(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
         v_wall=point.vw_value,
@@ -122,7 +122,7 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
         beta_over_H=point.beta_over_H,
         engine=form.cleaned_data["engine"]
     )
-    fig = get_ps_image(
+    fig = ps_figure(
         spectrum=spectrum,
         mission_profile=form.mission_profile
     )

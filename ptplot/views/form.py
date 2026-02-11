@@ -7,7 +7,7 @@ from django.shortcuts import render
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.engine import ENGINE_NAMES
-from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
@@ -45,7 +45,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
             else:
                 label_list_final = [labels]
 
-            fig = get_snr_alphabeta_image(
+            fig = snr_figure_alpha_beta(
                 v_wall=form.cleaned_data["vw"],
                 alphas=alphas,
                 beta_over_Hs=beta_over_Hs,

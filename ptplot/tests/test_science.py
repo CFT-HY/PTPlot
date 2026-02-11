@@ -4,13 +4,11 @@ from django.test import TestCase
 
 import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
-import ptplot.science.plot_powerspectrum as plot_ps
+from ptplot.science.plot.power_spectrum import ps_figure
 from ptplot.science.engine import Engine
 from ptplot.science.spectrum.create import PowerSpectrumBPL, power_spectrum
-# import ptplot.science.snr as snr
-# import ptplot.science.SNR_precompute as snr_pre
-import ptplot.science.snr_alphabeta_onthefly as snr_ab
-import ptplot.science.snr_ubarfrstar_onthefly as snr_ubarf
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 VW: float = 0.3
 ALPHA: float = 0.1
@@ -42,19 +40,19 @@ class ScienceTest(TestCase):
         power_spectrum(vw=VW, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1/4, csb2=1/4)
 
     def test_ps_image(self):
-        plot_ps.get_ps_image(self.spectrum, sw_only=False)
+        ps_figure(self.spectrum, sw_only=False)
 
     def test_requirements(self):
         req.main(print_points=False)
 
     def test_snr_alpha_beta_image(self):
-        snr_ab.get_snr_alphabeta_image(v_wall=0.3)
+        snr_figure_alpha_beta(v_wall=0.3)
 
     # def test_snr_curve(self):
     #     snr_pre.get_SNRcurve()
 
     def test_snr_ubarf(self):
-        snr_ubarf.get_snr_image()
+        snr_figure_ubarf_rstar()
 
     # def test_stock_bkg_compute_snr(self):
     #     snr.StockBkg_ComputeSNR()

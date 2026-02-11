@@ -14,16 +14,16 @@ from matplotlib.figure import Figure
 import numpy as np
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot_utils import fig_to_svg
+from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.espinosa import ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
-from ptplot.science.snr_onthefly import snr_figure
-from ptplot.science.snr_precompute import get_snr_curve
+from ptplot.science.plot.snr import snr_figure
+from ptplot.science.snr_grid import snr_grid
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d, R_star_from_beta
 
@@ -31,7 +31,7 @@ LOCS_TSH = np.array([(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)])
 TICKPOS_HUGE_ALPHA = np.array([-2, -1, 0, 1, 2, 3])
 
 
-def get_snr_image(
+def snr_figure_ubarf_rstar(
         # Todo: Why are some of these defaults different to the ones in const.py?
         vws: th.FloatOrArrOrListOfArr1D = 0.5,
         alphas: th.FloatOrArrOrListOfArr1D = const.DEFAULT_ALPHA,
@@ -76,7 +76,7 @@ def get_snr_image(
     # else:
     #     raise ValueError("alphas must be scalar, 1D or 2D")
 
-    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
+    tshHn, snr, log10HnRstar, log10Ubarf = snr_grid(
         v_wall=v_wall,
         T_star=T_star,
         g_star=g_star,
@@ -158,7 +158,7 @@ def main():
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
-    fig = get_snr_image(
+    fig = snr_figure_ubarf_rstar(
         vws=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )

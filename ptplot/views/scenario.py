@@ -6,8 +6,8 @@ from django.shortcuts import render
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Scenario
-from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -48,7 +48,7 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
         scenario.model.vw if point.vw is None else point.vw
         for point in points
     ]
-    fig = get_snr_image(
+    fig = snr_figure_ubarf_rstar(
         vws=vws,
         alphas=[point.alpha for point in points],
         beta_over_Hs=[point.beta_over_H for point in points],
@@ -77,7 +77,7 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    fig = get_snr_alphabeta_image(
+    fig = snr_figure_alpha_beta(
         v_wall=scenario.model.vw,
         alphas=[point.alpha for point in points],
         beta_over_Hs=[point.beta_over_H for point in points],

@@ -1,14 +1,14 @@
 """Views for models"""
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 import numpy as np
 
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.snr_alphabeta_onthefly import get_snr_alphabeta_image
-from ptplot.science.snr_ubarfrstar_onthefly import get_snr_image
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def models(request: HttpRequest) -> HttpResponse:
@@ -72,7 +72,7 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
         labels = [point.short_label for point in points]
         titles = model.name
 
-    fig = get_snr_image(
+    fig = snr_figure_ubarf_rstar(
         vws=vws,
         alphas=alphas,
         beta_over_Hs=beta_over_Hs,
@@ -118,7 +118,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         labels = [point.short_label for point in points]
         titles = model.name
 
-    fig = get_snr_alphabeta_image(
+    fig = snr_figure_alpha_beta(
         v_wall=model.vw,
         alphas=alphas,
         beta_over_Hs=beta_over_Hs,

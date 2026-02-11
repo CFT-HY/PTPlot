@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponse
 from django.db.models import Model
 from matplotlib.figure import Figure
 
-from ptplot.science.plot_utils import fig_to_svg
+from ptplot.science.plot.utils import fig_to_svg
 
 
 def fig_to_response(fig: Figure) -> HttpResponse:

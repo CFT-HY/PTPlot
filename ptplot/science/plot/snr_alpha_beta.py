@@ -15,21 +15,21 @@ from matplotlib.figure import Figure
 import numpy as np
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
 from ptplot.science.espinosa import alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot_utils import fig_to_svg
-from ptplot.science.snr_onthefly import snr_figure
-from ptplot.science.snr_precompute import get_snr_curve
+from ptplot.science.plot.utils import fig_to_svg
+from ptplot.science.plot.snr import snr_figure
+from ptplot.science.snr_grid import snr_grid
 from ptplot.science.utils import atleast_2d, beta_from_R_star
 import ptplot.science.type_hints as th
 
 
-def get_snr_alphabeta_image(
+def snr_figure_alpha_beta(
         v_wall: float,
         alphas: th.FloatOrArrOrList1D2D = const.DEFAULT_ALPHA,
         beta_over_Hs: th.FloatOrArrOrList1D2D = 100,
@@ -57,7 +57,7 @@ def get_snr_alphabeta_image(
     :return: Figure of $\alpha,\beta$
     """
     # Todo: do this with (alpha, beta)
-    tshHn, snr, log10HnRstar, log10Ubarf = get_snr_curve(
+    tshHn, snr, log10HnRstar, log10Ubarf = snr_grid(
         v_wall=v_wall,
         T_star=T_star,
         g_star=g_star,
@@ -149,7 +149,7 @@ def main():
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
-    fig = get_snr_alphabeta_image(
+    fig = snr_figure_alpha_beta(
         v_wall=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )

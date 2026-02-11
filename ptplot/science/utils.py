@@ -4,7 +4,6 @@ import numpy as np
 
 from ptplot.science import const
 import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatArr
 
 
 def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list[np.ndarray]]:

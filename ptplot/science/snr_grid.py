@@ -28,7 +28,7 @@ from ptplot.science.mission_profile import MissionProfile
 import ptplot.science.type_hints as th
 
 
-def get_snr_curve(
+def snr_grid(
         v_wall: float,
         T_star: float,
         g_star: float,
@@ -107,7 +107,7 @@ def main():
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
-    tshHn, snr, log10_r_star, log10_ubarf = get_snr_curve(
+    tshHn, snr, log10_r_star, log10_ubarf = snr_grid(
         v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, ubarf_max=1
     )
 
