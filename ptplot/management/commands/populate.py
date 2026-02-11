@@ -269,7 +269,7 @@ class Command(BaseCommand):
             point = ParameterChoice(
                 model=singlet_jonathan_z2_model,
                 number=row.Index + 1,  # type: ignore
-                long_label=rf"$m = {row.m:.0f}\, \mathrm{{GeV}}, \, a_2 = {row.a2:.0f}$",
+                long_label=rf"$m = {row.m:.0f}\, \mathrm{{GeV}}, \, a_2 = {row.a2:.1f}$",
                 T_star=row.Tstar,
                 alpha=row.alpha,
                 beta_over_H=row.betaoverH
@@ -552,7 +552,7 @@ class Command(BaseCommand):
                 "Benchmark points for the holographic phase transition in Randall-Sundrum models "
                 "(supplied by G. Nardini)."
             ),
-            notes="notes go here",
+            notes="",
             T_star=500,
             g_star=106.75,
             vw=0.95,
