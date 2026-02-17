@@ -45,101 +45,30 @@ class PowerSpectrumBPL(PowerSpectrum):
         }).to_csv(path)
 
     @staticmethod
-    def Csw(fp: th.FloatOrArr, norm: float = 1.0) -> th.FloatOrArr:
-        r"""Calculate spectral shape for gw from sound waves
+    def C(s: th.FloatOrArr, norm: float = 1.0) -> th.FloatOrArr:
+        r"""Spectral shape function $C(s)$
 
-        For a given peak frequency, calculate spectral shape of a single broken
-        power law fit to simulation results for gw from sound waves.
+        $$C(s) = s^3 \left( \frac{7}{4 + 3 s^2} \right)^\frac{7}{2}
+        = \text{norm} f_p^3 \left( \frac{7}{4 + 3 s^2} \right)^\frac{7}{2}$$
+        This function is a fit to the sound wave power spectrum from simulations.
         :hindmarsh_2017:`\ ` eq. 36
+        :caprini_2020:`\ ` eq. 30
 
-        This function was previously known as $S_{sw}$,
-        but was renamed in 2023 to match the notation in the article.
+        :param s: Relative frequency $s$ with respect to the peak frequency
+        :param norm: Normalization factor
+        :return: Spectral shape function $C(s)$
         """
-        return norm * fp**3 * (7 / (4 + 3 * fp**2))**(7/2)
+        return norm * s**3 * (7 / (4 + 3 * s ** 2))**(7 / 2)
 
-    def fsw(self) -> float:
-        r"""True peak frequency
-
-        :hindmarsh_2017:`\ ` eq. 43
-
-        Note that the numerical prefactor
-        is absorbed in the definition of beta_to_rstar() above;
-        (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
-        """
-        return 26.0e-6 / self.r_star * (self.zp / 10) * (self.T_star / 100) * (self.g_star / 100)**(1/6)
-
-    # This follows equations 39 - 45 in 1704.05871 (and the paper erratum)
-    def power_spectrum_sw(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        r"""Power spectrum from sound waves for a given frequency f
-
-        :hindmarsh_2017:`\ ` eq. 45
-        :hindmarsh_2017_erratum:`\ ` eq. 2
-        """
-
-        # This is based on equation 45 in 1704.05871, with the numerical
-        # prefactor coming from 0.68*(3.57e-5)*(8*pi)^(1/3)*0.12 = 8.5e-6
-        # (=0.68*Fgw0*geometric*Omtil)
-        #
-        # Using equation R_* = (8*pi)^{1/3}*vw/beta (section VI, same paper),
-        # thus: H_n*R_* = (8*pi)^{1/3}*vw/BetaoverH
-        #
-        # See fsw() method, and definition of beta_to_rstar()
-        fp = f / self.fsw()
-
-        # Some of the equations below were derived assuming this value for h,
-        # we add it here to remove the h dependence from the final results
-        # h_planck = 0.678
-
-        # Equations 39 and 45 in 1704.05871 are missing the factor of 3 [typo];
-        # and there is no h_planck in eq 45 (it is implicit in the RHS).
-        # Note also typo below eq 45, 0.12 -> 0.012 for OmTilde.
-        #
-        # The resulting 3*0.687 = 2.061 prefactor is also explained in equation
-        # 2 of the erratum.
-        #
-        # Fgw0 is 3.57e-5*(100/hstar)^(1/3), and implicitly includes
-        # Omega_photons. The implicit Hubble constant dependence of equation
-        # 45 (erratum equation 2) comes from Omega_photons. Multiplying both
-        # sides by h_planck removes that, and so the result does not depend
-        # on a particular measurement of the Hubble constant.
-        #
-        # Thus, this returns h^2 OmGW, which does not depend on a
-        # particular value of the Hubble constant.
-        return const.H_PLANCK2 * 3 \
-            * 0.687 * 3.57e-5 * 0.012 * (100 / self.g_star)**(1/3) \
-            * self.adiabatic_ratio * self.adiabatic_ratio \
-            * self.ubarf**4 * self.r_star * self.Csw(fp)
-
-    def fturb(self):
+    def f_turb(self):
         r"""Calculate peak frequency for turbulence
 
+        $$f_\text{turb} = 2.7 \cdot 10^{-5} \text{Hz} \frac{1}{v_\text{wall}}
+        \frac{\beta}{H_*} \frac{T_*}{100 \text{GeV}}
+        \left( \frac{g_*}{100} \right)^{1/6}$$
         :caprini_2015:`\ ` eq. 18
         """
         return 27e-6 * (1 / self.vw) * self.beta_over_H * (self.T_star / 100) * (self.g_star / 100)**(1/6)
-
-    def Sturb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
-        r"""Calculate the spectral shape from turbulence
-
-        :caprini_2015:`\ ` eq. 17
-        """
-        return fp**3 / ((1 + fp)**(11/3) * (1 + 8 * math.pi * f / self.h_star))
-
-    def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        r"""Calculate power spectrum from turbulence for a given frequency f
-
-        :caprini_2015:`\ ` eq. 16
-        """
-        fp = f / self.fturb()
-        return 3.35e-4 / self.beta_over_H \
-            * (self.k_turb * self.alpha / (1 + self.alpha))**(3/2) \
-            * (100 / self.g_star)**(1/3) * self.vw * self.Sturb(f, fp)
-
-    def power_spectrum_sw_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate power spectrum from sound waves (conservative)
-
-        For the conservative estimate, take the shock time no larger than 1.
-        """
-        return min(self.H_tsh, 1.0) * self.power_spectrum_sw(f)
 
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Power spectrum from sound waves (conservative)"""
@@ -152,3 +81,54 @@ class PowerSpectrumBPL(PowerSpectrum):
     def power_spectrum_full_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Total power spectrum from sound waves (conservative) and turbulence"""
         return self.power_spectrum_sw_conservative(f) + self.power_spectrum_turb(f)
+
+    def power_spectrum_sw(
+            self,
+            f: th.FloatOrArr,
+            omega_tilde_gw: th.FloatOrArr = const.DEFAULT_OMEGA_TILDE_GW) -> th.FloatOrArr:
+        r"""Power spectrum from sound waves
+
+        $$h^2 \frac{d \Omega_{\text{gw},0}}{d \ln f}
+        = h^2 \cdot 2.061 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 (H_n R_*) \tilde{\Omega}_\text{gw} C(\frac{f}{f_p,0})$$
+        :hindmarsh_2017:`\ ` eq. 45
+        :hindmarsh_2017_erratum:`\ ` eq. 2
+
+        Please note that the original version of :hindmarsh_2017:`\ ` eq. 45 is missing a factor of 3.
+
+        $F_{\text{gw},0}$ depends on the value of $h$,
+        which is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
+
+        The numerical prefactor comes from
+        $$0.68 \cdot 3.57e-5 \cdot (8*pi)^(1/3) \cdot 0.12
+        = 8.5e-6
+        = 0.68 \cdot F_{\text{gw},0} \cdot \text{geometric} \cdot \tilde{\Omega}_\text{gw}$$
+
+        :param f: Frequency $f$
+        :param omega_tilde_gw: $\tilde{\Omega}_\text{gw}$
+        """
+        return self.power_spectrum_common(omega_tilde_gw=omega_tilde_gw) \
+            * 0.687 * self.r_star * self.C(s=self.s(f))
+
+    def power_spectrum_sw_conservative(self, f: th.FloatOrArr) -> th.FloatOrArr:
+        """Calculate power spectrum from sound waves (conservative)
+
+        For the conservative estimate, take the shock time no larger than 1.
+        """
+        return min(self.H_tsh, 1.) * self.power_spectrum_sw(f)
+
+    def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
+        r"""Calculate power spectrum from turbulence for a given frequency f
+
+        :caprini_2015:`\ ` eq. 16
+        """
+        fp = f / self.f_turb()
+        return 3.35e-4 / self.beta_over_H \
+            * (self.k_turb * self.alpha / (1 + self.alpha))**(3/2) \
+            * (100 / self.g_star)**(1/3) * self.vw * self.S_turb(f, fp)
+
+    def S_turb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
+        r"""Calculate the spectral shape from turbulence
+
+        :caprini_2015:`\ ` eq. 17
+        """
+        return fp**3 / ((1 + fp)**(11/3) * (1 + 8 * math.pi * f / self.h_star()))

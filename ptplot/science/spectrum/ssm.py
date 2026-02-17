@@ -5,7 +5,7 @@ import logging
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel, Model
-from pttools.omgw0 import const as omgw0_const, Spectrum, Suppression, SuppressionMethod, f_star0
+from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod, f_star0
 from pttools.omgw0.suppression import DEFAULT as SUPPRESSION_DEFAULT
 
 from ptplot.science import const
@@ -35,7 +35,6 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
             ubarf_in: float | None = None,
-
             model: Model = bag):
         super().__init__(
             beta_over_H=beta_over_H,
@@ -55,13 +54,22 @@ class PowerSpectrumSSM(PowerSpectrum):
         self.model: Model = model
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.vw, alpha_n=self.alpha)
 
+    def K(self) -> float:
+        # Todo: Use the value from the SSM Spectrum object
+        return super().K()
+
     def power_spectrum(
             self,
             f: th.FloatArr1D,
-            g0: float = omgw0_const.G0,
-            gs0: float = omgw0_const.GS0,
+            g0: float = G0,
+            gs0: float = GS0,
             sup: Suppression = SUPPRESSION_DEFAULT,
             sup_method: SuppressionMethod = SuppressionMethod.NONE) -> th.FloatArr1D:
+        """Power spectrum from the Sound Shell Model
+
+        The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
+        as is done for the other models (BPL and DBPL).
+        """
         if np.isnan(f).any():
             raise ValueError("f must not contain nan values.")
         # Todo: Use pttools.omgw0.freq.z() instead when it's available

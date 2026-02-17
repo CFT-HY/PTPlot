@@ -25,7 +25,7 @@ from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfi
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid
 import ptplot.science.type_hints as th
-from ptplot.science.utils import atleast_2d, R_star_from_beta
+from ptplot.science.utils import atleast_2d, R_star
 
 LOCS_TSH = np.array([(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)])
 TICKPOS_HUGE_ALPHA = np.array([-2, -1, 0, 1, 2, 3])
@@ -114,7 +114,7 @@ def snr_figure_ubarf_rstar(
             np.log10(ubarf(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio))
             for vw, alpha in zip(vw_set, alpha_set)
         ]
-        log10_R_stars = np.log10(R_star_from_beta(BetaoverH_set, vw_set, cs=const.CS0))
+        log10_R_stars = np.log10(R_star(BetaoverH_set, vw_set, cs=const.CS0))
 
         # Plot points
         ax.plot(log10_ubarfs, log10_R_stars, ".")

@@ -37,27 +37,31 @@ def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:
     return [np.array(sub_values) for sub_values in values]
 
 
-def beta_from_R_star(R_star: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
+def beta(R_star: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
     r"""Convert R_* to \beta for a given wall velocity
 
-    $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
+    $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$
+    Inverted from :caprini_2020:`\ ` eq. 6
 
     :param R_star: Mean bubble separation $R_*$
     :param v_wall: Wall velocity $v_w$
     :param cs: Sound speed $c_s$
     :return: Inverse phase transition duration $\beta$
     """
+    # Todo: Use the PTtools function when it's available.
     return (8 * np.pi)**(1/3) * np.maximum(v_wall, cs) / R_star
 
 
-def R_star_from_beta(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Convert \beta to R_* for a given wall velocity $v_w$
+def R_star(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
+    r"""Mean bubble separation $R_*$
 
-    $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$
+    $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
+    :caprini_2020:`\ ` eq. 6
 
     :param beta: Inverse phase transition duration $\beta$
     :param v_wall: Wall velocity $v_w$
     :param cs: Sound speed $c_s$
     :return: Mean bubble separation $R_*$
     """
+    # Todo: Use the PTtools function when it's available.
     return (8 * np.pi)**(1/3) * np.maximum(v_wall, cs) / beta

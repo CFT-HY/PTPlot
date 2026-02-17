@@ -25,7 +25,7 @@ from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid
-from ptplot.science.utils import atleast_2d, beta_from_R_star
+from ptplot.science.utils import atleast_2d, beta
 import ptplot.science.type_hints as th
 
 
@@ -65,7 +65,7 @@ def snr_figure_alpha_beta(
         ubarf_max=0.866 if huge_alpha else 0.6,
         engine=engine
     )
-    log10BetaOverH = np.log10(beta_from_R_star(R_star=10.**log10HnRstar, v_wall=v_wall))
+    log10BetaOverH = np.log10(beta(R_star=10.**log10HnRstar, v_wall=v_wall))
     log10alpha = np.log10(alpha_n_from_ubarf(v_wall=v_wall, ubarf=10.**log10Ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio))
 
     # Location of contour labels

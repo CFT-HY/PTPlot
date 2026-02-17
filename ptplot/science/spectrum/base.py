@@ -2,15 +2,18 @@
 
 import abc
 
-from pandas import DataFrame
 import numpy as np
+from pandas import DataFrame
+from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f, f_star0, F_gw0, J
+from pttools.utils import copy_docstrings_without_params
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.espinosa import ubarf, alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
-from ptplot.science.utils import R_star_from_beta
+from ptplot.science.type_hints import FloatArr
+from ptplot.science.utils import beta, R_star
 
 
 class PowerSpectrum(abc.ABC):
@@ -58,7 +61,6 @@ class PowerSpectrum(abc.ABC):
 
         # Parameters that may be set
         self.vw: float | None = vw
-        self.beta_over_H: float | None = beta_over_H
 
         # -----
         # Computed parameters
@@ -87,19 +89,24 @@ class PowerSpectrum(abc.ABC):
                 "Exactly two of vw, alpha, ubarf_in must be set. "
                 f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}.")
 
-        # Calculate typical bubble radius
+        #: Hubble-scaled mean bubble spacing $r_*$
         self.r_star: float
+        #: $\frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
+        self.beta_over_H: float
+
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
-            self.r_star = R_star_from_beta(self.beta_over_H, self.vw)
+            self.beta_over_H = beta_over_H
+            # Using beta_over_H instead of beta to compute R_star gives r_star.
+            self.r_star = R_star(beta=beta_over_H, v_wall=self.vw)
         elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
+            # Using r_star instead of R_star to compute beta gives beta_over_H.
+            self.beta_over_H = beta(R_star=r_star, v_wall=self.vw)
             self.r_star = r_star
         else:
             raise ValueError(
                 "Either r_star or beta_over_H must be set, but not both. "
                 f"Got r_star={r_star}, beta_over_H={beta_over_H}."
             )
-
-        self.h_star: float = 16.5e-6 * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
@@ -118,6 +125,67 @@ class PowerSpectrum(abc.ABC):
         })
         return df.to_csv(path_or_buf=path)
 
+    def f_peak(self) -> float:
+        r"""Peak frequency
+
+        $$f_{p,0} \approx 26
+        \left( \frac{1}{H_* R_*} \right)
+        \left( \frac{z_p}{10} \right)
+        \left( \frac{T_*}{100 \text{GeV}} \right)
+        \left( \frac{g_*}{100} \right)^{1/6}
+        \text{µHz}$$
+        :hindmarsh_2017:`\ ` eq. 43
+        :caprini_2020:`\ ` eq. 31
+        These equations are equivalent to :gowling_2021:`\ ` eq. 2.12, 2.13.
+
+        :return: Peak frequency $f_\text{peak}$ in Hz
+        """
+        return f(z=self.zp, r_star=self.r_star, f_star0=f_star0(Tn=self.T_star, g_star=self.g_star))
+
+    def F_gw0(
+            self,
+            g0: th.FloatOrArr = G0,
+            gs0: th.FloatOrArr = GS0,
+            gs_star: th.FloatOrArr = None,
+            om_gamma0: th.FloatOrArr = OMEGA_RADIATION) -> th.FloatOrArr:  # pylint: disable=missing-function-docstring
+        return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
+
+    def h_star(self) -> float:
+        r"""$h_*$, inverse Hubble time at GW production, redshifted to today
+        :caprini_2015:`\ ` eq. 11
+        """
+        return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
+
+    def J[T: (float, FloatArr)](self, nu: T = 0.) -> T:
+        return J(r_star=self.r_star, K_frac=self.K(), nu=nu)
+
+    def K(self) -> float:
+        r"""Kinetic energy fraction $K$
+
+        $$K = \frac{\langle w \gamma^2 v^2 \rangle}{\bar{e}} = \Gamma \bar{U}_f^2$$
+        :caprini_2020:`\ ` eq. 22
+        """
+        return self.adiabatic_ratio * self.ubarf**2
+
+    def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
+        r"""Common prefactor of the power spectrum for BPL and DBPL
+
+        $$3h^2 F_{\text{gw},0} K^2 \tilde{\Omega}_\text{gw}
+        = 3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
+
+        Please note that $F_{\text{gw},0}$ depends on the value of $h$.
+        This is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
+        """
+        return 3 * const.H_PLANCK2 * self.F_gw0() * self.K()**2 * omega_tilde_gw
+
+    def s[T: (float, FloatArr)](self, f: T) -> T:
+        r"""Relative frequency $s$ with respect to the peak frequency
+
+        $$s = \frac{f}{f_\text{peak}}$$
+        :gowling_2021:`\ ` p. 9
+        """
+        return f / self.f_peak()
+
     @property
     def shock_time(self) -> float:
         """Shock time"""
@@ -127,3 +195,9 @@ class PowerSpectrum(abc.ABC):
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """GW power spectrum"""
         pass
+
+
+copy_docstrings_without_params({
+    PowerSpectrum.F_gw0: F_gw0,
+    PowerSpectrum.J: J
+})

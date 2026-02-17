@@ -105,11 +105,19 @@ autodoc_typehints = "description"
 # Sphinx 6.0 will require base URLs and caption strings to contain exactly one "%s",
 # and all other "%" need to be escaped as "%%".
 extlinks: dict[str, tuple[str, str]] = {
+    # Articles
     "espinosa_2010": ("https://arxiv.org/abs/1004.4187%s", "Espinosa et al., 2010%s"),
     "caprini_2015": ("https://arxiv.org/abs/1512.06239%s", "Caprini et al., 2015%s"),
+    "caprini_2020": ("https://arxiv.org/abs/1910.13125%s", "Caprini et al., 2020%s"),
+    "gowling_2021": ("https://arxiv.org/abs/2106.05984%s", "Gowling & Hindmarsh, 2021%s"),
     "hindmarsh_2017": ("https://arxiv.org/abs/1704.05871%s", "Hindmarsh et al., 2017%s"),
     "hindmarsh_2017_erratum": ("https://doi.org/10.1103/PhysRevD.101.089902", "Hindmarsh et al., 2017 erratum%s"),
+    "hindmarsh_2019": ("https://arxiv.org/abs/1909.10040%s", "Hindmarsh et al., 2019%s"),
     "notes": ("https://arxiv.org/abs/2008.09136%s", "Hindmarsh et al., 2021%s"),
+    # Theses
+    "hakkinen_msc": ("https://hdl.handle.net/10138/576963%s", "Häkkinen, 2024%s"),
+    # Other
+    "hakkinen_ptplot": ("https://version.helsinki.fi/hakkijen/ptplot-with-pttools%s", "PTPlot version by Jenni Häkkinen%s")
 }
 
 show_memory = True

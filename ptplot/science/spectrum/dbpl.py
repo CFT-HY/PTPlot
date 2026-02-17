@@ -1,19 +1,17 @@
 """Double broken power law (DBPL) power spectrum"""
 
-import numpy as np
-
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.spectrum.base import PowerSpectrum
 import ptplot.science.type_hints as th
+from ptplot.science.type_hints import FloatArr
 
 
 class PowerSpectrumDBPL(PowerSpectrum):
-    """
+    r"""
     Double broken power law (DBPL) power spectrum
 
-    Based on
-    https://version.helsinki.fi/hakkijen/ptplot-with-pttools
+    Based on :hakkinen_ptplot:`\ `, :hakkinen_msc: and :gowling_2021:`\ `.
     """
     ENGINE: Engine = Engine.DBPL
     NAME: str = ENGINE_NAMES[ENGINE]
@@ -38,73 +36,60 @@ class PowerSpectrumDBPL(PowerSpectrum):
         )
         self.zb: float = zb
 
-        # Compute ratio of the two breaks in the spectrum
+        #: Ratio of the two peaks in the spectrum, $r_b = \frac{f_b}{f_p} = \frac{z_b}{z_p}$, :gowling_2021:`\ ` p. 9
         self.rb: float = self.zb / self.zp
 
-    def mu(self) -> float:
-        """Calculate prefactor for the peak power of the gw power spectrum
+    def m[T: (float, FloatArr)](self, b: T = 1.) -> T:
+        r"""The value $m$ used in the spectral shape function M(s)
 
-        This is an approximate form of the function based on equations 5.8. and 5.9 in 1909.10040.
-        It defines the peak power A of the spectrum as
-        mu(rb)*A = 3*(adiabaticRatio*Ubarf**2**2*Omegatilde.
-        We take Omegatilde=0.012 when calculating the power spectrum.
+        $$m = \frac{9 r_b^4 + b}{r_b^4 + 1}$$
+        :gowling_2021:`\ ` eq. 2.17.
+        With $b = 1$, this reduces to
+        :hindmarsh_2019:`\ ` p. 22.
+        """
+        return (9 * self.rb**4 + b) / (self.rb**4 + 1)
+
+    def mu(self) -> float:
+        # Todo: implement the full mu integration to get rid of the 10 % error in the approximation.
+        raise NotImplementedError
+
+    def mu_approx(self) -> float:
+        r"""Prefactor $\mu(r_b)$ for the peak power of the GW power spectrum
+
+        $$\mu(r_b) = \int_0^\infty \frac{ds}{s} M(s, r_b) \approx 4.78 - 6.27 r_b + 3.34 r_b^2$$
+        This approximation is accurate to about 10 % over the relevant range $0 < r_b < 1$.
+        :hindmarsh_2019:`\ ` eq. 5.8, 5.9
+
+        This relates the peak power parameter $A_M$ to the total power parameter $\tilde{\Omega}_\text{gw}$.
         """
         return 4.78 - 6.27 * self.rb + 3.34 * self.rb**2
 
-    def Msw(self, s, b: float = 1.0) -> float:
-        """Calculate spectral shape for gw from sound waves
+    def M(self, s: th.FloatOrArr, b: th.FloatOrArr = 1.) -> th.FloatOrArr:
+        r"""Spectral shape of the GW power spectrum
 
-        For a given peak frecuency, calculate spectral shape of a double broken power law fit to the Sound Shell Model power spectrum.
+        $$M(s, r_b, b) = s^9
+        \left( \frac{1 + r_b^4}{r_b^4 + s^4} \right)^\frac{9 - b}{4}
+        \left( \frac{b + 4}{b + 4 - m + ms^2} \right)^\frac{b + 4}{2}$$
+        This formula is a fit to the Sound Shell Model power spectrum.
+        :gowling_2021:`\ ` eq. 2.16
+        With $b = 1$, this reduces to
+        :hindmarsh_2019:`\ ` eq. 5.7
 
-        This follows equation 2.16 in 2106.05984, with the value b = 1 defining the spectral slope
-        between the two breaks in the spectrum, as in 1909.10040.
+        :param s: Frequency $s$ relative to the peak frequency
+        :param b: $b$ defines the spectral slope between the two breaks in the spectrum
+        :return: Spectral shape $M(s, r_b, b)$
         """
-        m: float = (9 * self.rb**4 + b) / (self.rb**4 + 1)
-        return s**9 * ((1 + self.rb**4) / (self.rb**4 + s**4))**((9 - b) / 4) * ((b + 4) / (b + 4 - m + m * s**2))**((b + 4) / 2)
-
-    @property
-    def fsw(self) -> float:
-        """Calculate true peak frequency
-
-        This follows equation 43 in 1704.05871. Note that the numerical prefactor
-        is absorbed in the definition of beta_to_rstar() above;
-        (1/(H_n*R_*)) = 1/((8*pi)^{1/3}*vw/BetaoverH) .
-        """
-        return 26.0e-6 * (1 / self.r_star) * (self.zp / 10) * (self.T_star / 100) * (self.g_star / 100)**(1/6)
-
-    def J(self) -> float:
-        """Calculate the source lifetime
-
-        This follows equation 2.8 in 2106.05984.
-        """
-
-        # K_frac is the kinetic energy fraction in the fluid, given by
-        # K_frac = adiabaticRatio*Ubarf**2 (eq 22 in 1910.13125).
-        K_frac = self.adiabatic_ratio * self.ubarf**2
-
-        return self.r_star * (1 - 1 / (np.sqrt(1 + 2 * self.r_star / np.sqrt(K_frac))))
+        m = self.m(b=b)
+        return s**9 * \
+            ((1 + self.rb**4) / (self.rb**4 + s**4)) ** ((9 - b) / 4) * \
+            ((b + 4) / (b + 4 - m + m * s**2)) ** ((b + 4) / 2)
 
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
+        r"""Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
 
-        This follows equations 2.15 and 2.16 in 2106.05984 and 5.6 - 5.8 in 1909.10040.
+        $$\Omega_\text{gw}^\text{fit} = F_{\text{gw},0} \Omega_p M(s, r_b, b)$$
+
+        $F_{\text{gw},0}$ depends on the value of $h$,
+        which is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
         """
-
-        # See fsw() method, and definition of beta_to_rstar().
-        s = f / self.fsw
-
-        # Some of the equations below were derived assuming this value for h,
-        # we add it here to remove the h dependence from the final results.
-        # h_planck = 0.678
-
-        # Fgw0 is 3.57e-5*(100/gstar)^(1/3), and implicitly includes
-        # Omega_photons. The implicit Hubble constant dependence of equation
-        # 45 (erratum equation 2) comes from Omega_photons. Multiplying both
-        # sides by h_planck removes that, and so the result does not depend
-        # on a particular measurement of the Hubble constant.
-
-        # Thus, this returns h^2 OmGW, which does not depend on a
-        # particular value of the Hubble constant.
-        return const.H_PLANCK2 * 3 * 3.57e-5 * 0.012 * (100/self.g_star)**(1/3) \
-            * self.adiabatic_ratio * self.adiabatic_ratio * self.ubarf**4 / self.mu() \
-            * self.J() * self.Msw(s)
+        return self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
