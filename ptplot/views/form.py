@@ -72,10 +72,10 @@ def parameterchoice_form(request: HttpRequest) -> HttpResponse:
 
 def single(request: HttpRequest) -> HttpResponse:
     if request.method == "GET":
-        form = PTPlotForm(request.GET)
+        form = PTPlotForm(request.GET if request.GET else None)
         querystring = request.GET.urlencode()
     elif request.method == "POST":
-        form = PTPlotForm(request.POST)
+        form = PTPlotForm(request.POST if request.POST else None)
         querystring = request.POST.urlencode()
     else:
         return render(request, "single.html", {"form": PTPlotForm()})

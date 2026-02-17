@@ -18,6 +18,7 @@
 {% block results %}
 {% endblock results %}
 
+{% comment %}
 {% if form.errors %}
   <ul>
     {% for key,value in form.errors.items %}
@@ -25,6 +26,7 @@
     {% endfor %}
   </ul>
 {% endif %}
+{% endcomment %}
 
 <form action="{% url "single" %}" method="get">
   <div class="formbox">
