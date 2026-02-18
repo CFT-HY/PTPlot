@@ -8,6 +8,8 @@ from matplotlib.figure import Figure
 from matplotlib.text import Text
 import numpy as np
 
+import ptplot.science.type_hints as th
+
 
 def add_text(
         fig: Figure,
@@ -28,8 +30,8 @@ def add_ticks(
         x_max: float,
         y_min: float,
         y_max: float,
-        xtickpos: np.ndarray | None = None,
-        ytickpos: np.ndarray | None = None,
+        xtickpos: th.FloatArr1D | None = None,
+        ytickpos: th.FloatArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None) -> None:
     x_min_int = int(math.ceil(x_min))
@@ -38,13 +40,13 @@ def add_ticks(
     y_max_int = int(math.floor(y_max))
 
     if xtickpos is None:
-        xtickpos = np.array(range(x_min_int, x_max_int + 1))
+        xtickpos = range(x_min_int, x_max_int + 1)
     if xticklabels is None:
-        xticklabels = [r"$10^{%d}$" % ind for ind in xtickpos]
+        xticklabels = ["1" if ind == 1 else rf"$10^{{{ind:d}}}$" for ind in xtickpos]
     if ytickpos is None:
-        ytickpos = np.array(range(y_min_int, y_max_int + 1))
+        ytickpos = range(y_min_int, y_max_int + 1)
     if yticklabels is None:
-        yticklabels = [r"$10^{%d}$" % ind for ind in ytickpos]
+        yticklabels = ["1" if ind == 1 else rf"$10^{{{ind:d}}}$" for ind in ytickpos]
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
     ax.set_xticks(
@@ -66,15 +68,15 @@ def fig_to_svg(fig: Figure) -> bytes:
 
 
 def find_label_place(
-        x: np.ndarray,
-        y: np.ndarray,
-        snr: np.ndarray,
+        x: th.FloatArr1D,
+        y: th.FloatArr1D,
+        snr: th.FloatArr2D,
         wanted_y: float,
         wanted_contour: float) -> tuple[float, float]:
     """Determines where to put contour label, based on y-coordinate and contour value"""
     nearest_y = np.abs(y - wanted_y).argmin()
     nearest_x = (np.abs(snr[nearest_y, :] - wanted_contour)).argmin()
-    return x[nearest_x], wanted_y
+    return x[nearest_x].item(), wanted_y
 
 
 def make_minor_ticks(min: int, max: int) -> np.ndarray:

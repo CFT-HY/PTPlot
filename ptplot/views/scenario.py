@@ -2,6 +2,7 @@
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
+import numpy as np
 
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
@@ -44,14 +45,14 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    vws = [
-        scenario.model.vw if point.vw is None else point.vw
-        for point in points
-    ]
     fig = snr_figure_ubarf_rstar(
-        vws=vws,
-        alphas=[point.alpha for point in points],
-        beta_over_Hs=[point.beta_over_H for point in points],
+        v_wall_snr=scenario.model.vw,
+        v_walls=np.array([
+            scenario.model.vw if point.vw is None else point.vw
+            for point in points
+        ]),
+        alphas=np.array([point.alpha for point in points]),
+        beta_over_Hs=np.array([point.beta_over_H for point in points]),
         T_star=scenario.T_star_value,
         g_star=scenario.model.g_star,
         labels=[point.short_label for point in points],
@@ -78,7 +79,7 @@ def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_i
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     fig = snr_figure_alpha_beta(
-        v_wall=scenario.model.vw,
+        v_wall_snr=scenario.model.vw,
         alphas=[point.alpha for point in points],
         beta_over_Hs=[point.beta_over_H for point in points],
         T_star=scenario.T_star_value,

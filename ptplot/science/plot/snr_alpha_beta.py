@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
-"""AlphaBeta plotting
+r"""$(\alpha_n, \beta/H)$ plotting
 
-This file contains all the functions related to producing the AlphaBeta plot.
-Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
-ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
+Inspired by Antoine Petiteau's ExampleUseSNR1.py v0.3 (May 2015).
 """
 
-import math
 import os.path
 import sys
 
@@ -19,32 +16,31 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
-from ptplot.science.espinosa import alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.plot.snr import snr_figure
-from ptplot.science.snr_grid import snr_grid
-from ptplot.science.utils import atleast_2d, beta
+from ptplot.science.snr_grid import snr_grid_alpha_beta
+from ptplot.science.utils import atleast_2d, log_range
 import ptplot.science.type_hints as th
 
 
 def snr_figure_alpha_beta(
-        v_wall: float,
+        v_wall_snr: float,
+        # v_walls: th.FloatOrArrOrList1D2D = None,
         alphas: th.FloatOrArrOrList1D2D = const.DEFAULT_ALPHA,
         beta_over_Hs: th.FloatOrArrOrList1D2D = 100,
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
-        cs: float = const.CS0,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-        engine: Engine = Engine.DEFAULT,
-        huge_alpha: bool = False) -> Figure:
-    r"""Produce the $\alpha,\beta$ plot
+        huge_alpha: bool = False,
+        engine: Engine = Engine.DEFAULT) -> Figure:
+    r"""Produce the $(\alpha_n, \beta/H)$ plot
 
-    :param v_wall: Wall velocity $v_\text{wall}$
+    :param v_wall_snr: Wall velocity $v_\text{wall}$ used for the SNR curves
     :param alphas: Phase transition strengths $\alpha$[scenario, point]
     :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$[scenario, point]
     :param T_star: Transition temperature $T_*$
@@ -54,34 +50,31 @@ def snr_figure_alpha_beta(
     :param titles: Titles for the points
     :param mission_profile: Which sensitivity curve to use
     :param huge_alpha: Whether $\alpha$ is very large
-    :return: Figure of $\alpha,\beta$
+    :param engine: Which power spectrum engine to use
+    :return: SNR figure of $(\alpha_n, \beta/H)$
     """
-    # Todo: do this with (alpha, beta)
-    tshHn, snr, log10HnRstar, log10Ubarf = snr_grid(
-        v_wall=v_wall,
-        T_star=T_star,
-        g_star=g_star,
-        mission_profile=mission_profile,
-        ubarf_max=0.866 if huge_alpha else 0.6,
-        engine=engine
+    snr, shock_times, alpha_n_grid, beta_over_H_grid = snr_grid_alpha_beta(
+        T_star=T_star, g_star=g_star, v_wall=v_wall_snr, mission_profile=mission_profile,
+        alpha_n=log_range(alphas, const.DEFAULT_ALPHA_N_RANGE),
+        beta_over_H=log_range(beta_over_Hs, const.DEFAULT_BETA_OVER_H_RANGE),
+        adiabatic_ratio=adiabatic_ratio, engine=engine
     )
-    log10BetaOverH = np.log10(beta(R_star=10.**log10HnRstar, v_wall=v_wall))
-    log10alpha = np.log10(alpha_n_from_ubarf(v_wall=v_wall, ubarf=10.**log10Ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio))
+    log10_alpha_n_grid = np.log10(alpha_n_grid)
+    log10_beta_over_H_grid = np.log10(beta_over_H_grid)
+    alpha_mid = (log10_alpha_n_grid[0] + log10_alpha_n_grid[-1]) / 2
 
-    # Location of contour labels
-    locs_tsh = np.array([
-        (int(math.ceil(min(log10alpha))) + 0.2, x)
-        for x in range(int(math.ceil(min(log10BetaOverH))), int(math.floor(max(log10BetaOverH)) + 1))
-    ])
     fig, ax = snr_figure(
-        x=log10alpha,
-        y=log10BetaOverH,
+        x=log10_alpha_n_grid,
+        y=log10_beta_over_H_grid,
         xlabel=r"$\alpha$",
         ylabel=r"$\beta/H_*$",
         titles=titles,
         snr=snr,
-        tshHn=tshHn,
-        locs_tsh=locs_tsh,
+        shock_times=shock_times,
+        shock_label_locs=np.array([
+            (alpha_mid - 0.3 + 0.2 * i, y)
+            for i, y in enumerate(range(int(log10_beta_over_H_grid[0]), int(log10_beta_over_H_grid[-1]) + 1))
+        ]),
         label_wanted_y=2,
         huge_alpha=huge_alpha,
     )
@@ -93,9 +86,9 @@ def snr_figure_alpha_beta(
             labels = [labels]
 
     # Iterate over scenarios
-    for i, (BetaoverH_set, alpha_set) in enumerate(zip(beta_over_Hs, alphas)):
+    for i, (beta_over_H_set, alpha_set) in enumerate(zip(beta_over_Hs, alphas)):
         alpha_log_set = np.log10(alpha_set)
-        BetaOverH_log_set = np.log10(BetaoverH_set)
+        BetaOverH_log_set = np.log10(beta_over_H_set)
 
         # Plot points
         ax.plot(alpha_log_set, BetaOverH_log_set, ".")

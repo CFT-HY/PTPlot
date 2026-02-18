@@ -10,11 +10,12 @@ import time
 from matplotlib import rc_context
 from matplotlib.figure import Figure
 import numpy as np
+from pttools.omgw0 import signal_to_noise_ratio
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
-from ptplot.science import const, snr
+from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import add_text, fig_to_svg
 from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
@@ -33,11 +34,11 @@ def ps_figure(
     :return: Power spectrum figure
     """
     pow_spec = spectrum.power_spectrum(mission_profile.f)
-    snr_value, frange = snr.stock_bkg_compute_snr(
-        sens_freq=mission_profile.f,
-        sens_omega=mission_profile.sensitivity,
-        gw_freq= mission_profile.f,
-        gw_omega=pow_spec,
+    snr_value = signal_to_noise_ratio(
+        f=mission_profile.f,
+        signal=pow_spec,
+        f_noise=mission_profile.f,
+        noise=mission_profile.sensitivity,
         obs_time=mission_profile.duration_seconds,
         f_min=1.e-6,
         f_max=1

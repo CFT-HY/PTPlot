@@ -9,6 +9,7 @@ import os.path
 import numpy as np
 
 from ptplot.science.const import YEAR_IN_SECONDS
+import ptplot.science.type_hints as th
 
 SENSITIVITY_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sensitivity")
 
@@ -30,9 +31,9 @@ class MissionProfile:
         self.ind: int = -1
 
         #: Frequencies $f$ corresponding to the sensitivity values
-        self.f: np.ndarray
+        self.f: th.FloatArr1D
         #: Sensitivities $\Omega_\text{sens}$
-        self.sensitivity: np.ndarray
+        self.sensitivity: th.FloatArr1D
 
         self.f, self.sensitivity = self.load(self.sensitivity_path)
         self.f_lite, self.sensitivity_lite = self.load(self.sensitivity_path_lite)
@@ -47,7 +48,7 @@ class MissionProfile:
         return DEFAULT_MISSION_PROFILE if index is None else MISSION_PROFILES[index]
 
     @staticmethod
-    def load(path: str) -> np.ndarray:
+    def load(path: str) -> th.FloatArr2D:
         if not os.path.isabs(path):
             path = os.path.join(SENSITIVITY_ROOT, path)
         return np.loadtxt(path, usecols=(0, 2), unpack=True)

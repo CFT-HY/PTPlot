@@ -42,9 +42,10 @@ def snr_image(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     fig = snr_figure_ubarf_rstar(
+        v_wall_snr=form.cleaned_data["vw"],
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
-        vws=form.cleaned_data["vw"],
+        v_walls=form.cleaned_data["vw"],
         alphas=form.cleaned_data["alpha"],
         beta_over_Hs=form.cleaned_data["beta_over_H"],
         mission_profile=form.mission_profile,
@@ -62,7 +63,7 @@ def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     fig = snr_figure_alpha_beta(
-        v_wall=form.cleaned_data["vw"],
+        v_wall_snr=form.cleaned_data["vw"],
         alphas=form.cleaned_data["alpha"],
         beta_over_Hs=form.cleaned_data["beta_over_H"],
         T_star=form.cleaned_data["T_star"],

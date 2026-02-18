@@ -2,6 +2,8 @@
 
 import numpy as np
 
+import ptplot.science.type_hints as th
+
 # Default values
 DEFAULT_ADIABATIC_RATIO: float = 4 / 3
 DEFAULT_ALPHA: float = 0.1
@@ -15,6 +17,8 @@ Default $\tilde{\Omega}_\text{gw}$, :hindmarsh_2017:`\ ` p. 13.
 Please note that there is a typo in the original article: $0.12 \rightarrow 0.012$: :hindmarsh_2017_erratum:`\ `.
 """
 
+DEFAULT_SNR_F_MIN: float = 1e-6
+DEFAULT_SNR_F_MAX: float = 1.
 DEFAULT_T_STAR: float = 180
 DEFAULT_VW: float = 0.9
 
@@ -28,6 +32,13 @@ $\Delta R_* = R_* \frac{|v_\text{wall} - c_s|}{c_s}$.
 :caprini_2020:`\ ` p. 17
 """
 
+# Default plotting ranges
+DEFAULT_GRID_SIZE: int = 51
+DEFAULT_ALPHA_N_RANGE: th.FloatArr1D = np.logspace(-2, 0.3, DEFAULT_GRID_SIZE)
+DEFAULT_BETA_OVER_H_RANGE: th.FloatArr1D = np.logspace(0.5, 4.5, DEFAULT_GRID_SIZE)
+DEFAULT_R_STAR_RANGE: th.FloatArr1D = np.logspace(-4, 0.08, DEFAULT_GRID_SIZE)
+DEFAULT_UBARF_RANGE: th.FloatArr1D = np.logspace(-2, 0, DEFAULT_GRID_SIZE)
+
 # Default plotting parameters
 DEFAULT_LABEL_FONTSIZE: int = 14
 DEFAULT_RC_CONTEXT: dict[str, str] = {
@@ -36,6 +47,7 @@ DEFAULT_RC_CONTEXT: dict[str, str] = {
     "mathtext.fontset": "dejavuserif",
     # "text.usetex": usetex
 }
+SNR_GRID_SIZE: int = 51
 
 # Numerical constants
 CS0: float = 1 / np.sqrt(3)

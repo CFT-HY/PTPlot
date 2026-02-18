@@ -11,16 +11,16 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM, bag
 
 
 def power_spectrum(
-        beta_over_H: float | None = None,
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
         vw: float | None = None,
+        alpha: float | None = None,
+        beta_over_H: float | None = None,
+        ubarf: float | None = None,
+        r_star: float | None = None,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         zp: float = const.DEFAULT_ZP,
-        alpha: float | None = None,
         k_turb: float = const.DEFAULT_K_TURB,
-        r_star: float | None = None,
-        ubarf_in: float | None = None,
         engine: Engine = Engine.DEFAULT,
         css2: float | None = None,
         csb2: float | None = None,
@@ -29,7 +29,7 @@ def power_spectrum(
         return PowerSpectrumBPL(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
-            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf_in=ubarf_in
+            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf
         )
     elif engine == Engine.SSM:
         # If css2 or csb2 is provided, but the model has not been specified, use ConstCSModel.
@@ -38,13 +38,13 @@ def power_spectrum(
         return PowerSpectrumSSM(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
-            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf_in=ubarf_in,
+            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
             model=model
         )
     elif engine == Engine.DBPL:
         return PowerSpectrumDBPL(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
-            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf_in=ubarf_in
+            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf
         )
     raise ValueError(f"Invalid engine: {engine}")

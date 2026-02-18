@@ -9,7 +9,7 @@ from pttools.utils import copy_docstrings_without_params
 
 from ptplot.science import const
 from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.espinosa import ubarf, alpha_n_from_ubarf
+from ptplot.science.espinosa import ubarf as ubarf_func, alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr
@@ -24,17 +24,17 @@ class PowerSpectrum(abc.ABC):
 
     def __init__(
             self,
-            beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             vw: float | None = None,
+            alpha: float | None = None,
+            beta_over_H: float | None = None,
+            ubarf: float | None = None,
+            r_star: float | None = None,
             cs: float = const.CS0,  # Todo: implement this properly
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            alpha: float | None = None,
-            k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float | None = None,
-            ubarf_in: float | None = None):
+            k_turb: float = const.DEFAULT_K_TURB):
         r"""
         :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
         :param T_star: Transition temperature $T_*$
@@ -45,7 +45,7 @@ class PowerSpectrum(abc.ABC):
         :param alpha: Phase transition strength $\alpha$
         :param k_turb: Fraction of latent heat that is transformed into magnetohydrodynamic turbulence, $k_\text{turb}$
         :param r_star: Typical bubble radius
-        :param ubarf_in: rms fluid velocity $\bar{U}_f$
+        :param ubarf: rms fluid velocity $\bar{U}_f$
         """
         if g_star is None or np.isnan(g_star):
             raise ValueError(f"Invalid g_star={g_star}")
@@ -68,18 +68,18 @@ class PowerSpectrum(abc.ABC):
 
         self.alpha: float
         self.ubarf: float
-        if (vw is not None) and (alpha is not None) and (ubarf_in is None):
+        if (vw is not None) and (alpha is not None) and (ubarf is None):
             self.alpha = alpha
-            self.ubarf = ubarf(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
-        elif (vw is not None) and (alpha is None) and (ubarf_in is not None):
+            self.ubarf = ubarf_func(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
+        elif (vw is not None) and (alpha is None) and (ubarf is not None):
             try:
-                self.alpha = alpha_n_from_ubarf(v_wall=vw, ubarf=ubarf_in, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
+                self.alpha = alpha_n_from_ubarf(v_wall=vw, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
             except ValueError:
                 self.alpha = np.nan
-            self.ubarf = ubarf_in
-        elif (vw is None) and (alpha is not None) and (ubarf_in is not None):
+            self.ubarf = ubarf
+        elif (vw is None) and (alpha is not None) and (ubarf is not None):
             self.alpha = alpha
-            self.ubarf = ubarf_in
+            self.ubarf = ubarf
             # raise NotImplementedError(
             #     "Determining vw(alpha, ubarf) has not been implemented. "
             #     f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}"
@@ -87,7 +87,7 @@ class PowerSpectrum(abc.ABC):
         else:
             raise ValueError(
                 "Exactly two of vw, alpha, ubarf_in must be set. "
-                f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}.")
+                f"Got vw={vw}, alpha={alpha}, ubarf={ubarf}.")
 
         #: Hubble-scaled mean bubble spacing $r_*$
         self.r_star: float
@@ -97,10 +97,10 @@ class PowerSpectrum(abc.ABC):
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
             self.beta_over_H = beta_over_H
             # Using beta_over_H instead of beta to compute R_star gives r_star.
-            self.r_star = R_star(beta=beta_over_H, v_wall=self.vw)
+            self.r_star = R_star(beta=beta_over_H, v_wall=self.vw, cs=cs)
         elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             # Using r_star instead of R_star to compute beta gives beta_over_H.
-            self.beta_over_H = beta(R_star=r_star, v_wall=self.vw)
+            self.beta_over_H = beta(R_star=r_star, v_wall=self.vw, cs=cs)
             self.r_star = r_star
         else:
             raise ValueError(

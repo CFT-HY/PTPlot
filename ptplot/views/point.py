@@ -44,7 +44,7 @@ def model_point_snr(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     fig = snr_figure_ubarf_rstar(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
-        vws=point.vw_value,
+        v_wall_snr=point.vw_value,
         alphas=point.alpha,
         beta_over_Hs=point.beta_over_H,
         labels=point.short_label,
@@ -69,7 +69,7 @@ def model_point_snr_alphabeta(request: HttpRequest, model_id: int, point_id: int
     fig = snr_figure_alpha_beta(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
-        v_wall=point.vw_value,
+        v_wall_snr=point.vw_value,
         alphas=point.alpha,
         beta_over_Hs=point.beta_over_H,
         labels=point.short_label,

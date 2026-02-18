@@ -46,13 +46,13 @@ class ScienceTest(TestCase):
         req.main(print_points=False)
 
     def test_snr_alpha_beta_image(self):
-        snr_figure_alpha_beta(v_wall=0.3)
+        snr_figure_alpha_beta(v_wall_snr=0.3)
 
     # def test_snr_curve(self):
     #     snr_pre.get_SNRcurve()
 
     def test_snr_ubarf(self):
-        snr_figure_ubarf_rstar()
+        snr_figure_ubarf_rstar(v_wall_snr=0.3)
 
     # def test_stock_bkg_compute_snr(self):
     #     snr.StockBkg_ComputeSNR()

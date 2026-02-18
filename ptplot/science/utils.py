@@ -65,3 +65,25 @@ def R_star(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const
     """
     # Todo: Use the PTtools function when it's available.
     return (8 * np.pi)**(1/3) * np.maximum(v_wall, cs) / beta
+
+
+def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr1D:
+    """Get a logarithmic range that covers the values in x, but is not smaller than the default range."""
+    if np.isscalar(x):
+        x_min = x_max = x
+    elif isinstance(x, list):
+        x_min = np.min([np.min(sub_x) for sub_x in x])
+        x_max = np.max([np.max(sub_x) for sub_x in x])
+    else:
+        x_min = np.min(x)
+        x_max = np.max(x)
+
+    return np.logspace(
+            min(np.log10(x_min), np.log10(default[0])),
+            max(np.log10(x_max), np.log10(default[-1])),
+            default.size) \
+        if x_min < default[0] or x_max > default[-1] \
+        else default
+
+# def xy_log_ranges(x: th.FloatArr1D, y: th.FloatArr1D, x_range_default: th.FloatArr1D, y_range_default: th.FloatArr1D):
+#     return log_range(x, x_range_default), log_range(y, y_range_default)

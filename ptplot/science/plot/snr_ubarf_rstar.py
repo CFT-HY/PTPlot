@@ -20,88 +20,79 @@ from ptplot.science import const
 from ptplot.science.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import fig_to_svg
-from ptplot.science.espinosa import ubarf
+from ptplot.science.espinosa import ubarf as ubarf_func
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.plot.snr import snr_figure
-from ptplot.science.snr_grid import snr_grid
+from ptplot.science.snr_grid import snr_grid_ubarf_rstar
 import ptplot.science.type_hints as th
-from ptplot.science.utils import atleast_2d, R_star
-
-LOCS_TSH = np.array([(-1.8,-3.5), (-1.8,-2.5), (-1.8,-1.8), (-1.8,-0.5)])
-TICKPOS_HUGE_ALPHA = np.array([-2, -1, 0, 1, 2, 3])
+from ptplot.science.utils import atleast_2d, R_star, log_range
 
 
 def snr_figure_ubarf_rstar(
-        # Todo: Why are some of these defaults different to the ones in const.py?
-        vws: th.FloatOrArrOrListOfArr1D = 0.5,
+        # Todo: Why are some of these defaults different than the ones in const.py?
+        v_wall_snr: float,
+        v_walls: th.FloatOrArrOrListOfArr1D = None,
         alphas: th.FloatOrArrOrListOfArr1D = const.DEFAULT_ALPHA,
         beta_over_Hs: th.FloatOrArrOrListOfArr1D = 100,
         T_star: float = 100,
         g_star: float = const.DEFAULT_G_STAR,
+        cs: float = const.CS0,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         huge_alpha: bool = False,
         engine: Engine = Engine.DEFAULT) -> Figure:
-    r"""Produce the $\bar{U}_f-R_*$ plot
+    r"""Produce the $(\bar{U}_f, r_*)$ plot
 
-    :param vws: Wall velocities $v_\text{wall}$[scenario, point]
+    :param v_wall_snr: Wall velocity used for the SNR curves
+    :param v_walls: Wall velocities $v_\text{wall}$[scenario, point]
     :param alphas: Phase transition strengths $\alpha$[scenario, point]
     :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$[scenario, point]
     :param T_star: Transition temperature $T_*$
     :param g_star: Degrees of freedom $g_*$
+    :param cs: Sound speed $c_s$
     :param adiabatic_ratio: Adiabatic index $\Gamma$
     :param labels: Labels for [scenario, point]
     :param titles: Titles for the scenarios
     :param mission_profile: Which sensitivity curve to use
     :param huge_alpha: Whether $\alpha$ is very large
-    :return: Figure of $\bar{U}_f-R_*$
+    :param engine: Which power spectrum engine to use
+    :return: SNR figure of $(\bar{U}_f, r_*)$
     """
-    if np.isscalar(vws):
-        v_wall = vws
-    elif np.isscalar(vws[0]):
-        v_wall = vws[0]
-    elif np.isscalar(vws[0][0]):
-        v_wall = vws[0][0]
-    else:
-        raise ValueError("vws must be scalar, 1D or 2D")
+    if v_walls is None:
+        v_walls = v_wall_snr
 
-    # if np.isscalar(alphas):
-    #     alpha = alphas
-    # elif np.isscalar(alphas[0]):
-    #     alpha = alphas[0]
-    # elif np.isscalar(alphas[0][0]):
-    #     alpha = alphas[0][0]
-    # else:
-    #     raise ValueError("alphas must be scalar, 1D or 2D")
-
-    tshHn, snr, log10HnRstar, log10Ubarf = snr_grid(
-        v_wall=v_wall,
+    snr, shock_times, ubarf, r_star = snr_grid_ubarf_rstar(
+        v_wall=v_wall_snr,
         T_star=T_star,
         g_star=g_star,
-        # alpha=alpha,
         mission_profile=mission_profile,
-        ubarf_max=1000 if huge_alpha else 1,
+        ubarf=np.logspace(const.DEFAULT_UBARF_RANGE[0], 1000, const.DEFAULT_UBARF_RANGE.size)
+            if huge_alpha else const.DEFAULT_UBARF_RANGE,
         engine=engine
     )
+    log10_ubarf = np.log10(ubarf)
+    log10_r_star = np.log10(r_star)
+    ubarf_mid = (log10_ubarf[0] + log10_ubarf[-1]) / 2
     fig, ax = snr_figure(
-        x=log10Ubarf,
-        y=log10HnRstar,
+        x=np.log10(ubarf),
+        y=np.log10(r_star),
         xlabel=r"$\overline{U}_{\rm f}$",
-        ylabel=r"$H_{\rm n} R_* $",
+        ylabel=r"$H_{\rm n} R_*$",
         titles=titles,
         snr=snr,
-        tshHn=tshHn,
-        locs_tsh=LOCS_TSH,
+        shock_times=shock_times,
+        shock_label_locs=np.array([
+            (ubarf_mid + 0.2 - 0.2 * i, y)
+            for i, y in enumerate(range(int(log10_r_star[0]), int(log10_r_star[-1]) + 1))
+        ]),
         label_wanted_y=-2.5,
         huge_alpha=huge_alpha,
-        xtickpos=TICKPOS_HUGE_ALPHA if huge_alpha else None,
-        xticklabels=[r"$10^{-2}$", r"$10^{-1}$", r"$1$", r"$10$", r"$10^2$", r"$10^3$"] if huge_alpha else None
     )
 
     # Ensure that input values are 2D arrays
-    vws, alphas, beta_over_Hs = atleast_2d(vws, alphas, beta_over_Hs)
+    v_walls, alphas, beta_over_Hs = atleast_2d(v_walls, alphas, beta_over_Hs)
     if labels:
         if isinstance(labels, str):
             labels = [[labels]]
@@ -109,9 +100,9 @@ def snr_figure_ubarf_rstar(
             labels = [labels]
 
     # Iterate over scenarios
-    for i, (vw_set, BetaoverH_set, alpha_set) in enumerate(zip(vws, beta_over_Hs, alphas)):
+    for i, (vw_set, BetaoverH_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
         log10_ubarfs = [
-            np.log10(ubarf(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio))
+            np.log10(ubarf_func(v_wall=vw, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
             for vw, alpha in zip(vw_set, alpha_set)
         ]
         log10_R_stars = np.log10(R_star(BetaoverH_set, vw_set, cs=const.CS0))
@@ -159,7 +150,7 @@ def main():
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = snr_figure_ubarf_rstar(
-        vws=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
+        v_wall=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
         T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))

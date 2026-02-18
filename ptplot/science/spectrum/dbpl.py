@@ -19,20 +19,23 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
     def __init__(
             self,
-            beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             vw: float | None = None,
+            alpha: float | None = None,
+            beta_over_H: float | None = None,
+            ubarf: float | None = None,
+            r_star: float | None = None,
+            cs: float = const.CS0,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float | None = None,
-            ubarf_in: float | None = None,
             zb: float = 1.):
         super().__init__(
-            beta_over_H=beta_over_H, T_star=T_star, vw=vw, alpha=alpha,
-            r_star=r_star, g_star=g_star, adiabatic_ratio=adiabatic_ratio, ubarf_in=ubarf_in, zp=zp
+            T_star=T_star, g_star=g_star, vw=vw,
+            alpha=alpha, beta_over_H=beta_over_H,
+            ubarf=ubarf, r_star=r_star,
+            cs=cs, adiabatic_ratio=adiabatic_ratio, zp=zp, k_turb=k_turb
         )
         self.zb: float = zb
 

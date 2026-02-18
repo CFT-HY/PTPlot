@@ -14,6 +14,7 @@ class PowerSpectrumBPL(PowerSpectrum):
     r"""Broken power law (BPL) power spectrum
 
     Based on :hindmarsh_2017:`\ ` and `hindmarsh_2017_erratum:`\ `.
+    Original design by Mark Hindmarsh (Sep 2015).
 
     Also contains functions for turbulence.
     However, in later papers the contribution from turbulence is neglected,

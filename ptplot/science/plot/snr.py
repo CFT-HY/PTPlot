@@ -1,6 +1,7 @@
 """Utilities that are common to various SNR plotting functions"""
 
-import time
+import math
+# import time
 
 from matplotlib import cm, rc_context
 from matplotlib.axes import Axes
@@ -23,12 +24,12 @@ def snr_figure(
         xlabel: str,
         ylabel: str,
         titles: th.StrOrList,
-        snr: th.FloatArr1D,
-        tshHn: th.FloatArr1D,
-        locs_tsh: th.FloatArr1D,
+        snr: th.FloatArr2D,
+        shock_times: th.FloatArr2D,
         label_wanted_y: float,
         huge_alpha: bool = False,
-        locs: th.FloatArr1D | None = None,
+        snr_label_locs: th.FloatArr1D | None = None,
+        shock_label_locs: th.FloatArr2D | None = None,
         levels: th.FloatArr1D = LEVELS,
         levels_tsh: th.FloatArr1D = LEVELS_TSH,
         levels_tsh_huge_alpha: th.FloatArr1D = LEVELS_TSH_HUGE_ALPHA,
@@ -38,12 +39,15 @@ def snr_figure(
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
         contour_label_fontsize: int = 8) -> tuple[Figure, Axes]:
-    """Common code for creating SNR figures"""
+    """Common code for creating SNR figures
+
+    The x and y axes are linear instead of logarithmic so that the contour plot is created correctly.
+    """
     with rc_context(const.DEFAULT_RC_CONTEXT):
-        x_min = np.min(x)
-        x_max = np.max(x)
-        y_min = np.min(y)
-        y_max = np.max(y)
+        x_min: float = np.min(x)
+        x_max: float = np.max(x)
+        y_min: float = np.min(y)
+        y_max: float = np.max(y)
 
         fig = Figure()
         ax = fig.add_subplot(111)
@@ -54,29 +58,32 @@ def snr_figure(
             linewidths=1, colors=COLOR_TUPLE, extent=extent
         )
         CStsh = ax.contour(
-            x, y, tshHn, levels_tsh,
+            x, y, shock_times, levels_tsh,
             linewidths=1, linestyles="dashed", colors="k", extent=extent
         )
 
         if huge_alpha:
             ax.contour(
-                x, y, tshHn, levels_tsh_huge_alpha,
+                x, y, shock_times, levels_tsh_huge_alpha,
                 linewidths=1, linestyles="dashed", colors="k", extent=extent
             )
 
         # CSturb
         ax.contourf(
-            x, y, tshHn, [0.0001, 1],
+            x, y, shock_times, [0.0001, 1],
             colors="white", alpha=0.2, hatches="x", extent=extent
         )
 
-        if locs is None:
-            locs = [
+        if snr_label_locs is None:
+            snr_label_locs = [
                 find_label_place(x=x, y=y, snr=snr, wanted_y=label_wanted_y, wanted_contour=wanted_contour)
                 for wanted_contour in levels
             ]
-        ax.clabel(CS, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=locs)
-        ax.clabel(CStsh, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=locs_tsh)
+        if shock_label_locs is None:
+            locs_tsh_x = (x_max + x_min) / 2
+            shock_label_locs = [(locs_tsh_x, y) for y in range(int(y_min), int(y_max) + 1)]
+        ax.clabel(CS, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
+        ax.clabel(CStsh, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
         # ax.set_title(r"SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs")
         # ax.set_xlabel(r"$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $",fontsize=16)
 
@@ -99,5 +106,5 @@ def snr_figure(
             xtickpos=xtickpos, ytickpos=ytickpos,
             xticklabels=xticklabels, yticklabels=yticklabels
         )
-        add_text(fig, time.asctime())
+        # add_text(fig, time.asctime())
         return fig, ax

@@ -62,18 +62,19 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
             vws.append(np.array([model.vw if point.vw is None else point.vw for point in points]))
             alphas.append(np.array([point.alpha for point in points]))
             beta_over_Hs.append(np.array([point.beta_over_H for point in points]))
-            labels.append(np.array([point.short_label for point in points]))
+            labels.append([point.short_label for point in points])
             titles.append(scenario.name)
     else:
         points = model.points.all()
-        vws = np.full(len(points), model.vw)
+        vws = np.array([model.vw if point.vw is None else point.vw for point in points])
         alphas = np.array([point.alpha for point in points])
         beta_over_Hs = np.array([point.beta_over_H for point in points])
         labels = [point.short_label for point in points]
         titles = model.name
 
     fig = snr_figure_ubarf_rstar(
-        vws=vws,
+        v_wall_snr=model.vw,
+        v_walls=vws,
         alphas=alphas,
         beta_over_Hs=beta_over_Hs,
         T_star=model.T_star,
@@ -119,7 +120,7 @@ def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
         titles = model.name
 
     fig = snr_figure_alpha_beta(
-        v_wall=model.vw,
+        v_wall_snr=model.vw,
         alphas=alphas,
         beta_over_Hs=beta_over_Hs,
         T_star=model.T_star,

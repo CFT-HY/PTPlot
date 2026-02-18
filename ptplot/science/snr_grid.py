@@ -9,93 +9,150 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015)
 """
 
-import math
 import os
 import sys
 
 import numpy as np
+from pttools.omgw0 import signal_to_noise_ratio
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const
-from ptplot.science.snr import stock_bkg_compute_snr
 from ptplot.science.engine import Engine
-# from ptplot.science.espinosa import alpha_n_from_ubarf
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.mission_profile import MissionProfile
 import ptplot.science.type_hints as th
 
 
-def snr_grid(
-        v_wall: float,
+def snr_grid_alpha_beta(
         T_star: float,
         g_star: float,
+        v_wall: float,
         mission_profile: MissionProfile,
-        alpha: th.FloatArr1D | None = None,
-        ubarf_max: float = 1,
-        n_ubarf: int = 51,
-        n_r_star: int = 51,
-        cs: float = const.CS0,
+        alpha_n: th.FloatArr1D = const.DEFAULT_ALPHA_N_RANGE,
+        beta_over_H: th.FloatArr1D = const.DEFAULT_BETA_OVER_H_RANGE,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        engine: Engine = Engine.DEFAULT) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
-    """Calculate the SNR curves for the plots
+        engine: Engine = Engine.DEFAULT,
+        f_min: float = const.DEFAULT_SNR_F_MIN,
+        f_max: float = const.DEFAULT_SNR_F_MAX) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
+    r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
     :param T_star: Temperature $T_*$ at which the GWs were produced
     :param g_star: Degrees of freedom $g_*$
     :param mission_profile: Which sensitivity curve to use
-    :param alpha: Phase transition strength $\alpha$ for each $\bar{U}_f$.
-      If None, it will be calculated from $\bar{U}_f$.
-    :param ubarf_max: Maximum RMS fluid velocity $\bar{U}_f$
-    :return: tshHn (shock times, 2D array),
-      snr (SNR values, 2D array),
-      log10_r_star (Scanned values of log10(r_star),
-      log10_ubarf (scanned values of log10(ubarf)
+    :param alpha_n: Range of $\alpha_n$ values
+    :param beta_over_H: Range of $\beta/H$ values
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param engine: Which power spectrum engine to use
+    :param f_min: Minimum frequency to consider for SNR calculation
+    :param f_max: Maximum frequency to consider for SNR calculation
+    :return: SNR values, shock times, ubarf, r_star
     """
+    if not np.isfinite(T_star):
+        raise ValueError(f"Invalid T_star={T_star}")
+    if not np.isfinite(g_star):
+        raise ValueError(f"Invalid g_star={g_star}")
+    if not np.isfinite(v_wall):
+        raise ValueError(f"Invalid v_wall={v_wall}")
+    if not np.isfinite(alpha_n).all():
+        raise ValueError(f"Invalid alpha_n={alpha_n}")
+    if not np.isfinite(beta_over_H).all():
+        raise ValueError(f"Invalid beta_over_H={beta_over_H}")
 
-    log10_ubarf = np.linspace(-2, math.log10(ubarf_max), n_ubarf)
-    log10_r_star = np.linspace(-4, 0.08, n_r_star)
+    snr = np.zeros((beta_over_H.size, alpha_n.size))
+    shock_times = np.zeros_like(snr)
 
-    # if alpha is None:
-        # alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=10.**log10_ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio)
-
-    # Computation of SNR map as a function of GW amplitude and peak frequency
-    snr_values = np.zeros((len(log10_r_star), len(log10_ubarf)))
-    tshHn = np.zeros_like(snr_values)
-
-    for i in range(len(log10_r_star)):
-        for j in range(len(log10_ubarf)):
+    for i in range(beta_over_H.size):
+        for j in range(alpha_n.size):
             try:
                 spectrum = power_spectrum(
                     T_star=T_star,
                     g_star=g_star,
                     vw=v_wall,
-                    # alpha=alpha[j],
-                    r_star=10.**log10_r_star[i],
-                    ubarf_in=10.**log10_ubarf[j],
+                    alpha=alpha_n[j],
+                    beta_over_H=beta_over_H[i],
+                    adiabatic_ratio = adiabatic_ratio,
                     engine=engine
                 )
             except (RuntimeError, ValueError):
-                tshHn[i, j] = np.nan
-                snr_values[i, j] = np.nan
+                snr[i, j] = np.nan
+                shock_times[i, j] = np.nan
                 continue
 
-            # Get shocktime (H_tsh = r_star/ubarf)
-            tshHn[i, j] = spectrum.shock_time
-
-            snr_values[i, j], f_range = stock_bkg_compute_snr(
-                sens_freq=mission_profile.f,
-                sens_omega=mission_profile.sensitivity,
-                gw_freq=mission_profile.f,
-                gw_omega=spectrum.power_spectrum(mission_profile.f),
+            shock_times[i, j] = spectrum.shock_time
+            snr[i, j] = signal_to_noise_ratio(
+                f=mission_profile.f,
+                signal=spectrum.power_spectrum(mission_profile.f),
+                f_noise=mission_profile.f,
+                noise=mission_profile.sensitivity,
                 obs_time=mission_profile.duration_seconds,
-                f_min=1.e-6,
-                f_max=1.
+                f_min=f_min,
+                f_max=f_max
             )
 
-    return tshHn, snr_values, log10_r_star, log10_ubarf
+    return snr, shock_times, alpha_n, beta_over_H
+
+
+def snr_grid_ubarf_rstar(
+        v_wall: float,
+        T_star: float,
+        g_star: float,
+        mission_profile: MissionProfile,
+        ubarf: th.FloatArr1D = const.DEFAULT_UBARF_RANGE,
+        r_star: th.FloatArr1D = const.DEFAULT_R_STAR_RANGE,
+        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        engine: Engine = Engine.DEFAULT,
+        f_min: float = const.DEFAULT_SNR_F_MIN,
+        f_max: float = const.DEFAULT_SNR_F_MAX) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
+    r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points
+
+    :param v_wall: Wall velocity $v_\text{wall}$
+    :param T_star: Temperature $T_*$ at which the GWs were produced
+    :param g_star: Degrees of freedom $g_*$
+    :param mission_profile: Which sensitivity curve to use
+    :param ubarf: Range of $\bar{U}_f$ values
+    :param r_star: Range of $r_*$ values
+    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param engine: Which power spectrum engine to use
+    :param f_min: Minimum frequency to consider for SNR calculation
+    :param f_max: Maximum frequency to consider for SNR calculation
+    :return: SNR values, shock times, ubarf, r_star
+    """
+    snr = np.zeros((r_star.size, ubarf.size))
+    shock_times = np.zeros_like(snr)
+
+    for i in range(r_star.size):
+        for j in range(ubarf.size):
+            # try:
+            spectrum = power_spectrum(
+                T_star=T_star,
+                g_star=g_star,
+                vw=v_wall,
+                adiabatic_ratio=adiabatic_ratio,
+                r_star=r_star[i],
+                ubarf=ubarf[j],
+                engine=engine
+            )
+            # except (RuntimeError, ValueError):
+            #     shock_times[i, j] = np.nan
+            #     snr[i, j] = np.nan
+            #     continue
+
+            shock_times[i, j] = spectrum.shock_time
+            snr[i, j] = signal_to_noise_ratio(
+                f=mission_profile.f,
+                signal=spectrum.power_spectrum(mission_profile.f),
+                f_noise=mission_profile.f,
+                noise=mission_profile.sensitivity,
+                obs_time=mission_profile.duration_seconds,
+                f_min=f_min,
+                f_max=f_max
+            )
+
+    return snr, shock_times, ubarf, r_star
 
 
 def main():
@@ -107,7 +164,7 @@ def main():
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
-    tshHn, snr, log10_r_star, log10_ubarf = snr_grid(
+    tshHn, snr, log10_r_star, log10_ubarf = snr_grid_ubarf_rstar(
         v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, ubarf_max=1
     )
 

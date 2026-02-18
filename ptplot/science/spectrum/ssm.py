@@ -34,7 +34,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
-            ubarf_in: float | None = None,
+            ubarf: float | None = None,
             model: Model = bag):
         super().__init__(
             beta_over_H=beta_over_H,
@@ -46,7 +46,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             alpha=alpha,
             k_turb=k_turb,
             r_star=r_star,
-            ubarf_in=ubarf_in,
+            ubarf=ubarf,
         )
         if self.vw is None or np.isnan(vw):
             raise ValueError(f"Sound Shell Model requires vw to be set. Got vw={vw}.")
