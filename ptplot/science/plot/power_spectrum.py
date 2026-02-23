@@ -5,7 +5,6 @@
 import math
 import os.path
 import sys
-import time
 
 from matplotlib import rc_context
 from matplotlib.figure import Figure
@@ -17,7 +16,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science import const
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot.utils import add_text, fig_to_svg
+from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
 from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
@@ -55,7 +54,7 @@ def ps_figure(
         # "legend.fontsize": 14
 
         fig = Figure()
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot()
 
         ax.fill_between(mission_profile.f, mission_profile.sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
 
@@ -95,7 +94,7 @@ def ps_figure(
         #          fontsize=50, color="gray",
         #          ha="right", va="bottom", alpha=0.4)
 
-        add_text(fig, r"%s [$\mathrm{SNR}_\mathrm{sw} = %g$]" % (time.asctime(), snr_value))
+        add_text(fig, watermark())
     return fig
 
 

@@ -1,26 +1,15 @@
 """Basic views"""
 
 import logging
-import os
 
 from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render
-import dulwich.porcelain
-from dulwich.repo import Repo
 
 from ptplot.forms import PTPlotForm
 from ptplot.science.spectrum.create import power_spectrum
+from ptplot.science.utils import GIT_DESCRIPTION, HAVE_GITVER
 
 logger = logging.getLogger(__name__)
-GIT_DESCRIPTION: str = "unknown"
-HAVE_GITVER: bool = False
-
-try:
-     THIS_FILE_DIR = os.path.realpath(os.path.dirname(__file__))
-     GIT_DESCRIPTION = dulwich.porcelain.describe(Repo.discover(THIS_FILE_DIR))
-     HAVE_GITVER = True
-except dulwich.errors.NotGitRepository as err:
-     logger.exception("Could not load git repository info.", exc_info=err)
 
 
 def csv(request: HttpRequest) -> HttpResponse:
@@ -46,6 +35,7 @@ def csv(request: HttpRequest) -> HttpResponse:
 
 
 def index(request: HttpRequest) -> HttpResponse:
+    """Index page"""
     return render(
         request,
         "index.html",

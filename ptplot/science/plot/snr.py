@@ -1,15 +1,12 @@
 """Utilities that are common to various SNR plotting functions"""
 
-import math
-# import time
-
 from matplotlib import cm, rc_context
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.plot.utils import add_text, add_ticks, find_label_place
+from ptplot.science.plot.utils import add_text, add_ticks, find_label_place, watermark
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))
@@ -50,7 +47,7 @@ def snr_figure(
         y_max: float = np.max(y)
 
         fig = Figure()
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot()
 
         extent = (x[0], x[-1], y[0], y[-1])
         CS = ax.contour(
@@ -106,5 +103,5 @@ def snr_figure(
             xtickpos=xtickpos, ytickpos=ytickpos,
             xticklabels=xticklabels, yticklabels=yticklabels
         )
-        # add_text(fig, time.asctime())
+        add_text(fig, watermark())
         return fig, ax

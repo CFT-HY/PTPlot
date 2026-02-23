@@ -1,5 +1,6 @@
 """Plotting utilities"""
 
+from datetime import datetime
 import io
 import math
 
@@ -9,6 +10,7 @@ from matplotlib.text import Text
 import numpy as np
 
 import ptplot.science.type_hints as th
+from ptplot.science.utils import GIT_DESCRIPTION
 
 
 def add_text(
@@ -85,3 +87,7 @@ def make_minor_ticks(min: int, max: int) -> np.ndarray:
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
         for i in range(min, max)
     ])
+
+
+def watermark() -> str:
+    return f"PTPlot {GIT_DESCRIPTION}, {datetime.now().isoformat(sep=" ", timespec="seconds")}"

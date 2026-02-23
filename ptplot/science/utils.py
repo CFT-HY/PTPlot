@@ -1,9 +1,27 @@
 """Utilities for PTPlot science module"""
 
+import logging
+import os
+
+from dulwich.errors import NotGitRepository
+from dulwich.porcelain import describe
+from dulwich.repo import Repo
 import numpy as np
 
 from ptplot.science import const
 import ptplot.science.type_hints as th
+
+
+logger = logging.getLogger(__name__)
+
+GIT_DESCRIPTION: str = "unknown"
+HAVE_GITVER: bool = False
+
+try:
+    GIT_DESCRIPTION = describe(Repo.discover(os.path.realpath(os.path.dirname(__file__))))
+    HAVE_GITVER = True
+except NotGitRepository as err:
+    logger.exception("Could not load git repository info.", exc_info=err)
 
 
 def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list[np.ndarray]]:
