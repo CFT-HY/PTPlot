@@ -11,6 +11,7 @@ from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def ps_image(request: HttpRequest) -> HttpResponse:
+    """Power spectrum plot with sensitivity curve"""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -33,7 +34,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     return fig_to_response(fig)
 
 
-def snr_image(request: HttpRequest) -> HttpResponse:
+def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -54,7 +55,7 @@ def snr_image(request: HttpRequest) -> HttpResponse:
     return fig_to_response(fig)
 
 
-def snr_alphabeta_image(request: HttpRequest) -> HttpResponse:
+def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 

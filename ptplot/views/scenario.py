@@ -31,7 +31,7 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
     )
 
 
-def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -64,7 +64,7 @@ def model_scenario_snr(request: HttpRequest, model_id: int, scenario_id: int) ->
     return fig_to_response(fig)
 
 
-def model_scenario_snr_alphabeta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],

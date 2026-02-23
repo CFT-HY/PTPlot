@@ -11,6 +11,7 @@ from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
+    """Plot many points - manual input"""
     if request.method == "POST":
         form = MultipleForm(request.POST)
 
@@ -60,7 +61,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
     return render(request, "multiple.html", {"form": MultipleForm()})
 
 
-def parameterchoice_form(request: HttpRequest) -> HttpResponse:
+def parameter_choice_form(request: HttpRequest) -> HttpResponse:
     model = get_object_or_404_related(Model, prefetch=["points"], id=1)
     form = ParameterChoiceForm()
     context = {
@@ -71,6 +72,7 @@ def parameterchoice_form(request: HttpRequest) -> HttpResponse:
 
 
 def single(request: HttpRequest) -> HttpResponse:
+    """Plot a single case - both query form and results"""
     if request.method == "GET":
         form = PTPlotForm(request.GET if request.GET else None)
         querystring = request.GET.urlencode()

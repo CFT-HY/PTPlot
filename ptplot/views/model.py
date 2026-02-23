@@ -12,10 +12,12 @@ from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def models(request: HttpRequest) -> HttpResponse:
+    """Display a list of models from database"""
     return render(request, "models.html", {"models": Model.objects.all()})
 
 
 def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
+    """Display a list of benchmark points for a model"""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["points", "scenarios"],
@@ -28,6 +30,7 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
+    """Display the benchmark points for a model on the SNR plots"""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["points", "scenarios"],
@@ -39,7 +42,7 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
     return render(request, "model_detail_plot.html", {"model": model, "form": form})
 
 
-def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
+def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios"],
@@ -88,7 +91,7 @@ def model_snr(request: HttpRequest, model_id: int) -> HttpResponse:
     return fig_to_response(fig)
 
 
-def model_snr_alphabeta(request: HttpRequest, model_id: int) -> HttpResponse:
+def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios"],
