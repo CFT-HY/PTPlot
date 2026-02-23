@@ -44,7 +44,7 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     fig = snr_figure_alpha_beta(
-        v_wall_snr=point.vw_value,
+        v_wall_snr=point.v_wall_value,
         T_star_snr=point.T_star_value,
         g_star_snr=point.g_star_value,
         alphas=point.alpha,
@@ -70,12 +70,12 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     fig = snr_figure_ubarf_rstar(
-        v_wall_snr=point.vw_value,
+        v_wall_snr=point.v_wall_value,
         T_star_snr=point.T_star_value,
         g_star_snr=point.g_star_value,
         alphas=point.alpha,
         beta_over_Hs=point.beta_over_H,
-        v_walls=point.vw_value,
+        v_walls=point.v_wall_value,
         labels=point.short_label,
         mission_profile=form.mission_profile,
         huge_alpha=point.model.huge_alpha,
@@ -98,7 +98,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     spectrum = power_spectrum(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
-        vw=point.vw_value,
+        v_wall=point.v_wall_value,
         alpha=point.alpha,
         beta_over_H=point.beta_over_H,
         engine=form.cleaned_data["engine"]
@@ -122,7 +122,7 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
     spectrum = power_spectrum(
         T_star=point.T_star_value,
         g_star=point.g_star_value,
-        vw=point.vw_value,
+        v_wall=point.v_wall_value,
         alpha=point.alpha,
         beta_over_H=point.beta_over_H,
         engine=form.cleaned_data["engine"]

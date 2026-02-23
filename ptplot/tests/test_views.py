@@ -73,7 +73,7 @@ class ViewTest(TestCase):
         super().setUpClass()
         PopulateCommand().handle()
         cls.form = PTPlotForm(data={
-            "vw": 0.3,
+            "v_wall": 0.3,
             "alpha": 0.1,
             "beta_over_H": 10000,
             "T_star": 100,

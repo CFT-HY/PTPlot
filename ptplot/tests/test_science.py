@@ -21,7 +21,7 @@ class ScienceTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.spectrum = PowerSpectrumBPL(vw=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H)
+        cls.spectrum = PowerSpectrumBPL(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H)
 
     def test_csv(self):
         self.spectrum.csv()
@@ -32,19 +32,19 @@ class ScienceTest(TestCase):
 
     @staticmethod
     def test_power_spectrum():
-        power_spectrum(vw=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H)
+        power_spectrum(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H)
 
     @staticmethod
     def test_power_spectrum_dbpl():
-        power_spectrum(vw=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.DBPL)
+        power_spectrum(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.DBPL)
 
     @staticmethod
     def test_power_spectrum_ssm():
-        power_spectrum(vw=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM)
+        power_spectrum(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM)
 
     @staticmethod
     def test_power_spectrum_ssm_const_cs():
-        power_spectrum(vw=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1/4, csb2=1/4)
+        power_spectrum(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1 / 4, csb2=1 / 4)
 
     def test_ps_image(self):
         ps_figure(self.spectrum, sw_only=False)
@@ -68,9 +68,9 @@ class ScienceTest(TestCase):
 
     @staticmethod
     def test_ubarf():
-        esp.ubarf(v_wall=0.7, alpha_n=0.1)
+        esp.ubarf(v_wall=V_WALL, alpha_n=ALPHA)
 
     @staticmethod
-    def test_ubarf_to_alpha(vw: float = 0.7):
-        ubarf = esp.ubarf(v_wall=0.7, alpha_n=0.1)
+    def test_ubarf_to_alpha():
+        ubarf = esp.ubarf(v_wall=V_WALL, alpha_n=ALPHA)
         esp.alpha_n_from_ubarf(ubarf, ubarf=ubarf)

@@ -40,7 +40,7 @@ class BenchmarkForm(forms.Form):
 
 
 class PTPlotForm(forms.Form):
-    vw = VWField()
+    v_wall = VWallField()
     alpha = AlphaField()
     beta_over_H = BetaOverHField()
     T_star = TStarField()
@@ -64,7 +64,7 @@ class PTPlotForm(forms.Form):
 
 
 class MultipleForm(forms.Form):
-    vw = VWField()
+    vw = VWallField()
     T_star = TStarField()
     g_star = GStarField()
     mission_profile_ind = MissionProfileField()
@@ -90,7 +90,7 @@ class ParameterChoiceForm(forms.Form):
 
             # self.precomputed_choices = [(i, r"$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$" % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
 
-            self.vw = VWField
+            self.v_wall = VWallField
             # tstar = TStarField()
             self.alpha = AlphaField()
             self.beta_over_H = BetaOverHField()

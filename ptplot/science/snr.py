@@ -26,7 +26,7 @@ def snr_point(
         spectrum = power_spectrum(
             T_star=T_star,
             g_star=g_star,
-            vw=v_wall,
+            v_wall=v_wall,
             adiabatic_ratio=adiabatic_ratio,
             engine=engine,
             **kwargs

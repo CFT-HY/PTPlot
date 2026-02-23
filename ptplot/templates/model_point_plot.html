@@ -16,8 +16,8 @@
   $\alpha_\theta = {{point.alpha|floatformat:"-4"}}$;
   $\beta/H_* = {{point.beta_over_H|floatformat:"0"}}$;
 
-  {% if point.vw %}
-    $v_\mathrm{w} = {{ point.vw }}$;
+  {% if point.v_wall %}
+    $v_\mathrm{w} = {{ point.v_wall }}$;
   {% endif %}
   {% if point.g_star %}
     $g_* = {{ point.g_star }}$;
@@ -29,8 +29,8 @@
 
 <p>
   And the following general parameters:
-  {% if not point.vw %}
-    $v_\mathrm{w} = {{ point.model.vw }};
+  {% if not point.v_wall %}
+    $v_\mathrm{w} = {{ point.model.v_wall }};
   {% endif %}$
   {% if not point.T_star %}
     $T_* = {{ point.model.T_star }} \, \mathrm{GeV}$;

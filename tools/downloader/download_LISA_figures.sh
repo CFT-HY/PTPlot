@@ -100,7 +100,7 @@ handleplot 10 singlet
 # $DEST/single_${type}_cleaned.svg (same but with watermark removed)
 # $DEST/single_${type}.pdf (same but as PDF)
 handlesingle () {
-    vw=0.9
+    v_wall=0.9
     alpha=0.1
     BetaoverH=50
     MissionProfile=0
@@ -111,8 +111,8 @@ handlesingle () {
 
     echo -n "Processing single point plot type $type... "
 
-    # echo "curl -s $HOST/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg"
-    curl -s $HOST/ptplot/${type}.svg?vw=$vw\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg
+    # echo "curl -s $HOST/ptplot/${type}.svg?v_wall=$v_wall\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg"
+    curl -s $HOST/ptplot/${type}.svg?v_wall=$v_wall\&alpha=$alpha\&BetaoverH=$BetaoverH\&MissionProfile=$MissionProfile\&Tstar=$Tstar\&gstar=$gstar > $DEST/single_${type}.svg
     $PYTHON $CLEANER $DEST/single_${type}.svg $DEST/single_${type}_cleaned.svg
 
     # As in handleplot(), inkscape needs an absolute directory path

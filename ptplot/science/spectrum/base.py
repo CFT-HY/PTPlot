@@ -26,7 +26,7 @@ class PowerSpectrum(abc.ABC):
             self,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float | None = None,
+            v_wall: float | None = None,
             alpha: float | None = None,
             beta_over_H: float | None = None,
             ubarf: float | None = None,
@@ -39,7 +39,7 @@ class PowerSpectrum(abc.ABC):
         :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
         :param T_star: Transition temperature $T_*$
         :param g_star: Degrees of freedom $g_*$
-        :param vw: Wall velocity $v_\text{wall}$
+        :param v_wall: Wall velocity $v_\text{wall}$
         :param adiabatic_ratio: Adiabatic index $\Gamma$
         :param zp: Peak angular frequency in units of the mean bubble separation, $z_p$
         :param alpha: Phase transition strength $\alpha$
@@ -60,7 +60,7 @@ class PowerSpectrum(abc.ABC):
         self.zp: float = zp
 
         # Parameters that may be set
-        self.vw: float | None = vw
+        self.v_wall: float | None = v_wall
 
         # -----
         # Computed parameters
@@ -68,26 +68,26 @@ class PowerSpectrum(abc.ABC):
 
         self.alpha: float
         self.ubarf: float
-        if (vw is not None) and (alpha is not None) and (ubarf is None):
+        if (v_wall is not None) and (alpha is not None) and (ubarf is None):
             self.alpha = alpha
-            self.ubarf = ubarf_func(v_wall=vw, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
-        elif (vw is not None) and (alpha is None) and (ubarf is not None):
+            self.ubarf = ubarf_func(v_wall=v_wall, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
+        elif (v_wall is not None) and (alpha is None) and (ubarf is not None):
             try:
-                self.alpha = alpha_n_from_ubarf(v_wall=vw, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
+                self.alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
             except ValueError:
                 self.alpha = np.nan
             self.ubarf = ubarf
-        elif (vw is None) and (alpha is not None) and (ubarf is not None):
+        elif (v_wall is None) and (alpha is not None) and (ubarf is not None):
             self.alpha = alpha
             self.ubarf = ubarf
             # raise NotImplementedError(
-            #     "Determining vw(alpha, ubarf) has not been implemented. "
-            #     f"Got vw={vw}, alpha={alpha}, ubarf={ubarf_in}"
+            #     "Determining v_wall(alpha, ubarf) has not been implemented. "
+            #     f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf_in}"
             # )
         else:
             raise ValueError(
-                "Exactly two of vw, alpha, ubarf_in must be set. "
-                f"Got vw={vw}, alpha={alpha}, ubarf={ubarf}.")
+                "Exactly two of v_wall, alpha, ubarf_in must be set. "
+                f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
 
         #: Hubble-scaled mean bubble spacing $r_*$
         self.r_star: float
@@ -97,10 +97,10 @@ class PowerSpectrum(abc.ABC):
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
             self.beta_over_H = beta_over_H
             # Using beta_over_H instead of beta to compute R_star gives r_star.
-            self.r_star = R_star(beta=beta_over_H, v_wall=self.vw, cs=cs)
+            self.r_star = R_star(beta=beta_over_H, v_wall=self.v_wall, cs=cs)
         elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             # Using r_star instead of R_star to compute beta gives beta_over_H.
-            self.beta_over_H = beta(R_star=r_star, v_wall=self.vw, cs=cs)
+            self.beta_over_H = beta(R_star=r_star, v_wall=self.v_wall, cs=cs)
             self.r_star = r_star
         else:
             raise ValueError(

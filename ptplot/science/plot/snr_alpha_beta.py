@@ -143,8 +143,9 @@ def main():
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = snr_figure_alpha_beta(
-        v_wall=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
-        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
+        v_wall_snr=args.v_wall, T_star_snr=args.Tstar, g_star_snr=args.gstar,
+        alphas=args.alpha, beta_over_Hs=args.BetaoverH,
+        mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))
 

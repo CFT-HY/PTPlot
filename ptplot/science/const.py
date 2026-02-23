@@ -20,7 +20,7 @@ Please note that there is a typo in the original article: $0.12 \rightarrow 0.01
 DEFAULT_SNR_F_MIN: float = 1e-6
 DEFAULT_SNR_F_MAX: float = 1.
 DEFAULT_T_STAR: float = 180
-DEFAULT_VW: float = 0.9
+DEFAULT_V_WALL: float = 0.9
 
 DEFAULT_ZP: int = 10
 r"""
@@ -64,4 +64,4 @@ BETA_OVER_H_NAME: str = "inverse phase transition duration (β/H)"
 G_STAR_NAME: str = "degrees of freedom (g*)"
 HUGE_ALPHA_NAME: str = "huge α"
 T_STAR_NAME: str = "nucleation temperature (T*, GeV)"
-VW_NAME: str = "wall velocity (v_w)"
+V_WALL_NAME: str = "wall velocity (v_w)"

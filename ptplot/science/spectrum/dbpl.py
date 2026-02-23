@@ -21,7 +21,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             self,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float | None = None,
+            v_wall: float | None = None,
             alpha: float | None = None,
             beta_over_H: float | None = None,
             ubarf: float | None = None,
@@ -32,7 +32,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             zb: float = 1.):
         super().__init__(
-            T_star=T_star, g_star=g_star, vw=vw,
+            T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_over_H=beta_over_H,
             ubarf=ubarf, r_star=r_star,
             cs=cs, adiabatic_ratio=adiabatic_ratio, zp=zp, k_turb=k_turb

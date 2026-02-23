@@ -23,7 +23,7 @@ def csv(request: HttpRequest) -> HttpResponse:
     spectrum = power_spectrum(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
-        vw=form.cleaned_data["vw"],
+        v_wall=form.cleaned_data["v_wall"],
         alpha=form.cleaned_data["alpha"],
         beta_over_H=form.cleaned_data["beta_over_H"],
         engine=form.cleaned_data["engine"],

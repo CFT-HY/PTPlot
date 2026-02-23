@@ -22,7 +22,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     spectrum = power_spectrum(
         T_star=form.cleaned_data["T_star"],
         g_star=form.cleaned_data["g_star"],
-        vw=form.cleaned_data["vw"],
+        v_wall=form.cleaned_data["v_wall"],
         alpha=form.cleaned_data["alpha"],
         beta_over_H=form.cleaned_data["beta_over_H"],
         engine=form.cleaned_data["engine"]
@@ -44,7 +44,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     fig = snr_figure_alpha_beta(
-        v_wall_snr=form.cleaned_data["vw"],
+        v_wall_snr=form.cleaned_data["v_wall"],
         T_star_snr=form.cleaned_data["T_star"],
         g_star_snr=form.cleaned_data["g_star"],
         alphas=form.cleaned_data["alpha"],
@@ -65,10 +65,10 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     fig = snr_figure_ubarf_rstar(
-        v_wall_snr=form.cleaned_data["vw"],
+        v_wall_snr=form.cleaned_data["v_wall"],
         T_star_snr=form.cleaned_data["T_star"],
         g_star_snr=form.cleaned_data["g_star"],
-        v_walls=form.cleaned_data["vw"],
+        v_walls=form.cleaned_data["v_wall"],
         alphas=form.cleaned_data["alpha"],
         beta_over_Hs=form.cleaned_data["beta_over_H"],
         mission_profile=form.mission_profile,

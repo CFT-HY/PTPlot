@@ -46,7 +46,7 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
 
     data = scenario.point_data()
     fig = snr_figure_alpha_beta(
-        v_wall_snr=scenario.model.vw,
+        v_wall_snr=scenario.model.v_wall,
         T_star_snr=scenario.T_star_value,
         g_star_snr=scenario.model.g_star,
         alphas=data["alpha_n"].values,
@@ -75,7 +75,7 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
 
     data = scenario.point_data()
     fig = snr_figure_ubarf_rstar(
-        v_wall_snr=scenario.model.vw,
+        v_wall_snr=scenario.model.v_wall,
         T_star_snr=scenario.T_star_value,
         g_star_snr=scenario.model.g_star,
         v_walls=data["v_wall"].values,

@@ -102,12 +102,12 @@ def snr_figure_ubarf_rstar(
             labels = [labels]
 
     # Iterate over scenarios
-    for i, (vw_set, BetaoverH_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
+    for i, (v_wall_set, BetaoverH_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
         log10_ubarfs = [
-            np.log10(ubarf_func(v_wall=vw, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
-            for vw, alpha in zip(vw_set, alpha_set)
+            np.log10(ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
+            for v_wall, alpha in zip(v_wall_set, alpha_set)
         ]
-        log10_R_stars = np.log10(R_star(beta=BetaoverH_set, v_wall=vw_set, cs=const.CS0))
+        log10_R_stars = np.log10(R_star(beta=BetaoverH_set, v_wall=v_wall_set, cs=const.CS0))
 
         # Plot points
         ax.plot(log10_ubarfs, log10_R_stars, ".")
@@ -152,8 +152,9 @@ def main():
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     fig = snr_figure_ubarf_rstar(
-        v_wall=args.vw, alphas=args.alpha, beta_over_Hs=args.BetaoverH,
-        T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, engine=args.engine
+        v_wall_snr=args.v_wall, T_star_snr=args.Tstar, g_star_snr=args.gstar,
+        alphas=args.alpha, beta_over_Hs=args.BetaoverH, v_walls=args.v_wall,
+        mission_profile=mission_profile, engine=args.engine
     )
     print(fig_to_svg(fig).decode("utf-8"))
 

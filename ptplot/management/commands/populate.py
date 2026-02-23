@@ -35,7 +35,7 @@ class Command(BaseCommand):
         #         """),
         #     T_star=50,
         #     g_star=106.75,
-        #     vw=0.95,
+        #     v_wall=0.95,
         #     model_Senscurve=0,
         #     has_scenarios=False
         # )
@@ -117,7 +117,7 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
-            vw=0.7,
+            v_wall=0.7,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
@@ -210,7 +210,7 @@ class Command(BaseCommand):
         #         """),
         #     T_star=50,
         #     g_star=106.75,
-        #     vw=1.0,
+        #     v_wall=1.0,
         #     mission_profile=DEFAULT_MISSION_PROFILE,
         #     has_scenarios=False
         # )
@@ -252,7 +252,7 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
-            vw=1.0,
+            v_wall=1.0,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
@@ -290,7 +290,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=106.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
@@ -329,7 +329,7 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
@@ -373,7 +373,7 @@ class Command(BaseCommand):
                 """),
             T_star=500,
             g_star=130,
-            vw=1.0,
+            v_wall=1.0,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
@@ -473,7 +473,7 @@ class Command(BaseCommand):
                 """),
             T_star=150,
             g_star=106.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
@@ -555,7 +555,7 @@ class Command(BaseCommand):
             notes="",
             T_star=500,
             g_star=106.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
@@ -745,7 +745,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=106.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
@@ -826,7 +826,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=108.75,
-            vw=0.95,
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
@@ -906,7 +906,7 @@ class Command(BaseCommand):
             T_star=135,
             alpha=0.050,
             beta_over_H=830,
-            vw=0.73,
+            v_wall=0.73,
             scenario=susy_scenario_2
         )
         p2_A.save()
@@ -919,7 +919,7 @@ class Command(BaseCommand):
             T_star=146,
             alpha=0.040,
             beta_over_H=2914,
-            vw=0.72,
+            v_wall=0.72,
             scenario=susy_scenario_2
         )
         p2_B.save()
@@ -941,7 +941,7 @@ class Command(BaseCommand):
             T_star=74,
             alpha=0.062,
             beta_over_H=214,
-            vw=0.1,
+            v_wall=0.1,
             scenario=susy_scenario_3
         )
         p3_A.save()
@@ -954,7 +954,7 @@ class Command(BaseCommand):
             T_star=74,
             alpha=0.062,
             beta_over_H=214,
-            vw=0.5,
+            v_wall=0.5,
             scenario=susy_scenario_3
         )
         p3_B.save()
@@ -967,7 +967,7 @@ class Command(BaseCommand):
             T_star=79,
             alpha=0.045,
             beta_over_H=200,
-            vw=0.1,
+            v_wall=0.1,
             scenario=susy_scenario_3
         )
         p3_C.save()
@@ -980,7 +980,7 @@ class Command(BaseCommand):
             T_star=79,
             alpha=0.045,
             beta_over_H=200,
-            vw=0.5,
+            v_wall=0.5,
             scenario=susy_scenario_3
         )
         p3_D.save()
@@ -1002,7 +1002,7 @@ class Command(BaseCommand):
             T_star=48,
             alpha=0.22,
             beta_over_H=57,
-            vw=0.95,
+            v_wall=0.95,
             scenario=susy_scenario_4
         )
         p4_A.save()
@@ -1034,7 +1034,7 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=107.75,
-            vw=1.0,
+            v_wall=1.0,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )

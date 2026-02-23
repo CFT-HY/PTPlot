@@ -176,7 +176,7 @@ class TStarField(forms.FloatField):
         )
 
 
-class VWField(forms.FloatField):
+class VWallField(forms.FloatField):
     def __init__(
             self,
             label: str = r"Wall velocity $v_\mathrm{w}$",

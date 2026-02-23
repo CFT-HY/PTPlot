@@ -16,8 +16,8 @@ class ParameterChoice(models.Model):
     number = models.IntegerField()
     short_label = models.CharField(max_length=2)
     long_label = models.CharField(max_length=100)
-    vw = models.FloatField(
-        verbose_name=const.VW_NAME,
+    v_wall = models.FloatField(
+        verbose_name=const.V_WALL_NAME,
         validators=[
             validators.MinValueValidator(0),
             validators.MaxValueValidator(1)
@@ -63,8 +63,8 @@ class ParameterChoice(models.Model):
         return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
     @property
-    def vw_value(self) -> float:
-        return self.model.vw if self.vw is None else self.vw
+    def v_wall_value(self) -> float:
+        return self.model.v_wall if self.v_wall is None else self.v_wall
 
     @property
     def T_star_value(self) -> float:

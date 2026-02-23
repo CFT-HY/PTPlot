@@ -15,7 +15,7 @@ def point_data(points: "QuerySet[ParameterChoice] | None" = None) -> DataFrame:
             "beta_over_H": [point.beta_over_H for point in points],
             "T_star": [point.T_star_value for point in points],
             "g_star": [point.g_star_value for point in points],
-            "v_wall": [point.vw_value for point in points],
+            "v_wall": [point.v_wall_value for point in points],
             "label": [point.short_label for point in points]
         }
     )

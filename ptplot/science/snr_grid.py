@@ -167,7 +167,7 @@ def main():
     # Todo: enable the v_wall argument
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",
-        vw_alpha_betaoverh=False,
+        v_wall_alpha_betaoverh=False,
         mission_profile=True
     )
     args = parser.parse_args()

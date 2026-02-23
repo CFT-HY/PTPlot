@@ -28,7 +28,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             beta_over_H: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
-            vw: float | None = None,
+            v_wall: float | None = None,
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
             alpha: float | None = None,
@@ -40,7 +40,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             beta_over_H=beta_over_H,
             T_star=T_star,
             g_star=g_star,
-            vw=vw,
+            v_wall=v_wall,
             adiabatic_ratio=adiabatic_ratio,
             zp=zp,
             alpha=alpha,
@@ -48,11 +48,11 @@ class PowerSpectrumSSM(PowerSpectrum):
             r_star=r_star,
             ubarf=ubarf,
         )
-        if self.vw is None or np.isnan(vw):
-            raise ValueError(f"Sound Shell Model requires vw to be set. Got vw={vw}.")
+        if self.v_wall is None or np.isnan(v_wall):
+            raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
         self.model: Model = model
-        self.bubble: Bubble = Bubble(model=self.model, v_wall=self.vw, alpha_n=self.alpha)
+        self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha)
 
     def K(self) -> float:
         # Todo: Use the value from the SSM Spectrum object

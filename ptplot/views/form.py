@@ -47,7 +47,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 label_list_final = [labels]
 
             fig = snr_figure_alpha_beta(
-                v_wall=form.cleaned_data["vw"],
+                v_wall=form.cleaned_data["v_wall"],
                 alphas=alphas,
                 beta_over_Hs=beta_over_Hs,
                 T_star=form.cleaned_data["T_star"],
@@ -88,7 +88,7 @@ def single(request: HttpRequest) -> HttpResponse:
     context = {
         "form": form,
         "querystring": querystring,
-        "vw": form.cleaned_data["vw"],
+        "v_wall": form.cleaned_data["v_wall"],
         "alpha": form.cleaned_data["alpha"],
         "beta_over_H": form.cleaned_data["beta_over_H"],
         "T_star": form.cleaned_data["T_star"],

@@ -13,7 +13,7 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM, bag
 def power_spectrum(
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
-        vw: float | None = None,
+        v_wall: float | None = None,
         alpha: float | None = None,
         beta_over_H: float | None = None,
         ubarf: float | None = None,
@@ -28,7 +28,7 @@ def power_spectrum(
     if engine == Engine.DEFAULT:
         return PowerSpectrumBPL(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-            vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
+            v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf
         )
     elif engine == Engine.SSM:
@@ -37,14 +37,14 @@ def power_spectrum(
             model = ConstCSModel(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-            vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
+            v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
             model=model
         )
     elif engine == Engine.DBPL:
         return PowerSpectrumDBPL(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-            vw=vw, adiabatic_ratio=adiabatic_ratio, zp=zp,
+            v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf
         )
     raise ValueError(f"Invalid engine: {engine}")

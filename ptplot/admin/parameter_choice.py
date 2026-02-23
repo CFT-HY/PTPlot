@@ -9,7 +9,7 @@ import ptplot.methods.admin as admin_methods
 class ParameterChoiceAdmin(CustomModelAdmin):
     list_display = [
         "long_label", "model_link", "number", "scenario_link",
-        "vw", "alpha", "beta_over_H", "T_star", "g_star"
+        "v_wall", "alpha", "beta_over_H", "T_star", "g_star"
     ]
     list_filter = ["g_star"]
     list_select_related = ["model", "scenario"]

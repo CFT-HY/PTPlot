@@ -11,7 +11,7 @@ class PTPlotParser(argparse.ArgumentParser):
     def __init__(
             self,
             *args,
-            vw_alpha_betaoverh: bool = True,
+            v_wall_alpha_betaoverh: bool = True,
             Tstar_gstar: bool = True,
             mission_profile: bool = False,
             engine: bool = False,
@@ -19,10 +19,10 @@ class PTPlotParser(argparse.ArgumentParser):
         if "formatter_class" not in kwargs:
             kwargs["formatter_class"] = argparse.ArgumentDefaultsHelpFormatter
         super().__init__(*args, **kwargs)
-        if vw_alpha_betaoverh:
+        if v_wall_alpha_betaoverh:
             self.add_argument(
-                "-vw", "--vw", type=float, default=const.DEFAULT_VW,
-                help=const.VW_NAME
+                "-v_wall", "--v_wall", "-vw", "--vw", type=float, default=const.DEFAULT_V_WALL,
+                help=const.V_WALL_NAME
             )
             self.add_argument(
                 "-alpha", "--alpha", type=float, default=const.DEFAULT_ALPHA,

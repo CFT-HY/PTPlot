@@ -22,7 +22,7 @@ class Model(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    vw = models.FloatField(
+    v_wall = models.FloatField(
         verbose_name="wall velocity",
         validators=[
             validators.MinValueValidator(0),
@@ -82,7 +82,7 @@ class Model(models.Model):
                 list[str] | str]:
         if self.has_scenarios:
             scenarios = self.scenarios.prefetch_related("points").all()
-            vws = []
+            v_walls = []
             alphas = []
             beta_over_Hs = []
             labels = []
@@ -90,19 +90,19 @@ class Model(models.Model):
 
             for scenario in scenarios:
                 data = scenario.point_data()
-                vws.append(data["v_wall"].values)
+                v_walls.append(data["v_wall"].values)
                 alphas.append(data["alpha_n"].values)
                 beta_over_Hs.append(data["beta_over_H"].values)
                 labels.append(data["label"].to_list())
                 titles.append(scenario.name)
         else:
             data = self.point_data()
-            vws = data["v_wall"].values
+            v_walls = data["v_wall"].values
             alphas = data["alpha_n"].values
             beta_over_Hs = data["beta_over_H"].values
             labels = data["label"].to_list()
             titles = self.name
-        return vws, alphas, beta_over_Hs, labels, titles
+        return v_walls, alphas, beta_over_Hs, labels, titles
 
     class Meta:
         indexes = [models.Index(fields=["name"])]
