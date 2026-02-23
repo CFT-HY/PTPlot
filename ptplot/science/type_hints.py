@@ -6,6 +6,7 @@ from numpy.typing import NDArray
 type ArrOrListOfArrs = NDArray | list[NDArray]
 type FloatArr = NDArray[np.float64]
 type FloatArr1D = np.ndarray[tuple[int], np.dtype[np.float64]]
+type FloatArr1DOrListOfArr1D = FloatArr1D | list[FloatArr1D]
 type FloatArr2D = np.ndarray[tuple[int, int], np.dtype[np.float64]]
 type FloatOrArr = float | FloatArr
 type FloatOrArr1D = float | FloatArr1D

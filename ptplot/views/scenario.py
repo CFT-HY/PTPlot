@@ -2,7 +2,6 @@
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
-import numpy as np
 
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
@@ -12,6 +11,7 @@ from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+    """Display a group of scenario points on the SNR plots"""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -31,7 +31,8 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
     )
 
 
-def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+    r"""Display a group of scenario points on the $\alpha, \beta/H$ SNR plot"""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -39,23 +40,18 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
         model__id=model_id,
         number=scenario_id
     )
-    points = scenario.points.all()
-
     form = BenchmarkForm(request.GET, scenario=scenario)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    fig = snr_figure_ubarf_rstar(
+    data = scenario.point_data()
+    fig = snr_figure_alpha_beta(
         v_wall_snr=scenario.model.vw,
-        v_walls=np.array([
-            scenario.model.vw if point.vw is None else point.vw
-            for point in points
-        ]),
-        alphas=np.array([point.alpha for point in points]),
-        beta_over_Hs=np.array([point.beta_over_H for point in points]),
-        T_star=scenario.T_star_value,
-        g_star=scenario.model.g_star,
-        labels=[point.short_label for point in points],
+        T_star_snr=scenario.T_star_value,
+        g_star_snr=scenario.model.g_star,
+        alphas=data["alpha_n"].values,
+        beta_over_Hs=data["beta_over_H"].values,
+        labels=data["label"].to_list(),
         titles=scenario.name,
         mission_profile=form.mission_profile,
         huge_alpha=scenario.model.huge_alpha,
@@ -64,7 +60,8 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
     return fig_to_response(fig)
 
 
-def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
+    r"""Display a group of scenario points on the $\bar{U}_f, r_*$ SNR plot"""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -72,19 +69,19 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
         model__id=model_id,
         number=scenario_id
     )
-    points = scenario.points.all()
-
     form = BenchmarkForm(request.GET, scenario=scenario)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    fig = snr_figure_alpha_beta(
+    data = scenario.point_data()
+    fig = snr_figure_ubarf_rstar(
         v_wall_snr=scenario.model.vw,
-        alphas=[point.alpha for point in points],
-        beta_over_Hs=[point.beta_over_H for point in points],
-        T_star=scenario.T_star_value,
-        g_star=scenario.model.g_star,
-        labels=[point.short_label for point in points],
+        T_star_snr=scenario.T_star_value,
+        g_star_snr=scenario.model.g_star,
+        v_walls=data["v_wall"].values,
+        alphas=data["alpha_n"].values,
+        beta_over_Hs=data["beta_over_H"].values,
+        labels=data["label"].to_list(),
         titles=scenario.name,
         mission_profile=form.mission_profile,
         huge_alpha=scenario.model.huge_alpha,

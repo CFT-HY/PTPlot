@@ -1,12 +1,20 @@
 """Particle physics models"""
 
+import typing as tp
+
 from django.core import validators
 from django.db import models
 from django.urls import reverse
+from pandas import DataFrame
 
+from ptplot.methods.models import point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.science import const
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfile
+import ptplot.science.type_hints as th
+
+if tp.TYPE_CHECKING:
+    from ptplot.models.scenario import Scenario
 
 
 class Model(models.Model):
@@ -61,6 +69,40 @@ class Model(models.Model):
     @property
     def mission_profile(self) -> MissionProfile:
         return MissionProfile.from_ind(self.mission_profile_ind)
+
+    def point_data(self) -> DataFrame:
+        return point_data(self.points.all())
+
+    def point_data_by_scenario(self) -> "dict[Scenario, DataFrame]":
+        return {scenario: scenario.point_data() for scenario in self.scenarios.prefetch_related("points").all()}
+
+    def point_data_by_field(self) -> tuple[
+                th.FloatArr1DOrListOfArr1D, th.FloatArr1DOrListOfArr1D, th.FloatArr1DOrListOfArr1D,
+                list[list[str]] | list[str],
+                list[str] | str]:
+        if self.has_scenarios:
+            scenarios = self.scenarios.prefetch_related("points").all()
+            vws = []
+            alphas = []
+            beta_over_Hs = []
+            labels = []
+            titles = []
+
+            for scenario in scenarios:
+                data = scenario.point_data()
+                vws.append(data["v_wall"].values)
+                alphas.append(data["alpha_n"].values)
+                beta_over_Hs.append(data["beta_over_H"].values)
+                labels.append(data["label"].to_list())
+                titles.append(scenario.name)
+        else:
+            data = self.point_data()
+            vws = data["v_wall"].values
+            alphas = data["alpha_n"].values
+            beta_over_Hs = data["beta_over_H"].values
+            labels = data["label"].to_list()
+            titles = self.name
+        return vws, alphas, beta_over_Hs, labels, titles
 
     class Meta:
         indexes = [models.Index(fields=["name"])]

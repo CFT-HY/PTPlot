@@ -34,28 +34,8 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     return fig_to_response(fig)
 
 
-def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
-    if request.method != "GET":
-        return HttpResponseNotAllowed(["GET"])
-
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
-
-    fig = snr_figure_ubarf_rstar(
-        v_wall_snr=form.cleaned_data["vw"],
-        T_star=form.cleaned_data["T_star"],
-        g_star=form.cleaned_data["g_star"],
-        v_walls=form.cleaned_data["vw"],
-        alphas=form.cleaned_data["alpha"],
-        beta_over_Hs=form.cleaned_data["beta_over_H"],
-        mission_profile=form.mission_profile,
-        engine=form.cleaned_data["engine"]
-    )
-    return fig_to_response(fig)
-
-
 def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
+    r"""SNR plot with $\alpha$ on the x-axis and $\beta/H$ on the y-axis"""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -65,10 +45,32 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
 
     fig = snr_figure_alpha_beta(
         v_wall_snr=form.cleaned_data["vw"],
+        T_star_snr=form.cleaned_data["T_star"],
+        g_star_snr=form.cleaned_data["g_star"],
         alphas=form.cleaned_data["alpha"],
         beta_over_Hs=form.cleaned_data["beta_over_H"],
-        T_star=form.cleaned_data["T_star"],
-        g_star=form.cleaned_data["g_star"],
+        mission_profile=form.mission_profile,
+        engine=form.cleaned_data["engine"]
+    )
+    return fig_to_response(fig)
+
+
+def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
+    """SNR plot with UbarF on the x-axis and H_n R_* on the y-axis"""
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+
+    form = PTPlotForm(request.GET)
+    if not form.is_valid():
+        return HttpResponseBadRequest()
+
+    fig = snr_figure_ubarf_rstar(
+        v_wall_snr=form.cleaned_data["vw"],
+        T_star_snr=form.cleaned_data["T_star"],
+        g_star_snr=form.cleaned_data["g_star"],
+        v_walls=form.cleaned_data["vw"],
+        alphas=form.cleaned_data["alpha"],
+        beta_over_Hs=form.cleaned_data["beta_over_H"],
         mission_profile=form.mission_profile,
         engine=form.cleaned_data["engine"]
     )

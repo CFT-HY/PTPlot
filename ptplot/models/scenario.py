@@ -3,7 +3,9 @@
 from django.core import validators
 from django.db import models
 from django.urls import reverse
+from pandas import DataFrame
 
+from ptplot.methods.models import point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.model import Model
 from ptplot.science import const
@@ -25,6 +27,9 @@ class Scenario(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("model_scenario_plot", kwargs={"model_id": self.model.id, "scenario_id": self.number})
+
+    def point_data(self) -> DataFrame:
+        return point_data(self.points.all())
 
     @property
     def T_star_value(self) -> float:

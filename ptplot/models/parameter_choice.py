@@ -68,7 +68,10 @@ class ParameterChoice(models.Model):
 
     @property
     def T_star_value(self) -> float:
-        return self.model.T_star if self.T_star is None else self.T_star
+        return self.T_star \
+            if self.T_star is not None \
+            else self.scenario.T_star if (self.scenario is not None and self.scenario.T_star is not None) \
+            else self.model.T_star
 
     @property
     def g_star_value(self) -> float:
