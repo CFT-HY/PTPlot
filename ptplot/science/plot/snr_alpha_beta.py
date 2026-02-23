@@ -27,11 +27,10 @@ import ptplot.science.type_hints as th
 
 def snr_figure_alpha_beta(
         v_wall_snr: float,
-        # v_walls: th.FloatOrArrOrList1D2D = None,
-        alphas: th.FloatOrArrOrList1D2D = const.DEFAULT_ALPHA,
-        beta_over_Hs: th.FloatOrArrOrList1D2D = 100,
-        T_star: float = const.DEFAULT_T_STAR,
-        g_star: float = const.DEFAULT_G_STAR,
+        T_star_snr: float,
+        g_star_snr: float,
+        alphas: th.FloatOrArrOrList1D2D,
+        beta_over_Hs: th.FloatOrArrOrList1D2D,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
@@ -41,10 +40,10 @@ def snr_figure_alpha_beta(
     r"""Produce the $(\alpha_n, \beta/H)$ plot
 
     :param v_wall_snr: Wall velocity $v_\text{wall}$ used for the SNR curves
+    :param T_star_snr: Transition temperature $T_*$ used for the SNR curves
+    :param g_star_snr: Degrees of freedom $g_*$ used for the SNR curves
     :param alphas: Phase transition strengths $\alpha$[scenario, point]
     :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$[scenario, point]
-    :param T_star: Transition temperature $T_*$
-    :param g_star: Degrees of freedom $g_*$
     :param adiabatic_ratio: Adiabatic index $\Gamma$
     :param labels: Labels for the points
     :param titles: Titles for the points
@@ -53,10 +52,11 @@ def snr_figure_alpha_beta(
     :param engine: Which power spectrum engine to use
     :return: SNR figure of $(\alpha_n, \beta/H)$
     """
-    snr, shock_times, alpha_n_grid, beta_over_H_grid = snr_grid_alpha_beta(
-        T_star=T_star, g_star=g_star, v_wall=v_wall_snr, mission_profile=mission_profile,
-        alpha_n=log_range(alphas, const.DEFAULT_ALPHA_N_RANGE),
-        beta_over_H=log_range(beta_over_Hs, const.DEFAULT_BETA_OVER_H_RANGE),
+    alpha_n_grid = log_range(alphas, const.DEFAULT_ALPHA_N_RANGE)
+    beta_over_H_grid = log_range(beta_over_Hs, const.DEFAULT_BETA_OVER_H_RANGE)
+    snr, shock_times = snr_grid_alpha_beta(
+        T_star=T_star_snr, g_star=g_star_snr, v_wall=v_wall_snr, mission_profile=mission_profile,
+        alpha_n=alpha_n_grid, beta_over_H=beta_over_H_grid,
         adiabatic_ratio=adiabatic_ratio, engine=engine
     )
     log10_alpha_n_grid = np.log10(alpha_n_grid)

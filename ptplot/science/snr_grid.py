@@ -13,17 +13,74 @@ import os
 import sys
 
 import numpy as np
-from pttools.omgw0 import signal_to_noise_ratio
+from pttools.bubble import precompile
+from pttools.bubble.fluid_reference import ref
+from pttools.speedup import run_parallel
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ptplot.science import const
 from ptplot.science.engine import Engine
-from ptplot.science.parsing import PTPlotParser
-from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.parsing import PTPlotParser
+from ptplot.science.snr import snr_point
 import ptplot.science.type_hints as th
+
+
+def snr_grid(
+        x: th.FloatOrArr1D,
+        y: th.FloatOrArr1D,
+        T_star: float,
+        g_star: float,
+        v_wall: float,
+        mission_profile: MissionProfile,
+        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        engine: Engine = Engine.DEFAULT,
+        f_min: float = const.DEFAULT_SNR_F_MIN,
+        f_max: float = const.DEFAULT_SNR_F_MAX,
+        ubarf_rstar: bool = False,
+        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
+    if T_star is None or not np.isfinite(T_star):
+        raise ValueError(f"Invalid T_star={T_star}")
+    if g_star is None or not np.isfinite(g_star):
+        raise ValueError(f"Invalid g_star={g_star}")
+    if v_wall is None or not 0 < v_wall <= 1:
+        raise ValueError(f"Invalid v_wall={v_wall}")
+
+    # Ensure that SSM is loaded before starting subprocesses
+    if engine == Engine.SSM:
+        ref()
+        precompile()
+
+    params = np.empty((x.size, y.size, 2))
+    for i_y, y_val in enumerate(y):
+        for i_x, x_val in enumerate(x):
+            params[i_y, i_x, 0] = x_val
+            params[i_y, i_x, 1] = y_val
+
+    snr, shock_times = run_parallel(
+        func=snr_point,
+        params=params,
+        multiple_params=True,
+        unpack_params=True,
+        output_dtypes=(np.float64, np.float64),
+        # max_workers=max_workers,
+        single_thread=engine != Engine.SSM,
+        log_progress_percentage=log_progress_percentage,
+        kwargs={
+            "T_star": T_star,
+            "g_star": g_star,
+            "v_wall": v_wall,
+            "adiabatic_ratio": adiabatic_ratio,
+            "f_min": f_min,
+            "f_max": f_max,
+            "mission_profile": mission_profile,
+            "engine": engine,
+            "ubarf_rstar": ubarf_rstar
+        }
+    )
+    return snr, shock_times
 
 
 def snr_grid_alpha_beta(
@@ -36,7 +93,8 @@ def snr_grid_alpha_beta(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         engine: Engine = Engine.DEFAULT,
         f_min: float = const.DEFAULT_SNR_F_MIN,
-        f_max: float = const.DEFAULT_SNR_F_MAX) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
+        f_max: float = const.DEFAULT_SNR_F_MAX,
+        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
     r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -51,49 +109,18 @@ def snr_grid_alpha_beta(
     :param f_max: Maximum frequency to consider for SNR calculation
     :return: SNR values, shock times, ubarf, r_star
     """
-    if not np.isfinite(T_star):
-        raise ValueError(f"Invalid T_star={T_star}")
-    if not np.isfinite(g_star):
-        raise ValueError(f"Invalid g_star={g_star}")
-    if not np.isfinite(v_wall):
-        raise ValueError(f"Invalid v_wall={v_wall}")
-    if not np.isfinite(alpha_n).all():
+    if alpha_n is None or np.any(alpha_n <= 0) or not np.isfinite(alpha_n).all():
         raise ValueError(f"Invalid alpha_n={alpha_n}")
-    if not np.isfinite(beta_over_H).all():
+    if beta_over_H is None or np.any(beta_over_H <= 0) or not np.isfinite(beta_over_H).all():
         raise ValueError(f"Invalid beta_over_H={beta_over_H}")
 
-    snr = np.zeros((beta_over_H.size, alpha_n.size))
-    shock_times = np.zeros_like(snr)
-
-    for i in range(beta_over_H.size):
-        for j in range(alpha_n.size):
-            try:
-                spectrum = power_spectrum(
-                    T_star=T_star,
-                    g_star=g_star,
-                    vw=v_wall,
-                    alpha=alpha_n[j],
-                    beta_over_H=beta_over_H[i],
-                    adiabatic_ratio = adiabatic_ratio,
-                    engine=engine
-                )
-            except (RuntimeError, ValueError):
-                snr[i, j] = np.nan
-                shock_times[i, j] = np.nan
-                continue
-
-            shock_times[i, j] = spectrum.shock_time
-            snr[i, j] = signal_to_noise_ratio(
-                f=mission_profile.f,
-                signal=spectrum.power_spectrum(mission_profile.f),
-                f_noise=mission_profile.f,
-                noise=mission_profile.sensitivity,
-                obs_time=mission_profile.duration_seconds,
-                f_min=f_min,
-                f_max=f_max
-            )
-
-    return snr, shock_times, alpha_n, beta_over_H
+    return snr_grid(
+        x=alpha_n, y=beta_over_H,
+        T_star=T_star, g_star=g_star, v_wall=v_wall,
+        mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
+        f_min=f_min, f_max=f_max,
+        log_progress_percentage=log_progress_percentage
+    )
 
 
 def snr_grid_ubarf_rstar(
@@ -106,7 +133,8 @@ def snr_grid_ubarf_rstar(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         engine: Engine = Engine.DEFAULT,
         f_min: float = const.DEFAULT_SNR_F_MIN,
-        f_max: float = const.DEFAULT_SNR_F_MAX) -> tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]:
+        f_max: float = const.DEFAULT_SNR_F_MAX,
+        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
     r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -121,38 +149,18 @@ def snr_grid_ubarf_rstar(
     :param f_max: Maximum frequency to consider for SNR calculation
     :return: SNR values, shock times, ubarf, r_star
     """
-    snr = np.zeros((r_star.size, ubarf.size))
-    shock_times = np.zeros_like(snr)
+    if ubarf is None or np.any(ubarf <= 0) or not np.isfinite(ubarf).all():
+        raise ValueError(f"Invalid ubarf={ubarf}")
+    if r_star is None or np.any(r_star <= 0) or not np.isfinite(r_star).all():
+        raise ValueError(f"Invalid r_star={r_star}")
 
-    for i in range(r_star.size):
-        for j in range(ubarf.size):
-            # try:
-            spectrum = power_spectrum(
-                T_star=T_star,
-                g_star=g_star,
-                vw=v_wall,
-                adiabatic_ratio=adiabatic_ratio,
-                r_star=r_star[i],
-                ubarf=ubarf[j],
-                engine=engine
-            )
-            # except (RuntimeError, ValueError):
-            #     shock_times[i, j] = np.nan
-            #     snr[i, j] = np.nan
-            #     continue
-
-            shock_times[i, j] = spectrum.shock_time
-            snr[i, j] = signal_to_noise_ratio(
-                f=mission_profile.f,
-                signal=spectrum.power_spectrum(mission_profile.f),
-                f_noise=mission_profile.f,
-                noise=mission_profile.sensitivity,
-                obs_time=mission_profile.duration_seconds,
-                f_min=f_min,
-                f_max=f_max
-            )
-
-    return snr, shock_times, ubarf, r_star
+    return snr_grid(
+        x=ubarf, y=r_star,
+        T_star=T_star, g_star=g_star, v_wall=v_wall,
+        mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
+        f_min=f_min, f_max=f_max, ubarf_rstar=True,
+        log_progress_percentage=log_progress_percentage
+    )
 
 
 def main():

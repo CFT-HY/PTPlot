@@ -29,13 +29,12 @@ from ptplot.science.utils import atleast_2d, R_star, log_range
 
 
 def snr_figure_ubarf_rstar(
-        # Todo: Why are some of these defaults different than the ones in const.py?
         v_wall_snr: float,
-        v_walls: th.FloatOrArrOrListOfArr1D = None,
-        alphas: th.FloatOrArrOrListOfArr1D = const.DEFAULT_ALPHA,
-        beta_over_Hs: th.FloatOrArrOrListOfArr1D = 100,
-        T_star: float = 100,
-        g_star: float = const.DEFAULT_G_STAR,
+        T_star_snr: float,
+        g_star_snr: float,
+        alphas: th.FloatOrArrOrListOfArr1D,
+        beta_over_Hs: th.FloatOrArrOrListOfArr1D,
+        v_walls: th.FloatOrArrOrListOfArr1D,
         cs: float = const.CS0,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
@@ -46,11 +45,11 @@ def snr_figure_ubarf_rstar(
     r"""Produce the $(\bar{U}_f, r_*)$ plot
 
     :param v_wall_snr: Wall velocity used for the SNR curves
+    :param T_star_snr: Transition temperature $T_*$ used for the SNR curves
+    :param g_star_snr: Degrees of freedom $g_*$ used for the SNR curves
     :param v_walls: Wall velocities $v_\text{wall}$[scenario, point]
     :param alphas: Phase transition strengths $\alpha$[scenario, point]
     :param beta_over_Hs: Inverse phase transition durations $\frac{\beta}{H}$[scenario, point]
-    :param T_star: Transition temperature $T_*$
-    :param g_star: Degrees of freedom $g_*$
     :param cs: Sound speed $c_s$
     :param adiabatic_ratio: Adiabatic index $\Gamma$
     :param labels: Labels for [scenario, point]
@@ -63,13 +62,16 @@ def snr_figure_ubarf_rstar(
     if v_walls is None:
         v_walls = v_wall_snr
 
-    snr, shock_times, ubarf, r_star = snr_grid_ubarf_rstar(
+    ubarf = np.logspace(const.DEFAULT_UBARF_RANGE[0], 1000, const.DEFAULT_UBARF_RANGE.size) \
+            if huge_alpha else const.DEFAULT_UBARF_RANGE
+    r_star = const.DEFAULT_R_STAR_RANGE
+    snr, shock_times = snr_grid_ubarf_rstar(
         v_wall=v_wall_snr,
-        T_star=T_star,
-        g_star=g_star,
+        T_star=T_star_snr,
+        g_star=g_star_snr,
         mission_profile=mission_profile,
-        ubarf=np.logspace(const.DEFAULT_UBARF_RANGE[0], 1000, const.DEFAULT_UBARF_RANGE.size)
-            if huge_alpha else const.DEFAULT_UBARF_RANGE,
+        ubarf=ubarf,
+        r_star=r_star,
         engine=engine
     )
     log10_ubarf = np.log10(ubarf)
@@ -105,7 +107,7 @@ def snr_figure_ubarf_rstar(
             np.log10(ubarf_func(v_wall=vw, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
             for vw, alpha in zip(vw_set, alpha_set)
         ]
-        log10_R_stars = np.log10(R_star(BetaoverH_set, vw_set, cs=const.CS0))
+        log10_R_stars = np.log10(R_star(beta=BetaoverH_set, v_wall=vw_set, cs=const.CS0))
 
         # Plot points
         ax.plot(log10_ubarfs, log10_R_stars, ".")
