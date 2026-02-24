@@ -81,11 +81,11 @@ def find_label_place(
     return x[nearest_x].item(), wanted_y
 
 
-def make_minor_ticks(min: int, max: int) -> np.ndarray:
+def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
     # Todo: This may be possible with one call of np.logspace
     return np.concatenate([
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
-        for i in range(min, max)
+        for i in range(min_int, max_int)
     ])
 
 

@@ -1,4 +1,4 @@
-"""Ansatz for calculating the SGWB power spectra"""
+"""Base class for power spectra"""
 
 import abc
 
@@ -142,12 +142,12 @@ class PowerSpectrum(abc.ABC):
         """
         return f(z=self.zp, r_star=self.r_star, f_star0=f_star0(Tn=self.T_star, g_star=self.g_star))
 
-    def F_gw0(
+    def F_gw0(  # pylint: disable=missing-function-docstring
             self,
             g0: th.FloatOrArr = G0,
             gs0: th.FloatOrArr = GS0,
             gs_star: th.FloatOrArr = None,
-            om_gamma0: th.FloatOrArr = OMEGA_RADIATION) -> th.FloatOrArr:  # pylint: disable=missing-function-docstring
+            om_gamma0: th.FloatOrArr = OMEGA_RADIATION) -> th.FloatOrArr:
         return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
 
     def h_star(self) -> float:
@@ -156,7 +156,7 @@ class PowerSpectrum(abc.ABC):
         """
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
-    def J[T: (float, FloatArr)](self, nu: T = 0.) -> T:
+    def J[T: (float, FloatArr)](self, nu: T = 0.) -> T:  # pylint: disable=missing-function-docstring
         return J(r_star=self.r_star, K_frac=self.K(), nu=nu)
 
     def K(self) -> float:
@@ -194,7 +194,7 @@ class PowerSpectrum(abc.ABC):
     @abc.abstractmethod
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """GW power spectrum"""
-        pass
+
 
 
 copy_docstrings_without_params({

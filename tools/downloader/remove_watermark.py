@@ -13,7 +13,7 @@ if len(sys.argv) != 3:
 
 inputfile = sys.argv[1]
 outputfile = sys.argv[2]
-    
+
 tree = etree.parse(open(inputfile))
 
 # matches annotations: watermark and timestamp

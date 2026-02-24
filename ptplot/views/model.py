@@ -42,6 +42,7 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
+    r"""Display the SNR values of the model points on the $(\alpha, \beta/H)$ plane"""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios"],
@@ -68,6 +69,7 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
+    r"""Display the SNR values of the model points on the $(\bar{U}_f, r_*)$ plane"""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios"],

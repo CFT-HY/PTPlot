@@ -85,6 +85,7 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
 
 
 def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
+    """Get the CSV data of a model point"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model"],

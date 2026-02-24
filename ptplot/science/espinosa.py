@@ -53,7 +53,12 @@ def alpha_n_from_ubarf(
 
 
 @numba.njit
-def alpha_n_from_ubarf_solvable(alpha_n: float, ubarf_target: float, v_wall: float, cs: float, adiabatic_ratio: float) -> float:
+def alpha_n_from_ubarf_solvable(
+        alpha_n: float,
+        ubarf_target: float,
+        v_wall: float,
+        cs: float,
+        adiabatic_ratio: float) -> float:
     return ubarf(v_wall=v_wall, alpha_n=alpha_n, cs=cs, adiabatic_ratio=adiabatic_ratio) - ubarf_target
 
 
@@ -208,7 +213,7 @@ def kappa_v(
 
     if v_wall < cs:
         return kappa_sub_def(v_wall, alpha_n, cs)
-    elif v_wall > v_cj:
+    if v_wall > v_cj:
         return kappa_detonation(v_wall, alpha_n, v_cj)
     return kappa_hybrid(v_wall, alpha_n, cs)
 

@@ -1,3 +1,5 @@
+"""Methods for Django admin interface"""
+
 import typing as tp
 
 from django.db import models
@@ -9,6 +11,7 @@ def admin_change_url(obj: models.Model):
     """Adapted from
     https://medium.com/@hakibenita/things-you-must-know-about-django-admin-as-your-app-gets-bigger-6be0b0ee9614
     """
+    # pylint: disable=protected-access
     app_label = obj._meta.app_label
     model_name = obj._meta.model.__name__.lower()
     return reverse(f"admin:{app_label}_{model_name}_change", args=(obj.pk, ))
@@ -33,6 +36,7 @@ def generate_link(target: str, name: str | None = None) -> tp.Callable:
 
 
 def link(obj: models.Model):
+    """Create a link to the given object"""
     if obj is None:
         return ""
     if hasattr(obj, "get_absolute_url"):

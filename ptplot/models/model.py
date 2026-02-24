@@ -60,7 +60,7 @@ class Model(models.Model):
                 raise ValueError("mission_profile must be MissionProfile or int.")
         super().__init__(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def get_absolute_url(self) -> str:

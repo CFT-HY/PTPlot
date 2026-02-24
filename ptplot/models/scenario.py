@@ -22,7 +22,7 @@ class Scenario(models.Model):
     )
     description = models.TextField(blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def get_absolute_url(self) -> str:

@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class PowerSpectrumSSM(PowerSpectrum):
+    """Sound Shell Model (SSM) power spectrum
+
+    Uses PTtools to compute the fluid velocity profile and the resulting GW power spectrum.
+    """
     ENGINE: Engine = Engine.SSM
     NAME: str = ENGINE_NAMES[ENGINE]
     SHORT_NAME: str = ENGINE.name
@@ -56,6 +60,7 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def K(self) -> float:
         # Todo: Use the value from the SSM Spectrum object
+        logger.warning("Using approximate K instead of the value from the SSM Spectrum object.")
         return super().K()
 
     def power_spectrum(

@@ -1,3 +1,5 @@
+"""Form fields"""
+
 from fractions import Fraction
 import typing as tp
 
@@ -13,7 +15,7 @@ from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES
 
 
 def validate_velocity(value: float) -> None:
-    if not (0 < value <= 1):
+    if not 0 < value <= 1:
         raise ValidationError(f"{value} must be 0 < value <= 1")
 
 
@@ -27,11 +29,12 @@ class FractionField(forms.CharField):
             return None
         try:
             return Fraction(value) if "/" in value else float(value)
-        except (TypeError, ValueError):
-            raise ValidationError("Enter a float or a fraction.")
+        except (TypeError, ValueError) as err:
+            raise ValidationError("Enter a float or a fraction.") from err
 
 
 class UnitInput(forms.NumberInput):
+    """NumberInput with units"""
     def __init__(self, attrs=None, units: str | None = None):
         super().__init__(attrs)
         self.units_string = None if units is None else SafeString(f"&nbsp;{units}")

@@ -1,13 +1,16 @@
+"""Methods for models"""
+
 import typing as tp
 
-from django.db.models import QuerySet
 from pandas import DataFrame
 
 if tp.TYPE_CHECKING:
+    from django.db.models import QuerySet
     from ptplot.models.parameter_choice import ParameterChoice
 
 
-def point_data(points: "QuerySet[ParameterChoice] | None" = None) -> DataFrame:
+def point_data(points: "QuerySet[ParameterChoice]") -> DataFrame:
+    """Get the data of the points as a DataFrame"""
     return DataFrame(
         data={
             "number": [point.number for point in points],

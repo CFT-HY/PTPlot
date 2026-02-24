@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def csv(request: HttpRequest) -> HttpResponse:
+    """Get the power spectrum as a CSV file"""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 

@@ -1,3 +1,5 @@
+"""Model admin"""
+
 from django.contrib import admin
 
 from ptplot import models

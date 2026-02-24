@@ -25,7 +25,7 @@ from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfi
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid_ubarf_rstar
 import ptplot.science.type_hints as th
-from ptplot.science.utils import atleast_2d, R_star, log_range
+from ptplot.science.utils import atleast_2d, R_star
 
 
 def snr_figure_ubarf_rstar(
@@ -102,12 +102,12 @@ def snr_figure_ubarf_rstar(
             labels = [labels]
 
     # Iterate over scenarios
-    for i, (v_wall_set, BetaoverH_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
+    for i, (v_wall_set, beta_over_H_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
         log10_ubarfs = [
             np.log10(ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
             for v_wall, alpha in zip(v_wall_set, alpha_set)
         ]
-        log10_R_stars = np.log10(R_star(beta=BetaoverH_set, v_wall=v_wall_set, cs=const.CS0))
+        log10_R_stars = np.log10(R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
 
         # Plot points
         ax.plot(log10_ubarfs, log10_R_stars, ".")
@@ -145,6 +145,7 @@ def snr_figure_ubarf_rstar(
 
 
 def main():
+    """Script for command-line use"""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
         mission_profile=True

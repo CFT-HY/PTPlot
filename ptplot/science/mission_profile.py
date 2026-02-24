@@ -15,6 +15,7 @@ SENSITIVITY_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sen
 
 
 class MissionProfile:
+    """Mission profile containing the sensitivity curve and related information"""
     def __init__(
             self,
             name: str,

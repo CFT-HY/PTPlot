@@ -1,4 +1,4 @@
-"""Argument parsing for command-line use"""
+"""Argument parsing for command-line use of PTPlot"""
 
 import argparse
 
@@ -8,6 +8,7 @@ from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 
 class PTPlotParser(argparse.ArgumentParser):
+    """Argument parser for command-line use of PTPlot"""
     def __init__(
             self,
             *args,

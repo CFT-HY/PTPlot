@@ -1,6 +1,12 @@
-import logging
+"""PTPlot forms"""
 
-from ptplot.forms.fields import *
+import logging
+import typing as tp
+
+from django.forms import CharField, Form, Textarea
+from ptplot.forms.fields import \
+    AlphaField, BetaOverHField, CSS2Field, CSB2Field, EngineField, \
+    GStarField, MissionProfileField, ModelField, TStarField, VWallField
 from ptplot.models import Model, ParameterChoice, Scenario
 from ptplot.science.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
@@ -8,7 +14,8 @@ from ptplot.science.mission_profile import MissionProfile
 logger = logging.getLogger(__name__)
 
 
-class BenchmarkForm(forms.Form):
+class BenchmarkForm(Form):
+    """Form for the arguments of the benchmark plots"""
     mission_profile_ind = MissionProfileField()
     engine = EngineField()
 
@@ -39,7 +46,8 @@ class BenchmarkForm(forms.Form):
         return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 
-class PTPlotForm(forms.Form):
+class PTPlotForm(Form):
+    """Form for the arguments of a single point"""
     v_wall = VWallField()
     alpha = AlphaField()
     beta_over_H = BetaOverHField()
@@ -63,14 +71,15 @@ class PTPlotForm(forms.Form):
         return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 
-class MultipleForm(forms.Form):
+class MultipleForm(Form):
+    """Form for the arguments of multiple points"""
     vw = VWallField()
     T_star = TStarField()
     g_star = GStarField()
     mission_profile_ind = MissionProfileField()
-    table = forms.CharField(
+    table = CharField(
         label="Input table",
-        widget=forms.Textarea,
+        widget=Textarea,
         initial="#alpha_theta,BetaOverH,label"
     )
 
@@ -79,7 +88,8 @@ class MultipleForm(forms.Form):
         return MissionProfile.from_ind(self.cleaned_data["mission_profile"])
 
 
-class ParameterChoiceForm(forms.Form):
+class ParameterChoiceForm(Form):
+    """Parameter choice form"""
     def __init__(self):
         super().__init__()
         self.models = Model.objects.all()
@@ -88,7 +98,10 @@ class ParameterChoiceForm(forms.Form):
             # Why is this defined within the loop?
             self.underlying_model = ModelField(self.models)
 
-            # self.precomputed_choices = [(i, r"$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$" % (gstar,Tn)) for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))]
+            # self.precomputed_choices = [
+            #     (i, r"$g_\star = %g$, $T_n = %g\, \mathrm{GeV}$" % (gstar,Tn))
+            #     for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))
+            # ]
 
             self.v_wall = VWallField
             # tstar = TStarField()

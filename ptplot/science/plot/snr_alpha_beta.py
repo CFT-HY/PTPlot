@@ -88,14 +88,14 @@ def snr_figure_alpha_beta(
     # Iterate over scenarios
     for i, (beta_over_H_set, alpha_set) in enumerate(zip(beta_over_Hs, alphas)):
         alpha_log_set = np.log10(alpha_set)
-        BetaOverH_log_set = np.log10(beta_over_H_set)
+        log10_beta_over_H_set = np.log10(beta_over_H_set)
 
         # Plot points
-        ax.plot(alpha_log_set, BetaOverH_log_set, ".")
+        ax.plot(alpha_log_set, log10_beta_over_H_set, ".")
         # Add labels to points
         if labels:
             label_set = labels[i]
-            for x, y, label in zip(alpha_log_set, BetaOverH_log_set, label_set):
+            for x, y, label in zip(alpha_log_set, log10_beta_over_H_set, label_set):
                 ax.annotate(label, xy=(x, y), xycoords="data", xytext=(5, 0), textcoords="offset points")
 
     if titles:
@@ -136,6 +136,7 @@ def snr_figure_alpha_beta(
 
 
 def main():
+    """Script for command-line use"""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
         mission_profile=True
