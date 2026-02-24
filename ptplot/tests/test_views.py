@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from ptplot.forms import PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
-from ptplot.science.engine import Engine
+from ptplot.science.spectrum.engine import Engine
 
 ALLOW_CODES: tp.Iterable[int] = (200, 302)
 

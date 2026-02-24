@@ -15,7 +15,7 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from ptplot.science import const
-from ptplot.science.engine import Engine
+from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import fig_to_svg

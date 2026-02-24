@@ -6,7 +6,7 @@ from pandas import DataFrame
 
 from ptplot.science import const
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
-from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
 
@@ -22,6 +22,11 @@ class PowerSpectrumBPL(PowerSpectrum):
     As such, the turbulence functions are not called anywhere in the code by default.
     However, they can still be turned on by overriding the sw_only flag.
     """
+    COLOR = "red"
+    ENGINE = Engine.BPL
+    NAME = "Broken power law"
+    SHORT_NAME = "BPL"
+
     def csv(
             self,
             path: str | None = None,

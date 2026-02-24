@@ -5,8 +5,9 @@ from django.test import TestCase
 import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
 from ptplot.science.plot.power_spectrum import ps_figure
-from ptplot.science.engine import Engine
-from ptplot.science.spectrum.create import PowerSpectrumBPL, power_spectrum
+from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.bpl import PowerSpectrumBPL
+from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
@@ -18,6 +19,9 @@ G_STAR: float = 100
 
 
 class ScienceTest(TestCase):
+    """Tests for the science module"""
+    # pylint: disable=missing-function-docstring, too-many-public-methods
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

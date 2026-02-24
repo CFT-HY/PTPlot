@@ -1,6 +1,7 @@
 """Base class for power spectra"""
 
 import abc
+import enum
 
 import numpy as np
 from pandas import DataFrame
@@ -8,7 +9,6 @@ from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f, f_star0, F_gw0, J
 from pttools.utils import copy_docstrings_without_params
 
 from ptplot.science import const
-from ptplot.science.engine import ENGINE_NAMES, Engine
 from ptplot.science.espinosa import ubarf as ubarf_func, alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
@@ -16,11 +16,26 @@ from ptplot.science.type_hints import FloatArr
 from ptplot.science.utils import beta, R_star
 
 
+class Engine(enum.StrEnum):
+    """Enumeration of power spectrum engines"""
+    BPL = DEFAULT = "bpl"
+    DBPL = "dbpl"
+    SSM = "ssm"
+
+    @property
+    def spectrum(self) -> "type[PowerSpectrum]":
+        return ENGINE_SPECTRUM_CLASSES[self]
+
+
 class PowerSpectrum(abc.ABC):
-    """The base class for defining power spectra"""
-    ENGINE: Engine = Engine.DEFAULT
-    NAME: str = ENGINE_NAMES[ENGINE]
-    SHORT_NAME: str = ENGINE.name
+    """The base class for defining power spectra
+
+    When adding a new power spectrum class, please add it to the Engine enum.
+    """
+    COLOR: str
+    ENGINE: Engine
+    NAME: str
+    SHORT_NAME: str
 
     def __init__(
             self,
@@ -195,6 +210,8 @@ class PowerSpectrum(abc.ABC):
     def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """GW power spectrum"""
 
+
+ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 
 copy_docstrings_without_params({

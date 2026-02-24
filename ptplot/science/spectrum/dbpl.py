@@ -1,8 +1,7 @@
 """Double broken power law (DBPL) power spectrum"""
 
 from ptplot.science import const
-from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr
 
@@ -13,9 +12,10 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
     Based on :hakkinen_ptplot:`\ `, :hakkinen_msc: and :gowling_2021:`\ `.
     """
+    COLOR = "green"
     ENGINE: Engine = Engine.DBPL
-    NAME: str = ENGINE_NAMES[ENGINE]
-    SHORT_NAME: str = ENGINE.name
+    NAME: str = "Double broken power law"
+    SHORT_NAME: str = "DBPL"
 
     def __init__(
             self,

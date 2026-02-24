@@ -3,7 +3,7 @@
 import argparse
 
 from ptplot.science import const
-from ptplot.science.engine import ENGINE_SHORT_NAMES, Engine
+from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 

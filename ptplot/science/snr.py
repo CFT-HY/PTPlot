@@ -3,7 +3,7 @@
 import numpy as np
 from pttools.omgw0 import signal_to_noise_ratio
 
-from ptplot.science.engine import Engine
+from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.spectrum.create import power_spectrum
 

@@ -6,7 +6,7 @@ from django.shortcuts import render
 from ptplot.forms import MultipleForm, ParameterChoiceForm, PTPlotForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.engine import ENGINE_NAMES
+from ptplot.science.spectrum.engine import ENGINE_NAMES
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 
 

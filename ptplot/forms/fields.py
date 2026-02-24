@@ -10,7 +10,7 @@ from django.forms.renderers import BaseRenderer
 from django.utils.safestring import SafeString
 
 from ptplot.models import Model
-from ptplot.science.engine import ENGINE_CHOICES, Engine
+from ptplot.science.spectrum.engine import ENGINE_CHOICES
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES
 
 
@@ -111,15 +111,13 @@ class CSB2Field(CS2Field):
         super().__init__(label=label, **kwargs)
 
 
-class EngineField(forms.TypedChoiceField):
+class EngineField(forms.ChoiceField):
     def __init__(
             self,
             label: str = "Engine",
             choices=ENGINE_CHOICES,
-            coerce=Engine.from_str,
-            empty_value=None,
             **kwargs):
-        super().__init__(label=label, choices=choices, coerce=coerce, empty_value=empty_value, **kwargs)
+        super().__init__(label=label, choices=choices, **kwargs)
 
 
 class GStarField(forms.FloatField):

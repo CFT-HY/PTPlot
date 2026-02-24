@@ -9,8 +9,7 @@ from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod, f_s
 from pttools.omgw0.suppression import DEFAULT as SUPPRESSION_DEFAULT
 
 from ptplot.science import const
-from ptplot.science.engine import ENGINE_NAMES, Engine
-from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
 bag = BagModel(alpha_n_min=0.001)
@@ -23,9 +22,10 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     Uses PTtools to compute the fluid velocity profile and the resulting GW power spectrum.
     """
+    COLOR = "blue"
     ENGINE: Engine = Engine.SSM
-    NAME: str = ENGINE_NAMES[ENGINE]
-    SHORT_NAME: str = ENGINE.name
+    NAME: str = "Sound Shell Model"
+    SHORT_NAME: str = "SSM"
 
     def __init__(
             self,
