@@ -76,33 +76,48 @@ class Model(models.Model):
     def point_data_by_scenario(self) -> "dict[Scenario, DataFrame]":
         return {scenario: scenario.point_data() for scenario in self.scenarios.prefetch_related("points").all()}
 
-    def point_data_by_field(self) -> tuple[
-                th.FloatArr1DOrListOfArr1D, th.FloatArr1DOrListOfArr1D, th.FloatArr1DOrListOfArr1D,
+    def point_data_by_field(self):
+        data = self.point_data()
+        v_wall = data["v_wall"].values
+        alpha = data["alpha_n"].values
+        beta_over_H = data["beta_over_H"].values
+        T_star = data["T_star"].values
+        g_star = data["g_star"].values
+        labels = data["label"].to_list()
+        titles = self.name
+
+        return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
+
+    def point_data_by_field_and_scenario(self) -> tuple[
+                th.FloatArr1DOrListOfArr1D,
+                th.FloatArr1DOrListOfArr1D,
+                th.FloatArr1DOrListOfArr1D,
+                th.FloatArr1DOrListOfArr1D,
+                th.FloatArr1DOrListOfArr1D,
                 list[list[str]] | list[str],
                 list[str] | str]:
-        if self.has_scenarios:
-            scenarios = self.scenarios.prefetch_related("points").all()
-            v_walls = []
-            alphas = []
-            beta_over_Hs = []
-            labels = []
-            titles = []
+        if not self.has_scenarios:
+            return self.point_data_by_field()
+        scenarios = self.scenarios.prefetch_related("points").all()
+        v_wall = []
+        alpha = []
+        beta_over_H = []
+        T_star = []
+        g_star = []
+        labels = []
+        titles = []
 
-            for scenario in scenarios:
-                data = scenario.point_data()
-                v_walls.append(data["v_wall"].values)
-                alphas.append(data["alpha_n"].values)
-                beta_over_Hs.append(data["beta_over_H"].values)
-                labels.append(data["label"].to_list())
-                titles.append(scenario.name)
-        else:
-            data = self.point_data()
-            v_walls = data["v_wall"].values
-            alphas = data["alpha_n"].values
-            beta_over_Hs = data["beta_over_H"].values
-            labels = data["label"].to_list()
-            titles = self.name
-        return v_walls, alphas, beta_over_Hs, labels, titles
+        for scenario in scenarios:
+            data = scenario.point_data()
+            v_wall.append(data["v_wall"].values)
+            alpha.append(data["alpha_n"].values)
+            beta_over_H.append(data["beta_over_H"].values)
+            T_star.append(data["T_star"].values)
+            g_star.append(data["g_star"].values)
+            labels.append(data["label"].to_list())
+            titles.append(scenario.name)
+
+        return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
 
     class Meta:
         indexes = [models.Index(fields=["name"])]

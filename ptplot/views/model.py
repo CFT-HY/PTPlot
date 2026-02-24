@@ -52,7 +52,7 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    v_walls, alphas, beta_over_Hs, labels, titles = model.point_data_by_field()
+    v_walls, alphas, beta_over_Hs, T_star, g_star, labels, titles = model.point_data_by_field_and_scenario()
     fig = snr_figure_alpha_beta(
         v_wall_snr=model.v_wall,
         T_star_snr=model.T_star,
@@ -79,7 +79,7 @@ def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    v_walls, alphas, beta_over_Hs, labels, titles = model.point_data_by_field()
+    v_walls, alphas, beta_over_Hs, T_star, g_star, labels, titles = model.point_data_by_field_and_scenario()
     fig = snr_figure_ubarf_rstar(
         v_wall_snr=model.v_wall,
         T_star_snr=model.T_star,
