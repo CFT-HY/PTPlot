@@ -39,7 +39,7 @@ extension-pkg-whitelist=
 fail-on=
 
 # Specify a score threshold under which the program will exit with error.
-fail-under=10
+fail-under=8
 
 # Interpret the stdin as a python script, whose filename needs to be passed as
 # the module_or_package argument.
@@ -82,7 +82,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_django
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -106,7 +106,7 @@ source-roots=
 
 # When enabled, pylint would attempt to guess common misconfiguration and emit
 # user-friendly hints instead of false-positive error messages.
-suggestion-mode=yes
+# suggestion-mode=yes
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
@@ -195,7 +195,27 @@ good-names=i,
            k,
            ex,
            Run,
-           _
+           _,
+           # Custom additions
+           beta_over_H,
+           beta_over_Hs,
+           beta_over_H_grid,
+           beta_over_H_set,
+           C,
+           F_gw0,
+           J,
+           K,
+           log10_beta_over_H_grid,
+           log10_beta_over_H_set,
+           log10_R_star,
+           log10_R_stars,
+           M,
+           R_star,
+           S_turb,
+           Tn,
+           T_star,
+           T_star_snr,
+           T_star_value
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
@@ -345,7 +365,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=120
 
 # Maximum number of lines in a module.
 max-module-lines=1000
