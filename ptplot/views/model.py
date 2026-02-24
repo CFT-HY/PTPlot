@@ -7,6 +7,7 @@ from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
@@ -64,6 +65,27 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
         mission_profile=form.mission_profile,
         huge_alpha=model.huge_alpha,
         engine=form.cleaned_data["engine"]
+    )
+    return fig_to_response(fig)
+
+
+def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
+    """Display a histogram of the SNR values of the model points"""
+    model: Model = get_object_or_404_related(
+        Model,
+        prefetch=["scenarios"],
+        id=model_id
+    )
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+
+    v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = model.point_data_by_field()
+    fig = snr_histogram(
+        v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
+        labels=labels, titles=titles,
+        mission_profile=form.mission_profile,
+        # engines=[form.cleaned_data["engine"]]
     )
     return fig_to_response(fig)
 

@@ -91,6 +91,21 @@ class ParameterChoice(models.Model):
     # Methods
     # -----
 
+    # def snr(
+    #         self,
+    #         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+    #         f_min: float = const.DEFAULT_SNR_F_MIN,
+    #         f_max: float = const.DEFAULT_SNR_F_MAX,
+    #         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+    #         engine: Engine = Engine.DEFAULT) -> tuple[float, float]:
+    #     snr, shock_time = snr_point(
+    #         x=self.alpha, y=self.beta_over_H,
+    #         T_star=self.T_star_value, g_star=self.g_star_value, v_wall=self.v_wall_value,
+    #         adiabatic_ratio=adiabatic_ratio, f_min=f_min, f_max=f_max,
+    #         mission_profile=mission_profile, engine=engine
+    #     )
+    #     return snr, shock_time
+
     class Meta:
         indexes = [models.Index(fields=["model", "number"])]
         ordering = ["model", "number"]

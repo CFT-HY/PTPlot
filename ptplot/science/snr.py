@@ -3,6 +3,7 @@
 import numpy as np
 from pttools.omgw0 import signal_to_noise_ratio
 
+from ptplot.science import const
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.spectrum.create import power_spectrum
@@ -14,11 +15,11 @@ def snr_point(
         T_star: float,
         g_star: float,
         v_wall: float,
-        adiabatic_ratio: float,
-        f_min: float,
-        f_max: float,
         mission_profile: MissionProfile,
         engine: Engine,
+        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        f_min: float = const.DEFAULT_SNR_F_MIN,
+        f_max: float = const.DEFAULT_SNR_F_MAX,
         ubarf_rstar: bool = False) -> tuple[float, float]:
     kwargs = {"ubarf": x, "r_star": y} if ubarf_rstar \
         else {"alpha": x, "beta_over_H": y}
