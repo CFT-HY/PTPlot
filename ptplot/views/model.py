@@ -61,7 +61,7 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
         beta_over_Hs=beta_over_Hs,
         labels=labels,
         titles=titles,
-        mission_profile=model.mission_profile,
+        mission_profile=form.mission_profile,
         huge_alpha=model.huge_alpha,
         engine=form.cleaned_data["engine"]
     )
@@ -89,7 +89,7 @@ def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
         beta_over_Hs=beta_over_Hs,
         labels=labels,
         titles=titles,
-        mission_profile=model.mission_profile,
+        mission_profile=form.mission_profile,
         huge_alpha=model.huge_alpha,
         engine=form.cleaned_data["engine"]
     )

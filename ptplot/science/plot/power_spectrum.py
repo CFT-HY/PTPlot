@@ -94,7 +94,7 @@ def ps_figure(
         #          fontsize=50, color="gray",
         #          ha="right", va="bottom", alpha=0.4)
 
-        add_text(fig, watermark())
+        add_text(fig, f"{watermark()}, SNR={snr_value:g}")
     return fig
 
 

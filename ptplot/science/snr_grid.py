@@ -27,6 +27,10 @@ from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr import snr_point
 import ptplot.science.type_hints as th
 
+type SNRGridOutput = \
+    tuple[th.FloatArr2D, th.FloatArr2D] | \
+    tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]
+
 
 def snr_grid(
         x: th.FloatOrArr1D,
@@ -39,8 +43,9 @@ def snr_grid(
         engine: Engine = Engine.DEFAULT,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
+        return_xy: bool = False,
         ubarf_rstar: bool = False,
-        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
+        log_progress_percentage: bool = True) -> SNRGridOutput:
     if T_star is None or not np.isfinite(T_star):
         raise ValueError(f"Invalid T_star={T_star}")
     if g_star is None or not np.isfinite(g_star):
@@ -80,6 +85,8 @@ def snr_grid(
             "ubarf_rstar": ubarf_rstar
         }
     )
+    if return_xy:
+        return snr, shock_times, x, y
     return snr, shock_times
 
 
@@ -94,7 +101,8 @@ def snr_grid_alpha_beta(
         engine: Engine = Engine.DEFAULT,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
-        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
+        log_progress_percentage: bool = True,
+        return_alpha_beta: bool = False) -> SNRGridOutput:
     r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -119,7 +127,8 @@ def snr_grid_alpha_beta(
         T_star=T_star, g_star=g_star, v_wall=v_wall,
         mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
         f_min=f_min, f_max=f_max,
-        log_progress_percentage=log_progress_percentage
+        return_xy=return_alpha_beta,
+        log_progress_percentage=log_progress_percentage,
     )
 
 
@@ -134,7 +143,8 @@ def snr_grid_ubarf_rstar(
         engine: Engine = Engine.DEFAULT,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
-        log_progress_percentage: bool = True) -> tuple[th.FloatArr2D, th.FloatArr2D]:
+        return_ubarf_rstar: bool = False,
+        log_progress_percentage: bool = True) -> SNRGridOutput:
     r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -159,11 +169,13 @@ def snr_grid_ubarf_rstar(
         T_star=T_star, g_star=g_star, v_wall=v_wall,
         mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
         f_min=f_min, f_max=f_max, ubarf_rstar=True,
+        return_xy=return_ubarf_rstar,
         log_progress_percentage=log_progress_percentage
     )
 
 
 def main():
+    """Script for command-line use"""
     # Todo: enable the v_wall argument
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",
@@ -173,7 +185,8 @@ def main():
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     tshHn, snr, log10_r_star, log10_ubarf = snr_grid_ubarf_rstar(
-        v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile, ubarf_max=1
+        v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile,
+        return_ubarf_rstar=True
     )
 
     # Use the mission profile to load the sensitivity curve name

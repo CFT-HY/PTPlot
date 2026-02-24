@@ -62,7 +62,7 @@ def snr_figure_ubarf_rstar(
     if v_walls is None:
         v_walls = v_wall_snr
 
-    ubarf = np.logspace(const.DEFAULT_UBARF_RANGE[0], 1000, const.DEFAULT_UBARF_RANGE.size) \
+    ubarf = np.logspace(const.DEFAULT_UBARF_RANGE[0], 3, const.DEFAULT_UBARF_RANGE.size) \
             if huge_alpha else const.DEFAULT_UBARF_RANGE
     r_star = const.DEFAULT_R_STAR_RANGE
     snr, shock_times = snr_grid_ubarf_rstar(
