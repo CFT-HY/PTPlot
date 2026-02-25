@@ -32,19 +32,19 @@ class Command(BaseCommand):
                 "featuring a PNGB Higgs and a PNGB dilaton (supplied by G. Servant)."
             ),
             notes=cleandoc(r"""
-                Composite Higgs models, which aim at addressing the hierarchy
-                problem, are a natural framework for very supercooled EW phase
-                transitions.  The Lagrangian and the parameter regions are given in
-                Section III and Section VI respectively of
-                https://arxiv.org/pdf/1804.07314.pdf, Figure 16 of that paper shows
-                typical values of $\alpha$ and $\beta/H$.  In this framework, the dynamics
-                of the EW phase transition is governed by the interplay between the
-                dilaton and the Higgs fields.  In these models where a very large
-                number of degrees of freedom become massive during the phase
-                transition, the friction and the bubble wall velocity have not yet
-                been computed and v_w is set to 0.95 for illustration.  Benchmark
-                points correspond to two categories where the dilaton (a composite
-                particle) is either a meson-like or a glueball-like state.
+                Composite Higgs models, which aim at addressing the hierarchy problem,
+                are a natural framework for very supercooled EW phase transitions.
+                The Lagrangian and the parameter regions are given in Section III and Section VI respectively of
+                https://arxiv.org/pdf/1804.07314.pdf,
+                Figure 16 of that paper shows typical values of $\alpha$ and $\beta/H$.
+                In this framework, the dynamics of the EW phase transition is governed
+                by the interplay between the dilaton and the Higgs fields.
+                In these models where a very large number of degrees of freedom
+                become massive during the phase transition,
+                the friction and the bubble wall velocity have not yet been computed
+                and v_w is set to 0.95 for illustration.
+                Benchmark points correspond to two categories where the dilaton
+                (a composite particle) is either a meson-like or a glueball-like state.
                 """),
             T_star=150,
             g_star=106.75,
@@ -262,15 +262,17 @@ class Command(BaseCommand):
                 "(supplied by E. Madge)."
             ),
             notes=cleandoc(r"""
-                Benchmark points for the lepton number phase transition in the
-                model considered in https://arxiv.org/abs/1809.09110, see section 5.2
-                for the potential.  Lepton number is gauged as a $U(1)_\ell$ gauge
-                group. The corresponding gauge boson acquires a mass $m_{Z'}$ when
-                $U(1)_\ell$ is spontaneously broken by an SM singlet scalar $\phi$
-                with mass $m_\phi$ and lepton number 3. The VEV is set to $v_\phi =
-                2\,\text{TeV}$. Four different scenarios for the masses of the DM
-                ($m_\text{DM}$) and additional leptons ($m_\text{HL}$) are
-                considered.
+                Benchmark points for the lepton number phase transition
+                in the model considered in https://arxiv.org/abs/1809.09110,
+                see section 5.2 for the potential.
+                Lepton number is gauged as a $U(1)_\ell$ gauge group.
+                The corresponding gauge boson acquires a mass $m_{Z'}$
+                when $U(1)_\ell$ is spontaneously broken by an SM singlet scalar $\phi$
+                with mass $m_\phi$ and lepton number 3.
+                The VEV is set to $v_\phi = 2\,\text{TeV}$.
+                Four different scenarios for the masses of the DM
+                ($m_\text{DM}$) and additional leptons ($m_\text{HL}$)
+                are considered.
                 """),
             T_star=500,
             g_star=130,
@@ -632,10 +634,11 @@ class Command(BaseCommand):
                 $$\Delta V = \frac{1}{2}a_2 |H|^2 S^2 + \frac{1}{2} b_2 S^2 + \frac{1}{4} b_4 S^4.$$
 
                 The parameter $m$ below stands for the physical mass of the singlet.
-                For each pair $(m, a_2)$, the remaining free parameter, namely
-                the singlet self coupling $b_4$, is taken to be the one that maximizes
-                the strength of the phase transition, computed using a modified version
-                of CosmoTransitions (see https://arxiv.org/abs/1109.4189).
+                For each pair $(m, a_2)$, the remaining free parameter,
+                namely the singlet self coupling $b_4$,
+                is taken to be the one that maximizes the strength of the phase transition,
+                computed using a modified version of CosmoTransitions
+                (see https://arxiv.org/abs/1109.4189).
                 """),
             T_star=50,
             g_star=106.75,
@@ -679,10 +682,11 @@ class Command(BaseCommand):
                 b_4 S^4.$$
 
                 The parameter $m$ below stands for the physical mass of the singlet.
-                For each pair $(m, a_2)$, the remaining free parameter, namely
-                the singlet self coupling $b_4$, is taken to be the one that maximizes
-                the strength of the phase transition, computed using a modified version
-                of CosmoTransitions (see https://arxiv.org/abs/1109.4189).
+                For each pair $(m, a_2)$, the remaining free parameter,
+                namely the singlet self coupling $b_4$,
+                is taken to be the one that maximizes the strength of the phase transition,
+                computed using a modified version of CosmoTransitions
+                (see https://arxiv.org/abs/1109.4189).
                 """),
             T_star=50,
             g_star=106.75,
@@ -800,14 +804,14 @@ class Command(BaseCommand):
         )
         singlet_scalars.save()
 
-        moritz_points: DataFrame = read_csv(
+        points: DataFrame = read_csv(
             os.path.join(FILEDIR, "datapoints_TwoRealScalarSinglets.csv"),
             sep=",",
             dtype=np.float64,
             engine="c",
         )
-        moritz_points.T_nuc *= 200  # scale factor
-        for row in moritz_points.itertuples():
+        points.T_nuc *= 200  # scale factor
+        for row in points.itertuples():
             point = ParameterChoice(
                 model=singlet_scalars,
                 number=row.Index + 1,  # type: ignore
@@ -1044,8 +1048,8 @@ class Command(BaseCommand):
                 \end{eqnarray}
                 In the mass basis, there are three new physical states in addition to the 125 GeV Higgs $h$:
                 a charged scalar $H^{\pm}$ and two neutral states $H_0$, $A_0$.
-                Apart from their masses, the 2HDM features as free
-                parameters two angles ($\beta$ and $\alpha$) and $\mu^2$.
+                Apart from their masses, the 2HDM features as free parameters two angles
+                ($\beta$ and $\alpha$) and $\mu^2$.
                 In the following results we consider $m_{H^{\pm}} = m_{A_0}$,
                 $\mathrm{cos} (\beta - \alpha) = 0$ (the 2HDM alignment limit) an fix for convenience
                 $\mu^2 (\mathrm{tan} \beta + \mathrm{tan}^{-1} \beta) = m_{H_0}^2$.
