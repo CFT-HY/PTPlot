@@ -1,5 +1,6 @@
 """Sound Shell Model (SSM) power spectrum"""
 
+from functools import lru_cache
 import logging
 
 import numpy as np
@@ -56,7 +57,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
         self.model: Model = model
-        self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha)
+        self.bubble: Bubble = bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha)
 
     def K(self) -> float:
         # Todo: Use the value from the SSM Spectrum object
@@ -100,3 +101,9 @@ class PowerSpectrumSSM(PowerSpectrum):
                     exc_info=exc
                 )
             raise exc
+
+
+@lru_cache(maxsize=256)
+def bubble(model: Model, v_wall: float, alpha_n: float):
+    """Caching Bubble generator for speed-up"""
+    return Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
