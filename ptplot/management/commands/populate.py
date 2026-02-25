@@ -280,7 +280,8 @@ class Command(BaseCommand):
                 """),
             T_star=500,
             g_star=130,
-            v_wall=1.0,
+            # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
@@ -575,7 +576,8 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=107.75,
-            v_wall=1.0,
+            # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
