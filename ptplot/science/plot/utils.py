@@ -44,11 +44,11 @@ def add_ticks(
     if xtickpos is None:
         xtickpos = range(x_min_int, x_max_int + 1)
     if xticklabels is None:
-        xticklabels = ["1" if ind == 1 else rf"$10^{{{ind:d}}}$" for ind in xtickpos]
+        xticklabels = tick_labels_log(xtickpos)
     if ytickpos is None:
         ytickpos = range(y_min_int, y_max_int + 1)
     if yticklabels is None:
-        yticklabels = ["1" if ind == 1 else rf"$10^{{{ind:d}}}$" for ind in ytickpos]
+        yticklabels = tick_labels_log(xtickpos)
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
     ax.set_xticks(
@@ -87,6 +87,15 @@ def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
         for i in range(min_int, max_int)
     ])
+
+
+def tick_labels_log(pos: th.FloatArr1D) -> list[str]:
+    return [
+            "1" if np.isclose(x, 0)
+            else "10" if np.isclose(x, 1)
+            else rf"$10^{{{x:d}}}$"
+            for x in pos
+        ]
 
 
 def watermark() -> str:
