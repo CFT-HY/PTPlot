@@ -16,7 +16,11 @@ docs/gen_modules
 docs/sg_execution_times.rst
 env/django.env
 env/wud.env
+examples/fig
 htmlcov
+logs
+# This should be removed when the migrations are stable enough to be pushed to Git.
+ptplot/migrations/0*_*.py
 pylint.txt
 test-results
 venv
