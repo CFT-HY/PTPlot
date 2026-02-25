@@ -43,6 +43,7 @@ class BenchmarkForm(Form):
 
     @property
     def mission_profile(self) -> MissionProfile:
+        """Get the mission profile object"""
         return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 

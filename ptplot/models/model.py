@@ -69,15 +69,20 @@ class Model(models.Model):
 
     @property
     def mission_profile(self) -> MissionProfile:
+        """Get the mission profile object"""
         return MissionProfile.from_ind(self.mission_profile_ind)
 
     def point_data(self) -> DataFrame:
+        """Get the data of the points of this model as a DataFrame"""
         return point_data(self.points.all())
 
     def point_data_by_scenario(self) -> "dict[Scenario, DataFrame]":
+        """Get the data of the points of this model by scenario"""
         return {scenario: scenario.point_data() for scenario in self.scenarios.prefetch_related("points").all()}
 
-    def point_data_by_field(self):
+    def point_data_by_field(self) \
+            -> tuple[th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, list[str], str]:
+        """Get the data of the points of this model as arrays of each field"""
         data = self.point_data()
         v_wall = data["v_wall"].values
         alpha = data["alpha_n"].values
@@ -97,6 +102,7 @@ class Model(models.Model):
                 th.FloatArr1DOrListOfArr1D,
                 list[list[str]] | list[str],
                 list[str] | str]:
+        """Get the data of the points of this model as arrays of each field, in lists by scenario"""
         if not self.has_scenarios:
             return self.point_data_by_field()
         scenarios = self.scenarios.prefetch_related("points").all()

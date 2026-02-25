@@ -14,7 +14,8 @@ if len(sys.argv) != 3:
 inputfile = sys.argv[1]
 outputfile = sys.argv[2]
 
-tree = etree.parse(open(inputfile))
+with open(inputfile, "rb") as file:
+    tree = etree.parse(file)
 
 # matches annotations: watermark and timestamp
 to_remove = tree.xpath(

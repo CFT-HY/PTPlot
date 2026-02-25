@@ -5,7 +5,7 @@ import enum
 
 import numpy as np
 from pandas import DataFrame
-from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f, f_star0, F_gw0, J
+from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f as f_func, f_star0, F_gw0, J
 from pttools.utils import copy_docstrings_without_params
 
 from ptplot.science import const
@@ -155,7 +155,7 @@ class PowerSpectrum(abc.ABC):
 
         :return: Peak frequency $f_\text{peak}$ in Hz
         """
-        return f(z=self.zp, r_star=self.r_star, f_star0=f_star0(Tn=self.T_star, g_star=self.g_star))
+        return f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(Tn=self.T_star, g_star=self.g_star))
 
     def F_gw0(  # pylint: disable=missing-function-docstring
             self,

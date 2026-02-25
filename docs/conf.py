@@ -5,6 +5,8 @@ For the full list of built-in configuration values, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+# pylint: disable=invalid-name, redefined-builtin
+
 from datetime import date
 import os.path
 import sys
@@ -23,7 +25,7 @@ os.makedirs(os.path.join(dir_path, "_static"), exist_ok=True)
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'PTPlot'
-with open(os.path.join(repo_path, "AUTHORS")) as file:
+with open(os.path.join(repo_path, "AUTHORS"), "r") as file:
     _authors = file.read().splitlines()
 author = f"{', '.join(_authors[:-1])} & {_authors[-1]}"
 copyright = f"2018-{date.today().year}, {author}"
@@ -117,7 +119,10 @@ extlinks: dict[str, tuple[str, str]] = {
     # Theses
     "hakkinen_msc": ("https://hdl.handle.net/10138/576963%s", "Häkkinen, 2024%s"),
     # Other
-    "hakkinen_ptplot": ("https://version.helsinki.fi/hakkijen/ptplot-with-pttools%s", "PTPlot version by Jenni Häkkinen%s")
+    "hakkinen_ptplot": (
+        "https://version.helsinki.fi/hakkijen/ptplot-with-pttools%s",
+        "PTPlot version by Jenni Häkkinen%s"
+    )
 }
 
 show_memory = True

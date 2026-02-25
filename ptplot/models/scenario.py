@@ -12,6 +12,7 @@ from ptplot.science import const
 
 
 class Scenario(models.Model):
+    """A scenario with a particular $T_*$ for a particle physics model"""
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="scenarios")
     number = models.IntegerField()
     name = models.CharField(max_length=NAME_MAX_LENGTH)

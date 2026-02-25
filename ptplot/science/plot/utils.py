@@ -23,6 +23,7 @@ def add_text(
         ha: str = "left",
         va: str = "top",
         alpha: float = 1.0) -> Text:
+    """Add text to the given figure"""
     return fig.text(x=x, y=y, s=text, fontsize=fontsize, color=color, ha=ha, va=va, alpha=alpha)
 
 
@@ -36,6 +37,7 @@ def add_ticks(
         ytickpos: th.FloatArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None) -> None:
+    """Add ticks to the given axes"""
     x_min_int = int(math.ceil(x_min))
     x_max_int = int(math.floor(x_max))
     y_min_int = int(math.ceil(y_min))
@@ -64,6 +66,7 @@ def add_ticks(
 
 
 def fig_to_svg(fig: Figure) -> bytes:
+    """Convert a Figure to an SVG"""
     with io.BytesIO() as buffer:
         fig.savefig(buffer, format="svg")
         return buffer.getvalue()
@@ -82,6 +85,7 @@ def find_label_place(
 
 
 def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
+    """Create minor ticks in the given range"""
     # Todo: This may be possible with one call of np.logspace
     return np.concatenate([
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
@@ -90,6 +94,7 @@ def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
 
 
 def tick_labels_log(pos: th.FloatArr1D) -> list[str]:
+    """Create tick labels for a logarithmic axis"""
     return [
             "1" if np.isclose(x, 0)
             else "10" if np.isclose(x, 1)
@@ -99,4 +104,5 @@ def tick_labels_log(pos: th.FloatArr1D) -> list[str]:
 
 
 def watermark() -> str:
+    """Get the watermark string"""
     return f"PTPlot {GIT_DESCRIPTION}, {datetime.now().isoformat(sep=" ", timespec="seconds")}"

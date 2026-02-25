@@ -16,11 +16,11 @@ RUN apt-get update \
 COPY manage.py requirements.txt /ptplot/
 WORKDIR /ptplot
 RUN chmod 0444 /ptplot/requirements.txt \
-    && pip install --root-user-action=ignore --no-cache-dir -r requirements.txt
+    && pip install --root-user-action=ignore --no-cache-dir -r /ptplot/requirements.txt
 
 # Copy the project
 COPY ./ptplot /ptplot/ptplot/
 COPY ./ptplot_site /ptplot/ptplot_site/
-# python manage.py collectstatic
+# RUN python manage.py collectstatic
 
 ENTRYPOINT ["gunicorn", "ptplot_site.wsgi", "--bind", "0.0.0.0:8000"]

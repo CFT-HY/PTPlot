@@ -15,17 +15,17 @@ import ptplot.science.type_hints as th
 logger = logging.getLogger(__name__)
 
 GIT_DESCRIPTION: str = "unknown"
-HAVE_GITVER: bool = False
+HAVE_GITVER: bool = False  # pylint: disable=invalid-name
 
 try:
     GIT_DESCRIPTION = describe(Repo.discover(os.path.realpath(os.path.dirname(__file__))))
-    HAVE_GITVER = True
+    HAVE_GITVER = True  # pylint: disable=invalid-name
 except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)
 
 
 def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list[np.ndarray]]:
-    """Convert a scalar, 1D array or 2D array into a 2D numpy array.
+    """Convert one or several of these to a 2D Numpy array: a scalar, 1D array or 2D array
 
     You can convert multiple arguments at once, and the output will be a list of 2D numpy arrays.
     Similar to numpy.atleast_2d, but supports nested lists with varying lengths.
@@ -39,6 +39,7 @@ def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list
 
 
 def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:
+    """Convert a scalar, 1D array or 2D array to a Numpy array"""
     if isinstance(values, np.ndarray):
         if values.ndim == 0:
             return np.array([[values]])
