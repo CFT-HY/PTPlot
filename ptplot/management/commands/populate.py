@@ -27,6 +27,7 @@ class Command(BaseCommand):
     def composite() -> Model:
         composite = Model(
             name="Composite Higgs models benchmark points",
+            slug="composite",
             description=(
                 "Benchmark points for minimal composite Higgs models, "
                 "featuring a PNGB Higgs and a PNGB dilaton (supplied by G. Servant)."
@@ -127,6 +128,7 @@ class Command(BaseCommand):
     def dark_photon_moritz() -> Model:
         dark_photon_moritz = Model(
             name="Dark photon benchmark points",
+            slug="dark_photon_moritz",
             description=(
                 r"Benchmark points for a model with a spontaneously broken $\mathrm{U}(1)$ gauge symmetry "
                 "in a hidden sector (supplied by M. Breitbach)."
@@ -170,6 +172,7 @@ class Command(BaseCommand):
     def eft_miki() -> Model:
         eft_miki = Model(
             name="EFT benchmark points",
+            slug="eft_miki",
             description=(
                 "Benchmark points for the SM extended with effective operators up to dimension eight "
                 "(supplied by M. Chala). "
@@ -257,6 +260,7 @@ class Command(BaseCommand):
     def gauged_lepton_madge() -> Model:
         gauged_lepton_madge = Model(
             name="Gauged Lepton Number Model benchmark points",
+            slug="gauged_lepton_madge",
             description=(
                 "Lepton number breaking phase transition in an extension of the SM with gauged lepton number "
                 "(supplied by E. Madge)."
@@ -359,6 +363,7 @@ class Command(BaseCommand):
     def randall_sundrum() -> Model:
         rs_model = Model(
             name="Randall-Sundrum model benchmark points",
+            slug="randall-sundrum",
             description=(
                 "Benchmark points for the holographic phase transition in Randall-Sundrum models "
                 "(supplied by G. Nardini)."
@@ -544,6 +549,7 @@ class Command(BaseCommand):
     def singlet_jonathan() -> Model:
         singlet_jonathan = Model(
             name="Singlet scalar benchmark points",
+            slug="singlet_jonathan",
             description=(
                 "Benchmark points for the SM extended with a general real singlet scalar field, $S$ "
                 "(supplied by J. Kozaczuk)."
@@ -625,6 +631,7 @@ class Command(BaseCommand):
     def singlet_jonathan_z2() -> Model:
         singlet_jonathan_z2 = Model(
             name="$Z_2$-symmetric singlet scalar benchmark points",
+            slug="singlet_jonathan_z2",
             description=(
                 "Benchmark points for the SM extended with a scalar singlet "
                 "with $Z_2$ symmetry (supplied by J. Kozaczuk)."
@@ -672,6 +679,7 @@ class Command(BaseCommand):
     def singlet_miki() -> Model:
         singlet_miki = Model(
             name="$Z_2$-symmetric singlet scalar benchmark points",
+            slug="singlet_miki",
             description=(
                 "Benchmark points for the SM extended with a scalar singlet with "
                 "$Z_2$ symmetry (supplied by M. Chala)."
@@ -719,6 +727,7 @@ class Command(BaseCommand):
     def singlet_portal() -> Model:
         singlet_portal = Model(
             name="Singlet (Higgs Portal) benchmark points",
+            slug="singlet_portal",
             description=(
                 "Real singlet extension of the Standard Model with $Z_2$ symmetry, "
                 r"with $m_S = 250\, \mathrm{GeV}$."
@@ -786,6 +795,7 @@ class Command(BaseCommand):
     def singlet_scalars_moritz() -> Model:
         singlet_scalars = Model(
             name="Scalar dark sector benchmark points",
+            slug="singlet_scalars_moritz",
             description=(
                 "Benchmark points for a model with two gauge singlet scalars in a hidden sector "
                 "(supplied by M. Breitbach)."
@@ -829,6 +839,7 @@ class Command(BaseCommand):
     def susy():
         susy = Model(
             name="Some SUSY embeddings",
+            slug="susy",
             description=(
                 "Benchmark points for some SUSY embeddings with chiral "
                 "supersinglets or supertriplets (supplied by G. Nardini)."
@@ -1028,6 +1039,7 @@ class Command(BaseCommand):
     def twohdm_josemi() -> None:
         twohdm_josemi = Model(
             name="2HDM benchmark points",
+            slug="twohdm_josemi",
             description=(
                 "Benchmark points for the two-Higgs-doublet model with a softly-broken $Z_2$ symmetry "
                 "(supplied by G. Dorsch and J.M. No)."

@@ -20,6 +20,7 @@ if tp.TYPE_CHECKING:
 class Model(models.Model):
     """A particle physics model"""
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
+    slug = models.SlugField(max_length=NAME_MAX_LENGTH, unique=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     v_wall = models.FloatField(
