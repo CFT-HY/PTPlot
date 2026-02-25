@@ -87,7 +87,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             ((1 + self.rb**4) / (self.rb**4 + s**4)) ** ((9 - b) / 4) * \
             ((b + 4) / (b + 4 - m + m * s**2)) ** ((b + 4) / 2)
 
-    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
+    def power_spectrum(self, f: th.FloatOrArr, log_errors: bool = False) -> th.FloatOrArr:
         r"""Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
 
         $$\Omega_\text{gw}^\text{fit} = F_{\text{gw},0} \Omega_p M(s, r_b, b)$$

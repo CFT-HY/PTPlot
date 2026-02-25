@@ -66,6 +66,7 @@ class PowerSpectrumSSM(PowerSpectrum):
     def power_spectrum(
             self,
             f: th.FloatArr1D,
+            log_errors: bool = True,
             g0: float = G0,
             gs0: float = GS0,
             sup: Suppression = SUPPRESSION_DEFAULT,
@@ -75,17 +76,27 @@ class PowerSpectrumSSM(PowerSpectrum):
         The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
         as is done for the other models (BPL and DBPL).
         """
-        if np.isnan(f).any():
-            raise ValueError("f must not contain nan values.")
-        # Todo: Use pttools.omgw0.freq.z() instead when it's available
-        z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * self.r_star
-        if np.isnan(z).any():
-            raise ValueError("z must not contain nan values.")
+        z = None
         try:
+            if np.isnan(f).any():
+                raise ValueError("f must not contain nan values.")
+            # Todo: Use pttools.omgw0.freq.z() instead when it's available
+            z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * self.r_star
+            if np.isnan(z).any():
+                raise ValueError("z must not contain nan values.")
             spectrum = Spectrum(bubble=self.bubble, y=z, r_star=self.r_star, g_star=self.g_star, Tn=self.T_star)
-        except ValueError as e:
-            logger.error(
-                "Could not create SSM spectrum with r_star=%s, g_star=%s, Tn=%s, z = %.3e - %.3e (%s points)",
-                self.r_star, self.g_star, self.T_star, z.min(), z.max(), z.size)
-            raise e
-        return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0, sup=sup, sup_method=sup_method)
+            return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0, sup=sup, sup_method=sup_method)
+        except Exception as exc:
+            if log_errors:
+                if z is None:
+                    z_min = z_max = None
+                else:
+                    z_min = z.min()
+                    z_max = z.max()
+                logger.exception(
+                    "Could not create SSM power spectrum with r_star=%s, g_star=%s, Tn=%s, "
+                    "f = %.3e - %.3e, z = %.3e - %.3e (%s points)",
+                    self.r_star, self.g_star, self.T_star, f.min(), f.max(), z_min, z_max, f.size,
+                    exc_info=exc
+                )
+            raise exc

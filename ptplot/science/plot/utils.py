@@ -50,7 +50,7 @@ def add_ticks(
     if ytickpos is None:
         ytickpos = range(y_min_int, y_max_int + 1)
     if yticklabels is None:
-        yticklabels = tick_labels_log(xtickpos)
+        yticklabels = tick_labels_log(ytickpos)
     ax.set_xticks(xtickpos)
     ax.set_xticklabels(xticklabels)
     ax.set_xticks(

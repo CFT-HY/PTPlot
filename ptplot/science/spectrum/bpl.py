@@ -76,7 +76,7 @@ class PowerSpectrumBPL(PowerSpectrum):
         """
         return 27e-6 * (1 / self.v_wall) * self.beta_over_H * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
-    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
+    def power_spectrum(self, f: th.FloatOrArr, log_errors: bool = False) -> th.FloatOrArr:
         """Power spectrum from sound waves (conservative)"""
         return self.power_spectrum_sw_conservative(f)
 

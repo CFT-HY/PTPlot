@@ -207,8 +207,14 @@ class PowerSpectrum(abc.ABC):
         return self.H_tsh
 
     @abc.abstractmethod
-    def power_spectrum(self, f: th.FloatOrArr) -> th.FloatOrArr:
-        """GW power spectrum"""
+    def power_spectrum(self, f: th.FloatOrArr, log_errors: bool = False) -> th.FloatOrArr:
+        """GW power spectrum
+
+        :param f: Frequency range
+        :param log_errors: Log errors.
+          Change the default to True when implementing a PowerSpectrum class that has error logging.
+        :return: GW power spectrum, multiplied by $h^2$ and therefore independent of $h$.
+        """
 
 
 ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
