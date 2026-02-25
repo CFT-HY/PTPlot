@@ -90,15 +90,15 @@ def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr
     if np.isscalar(x):
         x_min = x_max = x
     elif isinstance(x, list):
-        x_min = np.min([np.min(sub_x) for sub_x in x])
-        x_max = np.max([np.max(sub_x) for sub_x in x])
+        x_min = np.nanmin([np.nanmin(sub_x) for sub_x in x])
+        x_max = np.nanmax([np.nanmax(sub_x) for sub_x in x])
     else:
-        x_min = np.min(x)
-        x_max = np.max(x)
+        x_min = np.nanmin(x)
+        x_max = np.nanmax(x)
 
     return np.logspace(
-            min(np.log10(x_min), np.log10(default[0])),
-            max(np.log10(x_max), np.log10(default[-1])),
+            np.log10(min(x_min, default[0])),
+            np.log10(max(x_max, default[-1])),
             default.size) \
         if x_min < default[0] or x_max > default[-1] \
         else default

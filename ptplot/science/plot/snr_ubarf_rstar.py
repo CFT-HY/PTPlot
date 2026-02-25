@@ -25,7 +25,7 @@ from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfi
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid_ubarf_rstar
 import ptplot.science.type_hints as th
-from ptplot.science.utils import atleast_2d, R_star
+from ptplot.science.utils import atleast_2d, log_range, R_star
 
 
 def snr_figure_ubarf_rstar(
@@ -62,37 +62,6 @@ def snr_figure_ubarf_rstar(
     if v_walls is None:
         v_walls = v_wall_snr
 
-    ubarf = np.logspace(const.DEFAULT_UBARF_RANGE[0], 3, const.DEFAULT_UBARF_RANGE.size) \
-            if huge_alpha else const.DEFAULT_UBARF_RANGE
-    r_star = const.DEFAULT_R_STAR_RANGE
-    snr, shock_times = snr_grid_ubarf_rstar(
-        v_wall=v_wall_snr,
-        T_star=T_star_snr,
-        g_star=g_star_snr,
-        mission_profile=mission_profile,
-        ubarf=ubarf,
-        r_star=r_star,
-        engine=engine
-    )
-    log10_ubarf = np.log10(ubarf)
-    log10_r_star = np.log10(r_star)
-    ubarf_mid = (log10_ubarf[0] + log10_ubarf[-1]) / 2
-    fig, ax = snr_figure(
-        x=np.log10(ubarf),
-        y=np.log10(r_star),
-        xlabel=r"$\overline{U}_{\rm f}$",
-        ylabel=r"$H_{\rm n} R_*$",
-        titles=titles,
-        snr=snr,
-        shock_times=shock_times,
-        shock_label_locs=np.array([
-            (ubarf_mid + 0.2 - 0.2 * i, y)
-            for i, y in enumerate(range(int(log10_r_star[0]), int(log10_r_star[-1]) + 1))
-        ]),
-        label_wanted_y=-2.5,
-        huge_alpha=huge_alpha,
-    )
-
     # Ensure that input values are 2D arrays
     v_walls, alphas, beta_over_Hs = atleast_2d(v_walls, alphas, beta_over_Hs)
     if labels:
@@ -101,20 +70,61 @@ def snr_figure_ubarf_rstar(
         elif isinstance(labels[0], str):
             labels = [labels]
 
-    # Iterate over scenarios
-    for i, (v_wall_set, beta_over_H_set, alpha_set) in enumerate(zip(v_walls, beta_over_Hs, alphas)):
-        log10_ubarfs = [
-            np.log10(ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio))
+    # Ensure that all points fit in the plotting range
+    ubarfs = [
+        np.array([
+            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio)
             for v_wall, alpha in zip(v_wall_set, alpha_set)
-        ]
-        log10_R_stars = np.log10(R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
+        ])
+        for v_wall_set, alpha_set in zip(v_walls, alphas)
+    ]
+    r_stars = [
+            R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0)
+            for beta_over_H_set, v_wall_set in zip(beta_over_Hs, v_walls)
+    ]
+    ubarf_grid = log_range(ubarfs, const.DEFAULT_UBARF_RANGE)
+    r_star_grid = log_range(r_stars, const.DEFAULT_R_STAR_RANGE)
+
+    snr, shock_times = snr_grid_ubarf_rstar(
+        v_wall=v_wall_snr,
+        T_star=T_star_snr,
+        g_star=g_star_snr,
+        mission_profile=mission_profile,
+        ubarf=ubarf_grid,
+        r_star=r_star_grid,
+        engine=engine
+    )
+    log10_ubarf_grid = np.log10(ubarf_grid)
+    log10_r_star_grid = np.log10(r_star_grid)
+    log10_ubarf_mid = (log10_ubarf_grid[0] + log10_ubarf_grid[-1]) / 2
+    fig, ax = snr_figure(
+        x=log10_ubarf_grid,
+        y=log10_r_star_grid,
+        xlabel=r"$\overline{U}_{\rm f}$",
+        ylabel=r"$r_* = H_{\rm n} R_*$",
+        titles=titles,
+        snr=snr,
+        shock_times=shock_times,
+        shock_label_locs=np.array([
+            (log10_ubarf_mid + 0.2 - 0.2 * i, y)
+            for i, y in enumerate(range(int(log10_r_star_grid[0]), int(log10_r_star_grid[-1]) + 1))
+        ]),
+        label_wanted_y=-2.5,
+        huge_alpha=huge_alpha,
+    )
+
+    # Iterate over scenarios
+    for i, (v_wall_set, beta_over_H_set, alpha_set, ubarf_set, r_star_set) \
+            in enumerate(zip(v_walls, beta_over_Hs, alphas, ubarfs, r_stars)):
+        log10_ubarf_set = np.log10(ubarf_set)
+        log10_r_star_set = np.log10(r_star_set)
 
         # Plot points
-        ax.plot(log10_ubarfs, log10_R_stars, ".")
+        ax.plot(log10_ubarf_set, log10_r_star_set, ".")
         # Add labels to points
         if labels:
             label_set = labels[i]
-            for x, y, label in zip(log10_ubarfs, log10_R_stars, label_set):
+            for x, y, label in zip(log10_ubarf_set, log10_r_star_set, label_set):
                 ax.annotate(label, xy=(x, y), xycoords="data", xytext=(5, 0), textcoords="offset points")
 
     if titles:
