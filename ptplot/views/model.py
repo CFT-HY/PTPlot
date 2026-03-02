@@ -6,6 +6,7 @@ from django.shortcuts import render
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
+from ptplot.science.spectrum import Engine
 
 
 def models(request: HttpRequest) -> HttpResponse:
@@ -52,6 +53,27 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
 
     return fig_to_response(
         model.snr_figure_alpha_beta(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
+    )
+
+
+def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
+    """Compare the SNR of different engines for a model"""
+    model: Model = get_object_or_404_related(
+        Model,
+        prefetch=["scenarios"],
+        pk=model_id
+    )
+    form = BenchmarkForm(request.GET, model=model)
+    if not form.is_valid():
+        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+
+    engine = form.cleaned_data["engine"]
+    return fig_to_response(
+        model.snr_comparison(
+            engine1=Engine.BPL,
+            engine2=Engine.DBPL if engine == Engine.BPL else engine,
+            mission_profile=form.mission_profile
+        )
     )
 
 

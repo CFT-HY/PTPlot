@@ -12,6 +12,7 @@ from ptplot.models.model import Model
 from ptplot.science import const
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.spectrum import Engine
@@ -53,6 +54,27 @@ class Scenario(models.Model):
 
     def point_data(self) -> DataFrame:
         return point_data(self.points.all())
+
+    def snr_comparison(
+            self,
+            engine1: Engine,
+            engine2: Engine,
+            mission_profile: MissionProfile | None = None) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.model.mission_profile
+        data = self.point_data()
+        return snr_comparison(
+            engine1=engine1,
+            engine2=engine2,
+            v_wall_snr=self.model.v_wall,
+            T_star_snr=self.T_star_value,
+            g_star_snr=self.model.g_star,
+            alphas=data["alpha_n"].values,
+            beta_over_Hs=data["beta_over_H"].values,
+            labels=data["label"].to_list(),
+            titles=self.name,
+            mission_profile=mission_profile
+        )
 
     def snr_figure_alpha_beta(
             self,

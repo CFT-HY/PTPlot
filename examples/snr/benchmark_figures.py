@@ -39,6 +39,17 @@ def main():
             except Exception as exc:
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
 
+        for engine in (Engine.DBPL, Engine.SSM):
+            try:
+                snr_comp = model.snr_comparison(Engine.BPL, engine)
+                save(snr_comp, f"{model.slug}_snr_comparison_{engine.name}")
+            except Exception as exc:
+                logger.exception(
+                    "Failed to plot snr_comparison_%s for %s",
+                    engine.name, model.name,
+                    exc_info=exc
+                )
+
         try:
             snr_hist = model.snr_histogram()
             save(snr_hist, f"{model.slug}_snr_histogram")

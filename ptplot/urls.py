@@ -33,6 +33,7 @@ urlpatterns: list[URLPattern] = [
     path("models/<int:model_id>", views.model_detail, name="model_detail"),
     path("models/<int:model_id>/plot", views.model_detail_plot, name="model_detail_plot"),
     path("models/<int:model_id>/snr_alpha_beta.svg", views.model_snr_alpha_beta, name="model_snr_alpha_beta"),
+    path("models/<int:model_id>/snr_comparison.svg", views.model_snr_comparison, name="model_snr_comparison"),
     path("models/<int:model_id>/snr_histogram.svg", views.model_snr_histogram, name="model_snr_histogram"),
     path("models/<int:model_id>/snr_ubarf_rstar.svg", views.model_snr_ubarf_rstar, name="model_snr_ubarf_rstar"),
 
@@ -57,6 +58,11 @@ urlpatterns: list[URLPattern] = [
         name="model_point_snr_alpha_beta"
     ),
     path(
+        "models/<int:model_id>/<int:point_id>/snr_comparison.svg",
+        views.model_point_snr_comparison,
+        name="model_point_snr_comparison"
+    ),
+    path(
         "models/<int:model_id>/<int:point_id>/snr_ubarf_rstar.svg",
         views.model_point_snr_ubarf_rstar,
         name="model_point_snr_ubarf_rstar"
@@ -74,6 +80,11 @@ urlpatterns: list[URLPattern] = [
         "models/<int:model_id>/scenarios/<int:scenario_id>/snr_alpha_beta.svg",
         views.model_scenario_snr_alpha_beta,
         name="model_scenario_snr_alpha_beta"
+    ),
+    path(
+        "models/<int:model_id>/<int:point_id>/snr_comparison.svg",
+        views.model_scenario_snr_comparison,
+        name="model_scenario_snr_comparison"
     ),
     path(
         "models/<int:model_id>/scenarios/<int:scenario_id>/snr_histogram.svg",

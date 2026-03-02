@@ -12,6 +12,7 @@ from ptplot.science import const
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.plot.power_spectrum import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.spectrum import Engine, power_spectrum
 
@@ -140,6 +141,25 @@ class ParameterChoice(models.Model):
     #         mission_profile=mission_profile, engine=engine
     #     )
     #     return snr, shock_time
+
+    def snr_comparison(
+            self,
+            engine1: Engine,
+            engine2: Engine,
+            mission_profile: MissionProfile | None = None) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.model.mission_profile
+        return snr_comparison(
+            engine1=engine1,
+            engine2=engine2,
+            v_wall_snr=self.v_wall_value,
+            T_star_snr=self.T_star_value,
+            g_star_snr=self.g_star_value,
+            alphas=self.alpha,
+            beta_over_Hs=self.beta_over_H,
+            labels=self.short_label,
+            mission_profile=mission_profile,
+        )
 
     def snr_figure_alpha_beta(
             self,
