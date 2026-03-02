@@ -71,7 +71,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             g0: float = G0,
             gs0: float = GS0,
             sup: Suppression = SUPPRESSION_DEFAULT,
-            sup_method: SuppressionMethod = SuppressionMethod.NONE) -> th.FloatArr1D:
+            sup_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
         """Power spectrum from the Sound Shell Model
 
         The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
