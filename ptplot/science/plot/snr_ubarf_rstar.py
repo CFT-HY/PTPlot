@@ -16,16 +16,16 @@ import numpy as np
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
-from ptplot.science import const
+from ptplot.science import const, ubarf_rstar_from_alpha_beta
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import fig_to_svg
-from ptplot.science.espinosa import ubarf as ubarf_func
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.plot.logarithmic import add_points
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid_ubarf_rstar
 import ptplot.science.type_hints as th
-from ptplot.science.utils import atleast_2d, log_range, R_star
+from ptplot.science.utils import log_range
 
 
 def snr_figure_ubarf_rstar(
@@ -59,31 +59,16 @@ def snr_figure_ubarf_rstar(
     :param engine: Which power spectrum engine to use
     :return: SNR figure of $(\bar{U}_f, r_*)$
     """
-    if v_walls is None:
-        v_walls = v_wall_snr
-
-    # Ensure that input values are 2D arrays
-    v_walls, alphas, beta_over_Hs = atleast_2d(v_walls, alphas, beta_over_Hs)
-    if labels:
-        if isinstance(labels, str):
-            labels = [[labels]]
-        elif isinstance(labels[0], str):
-            labels = [labels]
-
-    # Ensure that all points fit in the plotting range
-    ubarfs = [
-        np.array([
-            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio)
-            for v_wall, alpha in zip(v_wall_set, alpha_set)
-        ])
-        for v_wall_set, alpha_set in zip(v_walls, alphas)
-    ]
-    r_stars = [
-            R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0)
-            for beta_over_H_set, v_wall_set in zip(beta_over_Hs, v_walls)
-    ]
-    ubarf_grid = log_range(ubarfs, const.DEFAULT_UBARF_RANGE)
-    r_star_grid = log_range(r_stars, const.DEFAULT_R_STAR_RANGE)
+    v_walls, ubarf, r_star, labels = ubarf_rstar_from_alpha_beta(
+        v_wall=v_wall_snr if v_walls is None else v_walls,
+        alpha=alphas,
+        beta_over_H=beta_over_Hs,
+        labels=labels,
+        cs=cs,
+        adiabatic_ratio=adiabatic_ratio
+    )
+    ubarf_grid = log_range(ubarf, const.DEFAULT_UBARF_RANGE)
+    r_star_grid = log_range(r_star, const.DEFAULT_R_STAR_RANGE)
 
     snr, shock_times = snr_grid_ubarf_rstar(
         v_wall=v_wall_snr,
@@ -112,45 +97,7 @@ def snr_figure_ubarf_rstar(
         label_wanted_y=-2.5,
         huge_alpha=huge_alpha,
     )
-
-    # Iterate over scenarios
-    for i, (v_wall_set, beta_over_H_set, alpha_set, ubarf_set, r_star_set) \
-            in enumerate(zip(v_walls, beta_over_Hs, alphas, ubarfs, r_stars)):
-        log10_ubarf_set = np.log10(ubarf_set)
-        log10_r_star_set = np.log10(r_star_set)
-
-        # Plot points
-        ax.plot(log10_ubarf_set, log10_r_star_set, ".")
-        # Add labels to points
-        if labels:
-            label_set = labels[i]
-            for x, y, label in zip(log10_ubarf_set, log10_r_star_set, label_set):
-                ax.annotate(label, xy=(x, y), xycoords="data", xytext=(5, 0), textcoords="offset points")
-
-    if titles:
-        ax.legend([titles] if isinstance(titles, str) else titles, loc="lower left", framealpha=0.9)
-
-    # Old attempts at getting the ticks in the right place
-    # xtickpos = [min(log10Ubarf)] \
-    #     + list(range(int(round(min(log10Ubarf))),
-    #                  int(round(max(log10Ubarf))+1))) \
-    #     + [max(log10Ubarf)]
-    # xticklabels = [r"$10^{%.2g}$" % min(log10Ubarf)] \
-    #     + [r"$10^{%d}$" % ind
-    #        for ind in list(range(int(round(min(log10Ubarf))),
-    #                              int(round(max(log10Ubarf))+1)))] \
-    #     + [r"$10^{%.2g}$" % max(log10Ubarf)]
-
-    # ytickpos = [min(log10HnRstar)] \
-    #     + list(range(int(math.ceil(min(log10HnRstar))),
-    #                  int(round(max(log10HnRstar))+1))) \
-    #     + [max(log10HnRstar)]
-    # yticklabels = [r"$10^{%.2g}$" % min(log10HnRstar)] \
-    #     + [r"$10^{%d}$" % ind
-    #        for ind in list(range(int(math.ceil(min(log10HnRstar))),
-    #                              int(round(max(log10HnRstar))+1)))] \
-    #     + [r"$10^{%.2g}$" % max(log10HnRstar)]
-
+    add_points(ax=ax, x=ubarf, y=r_star, labels=labels, titles=titles)
     return fig
 
 

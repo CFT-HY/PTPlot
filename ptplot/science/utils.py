@@ -9,6 +9,7 @@ from dulwich.repo import Repo
 import numpy as np
 
 from ptplot.science import const
+from ptplot.science.espinosa import ubarf as ubarf_func
 import ptplot.science.type_hints as th
 
 
@@ -103,6 +104,40 @@ def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr
             default.size) \
         if x_min < default[0] or x_max > default[-1] \
         else default
+
+
+def ubarf_rstar_from_alpha_beta(
+        v_wall: th.FloatOrArrOrListOfArr1D,
+        alpha: th.FloatOrArrOrListOfArr1D,
+        beta_over_H: th.FloatOrArrOrListOfArr1D,
+        labels: th.StrOrListOrNestedList,
+        cs: float = const.CS0,
+        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO) -> tuple[
+            th.FloatArr2DOrListOfArr1D,
+            th.FloatArr2DOrListOfArr1D,
+            th.FloatArr2DOrListOfArr1D,
+            th.StrOrListOrNestedList]:
+    # Ensure that input values are 2D arrays
+    v_wall, alpha, beta_over_H = atleast_2d(v_wall, alpha, beta_over_H)
+    if labels:
+        if isinstance(labels, str):
+            labels = [[labels]]
+        elif isinstance(labels[0], str):
+            labels = [labels]
+
+    ubarf = [
+        np.array([
+            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio)
+            for v_wall, alpha in zip(v_wall_set, alpha_set)
+        ])
+        for v_wall_set, alpha_set in zip(v_wall, alpha)
+    ]
+    r_star = [
+        R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0)
+        for beta_over_H_set, v_wall_set in zip(beta_over_H, v_wall)
+    ]
+    return v_wall, ubarf, r_star, labels
+
 
 # def xy_log_ranges(x: th.FloatArr1D, y: th.FloatArr1D, x_range_default: th.FloatArr1D, y_range_default: th.FloatArr1D):
 #     return log_range(x, x_range_default), log_range(y, y_range_default)

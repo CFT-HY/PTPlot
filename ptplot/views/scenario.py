@@ -6,9 +6,6 @@ from django.shortcuts import render
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Scenario
-from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
-from ptplot.science.plot.snr_histogram import snr_histogram
-from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:

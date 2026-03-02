@@ -18,10 +18,11 @@ from ptplot.science import const
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
+from ptplot.science.plot.logarithmic import add_points
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.snr_grid import snr_grid_alpha_beta
-from ptplot.science.utils import atleast_2d, log_range
+from ptplot.science.utils import log_range
 import ptplot.science.type_hints as th
 
 
@@ -78,60 +79,7 @@ def snr_figure_alpha_beta(
         label_wanted_y=2,
         huge_alpha=huge_alpha,
     )
-    alphas, beta_over_Hs = atleast_2d(alphas, beta_over_Hs)
-    if labels:
-        if isinstance(labels, str):
-            labels = [[labels]]
-        elif isinstance(labels[0], str):
-            labels = [labels]
-
-    # Iterate over scenarios
-    for i, (beta_over_H_set, alpha_set) in enumerate(zip(beta_over_Hs, alphas)):
-        alpha_log_set = np.log10(alpha_set)
-        log10_beta_over_H_set = np.log10(beta_over_H_set)
-
-        # Plot points
-        ax.plot(alpha_log_set, log10_beta_over_H_set, ".")
-        # Add labels to points
-        if labels:
-            label_set = labels[i]
-            for x, y, label in zip(alpha_log_set, log10_beta_over_H_set, label_set):
-                ax.annotate(label, xy=(x, y), xycoords="data", xytext=(5, 0), textcoords="offset points")
-
-    if titles:
-        ax.legend([titles] if isinstance(titles, str) else titles, loc="lower left", framealpha=0.9)
-
-    # Old attempts at getting the ticks in the right place
-    # xtickpos = [min(log10alpha)] \
-    #     + list(range(int(math.ceil(min(log10alpha))),
-    #                  int(math.floor(max(log10alpha))+1))) \
-    #     + [max(log10alpha)]
-    # xticklabels = [r"$10^{%.2g}$" % min(log10alpha)] \
-    #     + [r"$10^{%d}$" % ind
-    #        for ind in list(range(int(math.ceil(min(log10alpha))),
-    #                              int(math.floor(max(log10alpha))+1)))] \
-    #     + [r"$10^{%.2g}$" % max(log10alpha)]
-
-    # xtickpos = [-2, -1, 0, 1]
-    # xticklabels = [ r"$10^{-2}$", r"$10^{-1}$", r"$10^{0}$", r"$10^{1}$"]
-    # ytickpos = [min(log10BetaOverH)] \
-    #     + list(range(int(math.ceil(min(log10BetaOverH))),
-    #               int(math.floor(max(log10BetaOverH))+1))) \
-    #     + [max(log10BetaOverH)]
-    # yticklabels = [r"$10^{%.2g}$" % min(log10BetaOverH)] \
-    #     + [r"$10^{%d}$" % ind
-    #        for ind in list(range(int(math.ceil(min(log10BetaOverH))),
-    #                              int(math.floor(max(log10BetaOverH))+1)))] \
-    #     + [r"$10^{%.2g}$" % max(log10BetaOverH)]
-
-    # ytickpos = [0, 1, 2, 3, 4]
-    # yticklabels = [r"$10^{0}$", r"$10^{1}$", r"$10^{2}$", r"$10^{3}$", r"$10^{4}$"]
-
-    # # Remove if too close together
-    # if xtickpos[1]/xtickpos[0] < 3:
-    #     xtickpos = xtickpos[1:]
-    #     xticklabels = xticklabels[1:]
-
+    add_points(ax=ax, x=alphas, y=beta_over_Hs, labels=labels, titles=titles)
     return fig
 
 

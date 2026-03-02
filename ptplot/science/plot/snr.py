@@ -6,7 +6,8 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.plot.utils import add_text, add_ticks, find_label_place, watermark
+from ptplot.science.plot.logarithmic import log_figure
+from ptplot.science.plot.utils import add_text, find_label_place, watermark
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))
@@ -41,20 +42,18 @@ def snr_figure(
     The x and y axes are linear instead of logarithmic so that the contour plot is created correctly.
     """
     with rc_context(const.DEFAULT_RC_CONTEXT):
-        x_min: float = np.min(x)
-        x_max: float = np.max(x)
-        y_min: float = np.min(y)
-        y_max: float = np.max(y)
+        fig, ax, extent = log_figure(
+            x=x, y=y,
+            xlabel=xlabel, ylabel=ylabel,
+            xtickpos=xtickpos, ytickpos=ytickpos,
+            xticklabels=xticklabels, yticklabels=yticklabels
+        )
 
-        fig = Figure()
-        ax = fig.add_subplot()
-
-        extent = (x[0], x[-1], y[0], y[-1])
-        CS = ax.contour(
+        contours = ax.contour(
             x, y, snr, levels,
             linewidths=1, colors=COLOR_TUPLE, extent=extent
         )
-        CStsh = ax.contour(
+        contours_shock = ax.contour(
             x, y, shock_times, levels_tsh,
             linewidths=1, linestyles="dashed", colors="k", extent=extent
         )
@@ -77,17 +76,12 @@ def snr_figure(
                 for wanted_contour in levels
             ]
         if shock_label_locs is None:
-            locs_tsh_x = (x_max + x_min) / 2
-            shock_label_locs = [(locs_tsh_x, y) for y in range(int(y_min), int(y_max) + 1)]
-        ax.clabel(CS, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
-        ax.clabel(CStsh, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
+            locs_tsh_x = (x[-1] + x[0]) / 2
+            shock_label_locs = [(locs_tsh_x, y) for y in range(int(y[0]), int(y[-1]) + 1)]
+        ax.clabel(contours, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
+        ax.clabel(contours_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
         # ax.set_title(r"SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs")
         # ax.set_xlabel(r"$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $",fontsize=16)
-
-        ax.set_xlim(x_min, x_max)
-        ax.set_ylim(y_min, y_max)
-        ax.set_xlabel(xlabel, fontsize=label_fontsize)
-        ax.set_ylabel(ylabel, fontsize=label_fontsize)
 
         # July 2023: No longer watermark with LISACosWG
         # # position bottom right
@@ -97,11 +91,5 @@ def snr_figure(
         #     ha="right", va="bottom", alpha=0.4
         # )
 
-        add_ticks(
-            ax,
-            x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max,
-            xtickpos=xtickpos, ytickpos=ytickpos,
-            xticklabels=xticklabels, yticklabels=yticklabels
-        )
         add_text(fig, watermark())
         return fig, ax
