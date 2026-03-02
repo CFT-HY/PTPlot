@@ -4,10 +4,16 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from matplotlib.figure import Figure
 
 from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
 from ptplot.science import const
+from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.plot.power_spectrum import power_spectrum_figure
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.spectrum import Engine, power_spectrum
 
 
 class ParameterChoice(models.Model):
@@ -91,6 +97,35 @@ class ParameterChoice(models.Model):
     # Methods
     # -----
 
+    def csv(self, mission_profile: MissionProfile | None = None, engine: Engine = Engine.DEFAULT) -> str:
+        if mission_profile is None:
+            mission_profile = self.model.mission_profile
+        return power_spectrum(
+            T_star=self.T_star_value,
+            g_star=self.g_star_value,
+            v_wall=self.v_wall_value,
+            alpha=self.alpha,
+            beta_over_H=self.beta_over_H,
+            engine=engine
+        ).csv(mission_profile=mission_profile)
+
+    def power_spectrum_figure(
+            self,
+            mission_profile: MissionProfile | None = None,
+            engine: Engine = Engine.DEFAULT) -> Figure:
+        spectrum = power_spectrum(
+            T_star=self.T_star_value,
+            g_star=self.g_star_value,
+            v_wall=self.v_wall_value,
+            alpha=self.alpha,
+            beta_over_H=self.beta_over_H,
+            engine=engine
+        )
+        return power_spectrum_figure(
+            spectrum=spectrum,
+            mission_profile=mission_profile
+        )
+
     # def snr(
     #         self,
     #         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
@@ -105,6 +140,43 @@ class ParameterChoice(models.Model):
     #         mission_profile=mission_profile, engine=engine
     #     )
     #     return snr, shock_time
+
+    def snr_figure_alpha_beta(
+            self,
+            mission_profile: MissionProfile | None = None,
+            engine: Engine = Engine.DEFAULT) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.model.mission_profile
+        return snr_figure_alpha_beta(
+            v_wall_snr=self.v_wall_value,
+            T_star_snr=self.T_star_value,
+            g_star_snr=self.g_star_value,
+            alphas=self.alpha,
+            beta_over_Hs=self.beta_over_H,
+            labels=self.short_label,
+            mission_profile=mission_profile,
+            huge_alpha=self.model.huge_alpha,
+            engine=engine
+        )
+
+    def snr_figure_ubarf_rstar(
+            self,
+            mission_profile: MissionProfile | None = None,
+            engine: Engine = Engine.DEFAULT) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.model.mission_profile
+        return snr_figure_ubarf_rstar(
+            v_wall_snr=self.v_wall_value,
+            T_star_snr=self.T_star_value,
+            g_star_snr=self.g_star_value,
+            alphas=self.alpha,
+            beta_over_Hs=self.beta_over_H,
+            v_walls=self.v_wall_value,
+            labels=self.short_label,
+            mission_profile=mission_profile,
+            huge_alpha=self.model.huge_alpha,
+            engine=engine
+        )
 
     class Meta:
         indexes = [models.Index(fields=["model", "number"])]

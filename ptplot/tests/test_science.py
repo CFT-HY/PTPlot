@@ -4,7 +4,7 @@ from django.test import TestCase
 
 import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
-from ptplot.science.plot.power_spectrum import ps_figure
+from ptplot.science.plot.power_spectrum import power_spectrum_figure
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.bpl import PowerSpectrumBPL
 from ptplot.science.spectrum.create import power_spectrum
@@ -51,7 +51,7 @@ class ScienceTest(TestCase):
         power_spectrum(v_wall=V_WALL, alpha=ALPHA, beta_over_H=BETA_OVER_H, engine=Engine.SSM, css2=1 / 4, csb2=1 / 4)
 
     def test_ps_image(self):
-        ps_figure(self.spectrum, sw_only=False)
+        power_spectrum_figure(self.spectrum, sw_only=False)
 
     @staticmethod
     def test_requirements():

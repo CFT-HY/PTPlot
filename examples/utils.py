@@ -4,6 +4,7 @@ import os
 
 import django
 from django.http import HttpResponse
+from matplotlib.figure import Figure
 from pttools.logging import setup_logging as pttools_logging
 
 EXAMPLES_DIR: str = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +13,18 @@ FIG_DIR: str = os.path.join(EXAMPLES_DIR, "fig")
 LOG_DIR: str = os.path.join(PROJECT_DIR, "logs")
 os.makedirs(FIG_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
+
+
+def save(fig: Figure, path: str, **kwargs):
+    """Save a figure in the examples figure directory"""
+    has_extension = "." in path
+    if not os.path.isabs(path):
+        path = os.path.join(FIG_DIR, path)
+    if has_extension:
+        fig.savefig(path, **kwargs)
+    else:
+        for ext in ["eps", "pdf", "png", "svg"]:
+            fig.savefig(f"{path}.{ext}", **kwargs)
 
 
 def save_svg_response(response: HttpResponse, path: str):

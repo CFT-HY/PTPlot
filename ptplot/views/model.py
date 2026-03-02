@@ -53,20 +53,9 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    v_walls, alphas, beta_over_Hs, T_star, g_star, labels, titles = model.point_data_by_field_and_scenario()
-    fig = snr_figure_alpha_beta(
-        v_wall_snr=model.v_wall,
-        T_star_snr=model.T_star,
-        g_star_snr=model.g_star,
-        alphas=alphas,
-        beta_over_Hs=beta_over_Hs,
-        labels=labels,
-        titles=titles,
-        mission_profile=form.mission_profile,
-        huge_alpha=model.huge_alpha,
-        engine=form.cleaned_data["engine"]
+    return fig_to_response(
+        model.snr_figure_alpha_beta(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
     )
-    return fig_to_response(fig)
 
 
 def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -80,14 +69,9 @@ def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = model.point_data_by_field()
-    fig = snr_histogram(
-        v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-        labels=labels, titles=titles,
-        mission_profile=form.mission_profile,
-        # engines=[form.cleaned_data["engine"]]
+    return fig_to_response(
+        model.snr_histogram(mission_profile=form.mission_profile)
     )
-    return fig_to_response(fig)
 
 
 def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -101,18 +85,6 @@ def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    v_walls, alphas, beta_over_Hs, T_star, g_star, labels, titles = model.point_data_by_field_and_scenario()
-    fig = snr_figure_ubarf_rstar(
-        v_wall_snr=model.v_wall,
-        T_star_snr=model.T_star,
-        g_star_snr=model.g_star,
-        v_walls=v_walls,
-        alphas=alphas,
-        beta_over_Hs=beta_over_Hs,
-        labels=labels,
-        titles=titles,
-        mission_profile=form.mission_profile,
-        huge_alpha=model.huge_alpha,
-        engine=form.cleaned_data["engine"]
+    return fig_to_response(
+        model.snr_figure_ubarf_rstar(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
     )
-    return fig_to_response(fig)

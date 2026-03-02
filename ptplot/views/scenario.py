@@ -45,20 +45,9 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    data = scenario.point_data()
-    fig = snr_figure_alpha_beta(
-        v_wall_snr=scenario.model.v_wall,
-        T_star_snr=scenario.T_star_value,
-        g_star_snr=scenario.model.g_star,
-        alphas=data["alpha_n"].values,
-        beta_over_Hs=data["beta_over_H"].values,
-        labels=data["label"].to_list(),
-        titles=scenario.name,
-        mission_profile=form.mission_profile,
-        huge_alpha=scenario.model.huge_alpha,
-        engine=form.cleaned_data["engine"]
+    return fig_to_response(
+        scenario.snr_figure_alpha_beta(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
     )
-    return fig_to_response(fig)
 
 
 def model_scenario_snr_histogram(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -74,19 +63,7 @@ def model_scenario_snr_histogram(request: HttpRequest, model_id: int, scenario_i
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    data = scenario.point_data()
-    fig = snr_histogram(
-        v_wall=data["v_wall"].values,
-        alpha_n=data["alpha_n"].values,
-        beta_over_H=data["beta_over_H"].values,
-        T_star=data["T_star"].values,
-        g_star=data["g_star"].values,
-        labels=data["label"].to_list(),
-        titles=scenario.name,
-        mission_profile=form.mission_profile,
-        # engines=[form.cleaned_data["engine"]]
-    )
-    return fig_to_response(fig)
+    return fig_to_response(scenario.snr_histogram(mission_profile=form.mission_profile))
 
 
 def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -102,18 +79,6 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    data = scenario.point_data()
-    fig = snr_figure_ubarf_rstar(
-        v_wall_snr=scenario.model.v_wall,
-        T_star_snr=scenario.T_star_value,
-        g_star_snr=scenario.model.g_star,
-        v_walls=data["v_wall"].values,
-        alphas=data["alpha_n"].values,
-        beta_over_Hs=data["beta_over_H"].values,
-        labels=data["label"].to_list(),
-        titles=scenario.name,
-        mission_profile=form.mission_profile,
-        huge_alpha=scenario.model.huge_alpha,
-        engine=form.cleaned_data["engine"]
+    return fig_to_response(
+        scenario.snr_figure_ubarf_rstar(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
     )
-    return fig_to_response(fig)

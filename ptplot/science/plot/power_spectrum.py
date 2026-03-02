@@ -21,7 +21,7 @@ from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectr
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 
-def ps_figure(
+def power_spectrum_figure(
         spectrum: PowerSpectrum,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         sw_only: bool = True) -> Figure:
@@ -109,7 +109,7 @@ def main():
         T_star=args.Tstar, g_star=args.gstar,
         engine=args.engine
     )
-    fig = ps_figure(spectrum)
+    fig = power_spectrum_figure(spectrum)
     print(fig_to_svg(fig).decode("utf-8"))
 
 

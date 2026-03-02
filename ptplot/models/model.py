@@ -5,12 +5,17 @@ import typing as tp
 from django.core import validators
 from django.db import models
 from django.urls import reverse
+from matplotlib.figure import Figure
 from pandas import DataFrame
 
 from ptplot.methods.models import point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.science import const
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfile
+from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_histogram import snr_histogram
+from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
@@ -125,6 +130,58 @@ class Model(models.Model):
             titles.append(scenario.name)
 
         return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
+
+    def snr_figure_alpha_beta(
+            self,
+            mission_profile: MissionProfile | None = None,
+            engine: Engine = Engine.DEFAULT) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.mission_profile
+        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        return snr_figure_alpha_beta(
+            v_wall_snr=self.v_wall,
+            T_star_snr=self.T_star,
+            g_star_snr=self.g_star,
+            alphas=alpha,
+            beta_over_Hs=beta_over_H,
+            labels=labels,
+            titles=titles,
+            mission_profile=mission_profile,
+            huge_alpha=self.huge_alpha,
+            engine=engine
+        )
+
+    def snr_figure_ubarf_rstar(
+            self,
+            mission_profile: MissionProfile | None = None,
+            engine: Engine = Engine.DEFAULT) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.mission_profile
+        v_walls, alphas, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        return snr_figure_ubarf_rstar(
+            v_wall_snr=self.v_wall,
+            T_star_snr=self.T_star,
+            g_star_snr=self.g_star,
+            v_walls=v_walls,
+            alphas=alphas,
+            beta_over_Hs=beta_over_H,
+            labels=labels,
+            titles=titles,
+            mission_profile=mission_profile,
+            huge_alpha=self.huge_alpha,
+            engine=engine
+        )
+
+    def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:
+        if mission_profile is None:
+            mission_profile = self.mission_profile
+        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field()
+        return snr_histogram(
+            v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
+            labels=labels, titles=titles,
+            mission_profile=mission_profile,
+            # engines=[form.cleaned_data["engine"]]
+        )
 
     class Meta:
         indexes = [models.Index(fields=["name"])]
