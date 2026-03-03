@@ -111,4 +111,5 @@ def snr_figure(
         # )
 
         add_text(fig, watermark())
+        fig.tight_layout()
         return fig, ax

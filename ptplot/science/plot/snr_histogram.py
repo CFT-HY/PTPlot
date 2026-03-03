@@ -95,4 +95,5 @@ def snr_histogram(
     ax.set_xlabel("SNR")
     ax.set_ylabel("Number of points")
     ax.legend()
+    fig.tight_layout()
     return fig
