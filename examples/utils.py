@@ -1,6 +1,7 @@
 """Utilities for PTPlot examples"""
 
 import os
+import typing as tp
 
 import django
 from django.http import HttpResponse
@@ -15,16 +16,25 @@ os.makedirs(FIG_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
-def save(fig: Figure, path: str, **kwargs):
+def save(fig: Figure, path: str, formats: tp.Iterable[str] = ("eps", "pdf", "png", "svg"), **kwargs):
     """Save a figure in the examples figure directory"""
     has_extension = "." in path
-    if not os.path.isabs(path):
-        path = os.path.join(FIG_DIR, path)
+    abs_path = os.path.isabs(path)
     if has_extension:
+        if not abs_path:
+            path = os.path.join(FIG_DIR, path)
         fig.savefig(path, **kwargs)
     else:
-        for ext in ["eps", "pdf", "png", "svg"]:
-            fig.savefig(f"{path}.{ext}", **kwargs)
+        if abs_path:
+            path = os.path.join(FIG_DIR, path)
+            for ext in formats:
+                fig.savefig(f"{path}.{ext}", **kwargs)
+        else:
+            for ext in formats:
+                format_dir = os.path.join(FIG_DIR, ext)
+                if not os.path.exists(format_dir):
+                    os.makedirs(format_dir, exist_ok=True)
+                fig.savefig(f"{os.path.join(format_dir, path)}.{ext}", **kwargs)
 
 
 def save_svg_response(response: HttpResponse, path: str):
