@@ -79,7 +79,8 @@ class Scenario(models.Model):
     def snr_figure_alpha_beta(
             self,
             mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT) -> Figure:
+            engine: Engine = Engine.DEFAULT,
+            filled: bool = False) -> Figure:
         if mission_profile is None:
             mission_profile = self.model.mission_profile
         data = self.point_data()
@@ -93,13 +94,15 @@ class Scenario(models.Model):
             titles=self.name,
             mission_profile=mission_profile,
             huge_alpha=self.model.huge_alpha,
-            engine=engine
+            engine=engine,
+            filled=filled
         )
 
     def snr_figure_ubarf_rstar(
             self,
             mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT) -> Figure:
+            engine: Engine = Engine.DEFAULT,
+            filled: bool = False) -> Figure:
         if mission_profile is None:
             mission_profile = self.model.mission_profile
         data = self.point_data()
@@ -114,7 +117,8 @@ class Scenario(models.Model):
             titles=self.name,
             mission_profile=mission_profile,
             huge_alpha=self.model.huge_alpha,
-            engine=engine
+            engine=engine,
+            filled=filled
         )
 
     def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:

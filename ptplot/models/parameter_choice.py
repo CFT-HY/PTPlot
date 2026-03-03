@@ -158,13 +158,14 @@ class ParameterChoice(models.Model):
             alphas=self.alpha,
             beta_over_Hs=self.beta_over_H,
             labels=self.short_label,
-            mission_profile=mission_profile,
+            mission_profile=mission_profile
         )
 
     def snr_figure_alpha_beta(
             self,
             mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT) -> Figure:
+            engine: Engine = Engine.DEFAULT,
+            filled: bool = False) -> Figure:
         if mission_profile is None:
             mission_profile = self.model.mission_profile
         return snr_figure_alpha_beta(
@@ -176,13 +177,15 @@ class ParameterChoice(models.Model):
             labels=self.short_label,
             mission_profile=mission_profile,
             huge_alpha=self.model.huge_alpha,
-            engine=engine
+            engine=engine,
+
         )
 
     def snr_figure_ubarf_rstar(
             self,
             mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT) -> Figure:
+            engine: Engine = Engine.DEFAULT,
+            filled: bool = False) -> Figure:
         if mission_profile is None:
             mission_profile = self.model.mission_profile
         return snr_figure_ubarf_rstar(
@@ -195,7 +198,8 @@ class ParameterChoice(models.Model):
             labels=self.short_label,
             mission_profile=mission_profile,
             huge_alpha=self.model.huge_alpha,
-            engine=engine
+            engine=engine,
+            filled=filled
         )
 
     class Meta:

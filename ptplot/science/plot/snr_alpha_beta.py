@@ -37,7 +37,8 @@ def snr_figure_alpha_beta(
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         huge_alpha: bool = False,
-        engine: Engine = Engine.DEFAULT) -> Figure:
+        engine: Engine = Engine.DEFAULT,
+        filled: bool = False) -> Figure:
     r"""Produce the $(\alpha_n, \beta/H)$ plot
 
     :param v_wall_snr: Wall velocity $v_\text{wall}$ used for the SNR curves
@@ -78,6 +79,8 @@ def snr_figure_alpha_beta(
         ]),
         label_wanted_y=2,
         huge_alpha=huge_alpha,
+        engine=engine,
+        filled=filled
     )
     add_points(ax=ax, x=alphas, y=beta_over_Hs, labels=labels, titles=titles)
     return fig

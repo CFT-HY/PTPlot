@@ -2,12 +2,14 @@
 
 from matplotlib import cm, rc_context
 from matplotlib.axes import Axes
+from matplotlib.colors import LogNorm
 from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
 from ptplot.science.plot.logarithmic import log_figure
 from ptplot.science.plot.utils import add_text, find_label_place, watermark
+from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))
@@ -25,6 +27,7 @@ def snr_figure(
         snr: th.FloatArr2D,
         shock_times: th.FloatArr2D,
         label_wanted_y: float,
+        engine: Engine,
         huge_alpha: bool = False,
         snr_label_locs: th.FloatArr1D | None = None,
         shock_label_locs: th.FloatArr2D | None = None,
@@ -36,7 +39,8 @@ def snr_figure(
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
-        contour_label_fontsize: int = 8) -> tuple[Figure, Axes]:
+        contour_label_fontsize: int = 8,
+        filled: bool = False) -> tuple[Figure, Axes]:
     """Common code for creating SNR figures
 
     The x and y axes are linear instead of logarithmic so that the contour plot is created correctly.
@@ -46,14 +50,24 @@ def snr_figure(
             x=x, y=y,
             xlabel=xlabel, ylabel=ylabel,
             xtickpos=xtickpos, ytickpos=ytickpos,
-            xticklabels=xticklabels, yticklabels=yticklabels
+            xticklabels=xticklabels, yticklabels=yticklabels,
+            label_fontsize=label_fontsize
         )
 
-        contours = ax.contour(
-            x, y, snr, levels,
-            linewidths=1, colors=COLOR_TUPLE, extent=extent
-        )
-        contours_shock = ax.contour(
+        if filled:
+            contour = ax.contourf(x, y, snr, extent=extent, norm=LogNorm())
+            fig.colorbar(
+                contour,
+                ax=ax,
+                label=rf"$\text{{SNR}}_{{{engine}}}$"
+            )
+        else:
+            contour = ax.contour(
+                x, y, snr, levels,
+                linewidths=1, colors=COLOR_TUPLE, extent=extent
+            )
+
+        contour_shock = ax.contour(
             x, y, shock_times, levels_tsh,
             linewidths=1, linestyles="dashed", colors="k", extent=extent
         )
@@ -64,11 +78,15 @@ def snr_figure(
                 linewidths=1, linestyles="dashed", colors="k", extent=extent
             )
 
-        # CSturb
-        ax.contourf(
-            x, y, shock_times, [0.0001, 1],
-            colors="white", alpha=0.2, hatches="x", extent=extent
-        )
+        # Greying out the area according to turbulence
+        # TODO: Explain this better
+        if not filled:
+            contour_shock_hatch = ax.contourf(
+                x, y, shock_times, [0.0001, 1],
+                colors="none" if filled else "white",
+                alpha=0.2, hatches="x", extent=extent
+            )
+            # contour_shock_hatch.set_edgecolor((0.3, 0.3, 0.3, 1))
 
         if snr_label_locs is None:
             snr_label_locs = [
@@ -78,8 +96,9 @@ def snr_figure(
         if shock_label_locs is None:
             locs_tsh_x = (x[-1] + x[0]) / 2
             shock_label_locs = [(locs_tsh_x, y) for y in range(int(y[0]), int(y[-1]) + 1)]
-        ax.clabel(contours, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
-        ax.clabel(contours_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
+        if not filled:
+            ax.clabel(contour, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
+        ax.clabel(contour_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
         # ax.set_title(r"SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs")
         # ax.set_xlabel(r"$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $",fontsize=16)
 

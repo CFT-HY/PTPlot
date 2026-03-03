@@ -41,7 +41,8 @@ def snr_figure_ubarf_rstar(
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         huge_alpha: bool = False,
-        engine: Engine = Engine.DEFAULT) -> Figure:
+        engine: Engine = Engine.DEFAULT,
+        filled: bool = False) -> Figure:
     r"""Produce the $(\bar{U}_f, r_*)$ plot
 
     :param v_wall_snr: Wall velocity used for the SNR curves
@@ -96,6 +97,8 @@ def snr_figure_ubarf_rstar(
         ]),
         label_wanted_y=-2.5,
         huge_alpha=huge_alpha,
+        engine=engine,
+        filled=filled
     )
     add_points(ax=ax, x=ubarf, y=r_star, labels=labels, titles=titles)
     return fig

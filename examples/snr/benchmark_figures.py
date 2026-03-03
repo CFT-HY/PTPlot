@@ -30,19 +30,23 @@ def main():
             try:
                 snr_ab = model.snr_figure_alpha_beta(engine=engine)
                 save(snr_ab, f"{model.slug}_snr_alpha_beta_{engine}")
+                snr_ab2 = model.snr_figure_alpha_beta(engine=engine, filled=True)
+                save(snr_ab2, f"{model.slug}_snr_alpha_beta_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_alpha_beta for %s", model.name, exc_info=exc)
 
             try:
                 snr_ur = model.snr_figure_ubarf_rstar(engine=engine)
                 save(snr_ur, f"{model.slug}_snr_ubarf_rstar_{engine}")
+                snr_ur2 = model.snr_figure_ubarf_rstar(engine=engine, filled=True)
+                save(snr_ur2, f"{model.slug}_snr_ubarf_rstar_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
 
         for engine in (Engine.DBPL, Engine.SSM):
             try:
                 snr_comp = model.snr_comparison(Engine.BPL, engine)
-                save(snr_comp, f"{model.slug}_snr_comparison_{engine.name}")
+                save(snr_comp, f"{model.slug}_snr_comparison_{engine}")
             except Exception as exc:
                 logger.exception(
                     "Failed to plot snr_comparison_%s for %s",
