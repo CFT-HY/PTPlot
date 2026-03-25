@@ -124,6 +124,19 @@ extlinks: dict[str, tuple[str, str]] = {
         "PTPlot version by Jenni Häkkinen%s"
     )
 }
+intersphinx_mapping: dict[str, tuple[str, str | None]] = {
+    "cobaya": ("https://cobaya.readthedocs.io/en/latest/", None),
+    "django": ("https://docs.djangoproject.com/en/stable/", None),
+    "h5py": ("https://docs.h5py.org/en/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numba": ("https://numba.readthedocs.io/en/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pyinstrument": ("https://pyinstrument.readthedocs.io/en/latest/", None),
+    "pylint": ("https://pylint.readthedocs.io/en/stable/", None),
+    "pytest": ("https://docs.pytest.org/en/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    # "yappi": ("https://yappi.readthedocs.io/en/latest/", None),
+}
 
 show_memory = True
 
