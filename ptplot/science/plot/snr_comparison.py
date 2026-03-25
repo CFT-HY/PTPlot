@@ -47,14 +47,14 @@ def snr_comparison(
         xlabel=r"$\alpha$",
         ylabel=r"$\beta/H_*$",
     )
-    snr_rel_diff = snr2 / snr1 - 1
+    snr_rel_diff = (snr2 - snr1) / np.maximum(snr1, snr2)
     contour = ax.contourf(snr_rel_diff, extent=extent)
     fig.colorbar(
         contour,
         ax=ax,
         label=
             rf"$\frac{{\text{{SNR}}_{{{engine2.name}}} - \text{{SNR}}_{{{engine1.name}}}}}"
-            rf"{{\text{{SNR}}_{{{engine1.name}}}}}$"
+            rf"{{\max( \text{{SNR}}_{{{engine1.name}}}, \text{{SNR}}_{{{engine2.name}}} )}}$"
     )
     add_points(ax, x=alphas, y=beta_over_Hs, labels=labels, titles=titles)
     return fig
