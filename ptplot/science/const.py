@@ -15,6 +15,8 @@ DEFAULT_OMEGA_TILDE_GW: float = 0.012
 r"""
 Default $\tilde{\Omega}_\text{gw}$, :hindmarsh_2017:`\ ` p. 13.
 Please note that there is a typo in the original article: $0.12 \rightarrow 0.012$: :hindmarsh_2017_erratum:`\ `.
+This value is obtained numerically from simulations.
+:caprini_2020:`\ ` p. 16
 """
 
 DEFAULT_SNR_F_MIN: float = 1e-6

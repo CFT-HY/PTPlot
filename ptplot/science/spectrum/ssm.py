@@ -104,6 +104,6 @@ class PowerSpectrumSSM(PowerSpectrum):
 
 
 @lru_cache(maxsize=256)
-def bubble(model: Model, v_wall: float, alpha_n: float):
+def bubble(model: Model, v_wall: float, alpha_n: float) -> Bubble:
     """Caching Bubble generator for speed-up"""
     return Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)

@@ -82,7 +82,7 @@ urlpatterns: list[URLPattern] = [
         name="model_scenario_snr_alpha_beta"
     ),
     path(
-        "models/<int:model_id>/<int:point_id>/snr_comparison.svg",
+        "models/<int:model_id>/<int:scenario_id>/snr_comparison.svg",
         views.model_scenario_snr_comparison,
         name="model_scenario_snr_comparison"
     ),

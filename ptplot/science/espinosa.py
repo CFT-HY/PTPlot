@@ -15,6 +15,8 @@ from ptplot.science import const
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr
 
+# Todo: Replace this file with calls to PTtools
+
 
 @np.vectorize
 def alpha_n_from_ubarf(
