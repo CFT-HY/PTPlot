@@ -44,7 +44,7 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
     r"""Display the SNR values of the model points on the $(\alpha, \beta/H)$ plane"""
     model: Model = get_object_or_404_related(
         Model,
-        prefetch=["scenarios"],
+        prefetch=["scenarios", "scenarios__points"],
         pk=model_id
     )
     form = BenchmarkForm(request.GET, model=model)
@@ -60,7 +60,7 @@ def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
     """Compare the SNR of different engines for a model"""
     model: Model = get_object_or_404_related(
         Model,
-        prefetch=["scenarios"],
+        prefetch=["scenarios", "scenarios__points"],
         pk=model_id
     )
     form = BenchmarkForm(request.GET, model=model)
@@ -81,7 +81,7 @@ def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
     """Display a histogram of the SNR values of the model points"""
     model: Model = get_object_or_404_related(
         Model,
-        prefetch=["scenarios"],
+        prefetch=["points"],
         id=model_id
     )
     form = BenchmarkForm(request.GET, model=model)
@@ -97,7 +97,7 @@ def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
     r"""Display the SNR values of the model points on the $(\bar{U}_f, r_*)$ plane"""
     model: Model = get_object_or_404_related(
         Model,
-        prefetch=["scenarios"],
+        prefetch=["scenarios", "scenarios__points"],
         id=model_id
     )
     form = BenchmarkForm(request.GET, model=model)

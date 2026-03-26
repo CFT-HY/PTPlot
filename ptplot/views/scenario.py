@@ -14,7 +14,7 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
-        prefetch=["model__scenarios", "points"],
+        prefetch=["model__points", "model__scenarios", "points"],
         model__id=model_id,
         number=scenario_id
     )

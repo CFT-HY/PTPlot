@@ -32,7 +32,7 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
     r"""Display an individual model point on the $\alpha, \beta/H$ SNR plot"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
-        related=["model"],
+        related=["model", "scenario"],
         model__id=model_id,
         number=point_id
     )
@@ -49,7 +49,7 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
     r"""Compare the SNR of different engines for a model point"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
-        related=["model"],
+        related=["model", "scenario", "scenario__model"],
         model__id=model_id,
         number=point_id
     )
@@ -71,7 +71,7 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
     r"""Display an individual model point on the $\bar{U}_f, r_*$ SNR plot"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
-        related=["model"],
+        related=["model", "scenario", "scenario__model"],
         model__id=model_id,
         number=point_id
     )
@@ -88,7 +88,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
     """Get the CSV data of a model point"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
-        related=["model"],
+        related=["model", "scenario", "scenario__model"],
         model__id=model_id,
         number=point_id
     )
@@ -106,7 +106,7 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
     """Display the power spectrum of an individual model point"""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
-        related=["model"],
+        related=["model", "scenario", "scenario__model"],
         model__id=model_id,
         number=point_id
     )
