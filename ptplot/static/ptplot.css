@@ -17,7 +17,6 @@ table label {
     padding: 5px 5px 5px 5px;
 }
 
-
 .mainbox {
     box-sizing: border-box;
     width: 90%;
@@ -25,4 +24,13 @@ table label {
     background-color: #f6f6f6;
     vertical-align: top;
     padding: 5px 5px 5px 5px;
+}
+
+.plot {
+    width: 600px;
+    height: 450px;
+    background-clip: content-box;
+    background-color: #dddddd;
+    border: 10px;
+    padding: 15px;
 }

@@ -25,27 +25,23 @@
 
 <img
   alt="embedded"
+  class="plot"
   src="{% url "model_scenario_snr_ubarf_rstar" model_id=scenario.model.id scenario_id=scenario.number %}{% querystring %}"
-  width="600px" height="450px"
-  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
   alt="embedded"
+  class="plot"
   src="{% url "model_scenario_snr_alpha_beta" model_id=scenario.model.id scenario_id=scenario.number %}{% querystring %}"
-  width="600px" height="450px"
-  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
   alt="embedded"
+  class="plot"
   src="{% url "model_scenario_snr_histogram" model_id=scenario.model.id scenario_id=scenario.number %}{% querystring %}"
-  width="600px" height="450px"
-  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 <img
   alt="embedded"
+  class="plot"
   src="{% url "model_scenario_snr_comparison" model_id=scenario.model.id scenario_id=scenario.number %}{% querystring %}"
-  width="600px" height="450px"
-  style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
 />
 
 {% endblock results %}

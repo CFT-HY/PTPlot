@@ -33,23 +33,27 @@
 
 <p>
   <img
-    alt="embedded" src="{% url "ps" %}?{{ querystring }}" width="600px" height="450px"
-    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+    alt="embedded"
+    class="plot"
+    src="{% url "ps" %}?{{ querystring }}"
   />
 </p>
 <p>
   <!--  (note that the SNR curves <em>only</em> consider the sound wave source for now) -->
   <img
-    alt="embedded" src="{% url "snr_ubarf_rstar" %}?{{ querystring }}" width="600px" height="450px"
-    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"/>
+    alt="embedded"
+    class="plot"
+    src="{% url "snr_ubarf_rstar" %}?{{ querystring }}"
+  />
 </p>
 <p>
   <!--  (note $\alpha$-$\beta$ plane plot depends on
     converting $\overline{U}_\mathrm{f}$ SNR curves to $\alpha_\theta$ SNR
     curves for fixed $v_\mathrm{w}$) -->
   <img
-    alt="embedded" src="{% url "snr_alpha_beta" %}?{{ querystring }}" width="600px" height="450px"
-    style="background-color: #dddddd; border: 10px; padding: 15px; background-clip: content-box"
+    alt="embedded"
+    class="plot"
+    src="{% url "snr_alpha_beta" %}?{{ querystring }}"
   />
 </p>
 
