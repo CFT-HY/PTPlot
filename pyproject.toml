@@ -54,16 +54,16 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed"
 ]
-# Keep this up to date with requirements.txt
+# Keep this up to date with requirements.txt.
+# Please also ensure that compatible versions are available in LISA ProtoLab.
 dependencies = [
-    "django >= 6.0.2",
+    "django >= 6.0.5",
     "django-github-sso >= 5.0.2",
-    "dulwich >= 1.1.0",
-    "gunicorn >= 25.1.0",
-    "matplotlib >= 3.10.8",
-    "numpy >= 2.4.2",
-    "pandas >= 3.0.1",
-    "scipy >= 1.15.2",
+    "dulwich >= 1.2.4",
+    "gunicorn >= 26.0.0",
+    "matplotlib >= 3.10.9",
+    "numpy >= 2.4.6",
+    "pandas >= 3.0.3",
     "pttools-gw[numbalsoda,performance] == 0.10.0",
     "scipy >= 1.17.1"
 ]
@@ -119,7 +119,17 @@ ignore_missing_imports = true
 # On clusters "--numprocesses=auto" creates processes according to the total number of CPU cores
 # instead of the number of cores available to the job.
 # Therefore, it may be wise to set the number of processes manually.
-addopts = "--alluredir=test-results/allure --cov=. --cov-report=html --cov-report=term --cov-report=term-missing --cov-report=xml --dist=loadscope --html=test-results/html/test-report.html --numprocesses=auto"
+addopts = [
+    "--alluredir=test-results/allure",
+    "--cov=.",
+    "--cov-report=html",
+    "--cov-report=term",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--dist=loadscope",
+    "--html=test-results/html/test-report.html",
+    "--numprocesses=auto"
+]
 DJANGO_SETTINGS_MODULE = "ptplot_site.settings.dev"
 testpaths = [
     "ptplot/tests"
@@ -134,7 +144,7 @@ include = [
     "ptplot.science*",
     "ptplot.static*",
     "ptplot.templates*",
-    "ptplot.views*",
+    "ptplot.views*"
 ]
 exclude = [
     "ptplot.tests",
