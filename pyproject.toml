@@ -109,6 +109,18 @@ show_missing = true
 django_settings_module = "ptplot_site.settings.dev"
 
 [tool.mypy]
+exclude = [
+    "_build",
+    "auto_examples"
+]
+files = [
+    "docs",
+    "examples",
+    "ptplot",
+    "ptplot_site",
+    "tools",
+    "manage.py"
+]
 plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
