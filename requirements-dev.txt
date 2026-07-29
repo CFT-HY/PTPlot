@@ -6,7 +6,7 @@ django-stubs[compatible-mypy] == 6.0.5
 lxml == 6.1.1
 lxml-stubs == 0.5.1
 mypy == 2.1.0
-pandas-stubs == 3.0.0.260204
+pandas-stubs == 3.0.3.260530
 pip-check == 3.2.1
 psutil == 7.2.2
 pylint == 4.0.5

@@ -1,14 +1,14 @@
 # When updating the versions here,
 # please also update them in pyproject.toml.
-django == 6.0.5
+django == 6.0.6
 django-github-sso == 5.0.2
-dulwich == 1.2.4
+dulwich == 1.2.6
 gunicorn == 26.0.0
 matplotlib == 3.10.9
 numpy == 2.4.6
 pandas == 3.0.3
+# To update to a different commit hash that has the same version number,
+# you may have to uninstall the old version first.
 # pttools-gw[numbalsoda,performance] == 0.10.0
-# Old: 8a4d183b219083c4f8eb5306221f47ff5219e729
-# New: 1e1514444c4adeefc9100702a9c553752765e396
-pttools-gw[numbalsoda,performance] @ git+https://github.com/CFT-HY/pttools.git@1e1514444c4adeefc9100702a9c553752765e396
+pttools-gw[numbalsoda,performance] @ git+https://github.com/CFT-HY/pttools.git@a1f12ff9e343c41f761d54d4dcf1ffe80666be7d
 scipy == 1.17.1
