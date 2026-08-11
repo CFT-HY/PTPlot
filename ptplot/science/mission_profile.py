@@ -52,7 +52,8 @@ class MissionProfile:
     def load(path: str) -> th.FloatArr2D:
         if not os.path.isabs(path):
             path = os.path.join(SENSITIVITY_ROOT, path)
-        return np.loadtxt(path, usecols=(0, 2), unpack=True)
+        # The output must be C-contiguous, so that f and sensitivity are each contiguous.
+        return np.ascontiguousarray(np.loadtxt(path, usecols=(0, 2), unpack=True))
 
     @property
     def duration_seconds(self) -> float:
