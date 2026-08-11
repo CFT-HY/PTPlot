@@ -10,11 +10,11 @@ jobs:
       - name: Count Lines of Code (cloc) for the PTPlot module
         uses: djdefi/cloc-action@6
         with:
-          options: ${{ github.workspace }}/ptplot --by-file-by-lang --exclude-list-file=.clocignore --vcs=git
+          options: ${{ github.workspace }}/ptplot --by-file-by-lang --vcs=git
       - name: Count Lines of Code (cloc) for the repository
         uses: djdefi/cloc-action@6
         with:
-          options: ${{ github.workspace }} --by-file-by-lang --exclude-list-file=.clocignore --vcs=git
+          options: ${{ github.workspace }} --by-file-by-lang --vcs=git
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5
