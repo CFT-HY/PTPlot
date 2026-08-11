@@ -10,7 +10,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
     r"""
     Double broken power law (DBPL) power spectrum
 
-    Based on :hakkinen_ptplot:`\ `, :hakkinen_msc: and :gowling_2021:`\ `.
+    Based on :hakkinen_ptplot:`\ `, :hakkinen_msc:`\ ` and :gowling_2021:`\ `.
     """
     COLOR = "green"
     ENGINE: Engine = Engine.DBPL

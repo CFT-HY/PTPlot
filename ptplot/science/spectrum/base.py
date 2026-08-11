@@ -5,14 +5,16 @@ import enum
 
 import numpy as np
 from pandas import DataFrame
-from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f as f_func, f_star0, F_gw0, J
-from pttools.utils import copy_docstrings_without_params
+from pttools.bubble import DEFAULT_NU_GDH2024
+from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f as f_func, f_star0, F_gw0
+from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
+from pttools.utils import copy_docstrings
 
 from ptplot.science import const
 from ptplot.science.espinosa import ubarf as ubarf_func, alpha_n_from_ubarf
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatArr
+from ptplot.science.type_hints import FloatOrArr, FloatOrArr1D
 from ptplot.science.utils import beta, R_star
 
 
@@ -71,6 +73,8 @@ class PowerSpectrum(abc.ABC):
         self.adiabatic_ratio: float = adiabatic_ratio
         self.g_star: float = g_star
         self.k_turb: float = k_turb
+        self.N_sh: float = DEFAULT_N_SH
+        self.nu_gdh2024: float = DEFAULT_NU_GDH2024
         self.T_star: float = T_star
         self.zp: float = zp
 
@@ -155,7 +159,7 @@ class PowerSpectrum(abc.ABC):
 
         :return: Peak frequency $f_\text{peak}$ in Hz
         """
-        return f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(Tn=self.T_star, g_star=self.g_star))
+        return f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
 
     def F_gw0(  # pylint: disable=missing-function-docstring
             self,
@@ -171,8 +175,13 @@ class PowerSpectrum(abc.ABC):
         """
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
-    def J[T: (float, FloatArr)](self, nu: T = 0.) -> T:  # pylint: disable=missing-function-docstring
-        return J(r_star=self.r_star, K_frac=self.K(), nu=nu)
+    def J(
+            self,
+            nu: th.FloatOrArr = DEFAULT_NU_GDH2024) -> th.FloatOrArr:  # pylint: disable=missing-function-docstring
+        return J(
+            r_star=self.r_star,
+            H_star_tau_v=H_star_tau_v(nu=nu, source_lifetime_factor=self.source_lifetime_factor())
+        )
 
     def K(self) -> float:
         r"""Kinetic energy fraction $K$
@@ -193,7 +202,7 @@ class PowerSpectrum(abc.ABC):
         """
         return 3 * const.H_PLANCK2 * self.F_gw0() * self.K()**2 * omega_tilde_gw
 
-    def s[T: (float, FloatArr)](self, f: T) -> T:
+    def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency
 
         $$s = \frac{f}{f_\text{peak}}$$
@@ -201,13 +210,24 @@ class PowerSpectrum(abc.ABC):
         """
         return f / self.f_peak()
 
+    def source_lifetime_factor(self):
+        return source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
+
+    # -----
+    # Properties
+    # -----
+
     @property
     def shock_time(self) -> float:
         """Shock time"""
         return self.H_tsh
 
+    # -----
+    # Abstract methods
+    # -----
+
     @abc.abstractmethod
-    def power_spectrum(self, f: th.FloatOrArr, log_errors: bool = False) -> th.FloatOrArr:
+    def power_spectrum[T: FloatOrArr1D](self, f: T, log_errors: bool = False) -> T:
         """GW power spectrum
 
         :param f: Frequency range
@@ -220,7 +240,8 @@ class PowerSpectrum(abc.ABC):
 ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 
-copy_docstrings_without_params({
+copy_docstrings({
     PowerSpectrum.F_gw0: F_gw0,
-    PowerSpectrum.J: J
-})
+    PowerSpectrum.J: J,
+    PowerSpectrum.source_lifetime_factor: source_lifetime_factor
+}, without_params=True)

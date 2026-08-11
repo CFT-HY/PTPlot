@@ -37,7 +37,7 @@ def snr_point(
             engine=engine,
             **kwargs
         )
-        return signal_to_noise_ratio(
+        snr, f_min, f_max = signal_to_noise_ratio(
             f=mission_profile.f,
             # Error logging is handled in this function
             signal=spectrum.power_spectrum(mission_profile.f, log_errors=False),
@@ -46,7 +46,8 @@ def snr_point(
             obs_time=mission_profile.duration_seconds,
             f_min=f_min,
             f_max=f_max
-        ), spectrum.shock_time
+        )
+        return snr, spectrum.shock_time
     except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.exception(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "

@@ -6,8 +6,8 @@ import logging
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel, Model
-from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod, f_star0
-from pttools.omgw0.suppression import DEFAULT as SUPPRESSION_DEFAULT
+from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod, z as z_func
+from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
@@ -62,6 +62,8 @@ class PowerSpectrumSSM(PowerSpectrum):
     def K(self) -> float:
         # Todo: Use the value from the SSM Spectrum object
         logger.warning("Using approximate K instead of the value from the SSM Spectrum object.")
+        # Todo: Possibly use SSM ubarf2 instead of single-bubble ubarf2
+        # return self.bubble.mean_adiabatic_index * self.bubble.ubarf2
         return super().K()
 
     def power_spectrum(
@@ -70,8 +72,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             log_errors: bool = True,
             g0: float = G0,
             gs0: float = GS0,
-            sup: Suppression = SUPPRESSION_DEFAULT,
-            sup_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
+            suppression: Suppression = DEFAULT_SUPPRESSION,
+            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
         """Power spectrum from the Sound Shell Model
 
         The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
@@ -81,12 +83,20 @@ class PowerSpectrumSSM(PowerSpectrum):
         try:
             if np.isnan(f).any():
                 raise ValueError("f must not contain nan values.")
-            # Todo: Use pttools.omgw0.freq.z() instead when it's available
-            z = f / f_star0(Tn=self.T_star, g_star=self.g_star) * self.r_star
+            z = z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
             if np.isnan(z).any():
                 raise ValueError("z must not contain nan values.")
-            spectrum = Spectrum(bubble=self.bubble, y=z, r_star=self.r_star, g_star=self.g_star, Tn=self.T_star)
-            return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0, sup=sup, sup_method=sup_method)
+            spectrum = Spectrum(
+                bubble=self.bubble,
+                y=z,
+                beta_tilde=self.beta_over_H,
+                g_star=self.g_star,
+                r_star=self.r_star,
+                T_star=self.T_star,
+                suppression=suppression,
+                suppression_method=suppression_method
+            )
+            return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0)
         except Exception as exc:
             if log_errors:
                 if z is None:

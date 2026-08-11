@@ -33,7 +33,7 @@ def power_spectrum_figure(
     :return: Power spectrum figure
     """
     pow_spec = spectrum.power_spectrum(mission_profile.f)
-    snr_value = signal_to_noise_ratio(
+    snr_value, f_min, f_max = signal_to_noise_ratio(
         f=mission_profile.f,
         signal=pow_spec,
         f_noise=mission_profile.f,
