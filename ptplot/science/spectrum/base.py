@@ -86,16 +86,24 @@ class PowerSpectrum(abc.ABC):
         # -----
         # Computed parameters
         # -----
+        #: $\alpha$
         self.alpha: float
+        #: $\bar{U}_f$
         self.ubarf: float
         self.alpha, self.ubarf = self.validate_alpha_ubarf(
             alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, cs=cs
         )
-        #: $\frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
+        #: $\tilde{\beta} \equiv \frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
         self.beta_over_H: float
+        #: Given $\tilde{\beta} \equiv \frac{\beta}{H_*}$, not computed
+        self.beta_over_H_given: float | None = beta_over_H
         #: Hubble-scaled mean bubble spacing $r_*$
         self.r_star: float
-        self.beta_over_H, self.r_star = self.validate_beta_r_star(beta_over_H=beta_over_H, r_star=r_star, cs=cs)
+        #: Given $r_*$, not computed
+        self.r_star_given: float | None = r_star
+        self.beta_over_H, self.r_star = self.validate_beta_r_star(
+            beta_over_H=beta_over_H, r_star=r_star, v_wall=v_wall, cs=cs
+        )
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
 
@@ -215,13 +223,14 @@ class PowerSpectrum(abc.ABC):
             self,
             beta_over_H: float | None,
             r_star: float | None,
+            v_wall: float | None,
             cs: float) -> tuple[float, float]:
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
             # Using beta_over_H instead of beta to compute R_star gives r_star.
-            return beta_over_H, R_star(beta=beta_over_H, v_wall=self.v_wall, cs=cs)
+            return beta_over_H, R_star(beta=beta_over_H, v_wall=v_wall, cs=cs)
         if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             # Using r_star instead of R_star to compute beta gives beta_over_H.
-            return beta(R_star=r_star, v_wall=self.v_wall, cs=cs), r_star
+            return beta(R_star=r_star, v_wall=v_wall, cs=cs), r_star
         raise ValueError(
             "Either r_star or beta_over_H must be set, but not both. "
             f"Got r_star={r_star}, beta_over_H={beta_over_H}."

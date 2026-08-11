@@ -82,9 +82,9 @@ class PowerSpectrumSSM(PowerSpectrum):
             spectrum = Spectrum(
                 bubble=self.bubble,
                 y=z,
-                beta_tilde=self.beta_over_H,
+                beta_tilde=self.beta_over_H_given,
                 g_star=self.g_star,
-                r_star=self.r_star,
+                r_star=self.r_star_given,
                 T_star=self.T_star,
                 suppression=suppression,
                 suppression_method=suppression_method
