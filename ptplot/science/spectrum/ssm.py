@@ -59,13 +59,6 @@ class PowerSpectrumSSM(PowerSpectrum):
         self.model: Model = model
         self.bubble: Bubble = bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha)
 
-    def K(self) -> float:
-        # Todo: Use the value from the SSM Spectrum object
-        logger.warning("Using approximate K instead of the value from the SSM Spectrum object.")
-        # Todo: Possibly use SSM ubarf2 instead of single-bubble ubarf2
-        # return self.bubble.mean_adiabatic_index * self.bubble.ubarf2
-        return super().K()
-
     def power_spectrum(
             self,
             f: th.FloatArr1D,

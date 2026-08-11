@@ -3,7 +3,7 @@
 from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatArr
+from ptplot.science.type_hints import FloatOrArr
 
 
 class PowerSpectrumDBPL(PowerSpectrum):
@@ -42,7 +42,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         #: Ratio of the two peaks in the spectrum, $r_b = \frac{f_b}{f_p} = \frac{z_b}{z_p}$, :gowling_2021:`\ ` p. 9
         self.rb: float = self.zb / self.zp
 
-    def m[T: (float, FloatArr)](self, b: T = 1.) -> T:
+    def m[T: FloatOrArr](self, b: T = 1.) -> T:
         r"""The value $m$ used in the spectral shape function M(s)
 
         $$m = \frac{9 r_b^4 + b}{r_b^4 + 1}$$

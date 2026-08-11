@@ -131,6 +131,7 @@ intersphinx_mapping: dict[str, tuple[str, str | None]] = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numba": ("https://numba.readthedocs.io/en/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "pttools": ("https://pttools.readthedocs.io/en/latest/", None),
     "pyinstrument": ("https://pyinstrument.readthedocs.io/en/latest/", None),
     "pylint": ("https://pylint.readthedocs.io/en/stable/", None),
     "pytest": ("https://docs.pytest.org/en/stable/", None),

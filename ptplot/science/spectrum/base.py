@@ -165,7 +165,7 @@ class PowerSpectrum(abc.ABC):
             self,
             g0: th.FloatOrArr = G0,
             gs0: th.FloatOrArr = GS0,
-            gs_star: th.FloatOrArr = None,
+            gs_star: th.FloatOrArr | None = None,
             om_gamma0: th.FloatOrArr = OMEGA_RADIATION) -> th.FloatOrArr:
         return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
 
@@ -183,24 +183,27 @@ class PowerSpectrum(abc.ABC):
             H_star_tau_v=H_star_tau_v(nu=nu, source_lifetime_factor=self.source_lifetime_factor())
         )
 
-    def K(self) -> float:
-        r"""Kinetic energy fraction $K$
+    @property
+    def kinetic_energy_fraction_approx(self) -> float:
+        r"""Approximate bubble volume averaged kinetic energy fraction $K_\text{bva}$
+        $$K = \frac{{e}_{K,\text{bva}}}{\bar{e}} \approx \Gamma \bar{U}_f^2$$
+        :gw_pt_ssm:`\ ` eq. B.32
 
-        $$K = \frac{\langle w \gamma^2 v^2 \rangle}{\bar{e}} = \Gamma \bar{U}_f^2$$
-        :caprini_2020:`\ ` eq. 22
+        Please see :py:func:pttools.bubble.thermo.kinetic_energy_fraction: for the exact version.
         """
         return self.adiabatic_ratio * self.ubarf**2
 
     def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
         r"""Common prefactor of the power spectrum for BPL and DBPL
-
-        $$3h^2 F_{\text{gw},0} K^2 \tilde{\Omega}_\text{gw}
-        = 3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
+        $$3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
 
         Please note that $F_{\text{gw},0}$ depends on the value of $h$.
         This is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
         """
-        return 3 * const.H_PLANCK2 * self.F_gw0() * self.K()**2 * omega_tilde_gw
+        # The equation has $(\Gamma \bar{U}_f^2)^2$,
+        # which is expressed here as kinetic_energy_fraction_approx for convenience.
+        # It does not equal the exact kinetic energy fraction.
+        return 3 * const.H_PLANCK2 * self.F_gw0() * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
 
     def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency
@@ -210,7 +213,7 @@ class PowerSpectrum(abc.ABC):
         """
         return f / self.f_peak()
 
-    def source_lifetime_factor(self):
+    def source_lifetime_factor(self) -> float:
         return source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
 
     # -----
