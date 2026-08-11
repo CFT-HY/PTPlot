@@ -68,6 +68,8 @@ class PowerSpectrum(abc.ABC):
             raise ValueError(f"Invalid g_star={g_star}")
         if T_star is None or np.isnan(T_star):
             raise ValueError(f"Invalid T_star={T_star}")
+        if not (v_wall is None or 0 < v_wall <= 1):
+            raise ValueError(f"Invalid v_wall={v_wall}")
 
         # Parameters that are guaranteed to be set
         self.adiabatic_ratio: float = adiabatic_ratio
@@ -84,49 +86,16 @@ class PowerSpectrum(abc.ABC):
         # -----
         # Computed parameters
         # -----
-
         self.alpha: float
         self.ubarf: float
-        if (v_wall is not None) and (alpha is not None) and (ubarf is None):
-            self.alpha = alpha
-            self.ubarf = ubarf_func(v_wall=v_wall, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
-        elif (v_wall is not None) and (alpha is None) and (ubarf is not None):
-            try:
-                self.alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
-            except ValueError:
-                self.alpha = np.nan
-            self.ubarf = ubarf
-        elif (v_wall is None) and (alpha is not None) and (ubarf is not None):
-            self.alpha = alpha
-            self.ubarf = ubarf
-            # raise NotImplementedError(
-            #     "Determining v_wall(alpha, ubarf) has not been implemented. "
-            #     f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf_in}"
-            # )
-        else:
-            raise ValueError(
-                "Exactly two of v_wall, alpha, ubarf_in must be set. "
-                f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
-
-        #: Hubble-scaled mean bubble spacing $r_*$
-        self.r_star: float
+        self.alpha, self.ubarf = self.validate_alpha_ubarf(
+            alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, cs=cs
+        )
         #: $\frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
         self.beta_over_H: float
-
-        if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
-            self.beta_over_H = beta_over_H
-            # Using beta_over_H instead of beta to compute R_star gives r_star.
-            self.r_star = R_star(beta=beta_over_H, v_wall=self.v_wall, cs=cs)
-        elif (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
-            # Using r_star instead of R_star to compute beta gives beta_over_H.
-            self.beta_over_H = beta(R_star=r_star, v_wall=self.v_wall, cs=cs)
-            self.r_star = r_star
-        else:
-            raise ValueError(
-                "Either r_star or beta_over_H must be set, but not both. "
-                f"Got r_star={r_star}, beta_over_H={beta_over_H}."
-            )
-
+        #: Hubble-scaled mean bubble spacing $r_*$
+        self.r_star: float
+        self.beta_over_H, self.r_star = self.validate_beta_r_star(beta_over_H=beta_over_H, r_star=r_star, cs=cs)
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
 
@@ -215,6 +184,48 @@ class PowerSpectrum(abc.ABC):
 
     def source_lifetime_factor(self) -> float:
         return source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
+
+    @staticmethod
+    def validate_alpha_ubarf(
+            alpha: float | None,
+            ubarf: float | None,
+            v_wall: float | None,
+            adiabatic_ratio: float,
+            cs: float) -> tuple[float, float]:
+        if (v_wall is not None) and (alpha is not None) and (ubarf is None):
+            return alpha, ubarf_func(v_wall=v_wall, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
+        if (v_wall is not None) and (alpha is None) and (ubarf is not None):
+            try:
+                alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
+            except ValueError:
+                alpha = np.nan
+            return alpha, ubarf
+        if (v_wall is None) and (alpha is not None) and (ubarf is not None):
+            return alpha, ubarf
+            # raise NotImplementedError(
+            #     "Determining v_wall(alpha, ubarf) has not been implemented. "
+            #     f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf_in}"
+            # )
+        else:
+            raise ValueError(
+                "Exactly two of v_wall, alpha, ubarf_in must be set. "
+                f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
+
+    def validate_beta_r_star(
+            self,
+            beta_over_H: float | None,
+            r_star: float | None,
+            cs: float) -> tuple[float, float]:
+        if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
+            # Using beta_over_H instead of beta to compute R_star gives r_star.
+            return beta_over_H, R_star(beta=beta_over_H, v_wall=self.v_wall, cs=cs)
+        if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
+            # Using r_star instead of R_star to compute beta gives beta_over_H.
+            return beta(R_star=r_star, v_wall=self.v_wall, cs=cs), r_star
+        raise ValueError(
+            "Either r_star or beta_over_H must be set, but not both. "
+            f"Got r_star={r_star}, beta_over_H={beta_over_H}."
+        )
 
     # -----
     # Properties
