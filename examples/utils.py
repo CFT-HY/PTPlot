@@ -6,6 +6,8 @@ import typing as tp
 import django
 from django.http import HttpResponse
 from matplotlib.figure import Figure
+import pttools.analysis.utils as plot_utils
+from pttools.analysis.utils import FIG_FORMATS
 from pttools.logging import setup_logging as pttools_logging
 
 EXAMPLES_DIR: str = os.path.dirname(os.path.abspath(__file__))
@@ -16,25 +18,15 @@ os.makedirs(FIG_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
-def save(fig: Figure, path: str, formats: tp.Iterable[str] = ("eps", "pdf", "png", "svg"), **kwargs):
-    """Save a figure in the examples figure directory"""
-    has_extension = "." in path
-    abs_path = os.path.isabs(path)
-    if has_extension:
-        if not abs_path:
-            path = os.path.join(FIG_DIR, path)
-        fig.savefig(path, **kwargs)
-    else:
-        if abs_path:
-            path = os.path.join(FIG_DIR, path)
-            for ext in formats:
-                fig.savefig(f"{path}.{ext}", **kwargs)
-        else:
-            for ext in formats:
-                format_dir = os.path.join(FIG_DIR, ext)
-                if not os.path.exists(format_dir):
-                    os.makedirs(format_dir, exist_ok=True)
-                fig.savefig(f"{os.path.join(format_dir, path)}.{ext}", **kwargs)
+def save_fig(
+        fig: Figure,
+        path: str,
+        fig_dir: str | None = FIG_DIR,
+        formats: tp.Iterable[str] = FIG_FORMATS,
+        makedirs: bool = True,
+        **kwargs) -> None:
+    plot_utils.save_fig(fig=fig, path=path, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
+
 
 
 def save_svg_response(response: HttpResponse, path: str):
