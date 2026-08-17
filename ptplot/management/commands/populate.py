@@ -49,6 +49,7 @@ class Command(BaseCommand):
                 """),
             T_star=150,
             g_star=106.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
@@ -141,6 +142,7 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
@@ -189,6 +191,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=106.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
@@ -372,6 +375,7 @@ class Command(BaseCommand):
             notes="",
             T_star=500,
             g_star=106.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
@@ -651,7 +655,8 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
-            v_wall=1.0,
+            # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
@@ -700,7 +705,8 @@ class Command(BaseCommand):
                 """),
             T_star=50,
             g_star=106.75,
-            v_wall=1.0,
+            # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
+            v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
@@ -810,6 +816,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=106.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
@@ -856,6 +863,7 @@ class Command(BaseCommand):
                 """),
             T_star=100,
             g_star=108.75,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
@@ -1032,6 +1040,7 @@ class Command(BaseCommand):
             T_star=48,
             alpha=0.22,
             beta_over_H=57,
+            # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             scenario=scenario4
         )
