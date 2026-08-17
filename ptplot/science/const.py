@@ -1,11 +1,14 @@
 """Constants used by other modules"""
 
+import typing as tp
+
 import numpy as np
+from pttools.bubble import const as bubble_const
 
 import ptplot.science.type_hints as th
 
 # Default values
-DEFAULT_ADIABATIC_RATIO: float = 4 / 3
+DEFAULT_ADIABATIC_RATIO: float = bubble_const.DEFAULT_ADIABATIC_INDEX
 DEFAULT_ALPHA: float = 0.1
 DEFAULT_BETA_OVER_H: float = 10
 DEFAULT_G_STAR: float = 100
@@ -49,11 +52,12 @@ DEFAULT_RC_CONTEXT: dict[str, str] = {
     "mathtext.fontset": "dejavuserif",
     # "text.usetex": usetex
 }
-SNR_GRID_SIZE: int = 51
 
 # Numerical constants
-CS0: float = 1 / np.sqrt(3)
-CS0_2: float = 1 / 3
+#: $c_s$, bag model sound speed
+CS0: tp.Final[float] = bubble_const.CS0
+#: $c_s^2$, bag model sound speed squared
+CS0_2: tp.Final[float] = bubble_const.CS0_2
 #: $h_\text{Planck}$
 H_PLANCK: float = 0.678
 #: $h_\text{Planck}^2$
