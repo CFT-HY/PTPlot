@@ -25,7 +25,7 @@ if __name__ == "__main__":
 from examples.utils import FIG_DIR, save_fig
 from ptplot.models import Model
 from ptplot.science import const
-from ptplot.science.spectrum import Engine, bubble
+from ptplot.science.spectrum import Engine
 from pttools.utils import IS_CFT_BIG_MACHINE
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ def main():
 
     for i_model, model in enumerate(models):
         model_start_time = time.perf_counter()
-        logger.info("Processing model %d/%d: %s", i_model+1, n_models, model.name)
+        logger.info("##### Processing model %d/%d: %s", i_model+1, n_models, model.name)
         for i_engine, engine in enumerate(Engine):
             engine_start_time = time.perf_counter()
             try:
@@ -103,9 +103,9 @@ def main():
 
     total_time = time.perf_counter() - start_time
     logger.info(
-        "Processed %d models, took %s s, %.2f s per model. Bubble cache info: %s",
+        "Processed %d models, took %s s, %.2f s per model.",  # Bubble cache info: %s
         n_models, timedelta(seconds=total_time), total_time / n_models,
-        bubble.cache_info()
+        # bubble.cache_info()
     )
 
     n_spectra = n_spectra_engine + n_spectra_other

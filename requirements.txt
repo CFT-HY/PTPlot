@@ -10,5 +10,5 @@ pandas == 3.0.3
 # To update to a different commit hash that has the same version number,
 # you may have to uninstall the old version first.
 # pttools-gw[numbalsoda,performance] == 0.10.0
-pttools-gw[numbalsoda,performance] @ git+https://github.com/CFT-HY/pttools.git@76accf28f254869a1a2be74ee810f4c27cb2e104
+pttools-gw[numbalsoda,performance] @ git+https://github.com/CFT-HY/pttools.git@4f86a3c5d87e6bedde45e8713459fddf7bdb53cc
 scipy == 1.18.0

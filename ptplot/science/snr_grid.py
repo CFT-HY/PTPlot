@@ -9,14 +9,15 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015)
 """
 
+from multiprocessing import set_forkserver_preload
 import os
 import sys
 
 import numpy as np
+from pttools.analysis import v_wall_alpha_n_grid
 from pttools.bubble import precompile
 from pttools.bubble.fluid_reference import ref
-from pttools.speedup import MAX_WORKERS_DEFAULT
-from pttools.speedup import run_parallel
+from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -26,11 +27,14 @@ from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr import snr_point
+from ptplot.science.snr_ssm import snr_column_ssm
 import ptplot.science.type_hints as th
 
 type SNRGridOutput = \
     tuple[th.FloatArr2D, th.FloatArr2D] | \
     tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]
+
+set_forkserver_preload(DEFAULT_FORKSERVER_PRELOAD + ["ptplot", "ptplot.science"])
 
 
 def snr_grid(
@@ -60,34 +64,48 @@ def snr_grid(
         ref()
         precompile()
 
-    params = np.empty((x.size, y.size, 2))
-    for i_y, y_val in enumerate(y):
-        for i_x, x_val in enumerate(x):
-            params[i_y, i_x, 0] = x_val
-            params[i_y, i_x, 1] = y_val
-
-    snr, shock_times = run_parallel(
-        func=snr_point,
-        params=params,
-        multiple_params=True,
-        unpack_params=True,
-        output_dtypes=(np.float64, np.float64),
-        max_workers=max_workers,
-        single_thread=engine != Engine.SSM,
-        log_progress_percentage=log_progress_percentage,
-        kwargs={
-            "T_star": T_star,
-            "g_star": g_star,
-            "v_wall": v_wall,
-            "adiabatic_ratio": adiabatic_ratio,
-            "f_min": f_min,
-            "f_max": f_max,
-            "mission_profile": mission_profile,
-            "engine": engine,
-            "ubarf_rstar": ubarf_rstar,
-            "parallel": False
-        }
-    )
+    kwargs={
+        "adiabatic_ratio": adiabatic_ratio,
+        "f_min": f_min,
+        "f_max": f_max,
+        "g_star": g_star,
+        "mission_profile": mission_profile,
+        "parallel": False,
+        "T_star": T_star,
+        "ubarf_rstar": ubarf_rstar,
+        "v_wall": v_wall
+    }
+    if engine == Engine.SSM:
+        ret = run_parallel(
+            func=snr_column_ssm,
+            params=x,
+            output_dtypes=(np.float64, ),
+            return_arr_shape=(2, y.size),
+            max_workers=max_workers,
+            single_thread=False,
+            global_pool=True,
+            log_progress_percentage=log_progress_percentage,
+            kwargs={
+                "y": y,
+                **kwargs,
+            }
+        )
+        return ret[:, 0, :], ret[:, 1, :]
+    else:
+        snr, shock_times = run_parallel(
+            func=snr_point,
+            params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),
+            multiple_params=True,
+            unpack_params=True,
+            output_dtypes=(np.float64, np.float64),
+            max_workers=max_workers,
+            single_thread=True,
+            log_progress_percentage=None,
+            kwargs={
+                **kwargs,
+                "engine": engine
+            }
+        )
     if return_xy:
         return snr, shock_times, x, y
     return snr, shock_times

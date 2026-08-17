@@ -5,7 +5,7 @@ from pttools.models import ConstCSModel, Model
 from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM, bag
+from ptplot.science.spectrum.ssm import PowerSpectrumSSM, BAG
 
 
 def power_spectrum(
@@ -22,7 +22,7 @@ def power_spectrum(
         engine: Engine = Engine.DEFAULT,
         css2: float | None = None,
         csb2: float | None = None,
-        model: Model = bag,
+        model: Model = BAG,
         parallel: bool = True) -> PowerSpectrum:
     """Create a power spectrum object from the given parameters"""
     if engine not in ENGINE_SPECTRUM_CLASSES:
@@ -31,7 +31,7 @@ def power_spectrum(
     # SSM requires additional arguments
     if engine == Engine.SSM:
         # If css2 or csb2 is provided, but the model has not been specified, use ConstCSModel.
-        if (css2 is not None or csb2 is not None) and model is bag:
+        if (css2 is not None or csb2 is not None) and model is BAG:
             model = ConstCSModel(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,

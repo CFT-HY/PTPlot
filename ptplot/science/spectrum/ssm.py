@@ -1,6 +1,6 @@
 """Sound Shell Model (SSM) power spectrum"""
 
-from functools import lru_cache
+# from functools import lru_cache
 import logging
 
 import numpy as np
@@ -13,7 +13,7 @@ from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
-bag = BagModel(alpha_n_min=0.001)
+BAG = BagModel(alpha_n_min=0.0001)
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +40,15 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
             ubarf: float | None = None,
-            model: Model = bag,
+            model: Model = BAG,
+            bubble: Bubble = None,
             parallel: bool = True):
         super().__init__(
             beta_over_H=beta_over_H,
             T_star=T_star,
             g_star=g_star,
             v_wall=v_wall,
+            # cs=TODO
             adiabatic_ratio=adiabatic_ratio,
             zp=zp,
             alpha=alpha,
@@ -59,7 +61,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
         self.model: Model = model
-        self.bubble: Bubble = bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha)
+        self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
+            if bubble is None else bubble
 
     def power_spectrum(
             self,
@@ -109,7 +112,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             raise exc
 
 
-@lru_cache(maxsize=256)
-def bubble(model: Model, v_wall: float, alpha_n: float) -> Bubble:
-    """Caching Bubble generator for speed-up"""
-    return Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
+# @lru_cache(maxsize=256)
+# def bubble(model: Model, v_wall: float, alpha_n: float) -> Bubble:
+#     """Caching Bubble generator for speed-up"""
+#     return Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
