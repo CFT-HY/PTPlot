@@ -15,6 +15,7 @@ import sys
 import numpy as np
 from pttools.bubble import precompile
 from pttools.bubble.fluid_reference import ref
+from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.speedup import run_parallel
 
 if __name__ == "__main__" and __package__ is None:
@@ -45,7 +46,8 @@ def snr_grid(
         f_max: float = const.DEFAULT_SNR_F_MAX,
         return_xy: bool = False,
         ubarf_rstar: bool = False,
-        log_progress_percentage: bool = True) -> SNRGridOutput:
+        log_progress_percentage: bool = True,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridOutput:
     if T_star is None or not np.isfinite(T_star):
         raise ValueError(f"Invalid T_star={T_star}")
     if g_star is None or not np.isfinite(g_star):
@@ -70,7 +72,7 @@ def snr_grid(
         multiple_params=True,
         unpack_params=True,
         output_dtypes=(np.float64, np.float64),
-        # max_workers=max_workers,
+        max_workers=max_workers,
         single_thread=engine != Engine.SSM,
         log_progress_percentage=log_progress_percentage,
         kwargs={
@@ -82,7 +84,8 @@ def snr_grid(
             "f_max": f_max,
             "mission_profile": mission_profile,
             "engine": engine,
-            "ubarf_rstar": ubarf_rstar
+            "ubarf_rstar": ubarf_rstar,
+            "parallel": False
         }
     )
     if return_xy:
@@ -102,7 +105,8 @@ def snr_grid_alpha_beta(
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
         log_progress_percentage: bool = True,
-        return_alpha_beta: bool = False) -> SNRGridOutput:
+        return_alpha_beta: bool = False,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridOutput:
     r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -129,6 +133,7 @@ def snr_grid_alpha_beta(
         f_min=f_min, f_max=f_max,
         return_xy=return_alpha_beta,
         log_progress_percentage=log_progress_percentage,
+        max_workers=max_workers
     )
 
 
@@ -144,7 +149,8 @@ def snr_grid_ubarf_rstar(
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
         return_ubarf_rstar: bool = False,
-        log_progress_percentage: bool = True) -> SNRGridOutput:
+        log_progress_percentage: bool = True,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridOutput:
     r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points
 
     :param v_wall: Wall velocity $v_\text{wall}$
@@ -170,7 +176,8 @@ def snr_grid_ubarf_rstar(
         mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
         f_min=f_min, f_max=f_max, ubarf_rstar=True,
         return_xy=return_ubarf_rstar,
-        log_progress_percentage=log_progress_percentage
+        log_progress_percentage=log_progress_percentage,
+        max_workers=max_workers
     )
 
 

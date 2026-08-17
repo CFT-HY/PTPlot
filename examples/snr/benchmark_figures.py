@@ -26,6 +26,7 @@ from examples.utils import FIG_DIR, save
 from ptplot.models import Model
 from ptplot.science import const
 from ptplot.science.spectrum import Engine, bubble
+from pttools.utils import IS_CFT_BIG_MACHINE
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,9 @@ def main():
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)
+
+    # This is a heavy computation, so you may want to limit the number of workers on a shared system.
+    max_workers = MAX_WORKERS_DEFAULT // 2 if IS_CFT_BIG_MACHINE else MAX_WORKERS_DEFAULT
 
     # Statistics
     n_spectra_engine = np.zeros((n_models, len(Engine)), dtype=np.int_)
@@ -48,10 +52,10 @@ def main():
             engine_start_time = time.perf_counter()
             try:
                 n_spectra_ab = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
-                snr_ab = model.snr_figure_alpha_beta(engine=engine)
+                snr_ab = model.snr_figure_alpha_beta(engine=engine, max_workers=max_workers)
                 save(snr_ab, f"{model.slug}_snr_alpha_beta_{engine}")
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
-                snr_ab2 = model.snr_figure_alpha_beta(engine=engine, filled=True)
+                snr_ab2 = model.snr_figure_alpha_beta(engine=engine, max_workers=max_workers, filled=True)
                 save(snr_ab2, f"{model.slug}_snr_alpha_beta_{engine}_filled")
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
             except Exception as exc:
@@ -59,10 +63,10 @@ def main():
 
             try:
                 n_spectra_ur = const.DEFAULT_UBARF_RANGE.size * const.DEFAULT_UBARF_RANGE.size + model.n_points
-                snr_ur = model.snr_figure_ubarf_rstar(engine=engine)
+                snr_ur = model.snr_figure_ubarf_rstar(engine=engine, max_workers=max_workers)
                 save(snr_ur, f"{model.slug}_snr_ubarf_rstar_{engine}")
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
-                snr_ur2 = model.snr_figure_ubarf_rstar(engine=engine, filled=True)
+                snr_ur2 = model.snr_figure_ubarf_rstar(engine=engine, max_workers=max_workers, filled=True)
                 save(snr_ur2, f"{model.slug}_snr_ubarf_rstar_{engine}_filled")
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
             except Exception as exc:
@@ -71,7 +75,7 @@ def main():
 
         for i_engine, engine in enumerate((Engine.DBPL, Engine.SSM)):
             try:
-                snr_comp = model.snr_comparison(Engine.BPL, engine)
+                snr_comp = model.snr_comparison(engine1=Engine.BPL, engine2=engine, max_workers=max_workers)
                 save(snr_comp, f"{model.slug}_snr_comparison_{engine}")
                 n_spectra_comp = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
                 n_spectra_other[i_model, 0] += n_spectra_comp  # BPL
@@ -112,7 +116,7 @@ def main():
             {f"{engine.upper()} time": times_engine[:, i] for i, engine in enumerate(Engine)} | {
                 "total time": times,
                 "SSM time / SSM spectrum": times_ssm,
-                "SSM thread time / SSM spectrum": times_ssm * MAX_WORKERS_DEFAULT
+                "SSM thread time / SSM spectrum": times_ssm * max_workers
         },
         index=[model.name for model in models]
     )

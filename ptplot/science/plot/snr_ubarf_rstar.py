@@ -12,6 +12,7 @@ import sys
 
 from matplotlib.figure import Figure
 import numpy as np
+from pttools.speedup import MAX_WORKERS_DEFAULT
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -42,7 +43,8 @@ def snr_figure_ubarf_rstar(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         huge_alpha: bool = False,
         engine: Engine = Engine.DEFAULT,
-        filled: bool = False) -> Figure:
+        filled: bool = False,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
     r"""Produce the $(\bar{U}_f, r_*)$ plot
 
     :param v_wall_snr: Wall velocity used for the SNR curves
@@ -78,7 +80,8 @@ def snr_figure_ubarf_rstar(
         mission_profile=mission_profile,
         ubarf=ubarf_grid,
         r_star=r_star_grid,
-        engine=engine
+        engine=engine,
+        max_workers=max_workers
     )
     log10_ubarf_grid = np.log10(ubarf_grid)
     log10_r_star_grid = np.log10(r_star_grid)

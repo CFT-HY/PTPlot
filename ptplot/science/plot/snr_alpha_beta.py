@@ -10,6 +10,8 @@ import sys
 
 from matplotlib.figure import Figure
 import numpy as np
+from pttools.speedup import MAX_WORKERS_DEFAULT
+
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -38,7 +40,8 @@ def snr_figure_alpha_beta(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         huge_alpha: bool = False,
         engine: Engine = Engine.DEFAULT,
-        filled: bool = False) -> Figure:
+        filled: bool = False,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
     r"""Produce the $(\alpha_n, \beta/H)$ plot
 
     :param v_wall_snr: Wall velocity $v_\text{wall}$ used for the SNR curves
@@ -59,7 +62,8 @@ def snr_figure_alpha_beta(
     snr, shock_times = snr_grid_alpha_beta(
         T_star=T_star_snr, g_star=g_star_snr, v_wall=v_wall_snr, mission_profile=mission_profile,
         alpha_n=alpha_n_grid, beta_over_H=beta_over_H_grid,
-        adiabatic_ratio=adiabatic_ratio, engine=engine
+        adiabatic_ratio=adiabatic_ratio, engine=engine,
+        max_workers=max_workers
     )
     log10_alpha_n_grid = np.log10(alpha_n_grid)
     log10_beta_over_H_grid = np.log10(beta_over_H_grid)

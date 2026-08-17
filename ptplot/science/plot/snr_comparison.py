@@ -2,6 +2,7 @@
 
 from matplotlib.figure import Figure
 import numpy as np
+from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
 from ptplot.science.spectrum.engine import Engine
@@ -23,7 +24,8 @@ def snr_comparison(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
-        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE) -> Figure:
+        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+        max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
     """Compare the SNR values given by different engines"""
 
     alpha_n_grid = log_range(alphas, const.DEFAULT_ALPHA_N_RANGE)
@@ -31,12 +33,12 @@ def snr_comparison(
     snr1, shock_times1 = snr_grid_alpha_beta(
         T_star=T_star_snr, g_star=g_star_snr, v_wall=v_wall_snr, mission_profile=mission_profile,
         alpha_n=alpha_n_grid, beta_over_H=beta_over_H_grid,
-        adiabatic_ratio=adiabatic_ratio, engine=engine1
+        adiabatic_ratio=adiabatic_ratio, engine=engine1, max_workers=max_workers
     )
     snr2, shock_times2 = snr_grid_alpha_beta(
         T_star=T_star_snr, g_star=g_star_snr, v_wall=v_wall_snr, mission_profile=mission_profile,
         alpha_n=alpha_n_grid, beta_over_H=beta_over_H_grid,
-        adiabatic_ratio=adiabatic_ratio, engine=engine2
+        adiabatic_ratio=adiabatic_ratio, engine=engine2, max_workers=max_workers
     )
     log10_alpha_n_grid = np.log10(alpha_n_grid)
     log10_beta_over_H_grid = np.log10(beta_over_H_grid)
