@@ -158,23 +158,19 @@ jobs:
     - name: Generate PTtools reference data
       run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
     - name: Run tests with coverage
-      run: coverage run
-    - name: Create coverage reports
       run: |
-        coverage combine
-        coverage report | tee coverage.txt
-        coverage html
-        coverage xml
-        coverage json
+        set -o pipefail
+        pytest --store-durations | tee test-output.txt
     - name: Upload results
       uses: actions/upload-artifact@v4
       with:
-        name: Coverage
+        name: Test results
         path: |
-          ${{ github.workspace }}/coverage.txt
-          ${{ github.workspace }}/coverage.xml
-          ${{ github.workspace }}/coverage.json
-          ${{ github.workspace }}/htmlcov
+          .test_durations
+          coverage.xml
+          coverage.json
+          htmlcov
+          test-output.txt
         if-no-files-found: error
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5

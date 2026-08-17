@@ -135,10 +135,13 @@ addopts = [
     "--alluredir=test-results/allure",
     "--cov=.",
     "--cov-report=html",
+    "--cov-report=json",
     "--cov-report=term",
     "--cov-report=term-missing",
     "--cov-report=xml",
-    "--dist=loadscope",
+    "--dist=loadscope",  # This ensures that tests from the same class are run on the same worker.
+    "--durations=50",
+    "--durations-min=1.0",
     "--html=test-results/html/test-report.html",
     "--numprocesses=auto"
 ]
