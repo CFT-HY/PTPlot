@@ -15,13 +15,14 @@ def add_text(
         fig: Figure,
         text: str,
         x: float = 0.13,
-        y: float = 0.87,
+        y: float = 0.96,
         fontsize: int = 8,
         color: str = "black",
         ha: str = "left",
         va: str = "top",
         alpha: float = 1.0) -> Text:
     """Add text to the given figure"""
+    # Suitable defaults when not using tight_layout(): x=0.13, y=0.87
     return fig.text(x=x, y=y, s=text, fontsize=fontsize, color=color, ha=ha, va=va, alpha=alpha)
 
 
