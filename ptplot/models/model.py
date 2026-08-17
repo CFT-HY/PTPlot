@@ -7,6 +7,7 @@ from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
 from pandas import DataFrame
+from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.methods.models import point_data
 from ptplot.models.const import NAME_MAX_LENGTH
@@ -136,7 +137,8 @@ class Model(models.Model):
             self,
             engine1: Engine,
             engine2: Engine,
-            mission_profile: MissionProfile | None = None) -> Figure:
+            mission_profile: MissionProfile | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         if mission_profile is None:
             mission_profile = self.mission_profile
         v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
@@ -151,13 +153,15 @@ class Model(models.Model):
             labels=labels,
             titles=titles,
             mission_profile=mission_profile,
+            max_workers=max_workers
         )
 
     def snr_figure_alpha_beta(
             self,
             mission_profile: MissionProfile | None = None,
             engine: Engine = Engine.DEFAULT,
-            filled: bool = False) -> Figure:
+            filled: bool = False,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         if mission_profile is None:
             mission_profile = self.mission_profile
         v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
@@ -172,14 +176,16 @@ class Model(models.Model):
             mission_profile=mission_profile,
             huge_alpha=self.huge_alpha,
             engine=engine,
-            filled=filled
+            filled=filled,
+            max_workers=max_workers
         )
 
     def snr_figure_ubarf_rstar(
             self,
             mission_profile: MissionProfile | None = None,
             engine: Engine = Engine.DEFAULT,
-            filled: bool = False) -> Figure:
+            filled: bool = False,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         if mission_profile is None:
             mission_profile = self.mission_profile
         v_walls, alphas, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
@@ -195,7 +201,8 @@ class Model(models.Model):
             mission_profile=mission_profile,
             huge_alpha=self.huge_alpha,
             engine=engine,
-            filled=filled
+            filled=filled,
+            max_workers=max_workers
         )
 
     def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:
