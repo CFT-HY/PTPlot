@@ -3,6 +3,7 @@ build == 1.5.0
 django-coverage-plugin == 3.2.2
 django-debug-toolbar == 6.3.0
 django-stubs[compatible-mypy] == 6.0.5
+# hypothesis[django,numpy] == 6.155.1
 lxml == 6.1.1
 lxml-stubs == 0.5.1
 mypy == 2.1.0
