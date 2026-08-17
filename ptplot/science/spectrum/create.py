@@ -22,7 +22,8 @@ def power_spectrum(
         engine: Engine = Engine.DEFAULT,
         css2: float | None = None,
         csb2: float | None = None,
-        model: Model = bag) -> PowerSpectrum:
+        model: Model = bag,
+        parallel: bool = True) -> PowerSpectrum:
     """Create a power spectrum object from the given parameters"""
     if engine not in ENGINE_SPECTRUM_CLASSES:
         raise ValueError(f"Invalid engine: {engine}")
@@ -36,10 +37,11 @@ def power_spectrum(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
-            model=model
+            parallel=parallel, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
         beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
         v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
-        alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf
+        alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
+        parallel=parallel
     )

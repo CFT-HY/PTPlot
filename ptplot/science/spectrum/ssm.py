@@ -40,7 +40,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
             ubarf: float | None = None,
-            model: Model = bag):
+            model: Model = bag,
+            parallel: bool = True):
         super().__init__(
             beta_over_H=beta_over_H,
             T_star=T_star,
@@ -52,6 +53,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb=k_turb,
             r_star=r_star,
             ubarf=ubarf,
+            parallel=parallel
         )
         if self.v_wall is None or np.isnan(v_wall):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
@@ -87,7 +89,8 @@ class PowerSpectrumSSM(PowerSpectrum):
                 r_star=self.r_star_given,
                 T_star=self.T_star,
                 suppression=suppression,
-                suppression_method=suppression_method
+                suppression_method=suppression_method,
+                parallel=self.parallel
             )
             return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0)
         except Exception as exc:

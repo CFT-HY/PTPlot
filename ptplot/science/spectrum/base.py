@@ -51,7 +51,8 @@ class PowerSpectrum(abc.ABC):
             cs: float = const.CS0,  # Todo: implement this properly
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
-            k_turb: float = const.DEFAULT_K_TURB):
+            k_turb: float = const.DEFAULT_K_TURB,
+            parallel: bool = True):
         r"""
         :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
         :param T_star: Transition temperature $T_*$
@@ -63,6 +64,8 @@ class PowerSpectrum(abc.ABC):
         :param k_turb: Fraction of latent heat that is transformed into magnetohydrodynamic turbulence, $k_\text{turb}$
         :param r_star: Typical bubble radius
         :param ubarf: rms fluid velocity $\bar{U}_f$
+        :param parallel: Enable parallel processing for this spectrum if the engine supports it.
+            This should be disabled when generating multiple spectra in parallel.
         """
         if g_star is None or np.isnan(g_star):
             raise ValueError(f"Invalid g_star={g_star}")
@@ -77,6 +80,7 @@ class PowerSpectrum(abc.ABC):
         self.k_turb: float = k_turb
         self.N_sh: float = DEFAULT_N_SH
         self.nu_gdh2024: float = DEFAULT_NU_GDH2024
+        self.parallel: bool = parallel
         self.T_star: float = T_star
         self.zp: float = zp
 

@@ -24,7 +24,8 @@ def snr_point(
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
-        ubarf_rstar: bool = False) -> tuple[float, float]:
+        ubarf_rstar: bool = False,
+        parallel: bool = True) -> tuple[float, float]:
     """Compute the SNR value of a single point in the parameter space"""
     kwargs = {"ubarf": x, "r_star": y} if ubarf_rstar \
         else {"alpha": x, "beta_over_H": y}
@@ -35,6 +36,7 @@ def snr_point(
             v_wall=v_wall,
             adiabatic_ratio=adiabatic_ratio,
             engine=engine,
+            parallel=parallel,
             **kwargs
         )
         snr, f_min, f_max = signal_to_noise_ratio(

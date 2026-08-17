@@ -30,12 +30,13 @@ class PowerSpectrumDBPL(PowerSpectrum):
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
-            zb: float = 1.):
+            zb: float = 1.,
+            parallel: bool = True):
         super().__init__(
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_over_H=beta_over_H,
             ubarf=ubarf, r_star=r_star,
-            cs=cs, adiabatic_ratio=adiabatic_ratio, zp=zp, k_turb=k_turb
+            cs=cs, adiabatic_ratio=adiabatic_ratio, zp=zp, k_turb=k_turb, parallel=parallel
         )
         self.zb: float = zb
 
