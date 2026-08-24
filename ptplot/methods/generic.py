@@ -14,6 +14,7 @@ def fig_to_response(fig: Figure) -> HttpResponse:
 
 def get_object_or_404_related[T: Model](
         model: type[T],
+        annotate: list | None = None,
         related: list[str] | None = None,
         prefetch: list[str] | None = None,
         **kwargs) -> T:
@@ -24,6 +25,8 @@ def get_object_or_404_related[T: Model](
             obj = obj.select_related(*related)
         if prefetch is not None:
             obj = obj.prefetch_related(*prefetch)
+        if annotate is not None:
+            obj = obj.annotate(*annotate)
         obj = obj.get(**kwargs)
     except model.DoesNotExist as err:
         raise Http404(f"No {model._meta.object_name} matches the given query.") from err  # pylint: disable=protected-access

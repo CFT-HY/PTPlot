@@ -8,8 +8,9 @@ from django.urls import reverse
 from matplotlib.figure import Figure
 from pandas import DataFrame
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.utils import as_latex
 
-from ptplot.methods.models import point_data
+from ptplot.methods.models import min_max_avg, point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.science import const
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfile
@@ -22,6 +23,12 @@ import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
     from ptplot.models.scenario import Scenario
+
+
+MODEL_ANNOTATIONS = min_max_avg(
+    "points__alpha", "points__beta_over_H", "points__v_wall", "points__T_star", "points__g_star",
+    "scenarios__T_star"
+)
 
 
 class Model(models.Model):
@@ -70,6 +77,38 @@ class Model(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def annotated_label(
+            label: str,
+            x_min: float | None,
+            x_max: float | None,
+            default: float | None = None,
+            unit: str | None = None) -> str:
+        unit_str = "" if unit is None else rf" \ \text{{{unit}}}"
+        if x_min == x_max:
+            return f"{label} = {default if x_min is None else as_latex(x_min)}{unit_str}"
+        return rf"{label} \in [{as_latex(x_min)}, {as_latex(x_max)}]{unit_str}"
+
+    def annotated_labels(self) -> str:
+        return "$" + r", \ ".join([
+            self.annotated_label(r"\alpha_n", self.points__alpha__min, self.points__alpha__max),
+            self.annotated_label(r"\beta/H_*", self.points__beta_over_H__min, self.points__beta_over_H__max),
+            self.annotated_label(
+                r"v_\text{wall}",
+                self.points__v_wall__min,
+                self.points__v_wall__max,
+                default=self.v_wall
+            ),
+            self.annotated_label(
+                "T_*",
+                min(x for x in (self.points__T_star__min, self.scenarios__T_star__min) if x is not None),
+                max(x for x in (self.points__T_star__max, self.scenarios__T_star__max) if x is not None),
+                default=self.T_star,
+                unit="GeV"
+            ),
+            self.annotated_label("g_*", self.points__g_star__min, self.points__g_star__max, default=self.g_star)
+        ]) + "$"
 
     def get_absolute_url(self) -> str:
         return reverse("model_detail", kwargs={"model_id": self.id})

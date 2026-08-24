@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
-from ptplot.models import Model
+from ptplot.models import MODEL_ANNOTATIONS, Model
 from ptplot.science.spectrum import Engine
 
 
@@ -18,6 +18,7 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
     """Display a list of benchmark points for a model"""
     model: Model = get_object_or_404_related(
         Model,
+        annotate=MODEL_ANNOTATIONS,
         prefetch=["points", "scenarios"],
         id=model_id
     )
@@ -31,6 +32,7 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
     """Display the benchmark points for a model on the SNR plots"""
     model: Model = get_object_or_404_related(
         Model,
+        annotate=MODEL_ANNOTATIONS,
         prefetch=["points", "scenarios"],
         id=model_id
     )

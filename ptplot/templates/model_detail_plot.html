@@ -2,12 +2,13 @@
 {% block results %}
 
 <h4>Results for all points</h4>
+Points: {{ model.annotated_labels }}
 
 <p>
-  NB: using
-  $v_\mathrm{w} = {{ model.v_wall }}$,
-  $T_* = {{ model.T_star }} \, \mathrm{GeV}$,
-  $g_* = {{ model.g_star }}$.
+  SNR curves are plotted with:
+  $v_\text{wall} = {{ model.v_wall }},
+  T_* = {{ model.T_star }} \, \text{GeV},
+  g_* = {{ model.g_star }}$
 </p>
 
 {% if model.huge_alpha %}
