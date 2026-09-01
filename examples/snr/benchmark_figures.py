@@ -38,7 +38,8 @@ def main():
     n_models = len(models)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
-    max_workers = MAX_WORKERS_DEFAULT // 2 if IS_CFT_BIG_MACHINE else MAX_WORKERS_DEFAULT
+    max_workers = MAX_WORKERS_DEFAULT // 4 if IS_CFT_BIG_MACHINE else MAX_WORKERS_DEFAULT
+    logger.info("Creating benchmark figures with %d parallel workers.", max_workers)
 
     # Statistics
     n_spectra_engine = np.zeros((n_models, len(Engine)), dtype=np.int_)
