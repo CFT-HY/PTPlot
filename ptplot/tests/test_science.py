@@ -4,6 +4,8 @@ from django.test import TestCase
 
 import ptplot.science.sensitivity.sciencerequirements as req
 import ptplot.science.espinosa as esp
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
@@ -45,16 +47,21 @@ class ScienceTest(TestCase):
         req.main(print_points=False)
 
     @staticmethod
-    def test_snr_alpha_beta_image():
+    def test_snr_alpha_beta():
         snr_figure_alpha_beta(
-            v_wall_snr=V_WALL, T_star_snr=T_STAR, g_star_snr=G_STAR, alphas=ALPHA, beta_over_Hs=BETA_OVER_H
+            grid=SNRGridAlphaBeta(
+                T_star=T_STAR, g_star=G_STAR, v_wall=V_WALL,
+                alpha_points=ALPHA, beta_over_H_points=BETA_OVER_H, v_wall_points=V_WALL
+            )
         )
 
     @staticmethod
-    def test_snr_ubarf():
+    def test_snr_ubarf_rstar():
         snr_figure_ubarf_rstar(
-            v_wall_snr=V_WALL, T_star_snr=T_STAR, g_star_snr=G_STAR,
-            alphas=ALPHA, beta_over_Hs=BETA_OVER_H, v_walls=V_WALL
+            grid=SNRGridUbarfRStar(
+                T_star=T_STAR, g_star=G_STAR, v_wall=V_WALL,
+                alpha_points=ALPHA, beta_over_H_points=BETA_OVER_H, v_wall_points=V_WALL
+            )
         )
 
     @staticmethod

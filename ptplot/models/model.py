@@ -18,6 +18,9 @@ from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
@@ -137,7 +140,6 @@ class Model(models.Model):
         g_star = data["g_star"].values
         labels = data["label"].to_list()
         titles = self.name
-
         return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
 
     def point_data_by_field_and_scenario(self) -> tuple[
@@ -174,73 +176,73 @@ class Model(models.Model):
 
     def snr_comparison(
             self,
-            engine1: Engine,
-            engine2: Engine,
-            mission_profile: MissionProfile | None = None,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
-        if mission_profile is None:
-            mission_profile = self.mission_profile
-        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
-        return snr_comparison(
-            engine1=engine1,
-            engine2=engine2,
-            v_wall_snr=self.v_wall,
-            T_star_snr=self.T_star,
-            g_star_snr=self.g_star,
-            alphas=alpha,
-            beta_over_Hs=beta_over_H,
-            labels=labels,
-            titles=titles,
-            mission_profile=mission_profile,
-            max_workers=max_workers
-        )
+            grid1: SNRGrid,
+            grid2: SNRGrid) -> Figure:
+        return snr_comparison(grid1=grid1, grid2=grid2)
 
     def snr_figure_alpha_beta(
             self,
-            mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT,
-            filled: bool = False,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
-        if mission_profile is None:
-            mission_profile = self.mission_profile
-        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+            grid: SNRGridAlphaBeta | None = None,
+            filled: bool = False) -> Figure:
         return snr_figure_alpha_beta(
-            v_wall_snr=self.v_wall,
-            T_star_snr=self.T_star,
-            g_star_snr=self.g_star,
-            alphas=alpha,
-            beta_over_Hs=beta_over_H,
-            labels=labels,
-            titles=titles,
-            mission_profile=mission_profile,
+            grid=self.snr_grid_alpha_beta() if grid is None else grid,
             huge_alpha=self.huge_alpha,
-            engine=engine,
-            filled=filled,
-            max_workers=max_workers
+            filled=filled
         )
 
     def snr_figure_ubarf_rstar(
             self,
-            mission_profile: MissionProfile | None = None,
-            engine: Engine = Engine.DEFAULT,
-            filled: bool = False,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
-        if mission_profile is None:
-            mission_profile = self.mission_profile
-        v_walls, alphas, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+            grid: SNRGridUbarfRStar | None = None,
+            filled: bool = False) -> Figure:
         return snr_figure_ubarf_rstar(
-            v_wall_snr=self.v_wall,
-            T_star_snr=self.T_star,
-            g_star_snr=self.g_star,
-            v_walls=v_walls,
-            alphas=alphas,
-            beta_over_Hs=beta_over_H,
-            labels=labels,
-            titles=titles,
-            mission_profile=mission_profile,
+            grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
             huge_alpha=self.huge_alpha,
+            filled=filled
+        )
+
+    def snr_grid_alpha_beta(
+            self,
+            engine: Engine = Engine.DEFAULT,
+            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            mission_profile: MissionProfile | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
+        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        return SNRGridAlphaBeta(
+            T_star=self.T_star,
+            g_star=self.g_star,
+            v_wall=self.v_wall,
+            mission_profile=self.mission_profile if mission_profile is None else mission_profile,
+            alpha_points=alpha,
+            beta_over_H_points=beta_over_H,
+            v_wall_points=v_wall,
+            labels_points=labels,
+            titles=titles,
+            adiabatic_ratio=adiabatic_ratio,
             engine=engine,
-            filled=filled,
+            max_workers=max_workers
+        )
+
+    def snr_grid_ubarf_rstar(
+            self,
+            engine: Engine = Engine.DEFAULT,
+            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            cs: float = const.CS0,
+            mission_profile: MissionProfile | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
+        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        return SNRGridUbarfRStar(
+            v_wall=self.v_wall,
+            T_star=self.T_star,
+            g_star=self.g_star,
+            mission_profile=self.mission_profile if mission_profile is None else mission_profile,
+            alpha_points=alpha,
+            beta_over_H_points=beta_over_H,
+            v_wall_points=v_wall,
+            labels_points=labels,
+            titles=titles,
+            adiabatic_ratio=adiabatic_ratio,
+            cs=cs,
+            engine=engine,
             max_workers=max_workers
         )
 

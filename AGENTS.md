@@ -12,7 +12,11 @@
 - JIT compile heavy computations with Numba
 
 ## General instructions
-- When working on code that has physics equations, ensure that the equations are not changed.
+- PTtools may be available at `../pttools`
+- Before editing code that has physics equations, ensure that there are unit tests that verify the results of that code.
+  If there are no such unit tests yet, create them. Use the existing output of the code as a reference,
+  and also reference values from the literature, if there are any.
+- If you change any of the physics, inform the user explicitly and exactly what has been changed.
 
 ## Description of PTPlot
 PTPlot is a plotting tool for visualizing the gravitational wave power

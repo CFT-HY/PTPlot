@@ -25,6 +25,7 @@ if __name__ == "__main__":
 from examples.utils import FIG_DIR, save_fig
 from ptplot.models import Model
 from ptplot.science import const
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
 from pttools.utils import IS_CFT_BIG_MACHINE
 
@@ -48,38 +49,37 @@ def main():
     for i_model, model in enumerate(models):
         model_start_time = time.perf_counter()
         logger.info("##### Processing model %d/%d: %s", i_model+1, n_models, model.name)
+        snr_abs: dict[Engine, SNRGridAlphaBeta] = {}
         for i_engine, engine in enumerate(Engine):
             engine_start_time = time.perf_counter()
             try:
                 n_spectra_ab = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
-                snr_ab = model.snr_figure_alpha_beta(engine=engine, max_workers=max_workers)
-                save_fig(snr_ab, f"{model.slug}_snr_alpha_beta_{engine}")
+                snr_ab = model.snr_grid_alpha_beta(engine=engine, max_workers=max_workers)
+                snr_abs[engine] = snr_ab
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
-                snr_ab2 = model.snr_figure_alpha_beta(engine=engine, max_workers=max_workers, filled=True)
-                save_fig(snr_ab2, f"{model.slug}_snr_alpha_beta_{engine}_filled")
-                n_spectra_engine[i_model, i_engine] += n_spectra_ab
+                snr_ab_fig = model.snr_figure_alpha_beta(grid=snr_ab)
+                save_fig(snr_ab_fig, f"{model.slug}_snr_alpha_beta_{engine}")
+                snr_ab_fig2 = model.snr_figure_alpha_beta(grid=snr_ab, filled=True)
+                save_fig(snr_ab_fig2, f"{model.slug}_snr_alpha_beta_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_alpha_beta for %s", model.name, exc_info=exc)
 
             try:
                 n_spectra_ur = const.DEFAULT_UBARF_RANGE.size * const.DEFAULT_UBARF_RANGE.size + model.n_points
-                snr_ur = model.snr_figure_ubarf_rstar(engine=engine, max_workers=max_workers)
-                save_fig(snr_ur, f"{model.slug}_snr_ubarf_rstar_{engine}")
+                snr_ur = model.snr_grid_ubarf_rstar(engine=engine, max_workers=max_workers)
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
-                snr_ur2 = model.snr_figure_ubarf_rstar(engine=engine, max_workers=max_workers, filled=True)
-                save_fig(snr_ur2, f"{model.slug}_snr_ubarf_rstar_{engine}_filled")
-                n_spectra_engine[i_model, i_engine] += n_spectra_ur
+                snr_ur_fig = model.snr_figure_ubarf_rstar(grid=snr_ur)
+                save_fig(snr_ur_fig, f"{model.slug}_snr_ubarf_rstar_{engine}")
+                snr_ur_fig2 = model.snr_figure_ubarf_rstar(grid=snr_ur, filled=True)
+                save_fig(snr_ur_fig2, f"{model.slug}_snr_ubarf_rstar_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time
 
-        for i_engine, engine in enumerate((Engine.DBPL, Engine.SSM)):
+        for engine in (Engine.DBPL, Engine.SSM):
             try:
-                snr_comp = model.snr_comparison(engine1=Engine.BPL, engine2=engine, max_workers=max_workers)
+                snr_comp = model.snr_comparison(grid1=snr_abs[Engine.BPL], grid2=snr_abs[engine])
                 save_fig(snr_comp, f"{model.slug}_snr_comparison_{engine}")
-                n_spectra_comp = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
-                n_spectra_other[i_model, 0] += n_spectra_comp  # BPL
-                n_spectra_other[i_model, i_engine+1] += n_spectra_comp  # DBPL / SSM
             except Exception as exc:
                 logger.exception(
                     "Failed to plot snr_comparison_%s for %s",

@@ -129,6 +129,9 @@ class ViewTest(TestCase):
     def test_model_snr_alphabeta(self):
         check_view(self, "model_snr_alpha_beta", view_kwargs=self.MODEL_KWARGS)
 
+    def test_model_snr_comparison(self):
+        check_view(self, "model_snr_comparison", view_kwargs=self.MODEL_KWARGS)
+
     def test_model_snr_histogram(self):
         check_view(self, "model_snr_histogram", view_kwargs=self.MODEL_KWARGS)
 
@@ -144,6 +147,9 @@ class ViewTest(TestCase):
     def test_point_snr_alpha_beta(self):
         check_view(self, "model_point_snr_alpha_beta", view_kwargs=self.POINT_KWARGS)
 
+    def test_point_snr_comparison(self):
+        check_view(self, "model_point_snr_comparison", view_kwargs=self.POINT_KWARGS)
+
     def test_point_snr(self):
         check_view(self, "model_point_snr_ubarf_rstar", view_kwargs=self.POINT_KWARGS)
 
@@ -158,6 +164,9 @@ class ViewTest(TestCase):
 
     def test_scenario_snr_alpha_beta(self):
         check_view(self, "model_scenario_snr_alpha_beta", view_kwargs=self.SCENARIO_KWARGS)
+
+    def test_scenario_snr_comparison(self):
+        check_view(self, "model_scenario_snr_comparison", view_kwargs=self.SCENARIO_KWARGS)
 
     def test_scenario_snr_histogram(self):
         check_view(self, "model_scenario_snr_histogram", view_kwargs=self.SCENARIO_KWARGS)

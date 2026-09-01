@@ -4,6 +4,8 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpR
 
 from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.plot.power_spectrum import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
@@ -43,16 +45,18 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    fig = snr_figure_alpha_beta(
-        v_wall_snr=form.cleaned_data["v_wall"],
-        T_star_snr=form.cleaned_data["T_star"],
-        g_star_snr=form.cleaned_data["g_star"],
-        alphas=form.cleaned_data["alpha"],
-        beta_over_Hs=form.cleaned_data["beta_over_H"],
-        mission_profile=form.mission_profile,
-        engine=form.cleaned_data["engine"]
-    )
-    return fig_to_response(fig)
+    return fig_to_response(fig=snr_figure_alpha_beta(
+        grid=SNRGridAlphaBeta(
+            v_wall=form.cleaned_data["v_wall"],
+            T_star=form.cleaned_data["T_star"],
+            g_star=form.cleaned_data["g_star"],
+            alpha_points=form.cleaned_data["alpha"],
+            beta_over_H_points=form.cleaned_data["beta_over_H"],
+            v_wall_points=form.cleaned_data["v_wall"],
+            mission_profile=form.mission_profile,
+            engine=form.cleaned_data["engine"]
+        )
+    ))
 
 
 def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
@@ -64,14 +68,15 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest()
 
-    fig = snr_figure_ubarf_rstar(
-        v_wall_snr=form.cleaned_data["v_wall"],
-        T_star_snr=form.cleaned_data["T_star"],
-        g_star_snr=form.cleaned_data["g_star"],
-        v_walls=form.cleaned_data["v_wall"],
-        alphas=form.cleaned_data["alpha"],
-        beta_over_Hs=form.cleaned_data["beta_over_H"],
-        mission_profile=form.mission_profile,
-        engine=form.cleaned_data["engine"]
-    )
-    return fig_to_response(fig)
+    return fig_to_response(fig=snr_figure_ubarf_rstar(
+        grid=SNRGridUbarfRStar(
+            v_wall=form.cleaned_data["v_wall"],
+            T_star=form.cleaned_data["T_star"],
+            g_star=form.cleaned_data["g_star"],
+            alpha_points=form.cleaned_data["alpha"],
+            beta_over_H_points=form.cleaned_data["beta_over_H"],
+            v_wall_points=form.cleaned_data["v_wall"],
+            mission_profile=form.mission_profile,
+            engine=form.cleaned_data["engine"]
+        )
+    ))

@@ -8,6 +8,7 @@ from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.spectrum.engine import ENGINE_NAMES
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
@@ -47,14 +48,17 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 label_list_final = [labels]
 
             fig = snr_figure_alpha_beta(
-                v_wall_snr=form.cleaned_data["v_wall"],
-                T_star_snr=form.cleaned_data["T_star"],
-                g_star_snr=form.cleaned_data["g_star"],
-                alphas=alphas,
-                beta_over_Hs=beta_over_Hs,
-                mission_profile=form.mission_profile,
-                labels=label_list_final,
-                engine=form.cleaned_data["engine"]
+                grid=SNRGridAlphaBeta(
+                    v_wall=form.cleaned_data["v_wall"],
+                    T_star=form.cleaned_data["T_star"],
+                    g_star=form.cleaned_data["g_star"],
+                    alpha_points=alphas,
+                    beta_over_H_points=beta_over_Hs,
+                    v_wall_points=form.cleaned_data["v_wall"],
+                    labels_points=label_list_final,
+                    mission_profile=form.mission_profile,
+                    engine=form.cleaned_data["engine"]
+                )
             )
             return fig_to_response(fig)
     # Form not valid or not filled out

@@ -44,7 +44,11 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
-        scenario.snr_figure_alpha_beta(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
+        scenario.snr_figure_alpha_beta(
+            grid=scenario.snr_grid_alpha_beta(
+                engine=form.cleaned_data["engine"], mission_profile=form.mission_profile
+            )
+        )
     )
 
 
@@ -64,9 +68,11 @@ def model_scenario_snr_comparison(request: HttpRequest, model_id: int, scenario_
     engine = form.cleaned_data["engine"]
     return fig_to_response(
         scenario.snr_comparison(
-            engine1=Engine.BPL,
-            engine2=Engine.DBPL if engine == Engine.BPL else engine,
-            mission_profile=form.mission_profile
+            grid1=scenario.snr_grid_alpha_beta(engine=Engine.BPL, mission_profile=form.mission_profile),
+            grid2=scenario.snr_grid_alpha_beta(
+                engine=Engine.DBPL if engine == Engine.BPL else engine,
+                mission_profile=form.mission_profile
+            )
         )
     )
 
@@ -101,5 +107,9 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
-        scenario.snr_figure_ubarf_rstar(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
+        scenario.snr_figure_ubarf_rstar(
+            grid=scenario.snr_grid_ubarf_rstar(
+                engine=form.cleaned_data["engine"], mission_profile=form.mission_profile
+            )
+        )
     )
