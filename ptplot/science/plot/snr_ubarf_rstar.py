@@ -67,7 +67,8 @@ def main():
     """Script for command-line use"""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
-        mission_profile=True
+        mission_profile=True,
+        engine=True
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
@@ -75,7 +76,7 @@ def main():
         grid=SNRGridUbarfRStar(
             v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar,
             alpha_points=args.alpha, beta_over_H_points=args.BetaoverH, v_wall_points=args.v_wall,
-            mission_profile=mission_profile
+            mission_profile=mission_profile, engine=args.engine
         )
     )
     print(fig_to_svg(fig).decode("utf-8"))

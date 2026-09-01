@@ -131,17 +131,20 @@ def main():
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",
         v_wall_alpha_betaoverh=False,
-        mission_profile=True
+        mission_profile=True,
+        engine=True
     )
     args = parser.parse_args()
     mission_profile = MissionProfile.from_ind(args.mission_profile)
     grid = SNRGridUbarfRStar(
-        v_wall=DEFAULT_V_WALL, T_star=args.Tstar, g_star=args.gstar, mission_profile=mission_profile,
+        v_wall=DEFAULT_V_WALL, T_star=args.Tstar, g_star=args.gstar,
+        mission_profile=mission_profile, engine=args.engine,
         ubarf=DEFAULT_UBARF_RANGE, r_star=DEFAULT_R_STAR_RANGE
     )
 
     # Use the mission profile to load the sensitivity curve name
-    destination = f"{mission_profile.sensitivity_file_name}_Tn_{args.Tstar}_gstar_{args.gstar}_precomputed.npz"
+    destination = \
+        f"{mission_profile.sensitivity_file_name}_Tn_{args.Tstar}_gstar_{args.gstar}_{args.engine}_precomputed.npz"
 
     np.savez(
         destination,

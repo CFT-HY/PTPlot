@@ -4,7 +4,20 @@ import argparse
 
 from ptplot.science import const
 from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MISSION_PROFILES
+
+
+def engine_arg(value: str) -> Engine:
+    """Convert a command-line argument to an Engine
+
+    Both the short names, such as "BPL", and the internal names, such as "bpl", are accepted.
+    """
+    try:
+        return Engine(value.lower())
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"Invalid engine: {value}. Valid engines are: {', '.join(ENGINE_SHORT_NAMES.values())}."
+        ) from None
 
 
 class PTPlotParser(argparse.ArgumentParser):
@@ -46,13 +59,15 @@ class PTPlotParser(argparse.ArgumentParser):
             self.add_argument(
                 "-mission_profile", "--mission_profile",
                 type=int,
-                default=DEFAULT_MISSION_PROFILE,
-                help="mission profile for the sensitivity curve"
+                choices=range(len(MISSION_PROFILES)),
+                default=DEFAULT_MISSION_PROFILE.ind,
+                help="index of the mission profile for the sensitivity curve"
             )
         if engine:
             self.add_argument(
                 "-engine", "--engine", "-ps", "--ps",
-                default=Engine.DEFAULT.name,
-                choices=ENGINE_SHORT_NAMES,
+                type=engine_arg,
+                choices=list(Engine),
+                default=Engine.DEFAULT,
                 help="Method for computing the power spectrum"
             )
