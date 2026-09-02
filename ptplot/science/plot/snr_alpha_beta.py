@@ -42,10 +42,10 @@ def snr_figure_alpha_beta(
 
     fig, ax = snr_figure(
         grid=grid,
-        shock_label_locs=np.array([
-            (alpha_mid - 0.3 + 0.2 * i, y)
+        shock_label_locs=[
+            (alpha_mid - 0.3 + 0.2 * i, float(y))
             for i, y in enumerate(range(int(log10_beta_over_H_grid[0]), int(log10_beta_over_H_grid[-1]) + 1))
-        ]),
+        ],
         label_wanted_y=2,
         huge_alpha=huge_alpha,
         filled=filled

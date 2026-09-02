@@ -4,6 +4,7 @@ from django.core import validators
 from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
+import numpy as np
 from pandas import DataFrame
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
@@ -97,9 +98,9 @@ class Scenario(models.Model):
             g_star=self.model.g_star,
             v_wall=self.model.v_wall,
             mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
-            alpha_points=data["alpha_n"].values,
-            beta_over_H_points=data["beta_over_H"].values,
-            v_wall_points=data["v_wall"].values,
+            alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
+            beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
+            v_wall_points=data["v_wall"].to_numpy(dtype=np.float64),
             labels_points=data["label"].to_list(),
             titles=self.name,
             adiabatic_ratio=adiabatic_ratio,
@@ -120,9 +121,9 @@ class Scenario(models.Model):
             T_star=self.T_star_value,
             g_star=self.model.g_star,
             mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
-            alpha_points=data["alpha_n"].values,
-            beta_over_H_points=data["beta_over_H"].values,
-            v_wall_points=data["v_wall"].values,
+            alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
+            beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
+            v_wall_points=data["v_wall"].to_numpy(dtype=np.float64),
             labels_points=data["label"].to_list(),
             titles=self.name,
             adiabatic_ratio=adiabatic_ratio,
@@ -134,11 +135,11 @@ class Scenario(models.Model):
     def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:
         data = self.point_data()
         return snr_histogram(
-            v_wall=data["v_wall"].values,
-            alpha_n=data["alpha_n"].values,
-            beta_over_H=data["beta_over_H"].values,
-            T_star=data["T_star"].values,
-            g_star=data["g_star"].values,
+            v_wall=data["v_wall"].to_numpy(dtype=np.float64),
+            alpha_n=data["alpha_n"].to_numpy(dtype=np.float64),
+            beta_over_H=data["beta_over_H"].to_numpy(dtype=np.float64),
+            T_star=data["T_star"].to_numpy(dtype=np.float64),
+            g_star=data["g_star"].to_numpy(dtype=np.float64),
             labels=data["label"].to_list(),
             titles=self.name,
             mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,

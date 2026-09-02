@@ -41,7 +41,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             r_star: float | None = None,
             ubarf: float | None = None,
             model: Model = BAG,
-            bubble: Bubble = None,
+            bubble: Bubble | None = None,
             parallel: bool = True):
         super().__init__(
             beta_over_H=beta_over_H,
@@ -57,7 +57,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             ubarf=ubarf,
             parallel=parallel
         )
-        if self.v_wall is None or np.isnan(v_wall):
+        if self.v_wall is None or np.isnan(self.v_wall):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
         self.model: Model = model

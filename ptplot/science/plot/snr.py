@@ -22,13 +22,13 @@ def snr_figure(
         grid: SNRGrid,
         label_wanted_y: float,
         huge_alpha: bool = False,
-        snr_label_locs: th.FloatArr1D | None = None,
-        shock_label_locs: th.FloatArr2D | None = None,
+        snr_label_locs: list[tuple[float, float]] | None = None,
+        shock_label_locs: list[tuple[float, float]] | None = None,
         levels: th.FloatArr1D = LEVELS,
         levels_tsh: th.FloatArr1D = LEVELS_TSH,
         levels_tsh_huge_alpha: th.FloatArr1D = LEVELS_TSH_HUGE_ALPHA,
-        xtickpos: th.FloatArr1D | None = None,
-        ytickpos: th.FloatArr1D | None = None,
+        xtickpos: th.IntArr1D | None = None,
+        ytickpos: th.IntArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
@@ -93,7 +93,7 @@ def snr_figure(
             ]
         if shock_label_locs is None:
             locs_tsh_x = (x_log10[-1] + x_log10[0]) / 2
-            shock_label_locs = [(locs_tsh_x, y) for y in range(int(y_log10[0]), int(y_log10[-1]) + 1)]
+            shock_label_locs = [(locs_tsh_x, float(y)) for y in range(int(y_log10[0]), int(y_log10[-1]) + 1)]
         if not filled:
             ax.clabel(contour, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
         ax.clabel(contour_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)

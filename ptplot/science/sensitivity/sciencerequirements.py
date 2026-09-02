@@ -57,7 +57,7 @@ def main(print_points: bool = True):
 
     x = np.logspace(-6,1,2000)
     y = np.sqrt(Sh(x))
-    z = OmSens(x)
+    z = np.asarray(OmSens(x))
     if print_points:
         for (mx, my, mz) in zip(x, y, z):
             print(f"{mx:g} {my:g} {mz:g} {0.0:g}")

@@ -6,6 +6,7 @@ from django.core import validators
 from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
+import numpy as np
 from pandas import DataFrame
 from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.utils import as_latex
@@ -61,6 +62,28 @@ class Model(models.Model):
         default=False
     )
     has_scenarios = models.BooleanField()
+
+    if tp.TYPE_CHECKING:
+        # Added by MODEL_ANNOTATIONS when the object is fetched with annotations.
+        # pylint: disable=invalid-name
+        points__alpha__min: float | None
+        points__alpha__max: float | None
+        points__alpha__avg: float | None
+        points__beta_over_H__min: float | None
+        points__beta_over_H__max: float | None
+        points__beta_over_H__avg: float | None
+        points__v_wall__min: float | None
+        points__v_wall__max: float | None
+        points__v_wall__avg: float | None
+        points__T_star__min: float | None
+        points__T_star__max: float | None
+        points__T_star__avg: float | None
+        points__g_star__min: float | None
+        points__g_star__max: float | None
+        points__g_star__avg: float | None
+        scenarios__T_star__min: float | None
+        scenarios__T_star__max: float | None
+        scenarios__T_star__avg: float | None
 
     def __init__(
             self,
@@ -133,11 +156,11 @@ class Model(models.Model):
             -> tuple[th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, list[str], str]:
         """Get the data of the points of this model as arrays of each field"""
         data = self.point_data()
-        v_wall = data["v_wall"].values
-        alpha = data["alpha_n"].values
-        beta_over_H = data["beta_over_H"].values
-        T_star = data["T_star"].values
-        g_star = data["g_star"].values
+        v_wall = data["v_wall"].to_numpy(dtype=np.float64)
+        alpha = data["alpha_n"].to_numpy(dtype=np.float64)
+        beta_over_H = data["beta_over_H"].to_numpy(dtype=np.float64)
+        T_star = data["T_star"].to_numpy(dtype=np.float64)
+        g_star = data["g_star"].to_numpy(dtype=np.float64)
         labels = data["label"].to_list()
         titles = self.name
         return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
@@ -164,11 +187,11 @@ class Model(models.Model):
 
         for scenario in scenarios:
             data = scenario.point_data()
-            v_wall.append(data["v_wall"].values)
-            alpha.append(data["alpha_n"].values)
-            beta_over_H.append(data["beta_over_H"].values)
-            T_star.append(data["T_star"].values)
-            g_star.append(data["g_star"].values)
+            v_wall.append(data["v_wall"].to_numpy(dtype=np.float64))
+            alpha.append(data["alpha_n"].to_numpy(dtype=np.float64))
+            beta_over_H.append(data["beta_over_H"].to_numpy(dtype=np.float64))
+            T_star.append(data["T_star"].to_numpy(dtype=np.float64))
+            g_star.append(data["g_star"].to_numpy(dtype=np.float64))
             labels.append(data["label"].to_list())
             titles.append(scenario.name)
 

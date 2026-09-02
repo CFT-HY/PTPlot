@@ -25,7 +25,7 @@ def snr_histogram(
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-        engines: list[Engine] = None,
+        engines: list[Engine] | None = None,
         n_bins_min: int = 5) -> Figure:
     """Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space
 
@@ -72,7 +72,7 @@ def snr_histogram(
 
     ax.hist(
         snr,
-        bins=bins,
+        bins=bins,  # type: ignore[arg-type]  # Matplotlib does accept an array of bin edges.
         label=
             # Add number of points to the labels if all points were not solved by all engines.
             [f"{ENGINE_NAMES[engine]}" for i, engine in enumerate(engines)]

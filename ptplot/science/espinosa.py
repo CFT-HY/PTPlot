@@ -5,6 +5,8 @@ the energy budget of a first-order phase transition.
 :espinosa_2010:`\ `
 """
 
+import typing as tp
+
 import numba
 import scipy.optimize
 import numpy as np
@@ -93,7 +95,7 @@ def delta_n[T: (float, FloatArr)](model: "Model", wn: T) -> T:
     :notes:`\ `, eq. 7.43
     """
     # Todo: Check which enthalpies this expression should use.
-    return 4 * model.theta(wn, Phase.BROKEN) / (3 * wn)
+    return tp.cast("T", 4 * model.theta(wn, Phase.BROKEN) / (3 * wn))
 
 
 @numba.njit

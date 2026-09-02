@@ -1,6 +1,7 @@
 """Populate the database with models, scenarios and parameter choices"""
 
 from collections import defaultdict
+from collections.abc import Hashable
 from inspect import cleandoc
 import os
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def composite() -> Model:
-        composite = Model(
+        composite = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Composite Higgs models benchmark points",
             slug="composite",
             description=(
@@ -127,7 +128,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def dark_photon_moritz() -> Model:
-        dark_photon_moritz = Model(
+        dark_photon_moritz = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Dark photon benchmark points",
             slug="dark_photon_moritz",
             description=(
@@ -155,7 +156,7 @@ class Command(BaseCommand):
             dtype=np.float64,
             engine="c",
         )
-        points.T_nuc *= 200  # scale factor
+        points["T_nuc"] *= 200  # scale factor
         for row in points.itertuples():
             point = ParameterChoice(
                 model=dark_photon_moritz,
@@ -172,7 +173,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def eft_miki() -> Model:
-        eft_miki = Model(
+        eft_miki = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="EFT benchmark points",
             slug="eft_miki",
             description=(
@@ -261,7 +262,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def gauged_lepton_madge() -> Model:
-        gauged_lepton_madge = Model(
+        gauged_lepton_madge = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Gauged Lepton Number Model benchmark points",
             slug="gauged_lepton_madge",
             description=(
@@ -348,7 +349,7 @@ class Command(BaseCommand):
             "D": scenario_d
         }
         for row in points.itertuples():
-            letter = row.label[0]
+            letter = str(row.label)[0]
             point = ParameterChoice(
                 model=gauged_lepton_madge,
                 number=row.Index + 1,  # type: ignore
@@ -365,7 +366,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def randall_sundrum() -> Model:
-        rs_model = Model(
+        rs_model = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Randall-Sundrum model benchmark points",
             slug="randall-sundrum",
             description=(
@@ -552,7 +553,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_jonathan() -> Model:
-        singlet_jonathan = Model(
+        singlet_jonathan = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Singlet scalar benchmark points",
             slug="singlet_jonathan",
             description=(
@@ -612,7 +613,7 @@ class Command(BaseCommand):
         points: DataFrame = read_csv(
             os.path.join(FILEDIR, "GW_singlet_combined_all_params.dat"),
             sep=",",
-            dtype=defaultdict(lambda: np.float64, {"LHCflag": np.bool_}),
+            dtype=defaultdict[Hashable, type](lambda: np.float64, {"LHCflag": np.bool_}),
             engine="c",
             skipinitialspace=True
         )
@@ -635,7 +636,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_jonathan_z2() -> Model:
-        singlet_jonathan_z2 = Model(
+        singlet_jonathan_z2 = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="$Z_2$-symmetric singlet scalar benchmark points",
             slug="singlet_jonathan_z2",
             description=(
@@ -684,7 +685,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_miki() -> Model:
-        singlet_miki = Model(
+        singlet_miki = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="$Z_2$-symmetric singlet scalar benchmark points",
             slug="singlet_miki",
             description=(
@@ -801,7 +802,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_scalars_moritz() -> Model:
-        singlet_scalars = Model(
+        singlet_scalars = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="Scalar dark sector benchmark points",
             slug="singlet_scalars_moritz",
             description=(
@@ -829,7 +830,7 @@ class Command(BaseCommand):
             dtype=np.float64,
             engine="c",
         )
-        points.T_nuc *= 200  # scale factor
+        points["T_nuc"] *= 200  # scale factor
         for row in points.itertuples():
             point = ParameterChoice(
                 model=singlet_scalars,
@@ -1048,7 +1049,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def twohdm_josemi() -> None:
-        twohdm_josemi = Model(
+        twohdm_josemi = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
             name="2HDM benchmark points",
             slug="twohdm_josemi",
             description=(

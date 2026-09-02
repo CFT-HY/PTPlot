@@ -53,8 +53,8 @@ def log_figure(
         ylabel: str,
         # fig: Figure = None,
         # ax: Axes = None,
-        xtickpos: th.FloatArr1D | None = None,
-        ytickpos: th.FloatArr1D | None = None,
+        xtickpos: th.IntArr1D | None = None,
+        ytickpos: th.IntArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE) -> tuple[Figure, Axes, tuple[float, float, float, float]]:

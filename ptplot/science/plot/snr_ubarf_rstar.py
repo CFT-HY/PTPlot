@@ -45,10 +45,10 @@ def snr_figure_ubarf_rstar(
     log10_ubarf_mid = (log10_ubarf_grid[0] + log10_ubarf_grid[-1]) / 2
     fig, ax = snr_figure(
         grid=grid,
-        shock_label_locs=np.array([
-            (log10_ubarf_mid + 0.2 - 0.2 * i, y)
+        shock_label_locs=[
+            (log10_ubarf_mid + 0.2 - 0.2 * i, float(y))
             for i, y in enumerate(range(int(log10_r_star_grid[0]), int(log10_r_star_grid[-1]) + 1))
-        ]),
+        ],
         label_wanted_y=-2.5,
         huge_alpha=huge_alpha,
         filled=filled

@@ -1,6 +1,7 @@
 """Signal-to-noise ratio calculations for gravitational wave spectra"""
 
 import logging
+import typing as tp
 
 import numpy as np
 from pttools.omgw0 import signal_to_noise_ratio
@@ -27,7 +28,7 @@ def snr_point(
         ubarf_rstar: bool = False,
         parallel: bool = True) -> tuple[float, float]:
     """Compute the SNR value of a single point in the parameter space"""
-    kwargs = {"ubarf": x, "r_star": y} if ubarf_rstar \
+    kwargs: dict[str, tp.Any] = {"ubarf": x, "r_star": y} if ubarf_rstar \
         else {"alpha": x, "beta_over_H": y}
     try:
         spectrum = power_spectrum(

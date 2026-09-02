@@ -28,4 +28,4 @@ ENGINE_SHORT_NAMES: dict[Engine, str] = {
     engine: spectrum.SHORT_NAME
     for engine, spectrum in ENGINE_SPECTRUM_CLASSES.items()
 }
-ENGINE_CHOICES: tuple[tuple[Engine, str]] = tuple(ENGINE_NAMES.items())
+ENGINE_CHOICES: tuple[tuple[Engine, str], ...] = tuple(ENGINE_NAMES.items())

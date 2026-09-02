@@ -17,6 +17,6 @@ INSTALLED_APPS.append("debug_toolbar")
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#add-the-middleware
 MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
-TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG
+TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG  # type: ignore[index]  # Wildcard import from .base
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

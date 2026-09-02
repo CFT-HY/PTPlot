@@ -2,6 +2,7 @@
 
 import typing as tp
 
+from django.contrib.admin import display as admin_display
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
@@ -26,11 +27,11 @@ def generate_link(target: str, name: str | None = None) -> tp.Callable:
     if name is None:
         name = target
 
+    @admin_display(description=name.replace("_", " "))
     def generated_link(obj: models.Model):
         target_obj = getattr(obj, target)
         return link(target_obj)
 
-    generated_link.short_description = name.replace("_", " ")
     generated_link_static = staticmethod(generated_link)
     return generated_link_static
 

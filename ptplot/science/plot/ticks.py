@@ -14,8 +14,8 @@ def add_ticks(
         x_max: float,
         y_min: float,
         y_max: float,
-        xtickpos: th.FloatArr1D | None = None,
-        ytickpos: th.FloatArr1D | None = None,
+        xtickpos: th.IntArr1D | None = None,
+        ytickpos: th.IntArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None) -> None:
     """Add ticks to the given axes"""
@@ -25,11 +25,11 @@ def add_ticks(
     y_max_int = int(math.floor(y_max))
 
     if xtickpos is None:
-        xtickpos = range(x_min_int, x_max_int + 1)
+        xtickpos = np.arange(x_min_int, x_max_int + 1, dtype=np.int64)
     if xticklabels is None:
         xticklabels = tick_labels_log(xtickpos)
     if ytickpos is None:
-        ytickpos = range(y_min_int, y_max_int + 1)
+        ytickpos = np.arange(y_min_int, y_max_int + 1, dtype=np.int64)
     if yticklabels is None:
         yticklabels = tick_labels_log(ytickpos)
     ax.set_xticks(xtickpos)
@@ -55,7 +55,7 @@ def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
     ])
 
 
-def tick_labels_log(pos: th.FloatArr1D) -> list[str]:
+def tick_labels_log(pos: th.IntArr1D) -> list[str]:
     """Create tick labels for a logarithmic axis"""
     return [
         "1" if np.isclose(x, 0)

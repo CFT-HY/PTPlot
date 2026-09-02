@@ -1,5 +1,6 @@
 """Generic utility methods"""
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.db.models import Model
 from matplotlib.figure import Figure
@@ -20,14 +21,14 @@ def get_object_or_404_related[T: Model](
         **kwargs) -> T:
     """Get an object with related objects, or a 404 error"""
     try:
-        obj = model.objects
+        queryset = model._default_manager.get_queryset()  # pylint: disable=protected-access
         if related is not None:
-            obj = obj.select_related(*related)
+            queryset = queryset.select_related(*related)
         if prefetch is not None:
-            obj = obj.prefetch_related(*prefetch)
+            queryset = queryset.prefetch_related(*prefetch)
         if annotate is not None:
-            obj = obj.annotate(*annotate)
-        obj = obj.get(**kwargs)
-    except model.DoesNotExist as err:
+            queryset = queryset.annotate(*annotate)
+        obj = queryset.get(**kwargs)
+    except ObjectDoesNotExist as err:
         raise Http404(f"No {model._meta.object_name} matches the given query.") from err  # pylint: disable=protected-access
     return obj

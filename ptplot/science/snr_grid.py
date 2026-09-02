@@ -9,6 +9,7 @@ ExampleUseSNR1.py v0.3 (May 2015)
 
 from abc import ABC
 from multiprocessing import set_forkserver_preload
+import typing as tp
 
 import numpy as np
 from pttools.analysis import v_wall_alpha_n_grid
@@ -98,7 +99,7 @@ class SNRGrid(ABC):
             "v_wall": v_wall
         }
         if engine == Engine.SSM:
-            ret = run_parallel(
+            ret: th.FloatArr = tp.cast("th.FloatArr", run_parallel(
                 func=snr_column_ssm,
                 params=x,
                 output_dtypes=(np.float64,),
@@ -111,11 +112,11 @@ class SNRGrid(ABC):
                     "y": y,
                     **kwargs,
                 }
-            )
+            ))
             self.snr: th.FloatArr2D = ret[:, 0, :]
             self.shock_times: th.FloatArr2D = ret[:, 1, :]
         else:
-            self.snr, self.shock_times = run_parallel(
+            self.snr, self.shock_times = tp.cast("tuple[th.FloatArr2D, th.FloatArr2D]", run_parallel(
                 func=snr_point,
                 params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),  # This works also for ubarf and r_star
                 multiple_params=True,
@@ -128,7 +129,7 @@ class SNRGrid(ABC):
                     **kwargs,
                     "engine": engine
                 }
-            )
+            ))
 
     @property
     def has_points(self) -> bool:

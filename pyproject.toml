@@ -124,7 +124,7 @@ files = [
 plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
-module = ["django_github_sso.*", "debug_toolbar.*", "plotly.*", "sphinx_gallery.*"]
+module = ["django_github_sso.*", "debug_toolbar.*", "numba.*", "plotly.*", "sphinx_gallery.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

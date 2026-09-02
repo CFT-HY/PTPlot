@@ -36,8 +36,10 @@ class BenchmarkForm(Form):
                 data = {"mission_profile_ind": model.mission_profile_ind} \
                     if data is None else \
                     {**data, "mission_profile_ind": model.mission_profile_ind}
-        if "engine" not in data:
-            data["engine"] = Engine.DEFAULT
+        if data is None:
+            data = {"engine": Engine.DEFAULT}
+        elif "engine" not in data:
+            data = {**data, "engine": Engine.DEFAULT}
 
         super().__init__(data, **kwargs)
 

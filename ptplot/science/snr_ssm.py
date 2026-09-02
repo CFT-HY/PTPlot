@@ -11,7 +11,7 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM, BAG
 
 
 def snr_column_ssm(
-        x: float,
+        x: th.FloatOrArr1D,
         y: th.FloatArr1D,
         v_wall: float ,
         T_star: float,
@@ -25,14 +25,16 @@ def snr_column_ssm(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         zp: float = const.DEFAULT_ZP,
         parallel: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
-    if not np.isscalar(x):
+    if isinstance(x, np.ndarray):
         if x.size != 1:
             raise ValueError(f"x (alpha_n or ubarf) must be a scalar. Got a {x.shape} array.")
-        x = x.item()
+        x_value = float(x.item())
+    else:
+        x_value = float(x)
 
     alpha_n, ubarf = PowerSpectrumSSM.validate_alpha_ubarf(
-        alpha=None if ubarf_rstar else x,
-        ubarf=x if ubarf_rstar else None,
+        alpha=None if ubarf_rstar else x_value,
+        ubarf=x_value if ubarf_rstar else None,
         v_wall=v_wall,
         adiabatic_ratio=adiabatic_ratio,
         cs=const.CS0
@@ -43,8 +45,8 @@ def snr_column_ssm(
     ret = np.empty((2, y.size))
     for i, y_i in enumerate(y):
         spectrum = PowerSpectrumSSM(
-            alpha=None if ubarf_rstar else x,
-            ubarf=x if ubarf_rstar else None,
+            alpha=None if ubarf_rstar else x_value,
+            ubarf=x_value if ubarf_rstar else None,
             beta_over_H=None if ubarf_rstar else y_i,
             r_star=y_i if ubarf_rstar else None,
             T_star=T_star,

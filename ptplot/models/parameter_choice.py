@@ -105,7 +105,7 @@ class ParameterChoice(models.Model):
     def csv(self, mission_profile: MissionProfile | None = None, engine: Engine = Engine.DEFAULT) -> str:
         if mission_profile is None:
             mission_profile = self.model.mission_profile
-        return power_spectrum(
+        csv = power_spectrum(
             T_star=self.T_star_value,
             g_star=self.g_star_value,
             v_wall=self.v_wall_value,
@@ -113,6 +113,9 @@ class ParameterChoice(models.Model):
             beta_over_H=self.beta_over_H,
             engine=engine
         ).csv(mission_profile=mission_profile)
+        if csv is None:
+            raise ValueError("Got no CSV data.")
+        return csv
 
     def power_spectrum_figure(
             self,

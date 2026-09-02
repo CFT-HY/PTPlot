@@ -16,6 +16,7 @@ type FloatOrArr1D = float | FloatArr1D
 type FloatOrArr1D2D = float | FloatArr1D | FloatArr2D
 type FloatOrArrOrListOfArr1D = FloatOrArr1D | list[FloatArr1D]
 type FloatOrArrOrList1D2D = FloatOrArr1D2D | list[float] | list[list[float]]
+type IntArr1D = np.ndarray[tuple[int], np.dtype[np.int64]]
 type StrList2D = list[list[str]]
 type StrOrList = str | list[str]
 type StrOrListOrNestedList = str | list[str] | StrList2D

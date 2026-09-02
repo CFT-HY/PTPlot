@@ -3,7 +3,7 @@
 import typing as tp
 
 from django.forms import Form
-from django.http import HttpResponse
+from django.http import HttpResponseBase
 from django.test import TestCase
 from django.urls import reverse
 
@@ -15,7 +15,7 @@ ALLOW_CODES: tp.Iterable[int] = (200, 302)
 
 
 def check_status_code(
-        response: HttpResponse,
+        response: HttpResponseBase,
         allow_codes: tp.Iterable[int] | None = None,
         url: str | None = None) -> int:
     """Check the status code of a HttpResponse"""
@@ -50,8 +50,8 @@ def check_url(
 def check_view(
         test: TestCase,
         view: str,
-        view_args: tp.Iterable[tp.Any] | None = None,
-        view_kwargs: tp.Iterable[tp.Any] | None = None,
+        view_args: tp.Sequence[tp.Any] | None = None,
+        view_kwargs: dict[str, tp.Any] | None = None,
         form: Form | None = None,
         data: dict[str, tp.Any] | None = None,
         allow_codes: tp.Iterable[int] | None = None) -> int:

@@ -3,6 +3,7 @@
 """Remove the watermark from PTPlot figures"""
 
 import sys
+import typing as tp
 
 from lxml import etree
 
@@ -18,12 +19,14 @@ with open(inputfile, "rb") as file:
     tree = etree.parse(file)
 
 # matches annotations: watermark and timestamp
-to_remove = tree.xpath(
+to_remove = tp.cast("list[etree._Element]", tree.xpath(
     "/svg:svg/svg:g/svg:g[re:match(@id, \"text_*\")]",
-    namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"})
+    namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"}))
 
 for t in to_remove:
     g = t.getparent()
+    if g is None:
+        raise ValueError(f"The element {t} has no parent.")
     g.remove(t)
 
 with open(outputfile, "wb") as o:

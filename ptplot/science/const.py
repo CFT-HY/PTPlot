@@ -2,6 +2,7 @@
 
 import typing as tp
 
+from matplotlib.typing import RcKeyType
 import numpy as np
 from pttools.bubble import const as bubble_const
 
@@ -46,7 +47,7 @@ DEFAULT_UBARF_RANGE: th.FloatArr1D = np.logspace(-2, 0, DEFAULT_GRID_SIZE)
 
 # Default plotting parameters
 DEFAULT_LABEL_FONTSIZE: int = 14
-DEFAULT_RC_CONTEXT: dict[str, str] = {
+DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
     "backend": "Agg",
     "font.family": "serif",
     "mathtext.fontset": "dejavuserif",
