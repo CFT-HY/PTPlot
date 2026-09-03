@@ -95,7 +95,7 @@ class PowerSpectrumSSM(PowerSpectrum):
                 suppression_method=suppression_method,
                 parallel=self.parallel
             )
-            return const.H_PLANCK2 * spectrum.omgw0(g0=g0, gs0=gs0)
+            return const.H2 * spectrum.omgw0(g0=g0, gs0=gs0)
         except Exception as exc:
             if log_errors:
                 if z is None:

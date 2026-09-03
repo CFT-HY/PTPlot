@@ -6,7 +6,7 @@ import enum
 import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024
-from pttools.omgw0 import G0, GS0, OMEGA_RADIATION, f as f_func, f_star0, F_gw0
+from pttools.omgw0 import G0, GS0, OMEGA_PHOTON, f as f_func, f_star0, F_gw0
 from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
 from pttools.utils import copy_docstrings
 
@@ -147,7 +147,7 @@ class PowerSpectrum(abc.ABC):
             g0: th.FloatOrArr = G0,
             gs0: th.FloatOrArr = GS0,
             gs_star: th.FloatOrArr | None = None,
-            om_gamma0: th.FloatOrArr = OMEGA_RADIATION) -> th.FloatOrArr:
+            om_gamma0: th.FloatOrArr = OMEGA_PHOTON) -> th.FloatOrArr:
         return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
 
     def h_star(self) -> float:
@@ -184,7 +184,7 @@ class PowerSpectrum(abc.ABC):
         # The equation has $(\Gamma \bar{U}_f^2)^2$,
         # which is expressed here as kinetic_energy_fraction_approx for convenience.
         # It does not equal the exact kinetic energy fraction.
-        return 3 * const.H_PLANCK2 * self.F_gw0() * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
+        return 3 * const.H2 * self.F_gw0() * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
 
     def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency

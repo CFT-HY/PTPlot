@@ -5,14 +5,15 @@ import typing as tp
 from matplotlib.typing import RcKeyType
 import numpy as np
 from pttools.bubble import const as bubble_const
+from pttools.omgw0 import const as omgw0_const
 
 import ptplot.science.type_hints as th
 
 # Default values
 DEFAULT_ADIABATIC_RATIO: float = bubble_const.DEFAULT_ADIABATIC_INDEX
 DEFAULT_ALPHA: float = 0.1
-DEFAULT_BETA_OVER_H: float = 10
-DEFAULT_G_STAR: float = 100
+DEFAULT_BETA_OVER_H: float = 10.
+DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR
 DEFAULT_K_TURB: float = 1.97 / 65.0
 
 DEFAULT_OMEGA_TILDE_GW: float = 0.012
@@ -25,7 +26,7 @@ This value is obtained numerically from simulations.
 
 DEFAULT_SNR_F_MIN: float = 1e-6
 DEFAULT_SNR_F_MAX: float = 1.
-DEFAULT_T_STAR: float = 180
+DEFAULT_T_STAR: float = 180.
 DEFAULT_V_WALL: float = 0.9
 
 DEFAULT_ZP: int = 10
@@ -59,11 +60,12 @@ DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
 CS0: tp.Final[float] = bubble_const.CS0
 #: $c_s^2$, bag model sound speed squared
 CS0_2: tp.Final[float] = bubble_const.CS0_2
-#: $h_\text{Planck}$
-H_PLANCK: float = 0.678
-#: $h_\text{Planck}^2$
-H_PLANCK2: float = H_PLANCK**2
-YEAR_IN_SECONDS: float = 365.25 * 86400
+#: $h$, dimensionless reduced Hubble constant :planck_2018:`\ `
+H: float = omgw0_const.H
+#: $h^2$, dimensionless reduced Hubble constant squared
+H2: float = omgw0_const.H2
+#: Number of seconds in a year
+YEAR_IN_SECONDS: float = omgw0_const.YEAR_IN_SECONDS
 
 # Names
 ALPHA_NAME: str = "transition strength (α)"
