@@ -41,7 +41,6 @@ def save_svg_response(response: HttpResponse, path: str):
 
 def setup_django():
     """Configure Django for use in a script"""
-    # Todo: add name="ptplot" when it's supported by PTtools
-    pttools_logging(log_dir=LOG_DIR)
+    pttools_logging(name="ptplot", log_dir=LOG_DIR)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ptplot_site.settings.dev")
     django.setup()
