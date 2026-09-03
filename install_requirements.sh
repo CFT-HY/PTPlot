@@ -9,7 +9,7 @@ if [ -d "${SCRIPT_DIR}/venv/lib/python"*"/site-packages/pttools" ]; then
   echo "Uninstalling existing PTtools."
   pip uninstall pttools-gw -y
   echo "Clearing Numba cache for PTtools."
-  rm -rf "${SCRIPT_DIR}/venv/lib/python"*"/site-packages/pttools/**/*.nbi"
+  rm -rf "${SCRIPT_DIR}/venv/lib/python"*"/site-packages/pttools"
 fi
 pip install --upgrade \
   -r "${SCRIPT_DIR}/requirements.txt" \
