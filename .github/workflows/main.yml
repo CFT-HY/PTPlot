@@ -6,32 +6,26 @@ jobs:
   build:
     runs-on: ubuntu-slim
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
       - name: Print Python version
         run: python -V
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Load pip cache
-        uses: actions/cache@v4
-        with:
-          path: .pip
-          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-            pip-
       - name: Install requirements
         run: |
-          pip --cache-dir=.pip install --upgrade pip
-          pip --cache-dir=.pip install --upgrade build packaging twine
+          pip install --upgrade pip
+          pip install --upgrade build packaging twine
       - name: Build
         run: python -m build
       - name: Run Twine checks
         run: twine check dist/*
       - name: Upload built artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pip packages
           path: dist
@@ -39,7 +33,7 @@ jobs:
   cloc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Count Lines of Code (cloc) for the PTPlot module
         uses: djdefi/cloc-action@6
         with:
@@ -52,30 +46,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
       - name: Print Python version
         run: python -V
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Load pip cache
-        uses: actions/cache@v4
-        with:
-          path: .pip
-          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-            pip-
       - name: Install requirements
         run: |
-          pip --cache-dir=.pip install --upgrade pip wheel
-          pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+          pip install --upgrade pip wheel
+          pip install -r requirements.txt -r requirements-dev.txt
       - name: Run Pylint
-        run: DJANGO_SETTINGS_MODULE=ptplot_site.settings.dev pylint docs examples ptplot ptplot_site tools manage.py 2>&1 | tee pylint.txt
+        run: DJANGO_SETTINGS_MODULE=ptplot_site.settings.dev pylint docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee pylint.txt
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lint
           path: |
@@ -85,28 +75,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
       - name: Print Python version
         run: python -V
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Load pip cache
-        uses: actions/cache@v4
-        with:
-          path: .pip
-          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-            pip-
       - name: Install requirements
         run: |
-          pip --cache-dir=.pip install --upgrade pip wheel
-          pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+          pip install --upgrade pip wheel
+          pip install -r requirements.txt -r requirements-dev.txt
       - name: Load mypy cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .mypy_cache
           key: mypy-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
@@ -116,7 +102,7 @@ jobs:
       - name: Run mypy
         run: mypy ptplot ptplot_site tools 2>&1 | tee mypy.txt
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Mypy
           path: |
@@ -127,26 +113,22 @@ jobs:
     env:
       DJANGO_SETTINGS_MODULE: ptplot_site.settings.dev
     steps:
+    - name: Checkout
+      uses: actions/checkout@v7
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
+        cache: pip
+        cache-dependency-path: |
+          requirements.txt
+          requirements-dev.txt
     - name: Print Python version
       run: python -V
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Load pip cache
-      uses: actions/cache@v4
-      with:
-        path: .pip
-        key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          pip-${{ runner.os }}-
-          pip-
     - name: Install requirements
       run: |
-        pip --cache-dir=.pip install --upgrade pip wheel
-        pip --cache-dir=.pip install -r requirements.txt -r requirements-dev.txt
+        pip install --upgrade pip wheel
+        pip install -r requirements.txt -r requirements-dev.txt
     - name: Print Numba sysinfo
       run: numba --sysinfo | tee numba-sysinfo.txt
     - name: Create migrations
@@ -162,7 +144,7 @@ jobs:
         set -o pipefail
         pytest --store-durations | tee test-output.txt
     - name: Upload results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Test results
         path: |
@@ -173,6 +155,6 @@ jobs:
           test-output.txt
         if-no-files-found: error
     - name: Upload results to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
