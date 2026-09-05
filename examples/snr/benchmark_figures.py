@@ -3,6 +3,7 @@ Benchmark SNR figures
 =====================
 
 This scripts generates the SNR figures for all the benchmark models.
+Running this script can take several hours.
 """
 
 # pylint: disable=broad-exception-caught, wrong-import-position

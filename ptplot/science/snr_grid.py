@@ -113,8 +113,11 @@ class SNRGrid(ABC):
                     **kwargs,
                 }
             ))
-            self.snr: th.FloatArr2D = ret[:, 0, :]
-            self.shock_times: th.FloatArr2D = ret[:, 1, :]
+            # The values are computed column by column, one column per x value,
+            # resulting in ret[x, quantity, y].
+            # Transpose to the [y, x] indexing used by the other engines and by Matplotlib contours.
+            self.snr: th.FloatArr2D = ret[:, 0, :].T
+            self.shock_times: th.FloatArr2D = ret[:, 1, :].T
         else:
             self.snr, self.shock_times = tp.cast("tuple[th.FloatArr2D, th.FloatArr2D]", run_parallel(
                 func=snr_point,
