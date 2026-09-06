@@ -1,1 +1,1 @@
-"""PTPlot management utilities"""
+"""PTPlot management utilities."""

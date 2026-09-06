@@ -124,9 +124,13 @@ project-excludes = [
 ignore-missing-imports = [
     "debug_toolbar.*",
     "django_github_sso.*",
-    "numba.*",
     "plotly.*",
     "sphinx_gallery.*"
+]
+# Numba is untyped, and its njit decorator would otherwise erase the signatures of the functions it decorates.
+replace-imports-with-any = [
+    "numba",
+    "numba.*"
 ]
 
 [tool.pytest.ini_options]
@@ -160,6 +164,8 @@ extend-exclude = [
 line-length = 120
 
 [tool.ruff.lint]
+# The Greek alpha is used in the user-visible names of the physics parameters.
+allowed-confusables = ["α"]
 select = [
     "A",     # flake8-builtins
     "ARG",   # flake8-unused-arguments
@@ -174,8 +180,10 @@ select = [
     "N",     # pep8-naming
     "NPY",   # NumPy-specific rules
     "PERF",  # Perflint
+    "PIE",   # flake8-pie
     "PL",    # Pylint
     "PT",    # flake8-pytest-style
+    "RET",   # flake8-return
     "RUF",   # Ruff-specific rules
     "SIM",   # flake8-simplify
     "SLF",   # flake8-self
@@ -186,23 +194,20 @@ select = [
 ignore = [
     # Docstrings are not required for methods that inherit one, for dunder methods,
     # for nested classes such as the Django Meta classes, or for __init__.
-    "D102",
-    "D105",
-    "D106",
-    "D107",
-    # Docstring layout rules that the existing docstrings of this project don't follow.
-    "D202",
-    "D204",
-    "D205",
-    "D209",
-    "D400",
-    "D401",
-    "D415",
+    "D102",  # Missing docstring in public method
+    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+    "D107",  # Missing docstring in __init__
+    "N802",  # invalid-function-name
     "N815",     # The names of the class attributes are not restricted.
     "PLR0913",  # too-many-arguments
     "PLR0917",  # too-many-positional-arguments
     "RUF012"    # The class attributes of Django models, forms and admins are mutable by design.
 ]
+
+[tool.ruff.lint.flake8-unused-arguments]
+# Allow unused variadic names like *args and *kwargs
+ignore-variadic-names = true
 
 [tool.ruff.lint.isort]
 # Sort "import x" and "from x import y" together.
@@ -218,6 +223,7 @@ extend-ignore-names = [
     "beta_over_H_set",
     "C",
     "F_gw0",
+    "H0",
     "J",
     "K",
     "log10_beta_over_H_grid",
@@ -226,7 +232,6 @@ extend-ignore-names = [
     "log10_R_stars",
     "M",
     "R_star",
-    "H0",
     "OmSens",
     "R",
     "Sh",
@@ -242,10 +247,20 @@ extend-ignore-names = [
 
 [tool.ruff.lint.per-file-ignores]
 # The contents of the submodules are re-exported on purpose.
-"**/__init__.py" = ["F403"]
+"**/__init__.py" = [
+    "F403"  # undefined-local-with-import-star
+]
 # The Sphinx configuration variables shadow builtins and are not documented individually.
-"docs/conf.py" = ["A001"]
-"ptplot/tests/**" = ["D100", "D101", "D103", "D104", "N802"]
+"docs/conf.py" = [
+    "A001"  # builtin-variable-shadowing
+]
+# The module docstring of a Sphinx-Gallery example has to start with an RST section title,
+# which cannot end with a period and has to be followed directly by its underline.
+"examples/**" = [
+    "D205",  # missing-blank-line-after-summary
+    "D400"  # missing-trailing-period
+]
+"ptplot/tests/**" = ["D104", "N802"]
 # The Django settings are extended with star imports.
 "ptplot_site/settings/*.py" = ["F403", "F405"]
 

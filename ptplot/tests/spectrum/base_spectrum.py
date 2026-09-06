@@ -1,3 +1,5 @@
+"""Shared test case for the power spectrum classes."""
+
 from abc import ABC
 
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
@@ -6,6 +8,8 @@ from ptplot.science.spectrum import PowerSpectrum
 
 
 class PowerSpectrumBaseCase(ABC):
+    """Tests that are run for each power spectrum class."""
+
     SPECTRUM_CLASS: type[PowerSpectrum]
     V_WALL: float = 0.3
     ALPHA: float = 0.1

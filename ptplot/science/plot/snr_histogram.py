@@ -1,3 +1,5 @@
+"""SNR histograms."""
+
 # import typing as tp
 
 from matplotlib.figure import Figure
@@ -22,12 +24,12 @@ def snr_histogram(
         T_star: th.FloatArr1D,
         g_star: th.FloatArr1D,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
-        labels: th.StrOrListOrNestedList | None = None,
-        titles: th.StrOrList | None = None,
+        labels: th.StrOrListOrNestedList | None = None,  # noqa: ARG001
+        titles: th.StrOrList | None = None,  # noqa: ARG001
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         engines: list[Engine] | None = None,
         n_bins_min: int = 5) -> Figure:
-    """Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space
+    """Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
 
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html
     https://matplotlib.org/stable/gallery/statistics/histogram_histtypes.html

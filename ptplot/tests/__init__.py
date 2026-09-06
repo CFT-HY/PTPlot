@@ -1,1 +1,1 @@
-"""PTPlot unit tests"""
+"""PTPlot unit tests."""

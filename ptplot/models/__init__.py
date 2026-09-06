@@ -1,4 +1,4 @@
-"""PTPlot database models"""
+"""PTPlot database models."""
 
 from .auth import *
 from .const import *

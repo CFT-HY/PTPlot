@@ -1,4 +1,4 @@
-"""PTPlot science module"""
+"""PTPlot science module."""
 
 from .const import *
 from .espinosa import *

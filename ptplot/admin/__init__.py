@@ -1,4 +1,4 @@
-"""Django admin site configuration"""
+"""Django admin site configuration."""
 
 from .auth import *
 from .base import *

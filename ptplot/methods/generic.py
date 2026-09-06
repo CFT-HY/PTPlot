@@ -1,4 +1,4 @@
-"""Generic utility methods"""
+"""Generic utility methods."""
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model
@@ -9,7 +9,7 @@ from ptplot.science.plot.utils import fig_to_svg
 
 
 def fig_to_response(fig: Figure) -> HttpResponse:
-    """Convert a Matplotlib figure to an SVG HttpResponse"""
+    """Convert a Matplotlib figure to an SVG HttpResponse."""
     return HttpResponse(fig_to_svg(fig), content_type="image/svg+xml")
 
 
@@ -19,7 +19,7 @@ def get_object_or_404_related[T: Model](
         related: list[str] | None = None,
         prefetch: list[str] | None = None,
         **kwargs) -> T:
-    """Get an object with related objects, or a 404 error"""
+    """Get an object with related objects, or a 404 error."""
     try:
         queryset = model._default_manager.get_queryset()  # noqa: SLF001
         if related is not None:

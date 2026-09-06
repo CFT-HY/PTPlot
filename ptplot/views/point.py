@@ -1,4 +1,4 @@
-"""Views for points"""
+"""Views for points."""
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
@@ -10,7 +10,7 @@ from ptplot.science.spectrum import Engine
 
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    """Display an individual model point on the SNR and PS plots"""
+    """Display an individual model point on the SNR and PS plots."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model"],
@@ -29,7 +29,7 @@ def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> Http
 
 
 def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    r"""Display an individual model point on the $\alpha, \beta/H$ SNR plot"""
+    r"""Display an individual model point on the $\alpha, \beta/H$ SNR plot."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model", "scenario"],
@@ -48,7 +48,7 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
 
 
 def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    r"""Compare the SNR of different engines for a model point"""
+    r"""Compare the SNR of different engines for a model point."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model", "scenario", "scenario__model"],
@@ -72,7 +72,7 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
 
 
 def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    r"""Display an individual model point on the $\bar{U}_f, r_*$ SNR plot"""
+    r"""Display an individual model point on the $\bar{U}_f, r_*$ SNR plot."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model", "scenario", "scenario__model"],
@@ -91,7 +91,7 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
 
 
 def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    """Get the CSV data of a model point"""
+    """Get the CSV data of a model point."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model", "scenario", "scenario__model"],
@@ -109,7 +109,7 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
 
 
 def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
-    """Display the power spectrum of an individual model point"""
+    """Display the power spectrum of an individual model point."""
     point: ParameterChoice = get_object_or_404_related(
         ParameterChoice,
         related=["model", "scenario", "scenario__model"],

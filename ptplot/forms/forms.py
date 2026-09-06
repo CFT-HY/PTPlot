@@ -1,4 +1,4 @@
-"""PTPlot forms"""
+"""PTPlot forms."""
 
 import logging
 import typing as tp
@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class BenchmarkForm(Form):
-    """Form for the arguments of the benchmark plots"""
+    """Form for the arguments of the benchmark plots."""
+
     mission_profile_ind = MissionProfileField()
     engine = EngineField()
 
@@ -55,12 +56,13 @@ class BenchmarkForm(Form):
 
     @property
     def mission_profile(self) -> MissionProfile:
-        """Get the mission profile object"""
+        """Get the mission profile object."""
         return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
 
 
 class PTPlotForm(Form):
-    """Form for the arguments of a single point"""
+    """Form for the arguments of a single point."""
+
     v_wall = VWallField()
     alpha = AlphaField()
     beta_over_H = BetaOverHField()
@@ -85,7 +87,8 @@ class PTPlotForm(Form):
 
 
 class MultipleForm(Form):
-    """Form for the arguments of multiple points"""
+    """Form for the arguments of multiple points."""
+
     vw = VWallField()
     T_star = TStarField()
     g_star = GStarField()
@@ -102,12 +105,13 @@ class MultipleForm(Form):
 
 
 class ParameterChoiceForm(Form):
-    """Parameter choice form"""
+    """Parameter choice form."""
+
     def __init__(self):
         super().__init__()
         self.models = Model.objects.all()
 
-        for model in self.models:
+        for _model in self.models:
             # Why is this defined within the loop?
             self.underlying_model = ModelField(self.models)
 

@@ -30,7 +30,8 @@ from ptplot.science.spectrum import Engine
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main():  # noqa: PLR0915
+    """Create the SNR figures for all the benchmark models."""
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)

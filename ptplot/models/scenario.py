@@ -1,4 +1,6 @@
-"""Scenarios for particle physics models"""
+"""Scenarios for particle physics models."""
+
+import typing as tp
 
 from django.core import validators
 from django.db import models
@@ -22,9 +24,13 @@ from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 
+if tp.TYPE_CHECKING:
+    from ptplot.models.parameter_choice import ParameterChoice
+
 
 class Scenario(models.Model):
-    """A scenario with a particular $T_*$ for a particle physics model"""
+    """A scenario with a particular $T_*$ for a particle physics model."""
+
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="scenarios")
     number = models.IntegerField()
     name = models.CharField(max_length=NAME_MAX_LENGTH)
@@ -34,6 +40,15 @@ class Scenario(models.Model):
         null=True
     )
     description = models.TextField(blank=True)
+
+    if tp.TYPE_CHECKING:
+        # Reverse relation of the foreign key that points to this model.
+        points: models.Manager["ParameterChoice"]
+
+    class Meta:
+        indexes = [models.Index(fields=["name"])]
+        ordering = ["model", "number"]
+        unique_together = ["model", "number"]
 
     # -----
     # Overridden methods
@@ -145,8 +160,3 @@ class Scenario(models.Model):
             mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
             # engines=[form.cleaned_data["engine"]]
         )
-
-    class Meta:
-        indexes = [models.Index(fields=["name"])]
-        ordering = ["model", "number"]
-        unique_together = ["model", "number"]

@@ -1,1 +1,1 @@
-"""Tools and utilities for PTPlot"""
+"""Tools and utilities for PTPlot."""

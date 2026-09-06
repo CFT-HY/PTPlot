@@ -25,6 +25,7 @@ def save_fig(
         formats: tp.Iterable[str] = FIG_FORMATS,
         makedirs: bool = True,
         **kwargs) -> None:
+    """Save a figure in the figure directory of the examples."""
     plot_utils.save_fig(fig=fig, path=path, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
 
 

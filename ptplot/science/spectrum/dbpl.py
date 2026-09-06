@@ -1,4 +1,6 @@
-"""Double broken power law (DBPL) power spectrum"""
+"""Double broken power law (DBPL) power spectrum."""
+
+import typing as tp
 
 from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
@@ -8,10 +10,11 @@ from ptplot.science.type_hints import FloatOrArr
 
 class PowerSpectrumDBPL(PowerSpectrum):
     r"""
-    Double broken power law (DBPL) power spectrum
+    Double broken power law (DBPL) power spectrum.
 
     Based on :hakkinen_ptplot:`\ `, :hakkinen_msc:`\ ` and :gowling_2021:`\ `.
     """
+
     COLOR = "green"
     ENGINE: Engine = Engine.DBPL
     NAME: str = "Double broken power law"
@@ -44,21 +47,21 @@ class PowerSpectrumDBPL(PowerSpectrum):
         self.rb: float = self.zb / self.zp
 
     def m[T: FloatOrArr](self, b: T = 1.) -> T:
-        r"""The value $m$ used in the spectral shape function M(s)
+        r"""Compute the value $m$ used in the spectral shape function M(s).
 
         $$m = \frac{9 r_b^4 + b}{r_b^4 + 1}$$
         :gowling_2021:`\ ` eq. 2.17.
         With $b = 1$, this reduces to
         :hindmarsh_2019:`\ ` p. 22.
         """
-        return (9 * self.rb**4 + b) / (self.rb**4 + 1)
+        return tp.cast("T", (9 * self.rb**4 + b) / (self.rb**4 + 1))
 
     def mu(self) -> float:
         # Todo: implement the full mu integration to get rid of the 10 % error in the approximation.
         raise NotImplementedError
 
     def mu_approx(self) -> float:
-        r"""Prefactor $\mu(r_b)$ for the peak power of the GW power spectrum
+        r"""Prefactor $\mu(r_b)$ for the peak power of the GW power spectrum.
 
         $$\mu(r_b) = \int_0^\infty \frac{ds}{s} M(s, r_b) \approx 4.78 - 6.27 r_b + 3.34 r_b^2$$
         This approximation is accurate to about 10 % over the relevant range $0 < r_b < 1$.
@@ -69,7 +72,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         return 4.78 - 6.27 * self.rb + 3.34 * self.rb**2
 
     def M(self, s: th.FloatOrArr, b: th.FloatOrArr = 1.) -> th.FloatOrArr:
-        r"""Spectral shape of the GW power spectrum
+        r"""Spectral shape of the GW power spectrum.
 
         $$M(s, r_b, b) = s^9
         \left( \frac{1 + r_b^4}{r_b^4 + s^4} \right)^\frac{9 - b}{4}
@@ -88,12 +91,15 @@ class PowerSpectrumDBPL(PowerSpectrum):
             ((1 + self.rb**4) / (self.rb**4 + s**4)) ** ((9 - b) / 4) * \
             ((b + 4) / (b + 4 - m + m * s**2)) ** ((b + 4) / 2)
 
-    def power_spectrum(self, f: th.FloatOrArr, log_errors: bool = False) -> th.FloatOrArr:
-        r"""Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz
+    def power_spectrum(self, f: th.FloatArr1D, log_errors: bool = False) -> th.FloatArr1D:  # noqa: ARG002
+        r"""Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz.
 
         $$\Omega_\text{gw}^\text{fit} = F_{\text{gw},0} \Omega_p M(s, r_b, b)$$
 
         $F_{\text{gw},0}$ depends on the value of $h$,
         which is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
         """
-        return self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
+        return tp.cast(
+            "th.FloatArr1D",
+            self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
+        )

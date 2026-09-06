@@ -1,4 +1,4 @@
-"""Django URL configuration"""
+"""Django URL configuration."""
 
 from django.urls import URLPattern, path, re_path
 from django.views.generic import RedirectView

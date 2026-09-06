@@ -1,3 +1,3 @@
-"""PTPlot forms"""
+"""PTPlot forms."""
 
 from .forms import *

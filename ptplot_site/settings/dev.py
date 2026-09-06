@@ -1,4 +1,4 @@
-"""Development settings for PTPlot"""
+"""Development settings for PTPlot."""
 
 from .base import *
 

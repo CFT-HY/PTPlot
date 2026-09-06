@@ -1,4 +1,4 @@
-"""Form fields"""
+"""Form fields."""
 
 from fractions import Fraction
 import typing as tp
@@ -15,6 +15,7 @@ from ptplot.science.spectrum.engine import ENGINE_CHOICES
 
 
 def validate_velocity(value: float) -> None:
+    """Validate that a velocity is within the range (0, 1]."""
     if not 0 < value <= 1:
         raise ValidationError(f"{value} must be 0 < value <= 1")
 
@@ -24,6 +25,8 @@ def validate_velocity(value: float) -> None:
 # -----
 
 class FractionField(forms.CharField):
+    """Field that accepts both floats and fractions."""
+
     def to_python(self, value: str) -> float | Fraction | None:  # type: ignore
         if not value:
             return None
@@ -34,7 +37,8 @@ class FractionField(forms.CharField):
 
 
 class UnitInput(forms.NumberInput):
-    """NumberInput with units"""
+    """NumberInput with units."""
+
     def __init__(self, attrs=None, units: str | None = None):
         super().__init__(attrs)
         self.units_string = None if units is None else SafeString(f"&nbsp;{units}")
@@ -55,10 +59,15 @@ class UnitInput(forms.NumberInput):
 # Field classes for specific parameters
 # -----
 
+#: Default widget of the transition temperature field
+GEV_INPUT = UnitInput(units="GeV")
+
 # Disabling localization for FloatField enables the use of NumberInput
 # https://docs.djangoproject.com/en/5.2/ref/forms/fields/#floatfield
 
 class AlphaField(forms.FloatField):
+    r"""Field for the phase transition strength $\alpha_\theta$."""
+
     def __init__(
             self,
             label: str = r"Phase transition strength $\alpha_\theta$",
@@ -69,6 +78,8 @@ class AlphaField(forms.FloatField):
 
 
 class BetaOverHField(forms.FloatField):
+    r"""Field for the inverse phase transition duration $\frac{\beta}{H_*}$."""
+
     def __init__(
             self,
             label: str = r"Inverse phase transition duration $\beta/H_*$",
@@ -79,6 +90,8 @@ class BetaOverHField(forms.FloatField):
 
 
 class CS2Field(FractionField):
+    r"""Field for the sound speed squared $c_s^2$."""
+
     def __init__(
             self,
             label: str = r"Sound speed squared $c_s^2$",
@@ -96,6 +109,8 @@ class CS2Field(FractionField):
 
 
 class CSS2Field(CS2Field):
+    r"""Field for the sound speed squared in the symmetric phase $c_{s,s}^2$."""
+
     def __init__(
             self,
             label: str = r"Sound speed squared in the symmetric phase $c_{s,s}^2$",
@@ -104,6 +119,8 @@ class CSS2Field(CS2Field):
 
 
 class CSB2Field(CS2Field):
+    r"""Field for the sound speed squared in the broken phase $c_{s,b}^2$."""
+
     def __init__(
             self,
             label: str = r"Sound speed squared in the broken phase $c_{s,b}^2$",
@@ -112,6 +129,8 @@ class CSB2Field(CS2Field):
 
 
 class EngineField(forms.ChoiceField):
+    """Field for choosing the power spectrum engine."""
+
     def __init__(
             self,
             label: str = "Engine",
@@ -121,6 +140,8 @@ class EngineField(forms.ChoiceField):
 
 
 class GStarField(forms.FloatField):
+    r"""Field for the degrees of freedom $g_*$."""
+
     def __init__(
             self,
             label: str = r"Degrees of freedom $g_\star$",
@@ -131,6 +152,8 @@ class GStarField(forms.FloatField):
 
 
 class MissionProfileField(forms.TypedChoiceField):
+    """Field for choosing the mission profile."""
+
     def __init__(
             self,
             label: str = r"Mission profile",
@@ -151,6 +174,8 @@ class MissionProfileField(forms.TypedChoiceField):
 
 
 class ModelField(forms.ModelChoiceField):
+    """Field for choosing the model."""
+
     def __init__(
             self,
             queryset: QuerySet | None = None,
@@ -164,11 +189,13 @@ class ModelField(forms.ModelChoiceField):
 
 
 class TStarField(forms.FloatField):
+    r"""Field for the transition temperature $T_*$."""
+
     def __init__(
             self,
             label: str = r"Transition temperature $T_\star$",
             min_value: float = 0.,
-            widget: forms.NumberInput = UnitInput(units="GeV"),
+            widget: forms.NumberInput = GEV_INPUT,
             localize: bool = False,
             **kwargs):
         super().__init__(
@@ -178,6 +205,8 @@ class TStarField(forms.FloatField):
 
 
 class VWallField(forms.FloatField):
+    r"""Field for the wall velocity $v_\text{wall}$."""
+
     def __init__(
             self,
             label: str = r"Wall velocity $v_\mathrm{w}$",

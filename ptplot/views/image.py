@@ -1,4 +1,4 @@
-"""Views for images"""
+"""Views for images."""
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 
@@ -13,7 +13,7 @@ from ptplot.science.spectrum.create import power_spectrum
 
 
 def ps_image(request: HttpRequest) -> HttpResponse:
-    """Power spectrum plot with sensitivity curve"""
+    """Power spectrum plot with sensitivity curve."""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -37,7 +37,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
 
 
 def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
-    r"""SNR plot with $\alpha$ on the x-axis and $\beta/H$ on the y-axis"""
+    r"""SNR plot with $\alpha$ on the x-axis and $\beta/H$ on the y-axis."""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -60,7 +60,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
 
 
 def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
-    """SNR plot with UbarF on the x-axis and H_n R_* on the y-axis"""
+    """SNR plot with UbarF on the x-axis and H_n R_* on the y-axis."""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 

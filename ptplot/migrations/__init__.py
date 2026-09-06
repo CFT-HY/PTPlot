@@ -1,1 +1,1 @@
-"""PTPlot database migrations"""
+"""PTPlot database migrations."""

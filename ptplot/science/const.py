@@ -1,4 +1,4 @@
-"""Constants used by other modules"""
+"""Constants used by other modules."""
 
 import typing as tp
 

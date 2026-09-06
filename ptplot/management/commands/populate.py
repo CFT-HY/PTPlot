@@ -1,4 +1,4 @@
-"""Populate the database with models, scenarios and parameter choices"""
+"""Populate the database with models, scenarios and parameter choices."""
 
 from collections import defaultdict
 from collections.abc import Hashable
@@ -16,15 +16,16 @@ FILEDIR: str = os.path.dirname(os.path.realpath(__file__))
 
 
 class Command(BaseCommand):
-    """Command to populate the database with models, scenarios and points
+    """Command to populate the database with models, scenarios and points.
 
     The class has to be named "Command" for Django to find it.
     """
+
     help = "This command populates the database with models, scenarios and parameter choices."
 
     @staticmethod
     def composite() -> Model:
-        composite = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        composite = Model(
             name="Composite Higgs models benchmark points",
             slug="composite",
             description=(
@@ -126,7 +127,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def dark_photon_moritz() -> Model:
-        dark_photon_moritz = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        dark_photon_moritz = Model(
             name="Dark photon benchmark points",
             slug="dark_photon_moritz",
             description=(
@@ -171,7 +172,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def eft_miki() -> Model:
-        eft_miki = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        eft_miki = Model(
             name="EFT benchmark points",
             slug="eft_miki",
             description=(
@@ -260,7 +261,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def gauged_lepton_madge() -> Model:
-        gauged_lepton_madge = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        gauged_lepton_madge = Model(
             name="Gauged Lepton Number Model benchmark points",
             slug="gauged_lepton_madge",
             description=(
@@ -364,7 +365,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def randall_sundrum() -> Model:
-        rs_model = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        rs_model = Model(
             name="Randall-Sundrum model benchmark points",
             slug="randall-sundrum",
             description=(
@@ -551,7 +552,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_jonathan() -> Model:
-        singlet_jonathan = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        singlet_jonathan = Model(
             name="Singlet scalar benchmark points",
             slug="singlet_jonathan",
             description=(
@@ -634,7 +635,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_jonathan_z2() -> Model:
-        singlet_jonathan_z2 = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        singlet_jonathan_z2 = Model(
             name="$Z_2$-symmetric singlet scalar benchmark points",
             slug="singlet_jonathan_z2",
             description=(
@@ -683,7 +684,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_miki() -> Model:
-        singlet_miki = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        singlet_miki = Model(
             name="$Z_2$-symmetric singlet scalar benchmark points",
             slug="singlet_miki",
             description=(
@@ -800,7 +801,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def singlet_scalars_moritz() -> Model:
-        singlet_scalars = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        singlet_scalars = Model(
             name="Scalar dark sector benchmark points",
             slug="singlet_scalars_moritz",
             description=(
@@ -1047,7 +1048,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def twohdm_josemi() -> None:
-        twohdm_josemi = Model(  # type: ignore[misc]  # mission_profile kwarg of Model.__init__
+        twohdm_josemi = Model(
             name="2HDM benchmark points",
             slug="twohdm_josemi",
             description=(
@@ -1158,7 +1159,7 @@ class Command(BaseCommand):
             point.save()
 
     def handle(self, *args, **options):
-        """Populate the database with benchmark models, scenarios and points"""
+        """Populate the database with benchmark models, scenarios and points."""
         print("Populating DB...")
         # This order determines the indices of the models.
         # The visible order of the models is set in Model.Meta.

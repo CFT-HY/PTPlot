@@ -1,1 +1,1 @@
-"""Utilities for downloading figures from PTPlot"""
+"""Utilities for downloading figures from PTPlot."""

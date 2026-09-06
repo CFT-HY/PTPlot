@@ -1,4 +1,4 @@
-"""Tests for views"""
+"""Tests for views."""
 
 import typing as tp
 
@@ -18,7 +18,7 @@ def check_status_code(
         response: HttpResponseBase,
         allow_codes: tp.Iterable[int] | None = None,
         url: str | None = None) -> int:
-    """Check the status code of a HttpResponse"""
+    """Check the status code of a HttpResponse."""
     allow_codes2 = ALLOW_CODES if allow_codes is None else (*ALLOW_CODES, *allow_codes)
     if response.status_code not in allow_codes2:
         raise AssertionError(
@@ -34,7 +34,7 @@ def check_url(
         form: Form | None = None,
         data: dict[str, tp.Any] | None = None,
         allow_codes: tp.Iterable[int] | None = None) -> int:
-    """Test whether the given url returns a valid status code"""
+    """Test whether the given url returns a valid status code."""
     data2 = {
         key: value for key, value in (
             ({} if data is None else data) if form is None
@@ -55,7 +55,7 @@ def check_view(
         form: Form | None = None,
         data: dict[str, tp.Any] | None = None,
         allow_codes: tp.Iterable[int] | None = None) -> int:
-    """Test whether the given view returns a valid status code"""
+    """Test whether the given view returns a valid status code."""
     return check_url(
         test=test,
         url=reverse(view, args=view_args, kwargs=view_kwargs),
@@ -64,7 +64,7 @@ def check_view(
 
 
 class ViewTest(TestCase):
-    """Tests for Django views"""
+    """Tests for Django views."""
 
     MODEL_ID = 1
     POINT_ID = 1
@@ -89,7 +89,7 @@ class ViewTest(TestCase):
         cls.form.is_valid()
 
     def test_form(self):
-        self.assertTrue(self.form.is_valid())
+        assert self.form.is_valid()
 
     # -----
     # Views

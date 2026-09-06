@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-r"""SNR grid for the $(\bar{U}_f, r_*)$ plane"""
+r"""SNR grid for the $(\bar{U}_f, r_*)$ plane."""
 
 import os
 import sys
@@ -29,7 +29,8 @@ from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 
 
 class SNRGridUbarfRStar(SNRGrid):
-    r"""SNR values on a grid of $(\bar{U}_f, r_*)$ points"""
+    r"""SNR values on a grid of $(\bar{U}_f, r_*)$ points."""
+
     X_NAME = "ubarf"
     Y_NAME = "r_star"
     X_LABEL = r"$\overline{U}_{\rm f}$"
@@ -55,7 +56,7 @@ class SNRGridUbarfRStar(SNRGrid):
             f_max: float = DEFAULT_SNR_F_MAX,
             log_progress_percentage: bool = True,
             max_workers: int = MAX_WORKERS_DEFAULT):
-        r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points
+        r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
 
         The points are converted from $(\alpha, \beta/H)$ to $(\bar{U}_f, r_*)$,
         and the grid ranges are deduced from them, unless the ranges are given explicitly.
@@ -78,13 +79,10 @@ class SNRGridUbarfRStar(SNRGrid):
         :param f_min: Minimum frequency to consider for SNR calculation
         :param f_max: Maximum frequency to consider for SNR calculation
         """
-        have_points = alpha_points is not None and beta_over_H_points is not None
-        if ubarf is None and not have_points:
-            raise ValueError("Provide either ubarf or alpha_points.")
-        if r_star is None and not have_points:
-            raise ValueError("Provide either r_star or beta_over_H_points.")
-
-        if have_points:
+        self.v_wall_points: th.FloatOrArrOrList1D2D | None
+        ubarf_points: th.FloatOrArrOrList1D2D | None
+        r_star_points: th.FloatOrArrOrList1D2D | None
+        if alpha_points is not None and beta_over_H_points is not None:
             self.v_wall_points, ubarf_points, r_star_points, labels_points = ubarf_rstar_from_alpha_beta(
                 v_wall=v_wall if v_wall_points is None else v_wall_points,
                 alpha=alpha_points,
@@ -93,15 +91,23 @@ class SNRGridUbarfRStar(SNRGrid):
                 cs=cs,
                 adiabatic_ratio=adiabatic_ratio
             )
+            if ubarf is None:
+                ubarf = log_range(ubarf_points, DEFAULT_UBARF_RANGE)
+            if r_star is None:
+                r_star = log_range(r_star_points, DEFAULT_R_STAR_RANGE)
         else:
+            if ubarf is None:
+                raise ValueError("Provide either ubarf or alpha_points.")
+            if r_star is None:
+                raise ValueError("Provide either r_star or beta_over_H_points.")
             self.v_wall_points = None
             ubarf_points = None
             r_star_points = None
             labels_points = None
 
         super().__init__(
-            x=log_range(ubarf_points, DEFAULT_UBARF_RANGE) if ubarf is None else ubarf,
-            y=log_range(r_star_points, DEFAULT_R_STAR_RANGE) if r_star is None else r_star,
+            x=ubarf,
+            y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
             mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
@@ -112,27 +118,27 @@ class SNRGridUbarfRStar(SNRGrid):
 
     @property
     def ubarf(self) -> th.FloatArr1D:
-        r"""Range of $\bar{U}_f$ values of the grid"""
+        r"""Range of $\bar{U}_f$ values of the grid."""
         return self.x
 
     @property
     def r_star(self) -> th.FloatArr1D:
-        r"""Range of $r_*$ values of the grid"""
+        r"""Range of $r_*$ values of the grid."""
         return self.y
 
     @property
-    def ubarf_points(self) -> th.FloatArr2DOrListOfArr1D | None:
-        r"""$\bar{U}_f$ values of the points to be drawn on the grid"""
+    def ubarf_points(self) -> th.FloatOrArrOrList1D2D | None:
+        r"""$\bar{U}_f$ values of the points to be drawn on the grid."""
         return self.x_points
 
     @property
-    def r_star_points(self) -> th.FloatArr2DOrListOfArr1D | None:
-        r"""$r_*$ values of the points to be drawn on the grid"""
+    def r_star_points(self) -> th.FloatOrArrOrList1D2D | None:
+        r"""$r_*$ values of the points to be drawn on the grid."""
         return self.y_points
 
 
 def main():
-    """Script for command-line use"""
+    """Script for command-line use."""
     # Todo: enable the v_wall argument
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",

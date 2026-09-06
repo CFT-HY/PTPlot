@@ -1,4 +1,4 @@
-"""Methods for models"""
+"""Methods for models."""
 
 import typing as tp
 
@@ -12,11 +12,12 @@ if tp.TYPE_CHECKING:
 
 
 def min_max_avg(*names) -> list[Avg | Max | Min]:
+    """Get the minimum, maximum and average aggregations for the given fields."""
     return [func(name) for func in (Min, Max, Avg) for name in names]
 
 
 def point_data(points: "QuerySet[ParameterChoice]") -> DataFrame:
-    """Get the data of the points as a DataFrame"""
+    """Get the data of the points as a DataFrame."""
     return DataFrame(
         data={
             "number": [point.number for point in points],

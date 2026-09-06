@@ -1,4 +1,4 @@
-"""List of available mission profiles (sensitivity curves)
+"""List of available mission profiles (sensitivity curves).
 
 This file contains a list of available sensitivity curves for LISA,
 with possible mission duration and labels.
@@ -15,7 +15,8 @@ SENSITIVITY_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sen
 
 
 class MissionProfile:
-    """Mission profile containing the sensitivity curve and related information"""
+    """Mission profile containing the sensitivity curve and related information."""
+
     def __init__(
             self,
             name: str,

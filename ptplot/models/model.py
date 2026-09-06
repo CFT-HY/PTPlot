@@ -1,4 +1,4 @@
-"""Particle physics models"""
+"""Particle physics models."""
 
 import typing as tp
 
@@ -26,6 +26,7 @@ from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
+    from ptplot.models.parameter_choice import ParameterChoice
     from ptplot.models.scenario import Scenario
 
 
@@ -36,7 +37,8 @@ MODEL_ANNOTATIONS = min_max_avg(
 
 
 class Model(models.Model):
-    """A particle physics model"""
+    """A particle physics model."""
+
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
     slug = models.SlugField(max_length=NAME_MAX_LENGTH, unique=True)
     description = models.TextField(blank=True)
@@ -64,6 +66,11 @@ class Model(models.Model):
     has_scenarios = models.BooleanField()
 
     if tp.TYPE_CHECKING:
+        # Reverse relations of the foreign keys that point to this model.
+        points: models.Manager["ParameterChoice"]
+        scenarios: models.Manager["Scenario"]
+        # Added by Count("points") when the object is fetched with the annotation.
+        n_points: int
         # Added by MODEL_ANNOTATIONS when the object is fetched with annotations.
         points__alpha__min: float | None
         points__alpha__max: float | None
@@ -84,6 +91,10 @@ class Model(models.Model):
         scenarios__T_star__max: float | None
         scenarios__T_star__avg: float | None
 
+    class Meta:
+        indexes = [models.Index(fields=["name"])]
+        ordering = ["name"]
+
     def __init__(
             self,
             *args,
@@ -102,6 +113,9 @@ class Model(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("model_detail", kwargs={"model_id": self.id})
 
     @staticmethod
     def annotated_label(
@@ -135,25 +149,22 @@ class Model(models.Model):
             self.annotated_label("g_*", self.points__g_star__min, self.points__g_star__max, default=self.g_star)
         ]) + "$"
 
-    def get_absolute_url(self) -> str:
-        return reverse("model_detail", kwargs={"model_id": self.id})
-
     @property
     def mission_profile(self) -> MissionProfile:
-        """Get the mission profile object"""
+        """Get the mission profile object."""
         return MissionProfile.from_ind(self.mission_profile_ind)
 
     def point_data(self) -> DataFrame:
-        """Get the data of the points of this model as a DataFrame"""
+        """Get the data of the points of this model as a DataFrame."""
         return point_data(self.points.all())
 
     def point_data_by_scenario(self) -> "dict[Scenario, DataFrame]":
-        """Get the data of the points of this model by scenario"""
+        """Get the data of the points of this model by scenario."""
         return {scenario: scenario.point_data() for scenario in self.scenarios.prefetch_related("points").all()}
 
     def point_data_by_field(self) \
             -> tuple[th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, th.FloatArr1D, list[str], str]:
-        """Get the data of the points of this model as arrays of each field"""
+        """Get the data of the points of this model as arrays of each field."""
         data = self.point_data()
         v_wall = data["v_wall"].to_numpy(dtype=np.float64)
         alpha = data["alpha_n"].to_numpy(dtype=np.float64)
@@ -172,7 +183,7 @@ class Model(models.Model):
                 th.FloatArr1DOrListOfArr1D,
                 list[list[str]] | list[str],
                 list[str] | str]:
-        """Get the data of the points of this model as arrays of each field, in lists by scenario"""
+        """Get the data of the points of this model as arrays of each field, in lists by scenario."""
         if not self.has_scenarios:
             return self.point_data_by_field()
         scenarios = self.scenarios.prefetch_related("points").all()
@@ -228,7 +239,7 @@ class Model(models.Model):
             adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
-        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridAlphaBeta(
             T_star=self.T_star,
             g_star=self.g_star,
@@ -251,7 +262,7 @@ class Model(models.Model):
             cs: float = const.CS0,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
-        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridUbarfRStar(
             v_wall=self.v_wall,
             T_star=self.T_star,
@@ -278,7 +289,3 @@ class Model(models.Model):
             mission_profile=mission_profile,
             # engines=[form.cleaned_data["engine"]]
         )
-
-    class Meta:
-        indexes = [models.Index(fields=["name"])]
-        ordering = ["name"]

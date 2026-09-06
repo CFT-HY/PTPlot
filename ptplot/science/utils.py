@@ -1,7 +1,8 @@
-"""Utilities for PTPlot science module"""
+"""Utilities for PTPlot science module."""
 
 import logging
 import os
+import typing as tp
 
 from dulwich.errors import NotGitRepository
 from dulwich.porcelain import describe
@@ -24,8 +25,16 @@ except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)
 
 
-def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list[np.ndarray]]:
-    """Convert one or several of these to a 2D Numpy array: a scalar, 1D array or 2D array
+@tp.overload
+def atleast_2d(values: th.FloatOrArrOrList1D2D, /) -> th.ArrOrListOfArrs: ...
+
+
+@tp.overload
+def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> list[th.ArrOrListOfArrs]: ...
+
+
+def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[th.ArrOrListOfArrs]:
+    """Convert one or several of these to a 2D Numpy array: a scalar, 1D array or 2D array.
 
     You can convert multiple arguments at once, and the output will be a list of 2D numpy arrays.
     Similar to numpy.atleast_2d, but supports nested lists with varying lengths.
@@ -38,8 +47,8 @@ def atleast_2d(*args: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs | list[list
     return [atleast_2d_single(values) for values in args]
 
 
-def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:
-    """Convert a scalar, 1D array or 2D array to a Numpy array"""
+def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:  # noqa: PLR0911
+    """Convert a scalar, 1D array or 2D array to a Numpy array."""
     if isinstance(values, np.ndarray):
         if values.ndim == 0:
             return np.array([[values]])
@@ -48,16 +57,19 @@ def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:
         return values
     if np.isscalar(values):
         return np.array([[values]])
-    if np.isscalar(values[0]):
-        return np.array([values])
+    # The scalars and arrays have been handled above, so only the lists are left.
+    values_list = tp.cast("list[float] | list[list[float]] | list[th.FloatArr1D]", values)
+    if np.isscalar(values_list[0]):
+        return np.array([values_list])
+    nested = tp.cast("list[list[float]] | list[th.FloatArr1D]", values_list)
     # If the data has a regular shape, convert it to a 2D numpy array.
-    if np.all([len(sub_values) == len(values[0]) for sub_values in values]):
-        return np.array(values)
-    return [np.array(sub_values) for sub_values in values]
+    if np.all([len(sub_values) == len(nested[0]) for sub_values in nested]):
+        return np.array(nested)
+    return [np.array(sub_values) for sub_values in nested]
 
 
 def beta(R_star: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Convert R_* to \beta for a given wall velocity
+    r"""Convert R_* to \beta for a given wall velocity.
 
     $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$
     Inverted from :caprini_2020:`\ ` eq. 6
@@ -72,7 +84,7 @@ def beta(R_star: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const
 
 
 def R_star(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Mean bubble separation $R_*$
+    r"""Mean bubble separation $R_*$.
 
     $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
     :caprini_2020:`\ ` eq. 6
@@ -88,14 +100,16 @@ def R_star(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const
 
 def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr1D:
     """Get a logarithmic range that covers the values in x, but is not smaller than the default range."""
+    x_min: float
+    x_max: float
     if np.isscalar(x):
-        x_min = x_max = x
+        x_min = x_max = tp.cast("float", x)
     elif isinstance(x, list):
-        x_min = np.nanmin([np.nanmin(sub_x) for sub_x in x])
-        x_max = np.nanmax([np.nanmax(sub_x) for sub_x in x])
+        x_min = tp.cast("float", np.nanmin([np.nanmin(sub_x) for sub_x in x]))
+        x_max = tp.cast("float", np.nanmax([np.nanmax(sub_x) for sub_x in x]))
     else:
-        x_min = np.nanmin(x)
-        x_max = np.nanmax(x)
+        x_min = tp.cast("float", np.nanmin(x))
+        x_max = tp.cast("float", np.nanmax(x))
 
     return np.logspace(
             np.log10(min(x_min, default[0])),
@@ -109,13 +123,14 @@ def ubarf_rstar_from_alpha_beta(
         v_wall: th.FloatOrArrOrListOfArr1D,
         alpha: th.FloatOrArrOrListOfArr1D,
         beta_over_H: th.FloatOrArrOrListOfArr1D,
-        labels: th.StrOrListOrNestedList,
+        labels: th.StrOrListOrNestedList | None,
         cs: float = const.CS0,
         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO) -> tuple[
-            th.FloatArr2DOrListOfArr1D,
-            th.FloatArr2DOrListOfArr1D,
-            th.FloatArr2DOrListOfArr1D,
-            th.StrOrListOrNestedList]:
+            th.ArrOrListOfArrs,
+            th.ArrOrListOfArrs,
+            th.ArrOrListOfArrs,
+            th.StrOrListOrNestedList | None]:
+    r"""Convert $\alpha$ and $\frac{\beta}{H}$ to $\bar{U}_f$ and $R_*$."""
     # Ensure that input values are 2D arrays
     v_wall, alpha, beta_over_H = atleast_2d(v_wall, alpha, beta_over_H)
     if labels:
@@ -127,13 +142,13 @@ def ubarf_rstar_from_alpha_beta(
     ubarf = [
         np.array([
             ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio)
-            for v_wall, alpha in zip(v_wall_set, alpha_set)
+            for v_wall, alpha in zip(v_wall_set, alpha_set, strict=True)
         ])
-        for v_wall_set, alpha_set in zip(v_wall, alpha)
+        for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)
     ]
     r_star = [
-        R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0)
-        for beta_over_H_set, v_wall_set in zip(beta_over_H, v_wall)
+        tp.cast("th.FloatArr", R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
+        for beta_over_H_set, v_wall_set in zip(beta_over_H, v_wall, strict=True)
     ]
     return v_wall, ubarf, r_star, labels
 

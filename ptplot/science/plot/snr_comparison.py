@@ -1,4 +1,4 @@
-"""Comparison of the SNR values given by different engines"""
+"""Comparison of the SNR values given by different engines."""
 
 from matplotlib.figure import Figure
 import numpy as np
@@ -13,7 +13,7 @@ def snr_comparison(
         grid2: SNRGrid,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None) -> Figure:
-    """Compare the SNR values given by different engines
+    """Compare the SNR values given by different engines.
 
     :param grid1: SNR grid of the reference engine
     :param grid2: SNR grid of the engine to compare to the reference
@@ -46,9 +46,10 @@ def snr_comparison(
             rf"{{\max( \text{{SNR}}_{{{grid1.engine.name}}}, \text{{SNR}}_{{{grid2.engine.name}}} )}}$"
     )
     if grid1.has_points:
+        x_points, y_points = grid1.points()
         add_points(
             ax,
-            x=grid1.x_points, y=grid1.y_points,
+            x=x_points, y=y_points,
             labels=grid1.labels_points if labels is None else labels,
             titles=grid1.titles if titles is None else titles
         )

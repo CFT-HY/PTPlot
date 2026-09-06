@@ -1,4 +1,4 @@
-"""Utilities for creating power spectra"""
+"""Utilities for creating power spectra."""
 
 import typing as tp
 
@@ -11,7 +11,7 @@ from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
 def const_cs_model(css2: float | None = None, csb2: float | None = None) -> ConstCSModel:
-    """Create a ConstCSModel, using its default sound speeds for the values that were not given"""
+    """Create a ConstCSModel, using its default sound speeds for the values that were not given."""
     # Todo: Make PTtools ConstCSModel accept None values for css2 and csb2.
     kwargs: dict[str, tp.Any] = {}
     if css2 is not None:
@@ -37,7 +37,7 @@ def power_spectrum(
         csb2: float | None = None,
         model: Model = BAG,
         parallel: bool = True) -> PowerSpectrum:
-    """Create a power spectrum object from the given parameters"""
+    """Create a power spectrum object from the given parameters."""
     if engine not in ENGINE_SPECTRUM_CLASSES:
         raise ValueError(f"Invalid engine: {engine}")
 

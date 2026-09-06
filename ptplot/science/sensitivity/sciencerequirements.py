@@ -25,10 +25,11 @@ def SI(f: th.FloatOrArr, s: float = 1., f1: float = 0.4e-3) -> th.FloatOrArr:
     return 5.76e-48 * (s**-4) * (1.0 + (f1/f)**2)
 
 
-def SII(f: tp.Any) -> float:
+def SII(f: tp.Any) -> float:  # noqa: ARG001
     """Subsidiary formula S_II for strain sensitivity.
 
-    Actually just a constant."""
+    Actually just a constant.
+    """
     return 3.6e-41
 
 
@@ -39,7 +40,6 @@ def R(f: th.FloatOrArr, f2: float = 25e-3) -> th.FloatOrArr:
 
 def OmSens(f: th.FloatOrArr) -> th.FloatOrArr:
     """Convert strain sensitivity to sensitivity in terms of Omega_GW."""
-
     # Hubble rate - set to 100 km/s/Mpc, thus the
     # left hand side is in terms of the reduced Hubble rate
     # i.e. this returns h^2*OmSens(f).
@@ -54,13 +54,13 @@ def main(print_points: bool = True):
 
     The first column is frequency; second is square root of strain
     sensitivity; third is sensitivity in terms of the gravitational
-    wave energy density parameter."""
-
+    wave energy density parameter.
+    """
     x = np.logspace(-6,1,2000)
     y = np.sqrt(Sh(x))
     z = np.asarray(OmSens(x))
     if print_points:
-        for (mx, my, mz) in zip(x, y, z):
+        for (mx, my, mz) in zip(x, y, z, strict=True):
             print(f"{mx:g} {my:g} {mz:g} {0.0:g}")
 
     # plt.loglog(x, np.sqrt(y))

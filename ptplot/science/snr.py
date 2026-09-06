@@ -1,4 +1,4 @@
-"""Signal-to-noise ratio calculations for gravitational wave spectra"""
+"""Signal-to-noise ratio calculations for gravitational wave spectra."""
 
 import logging
 import typing as tp
@@ -27,7 +27,7 @@ def snr_point(
         f_max: float = const.DEFAULT_SNR_F_MAX,
         ubarf_rstar: bool = False,
         parallel: bool = True) -> tuple[float, float]:
-    """Compute the SNR value of a single point in the parameter space"""
+    """Compute the SNR value of a single point in the parameter space."""
     kwargs: dict[str, tp.Any] = {"ubarf": x, "r_star": y} if ubarf_rstar \
         else {"alpha": x, "beta_over_H": y}
     try:

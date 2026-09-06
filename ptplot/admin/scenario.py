@@ -1,4 +1,4 @@
-"""Scenario admin"""
+"""Scenario admin."""
 
 from django.contrib import admin
 
@@ -9,6 +9,8 @@ import ptplot.methods.admin as admin_methods
 
 @admin.register(models.Scenario, site=admin_site)
 class ScenarioAdmin(CustomModelAdmin):
+    """Admin for scenarios."""
+
     list_display = [
         "name", "model_link", "number", "T_star", "description"
     ]

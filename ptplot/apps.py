@@ -1,9 +1,10 @@
-"""Django app configuration"""
+"""Django app configuration."""
 
 from django.apps import AppConfig
 
 
 class PTPlotConfig(AppConfig):
-    """PTPlot app configuration"""
+    """PTPlot app configuration."""
+
     name = "ptplot"
     verbose_name = "PTPlot"

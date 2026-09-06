@@ -1,7 +1,8 @@
-"""Base class for power spectra"""
+"""Base class for power spectra."""
 
 import abc
 import enum
+import typing as tp
 
 import numpy as np
 from pandas import DataFrame
@@ -16,12 +17,13 @@ from ptplot.science.espinosa import alpha_n_from_ubarf
 from ptplot.science.espinosa import ubarf as ubarf_func
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatOrArr, FloatOrArr1D
+from ptplot.science.type_hints import FloatOrArr
 from ptplot.science.utils import R_star, beta
 
 
 class Engine(enum.StrEnum):
-    """Enumeration of power spectrum engines"""
+    """Enumeration of power spectrum engines."""
+
     BPL = DEFAULT = "bpl"
     DBPL = "dbpl"
     SSM = "ssm"
@@ -32,10 +34,11 @@ class Engine(enum.StrEnum):
 
 
 class PowerSpectrum(abc.ABC):
-    """The base class for defining power spectra
+    """The base class for defining power spectra.
 
     When adding a new power spectrum class, please add it to the Engine enum.
     """
+
     COLOR: str
     ENGINE: Engine
     NAME: str
@@ -56,6 +59,8 @@ class PowerSpectrum(abc.ABC):
             k_turb: float = const.DEFAULT_K_TURB,
             parallel: bool = True):
         r"""
+        Create a power spectrum.
+
         :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
         :param T_star: Transition temperature $T_*$
         :param g_star: Degrees of freedom $g_*$
@@ -114,7 +119,7 @@ class PowerSpectrum(abc.ABC):
         self.H_tsh: float = self.r_star / self.ubarf
 
     def csv(self, path: str | None = None, mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE) -> str | None:
-        """Export the power spectrum as CSV
+        """Export the power spectrum as CSV.
 
         :param path: A path in which to save the data
         :param mission_profile: Which sensitivity curve to use
@@ -128,7 +133,7 @@ class PowerSpectrum(abc.ABC):
         return df.to_csv(path_or_buf=path)
 
     def f_peak(self) -> float:
-        r"""Peak frequency
+        r"""Peak frequency.
 
         $$f_{p,0} \approx 26
         \left( \frac{1}{H_* R_*} \right)
@@ -142,7 +147,10 @@ class PowerSpectrum(abc.ABC):
 
         :return: Peak frequency $f_\text{peak}$ in Hz
         """
-        return f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
+        return tp.cast(
+            "float",
+            f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
+        )
 
     def F_gw0(
             self,
@@ -153,7 +161,8 @@ class PowerSpectrum(abc.ABC):
         return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
 
     def h_star(self) -> float:
-        r"""$h_*$, inverse Hubble time at GW production, redshifted to today
+        r"""$h_*$, inverse Hubble time at GW production, redshifted to today.
+
         :caprini_2015:`\ ` eq. 11
         """
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
@@ -168,7 +177,8 @@ class PowerSpectrum(abc.ABC):
 
     @property
     def kinetic_energy_fraction_approx(self) -> float:
-        r"""Approximate bubble volume averaged kinetic energy fraction $K_\text{bva}$
+        r"""Approximate bubble volume averaged kinetic energy fraction $K_\text{bva}$.
+
         $$K = \frac{{e}_{K,\text{bva}}}{\bar{e}} \approx \Gamma \bar{U}_f^2$$
         :gw_pt_ssm:`\ ` eq. B.32
 
@@ -177,7 +187,8 @@ class PowerSpectrum(abc.ABC):
         return self.adiabatic_ratio * self.ubarf**2
 
     def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
-        r"""Common prefactor of the power spectrum for BPL and DBPL
+        r"""Compute the common prefactor of the power spectrum for BPL and DBPL.
+
         $$3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
 
         Please note that $F_{\text{gw},0}$ depends on the value of $h$.
@@ -189,15 +200,18 @@ class PowerSpectrum(abc.ABC):
         return 3 * const.H2 * self.F_gw0() * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
 
     def s[T: FloatOrArr](self, f: T) -> T:
-        r"""Relative frequency $s$ with respect to the peak frequency
+        r"""Relative frequency $s$ with respect to the peak frequency.
 
         $$s = \frac{f}{f_\text{peak}}$$
         :gowling_2021:`\ ` p. 9
         """
-        return f / self.f_peak()
+        return tp.cast("T", f / self.f_peak())
 
     def source_lifetime_factor(self) -> float:
-        return source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
+        return tp.cast(
+            "float",
+            source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
+        )
 
     @staticmethod
     def validate_alpha_ubarf(
@@ -220,10 +234,9 @@ class PowerSpectrum(abc.ABC):
             #     "Determining v_wall(alpha, ubarf) has not been implemented. "
             #     f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf_in}"
             # )
-        else:
-            raise ValueError(
-                "Exactly two of v_wall, alpha, ubarf_in must be set. "
-                f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
+        raise ValueError(
+            "Exactly two of v_wall, alpha, ubarf_in must be set. "
+            f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
 
     def validate_beta_r_star(
             self,
@@ -232,11 +245,15 @@ class PowerSpectrum(abc.ABC):
             v_wall: float | None,
             cs: float) -> tuple[float, float]:
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
+            if v_wall is None:
+                raise ValueError("v_wall is required for computing r_* from beta/H.")
             # Using beta_over_H instead of beta to compute R_star gives r_star.
-            return beta_over_H, R_star(beta=beta_over_H, v_wall=v_wall, cs=cs)
+            return beta_over_H, tp.cast("float", R_star(beta=beta_over_H, v_wall=v_wall, cs=cs))
         if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
+            if v_wall is None:
+                raise ValueError("v_wall is required for computing beta/H from r_*.")
             # Using r_star instead of R_star to compute beta gives beta_over_H.
-            return beta(R_star=r_star, v_wall=v_wall, cs=cs), r_star
+            return tp.cast("float", beta(R_star=r_star, v_wall=v_wall, cs=cs)), r_star
         raise ValueError(
             "Either r_star or beta_over_H must be set, but not both. "
             f"Got r_star={r_star}, beta_over_H={beta_over_H}."
@@ -248,7 +265,7 @@ class PowerSpectrum(abc.ABC):
 
     @property
     def shock_time(self) -> float:
-        """Shock time"""
+        """Shock time."""
         return self.H_tsh
 
     # -----
@@ -256,8 +273,8 @@ class PowerSpectrum(abc.ABC):
     # -----
 
     @abc.abstractmethod
-    def power_spectrum[T: FloatOrArr1D](self, f: T, log_errors: bool = False) -> T:
-        """GW power spectrum
+    def power_spectrum(self, f: th.FloatArr1D, log_errors: bool = False) -> th.FloatArr1D:
+        """GW power spectrum.
 
         :param f: Frequency range
         :param log_errors: Log errors.

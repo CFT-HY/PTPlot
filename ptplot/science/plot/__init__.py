@@ -1,4 +1,4 @@
-"""Plotting tools for PTPlot"""
+"""Plotting tools for PTPlot."""
 
 from .logarithmic import *
 from .power_spectrum import *

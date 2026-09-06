@@ -1,4 +1,4 @@
-"""Views for scenarios"""
+"""Views for scenarios."""
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
@@ -10,7 +10,7 @@ from ptplot.science.spectrum import Engine
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
-    """Display a group of scenario points on the SNR plots"""
+    """Display a group of scenario points on the SNR plots."""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -31,7 +31,7 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
 
 
 def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
-    r"""Display a group of scenario points on the $\alpha, \beta/H$ SNR plot"""
+    r"""Display a group of scenario points on the $\alpha, \beta/H$ SNR plot."""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -53,7 +53,7 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
 
 
 def model_scenario_snr_comparison(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
-    """Compare the SNR of different engines for a scenario"""
+    """Compare the SNR of different engines for a scenario."""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -78,7 +78,7 @@ def model_scenario_snr_comparison(request: HttpRequest, model_id: int, scenario_
 
 
 def model_scenario_snr_histogram(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
-    """Display a histogram of the SNR values of the model points"""
+    """Display a histogram of the SNR values of the model points."""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],
@@ -94,7 +94,7 @@ def model_scenario_snr_histogram(request: HttpRequest, model_id: int, scenario_i
 
 
 def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
-    r"""Display a group of scenario points on the $\bar{U}_f, r_*$ SNR plot"""
+    r"""Display a group of scenario points on the $\bar{U}_f, r_*$ SNR plot."""
     scenario: Scenario = get_object_or_404_related(
         Scenario,
         related=["model"],

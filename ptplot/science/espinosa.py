@@ -1,4 +1,4 @@
-r"""Energy budget computations
+r"""Energy budget computations.
 
 This file contains all the functions related to the calculation of
 the energy budget of a first-order phase transition.
@@ -29,7 +29,7 @@ def alpha_n_from_ubarf(
         alpha_n_min: float = 1e-8,
         alpha_n_max: float = 1e12,
         xtol: float = 1e-6) -> th.FloatOrArr:
-    r"""Phase transition strength $\alpha(\bar{U}_f)$
+    r"""Phase transition strength $\alpha(\bar{U}_f)$.
 
     The calculation of $\bar{U}_f$ is not easy to invert,
     so we calculate $\bar{U}_f$ for different $\alpha$
@@ -63,12 +63,13 @@ def alpha_n_from_ubarf_solvable(
         v_wall: float,
         cs: float,
         adiabatic_ratio: float) -> float:
+    r"""Get the difference of $\bar{U}_f$ from its target value, for solving $\alpha_n$."""
     return ubarf(v_wall=v_wall, alpha_n=alpha_n, cs=cs, adiabatic_ratio=adiabatic_ratio) - ubarf_target
 
 
 @numba.njit
 def chapman_jouguet[T: (float, FloatArr)](alpha_n: T) -> T:
-    r"""Approximation for the Chapman-Jouguet velocity $\v_{CJ}$, aka. $\xi_J$
+    r"""Approximation for the Chapman-Jouguet velocity $\v_{CJ}$, aka. $\xi_J$.
 
     $$\v_{CJ} \approx \frac{\sqrt{\frac{2}{3} \alpha_n + \alpha_n^2} + \sqrt{\frac{1}{3}}{1 + \alpha_n}$$
     :espinosa_2010:`\ `, eq. 97
@@ -78,7 +79,7 @@ def chapman_jouguet[T: (float, FloatArr)](alpha_n: T) -> T:
 
 @numba.njit
 def delta_kappa[T: (float, FloatArr)](alpha_n: T) -> T:
-    r"""Approximation for $\delta \kappa$
+    r"""Approximation for $\delta \kappa$.
 
     $$\delta \kappa \approx -0.9 \log \frac{\sqrt{\alpha_n}}{1 + \sqrt{\alpha_n}}$$
     :espinosa_2010:`\ `, eq. 101
@@ -88,7 +89,7 @@ def delta_kappa[T: (float, FloatArr)](alpha_n: T) -> T:
 
 @numba.njit
 def delta_n[T: (float, FloatArr)](model: "Model", wn: T) -> T:
-    r"""$\delta_n$ for $K$
+    r"""$\delta_n$ for $K$.
 
     $$\delta_n = \frac{4 \theta_-}{3 w_s}$$
     For the bag model with $V_- = 0$, $\delta_n = 0$.
@@ -100,7 +101,7 @@ def delta_n[T: (float, FloatArr)](model: "Model", wn: T) -> T:
 
 @numba.njit
 def kappa_a(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr) -> th.FloatOrArr:
-    r"""Approximation for $\kappa_a$
+    r"""Approximation for $\kappa_a$.
 
     $$\kappa_A \approx \v_\text{wall} \frac{6.9 \alpha_n}{1.36 - 0.037 \sqrt{\alpha_n} + \alpha_n}$$
     :espinosa_2010:`\ `, eq. 95
@@ -110,7 +111,7 @@ def kappa_a(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr) -> th.FloatOrArr:
 
 @numba.njit
 def kappa_b[T: (float, FloatArr)](alpha_n: T) -> T:
-    r"""Approximation for $\kappa_b$
+    r"""Approximation for $\kappa_b$.
 
     $$\kappa_B \approx \frac{\alpha_n^\frac{2}{5}}{0.017 + (0.997 + \alpha_n)^\frac{2}{5}}$$
     :espinosa_2010:`\ `, eq. 96
@@ -120,27 +121,27 @@ def kappa_b[T: (float, FloatArr)](alpha_n: T) -> T:
 
 @numba.njit
 def kappa_c[T: (float, FloatArr)](alpha_n: T) -> T:
-    r"""Approximation for $\kappa_c$
+    r"""Approximation for $\kappa_c$.
 
     $$\kappa_C \approx \frac{\sqrt{\alpha_n}}{0.135 + \sqrt{0.98 + \alpha_n}}$$
     :espinosa_2010:`\ `, eq. 97
     """
-    return np.sqrt(alpha_n) / (0.135 + np.sqrt(0.98 + alpha_n))
+    return np.sqrt(alpha_n) / (0.135 + np.sqrt(0.98 + alpha_n))  # type: ignore
 
 
 @numba.njit
 def kappa_d[T: (float, FloatArr)](alpha_n: T) -> T:
-    r"""Approximation for $\kappa_d$
+    r"""Approximation for $\kappa_d$.
 
     $$\kappa_D \approx \frac{\alpha_n}{0.73 + 0.083 \sqrt{\alpha_n} + \alpha_n}$$
     :espinosa_2010:`\ `, eq. 98
     """
-    return alpha_n / (0.73 + 0.083 * np.sqrt(alpha_n) + alpha_n)
+    return alpha_n / (0.73 + 0.083 * np.sqrt(alpha_n) + alpha_n)  # type: ignore
 
 
 @numba.njit
 def kappa_detonation(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, v_cj: float | None = None) -> th.FloatOrArr:
-    r"""Approximation of $\kappa$ for detonations
+    r"""Approximation of $\kappa$ for detonations.
 
     $$
     \kappa(v_\text{wall} > v_{CJ}) \approx \frac{
@@ -163,7 +164,7 @@ def kappa_detonation(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, v_cj: float 
 
 @numba.njit
 def kappa_hybrid(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Approximation of $\kappa$ for hybrids, aka. supersonic deflagrations
+    r"""Approximation of $\kappa$ for hybrids, aka. supersonic deflagrations.
 
     $$
     \kappa(c_s < v_\text{wall} < v_{CJ}) \approx \kappa_B
@@ -181,7 +182,7 @@ def kappa_hybrid(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, cs: th.FloatOrAr
 
 @numba.njit
 def kappa_sub_def(v_wall: th.FloatOrArr, alpha_n: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Approximation of $\kappa$ for subsonic deflagrations
+    r"""Approximation of $\kappa$ for subsonic deflagrations.
 
     $$\kappa(v_\text{wall} < c_s) \approx \frac{
         c_s^\frac{11}{5} \kappa_A \kappa_B
@@ -201,7 +202,7 @@ def kappa_v(
         alpha_n: th.FloatOrArr,
         cs: float = const.CS0,
         v_cj: float | None = None) -> th.FloatOrArr:
-    r"""Fluid efficiency $\kappa_v$
+    r"""Fluid efficiency $\kappa_v$.
 
     The fluid efficiency gives the fraction of vacuum energy that is
     turned into kinetic energy during the phase transition.
@@ -229,7 +230,7 @@ def ubarf(
         delta_n: th.FloatOrArr = 0.,
         cs: float = const.CS0,
         adiabatic_ratio: th.FloatOrArr = const.DEFAULT_ADIABATIC_RATIO) -> th.FloatOrArr:
-    r"""RMS fluid velocity $\bar{U}_f$
+    r"""RMS fluid velocity $\bar{U}_f$.
 
     $$
     \bar{U}_f = \sqrt{\frac{K}{\Gamma}}

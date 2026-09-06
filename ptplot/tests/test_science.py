@@ -1,4 +1,4 @@
-"""Tests for the science module"""
+"""Tests for the science module."""
 
 from django.test import TestCase
 
@@ -19,7 +19,7 @@ G_STAR: float = 100
 
 
 class ScienceTest(TestCase):
-    """Tests for the science module"""
+    """Tests for the science module."""
 
     @staticmethod
     def test_kappa_v():

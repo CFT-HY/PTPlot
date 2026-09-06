@@ -1,1 +1,1 @@
-"""PTPlot documentation"""
+"""PTPlot documentation."""

@@ -1,4 +1,6 @@
-"""Views for forms"""
+"""Views for forms."""
+
+import contextlib
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -12,7 +14,7 @@ from ptplot.science.spectrum.engine import ENGINE_NAMES
 
 
 def multiple(request: HttpRequest) -> HttpResponse:
-    """Plot many points - manual input"""
+    """Plot many points - manual input."""
     if request.method == "POST":
         form = MultipleForm(request.POST)
 
@@ -27,8 +29,8 @@ def multiple(request: HttpRequest) -> HttpResponse:
 
             read_lines = 0
 
-            for line in table_lines:
-                line = line.strip()
+            for table_line in table_lines:
+                line = table_line.strip()
                 if len(line) == 0 or line[0] == "#":
                     continue
 
@@ -37,15 +39,10 @@ def multiple(request: HttpRequest) -> HttpResponse:
                 bits = line.split(",")
                 alphas.append(float(bits[0]))
                 beta_over_Hs.append(float(bits[1]))
-                try:
+                with contextlib.suppress(IndexError):
                     labels.append(bits[2].strip())
-                except IndexError:
-                    pass
 
-            if not len(labels) == read_lines:
-                label_list_final = None
-            else:
-                label_list_final = [labels]
+            label_list_final = [labels] if len(labels) == read_lines else None
 
             fig = snr_figure_alpha_beta(
                 grid=SNRGridAlphaBeta(
@@ -66,6 +63,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
 
 
 def parameter_choice_form(request: HttpRequest) -> HttpResponse:
+    """Show the form for choosing the parameters of a single point."""
     model = get_object_or_404_related(Model, prefetch=["points"], id=1)
     form = ParameterChoiceForm()
     context = {
@@ -76,7 +74,7 @@ def parameter_choice_form(request: HttpRequest) -> HttpResponse:
 
 
 def single(request: HttpRequest) -> HttpResponse:
-    """Plot a single case - both query form and results"""
+    """Plot a single case - both query form and results."""
     if request.method == "GET":
         form = PTPlotForm(request.GET if request.GET else None)
         querystring = request.GET.urlencode()

@@ -1,4 +1,4 @@
-"""Figures with logarithmic axes"""
+"""Figures with logarithmic axes."""
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -16,7 +16,7 @@ def add_points(
         y: th.FloatOrArrOrList1D2D,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None):
-    r"""Add points to a $(\alpha, \beta/H)$ plot"""
+    r"""Add points to a $(\alpha, \beta/H)$ plot."""
     x2, y2 = atleast_2d(x, y)
     if labels:
         if isinstance(labels, str):
@@ -25,7 +25,7 @@ def add_points(
             labels = [labels]
 
     # Iterate over scenarios
-    for i, (x_set, y_set) in enumerate(zip(x2, y2)):
+    for i, (x_set, y_set) in enumerate(zip(x2, y2, strict=True)):
         x_log_set = np.log10(x_set)
         y_log_set = np.log10(y_set)
 
@@ -34,7 +34,7 @@ def add_points(
         # Add labels to points
         if labels:
             label_set = labels[i]
-            for xi, yi, label in zip(x_log_set, y_log_set, label_set):
+            for xi, yi, label in zip(x_log_set, y_log_set, label_set, strict=True):
                 ax.annotate(label, xy=(xi, yi), xycoords="data", xytext=(5, 0), textcoords="offset points")
 
     if titles:
@@ -58,6 +58,7 @@ def log_figure(
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE) -> tuple[Figure, Axes, tuple[float, float, float, float]]:
+    """Create a figure that has logarithmic tick labels on linear axes."""
     x_min = x[0]
     x_max = x[-1]
     y_min = y[0]

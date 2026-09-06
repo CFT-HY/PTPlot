@@ -1,1 +1,1 @@
-"""PTPlot management commands"""
+"""PTPlot management commands."""

@@ -1,4 +1,4 @@
-"""PTPlot views"""
+"""PTPlot views."""
 
 from .base import *
 from .form import *

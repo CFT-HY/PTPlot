@@ -1,4 +1,4 @@
-"""Views for models"""
+"""Views for models."""
 
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
@@ -10,12 +10,12 @@ from ptplot.science.spectrum import Engine
 
 
 def models(request: HttpRequest) -> HttpResponse:
-    """Display a list of models from database"""
+    """Display a list of models from database."""
     return render(request, "models.html", {"models": Model.objects.all()})
 
 
 def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
-    """Display a list of benchmark points for a model"""
+    """Display a list of benchmark points for a model."""
     model: Model = get_object_or_404_related(
         Model,
         annotate=MODEL_ANNOTATIONS,
@@ -29,7 +29,7 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
-    """Display the benchmark points for a model on the SNR plots"""
+    """Display the benchmark points for a model on the SNR plots."""
     model: Model = get_object_or_404_related(
         Model,
         annotate=MODEL_ANNOTATIONS,
@@ -43,7 +43,7 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
-    r"""Display the SNR values of the model points on the $(\alpha, \beta/H)$ plane"""
+    r"""Display the SNR values of the model points on the $(\alpha, \beta/H)$ plane."""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios", "scenarios__points"],
@@ -61,7 +61,7 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
-    """Compare the SNR of different engines for a model"""
+    """Compare the SNR of different engines for a model."""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios", "scenarios__points"],
@@ -84,7 +84,7 @@ def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
-    """Display a histogram of the SNR values of the model points"""
+    """Display a histogram of the SNR values of the model points."""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["points"],
@@ -100,7 +100,7 @@ def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
 
 
 def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
-    r"""Display the SNR values of the model points on the $(\bar{U}_f, r_*)$ plane"""
+    r"""Display the SNR values of the model points on the $(\bar{U}_f, r_*)$ plane."""
     model: Model = get_object_or_404_related(
         Model,
         prefetch=["scenarios", "scenarios__points"],

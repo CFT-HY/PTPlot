@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Power spectrum plotting"""
+"""Power spectrum plotting."""
 
 import math
 import os.path
@@ -25,7 +25,7 @@ def power_spectrum_figure(
         spectrum: PowerSpectrum,
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         sw_only: bool = True) -> Figure:
-    r"""Produce the power spectrum plot
+    r"""Produce the power spectrum plot.
 
     :param spectrum: power spectrum
     :param mission_profile: Which sensitivity curve to use
@@ -33,7 +33,7 @@ def power_spectrum_figure(
     :return: Power spectrum figure
     """
     pow_spec = spectrum.power_spectrum(mission_profile.f)
-    snr_value, f_min, f_max = signal_to_noise_ratio(
+    snr_value, _f_min, _f_max = signal_to_noise_ratio(
         f=mission_profile.f,
         signal=pow_spec,
         f_noise=mission_profile.f,
@@ -100,6 +100,7 @@ def power_spectrum_figure(
 
 
 def main():
+    """Write a power spectrum figure to stdout as an SVG."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
         engine=True

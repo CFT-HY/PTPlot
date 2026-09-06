@@ -1,4 +1,4 @@
-"""Plotting utilities for axis ticks"""
+"""Plotting utilities for axis ticks."""
 
 import math
 
@@ -18,11 +18,11 @@ def add_ticks(
         ytickpos: th.IntArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None) -> None:
-    """Add ticks to the given axes"""
-    x_min_int = int(math.ceil(x_min))
-    x_max_int = int(math.floor(x_max))
-    y_min_int = int(math.ceil(y_min))
-    y_max_int = int(math.floor(y_max))
+    """Add ticks to the given axes."""
+    x_min_int = math.ceil(x_min)
+    x_max_int = math.floor(x_max)
+    y_min_int = math.ceil(y_min)
+    y_max_int = math.floor(y_max)
 
     if xtickpos is None:
         xtickpos = np.arange(x_min_int, x_max_int + 1, dtype=np.int64)
@@ -47,7 +47,7 @@ def add_ticks(
 
 
 def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
-    """Create minor ticks in the given range"""
+    """Create minor ticks in the given range."""
     # Todo: This may be possible with one call of np.logspace
     return np.concatenate([
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))
@@ -56,7 +56,7 @@ def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
 
 
 def tick_labels_log(pos: th.IntArr1D) -> list[str]:
-    """Create tick labels for a logarithmic axis"""
+    """Create tick labels for a logarithmic axis."""
     return [
         "1" if np.isclose(x, 0)
         else "10" if np.isclose(x, 1)

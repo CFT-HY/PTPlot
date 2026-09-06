@@ -1,1 +1,1 @@
-"""Unit tests for PowerSpectrum"""
+"""Unit tests for PowerSpectrum."""

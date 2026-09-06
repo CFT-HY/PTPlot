@@ -1,4 +1,4 @@
-"""Argument parsing for command-line use of PTPlot"""
+"""Argument parsing for command-line use of PTPlot."""
 
 import argparse
 
@@ -8,7 +8,7 @@ from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 
 
 def engine_arg(value: str) -> Engine:
-    """Convert a command-line argument to an Engine
+    """Convert a command-line argument to an Engine.
 
     Both the short names, such as "BPL", and the internal names, such as "bpl", are accepted.
     """
@@ -21,7 +21,8 @@ def engine_arg(value: str) -> Engine:
 
 
 class PTPlotParser(argparse.ArgumentParser):
-    """Argument parser for command-line use of PTPlot"""
+    """Argument parser for command-line use of PTPlot."""
+
     def __init__(
             self,
             *args,

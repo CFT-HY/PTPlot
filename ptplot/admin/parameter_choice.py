@@ -1,4 +1,4 @@
-"""Parameter choice admin"""
+"""Parameter choice admin."""
 
 from django.contrib import admin
 
@@ -9,6 +9,8 @@ import ptplot.methods.admin as admin_methods
 
 @admin.register(models.ParameterChoice, site=admin_site)
 class ParameterChoiceAdmin(CustomModelAdmin):
+    """Admin for parameter choices."""
+
     list_display = [
         "long_label", "model_link", "number", "scenario_link",
         "v_wall", "alpha", "beta_over_H", "T_star", "g_star"

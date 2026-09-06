@@ -1,4 +1,4 @@
-"""Production settings for PTPlot"""
+"""Production settings for PTPlot."""
 
 from .base import *
 

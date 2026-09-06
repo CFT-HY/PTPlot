@@ -1,3 +1,3 @@
-"""Sensitivity curves for e.g. LISA"""
+"""Sensitivity curves for e.g. LISA."""
 
 from .sciencerequirements import *

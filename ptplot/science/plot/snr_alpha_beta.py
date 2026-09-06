@@ -1,4 +1,4 @@
-r"""$(\alpha_n, \beta/H)$ plotting
+r"""$(\alpha_n, \beta/H)$ plotting.
 
 Inspired by Antoine Petiteau's ExampleUseSNR1.py v0.3 (May 2015).
 """
@@ -27,7 +27,7 @@ def snr_figure_alpha_beta(
         titles: th.StrOrList | None = None,
         huge_alpha: bool = False,
         filled: bool = False) -> Figure:
-    r"""Produce the $(\alpha_n, \beta/H)$ plot
+    r"""Produce the $(\alpha_n, \beta/H)$ plot.
 
     :param grid: Precomputed SNR grid
     :param labels: Labels for the points, defaults to those of the grid
@@ -51,9 +51,10 @@ def snr_figure_alpha_beta(
         filled=filled
     )
     if grid.has_points:
+        alpha_points, beta_over_H_points = grid.points()
         add_points(
             ax=ax,
-            x=grid.alpha_points, y=grid.beta_over_H_points,
+            x=alpha_points, y=beta_over_H_points,
             labels=grid.labels_points if labels is None else labels,
             titles=grid.titles if titles is None else titles
         )
@@ -61,7 +62,7 @@ def snr_figure_alpha_beta(
 
 
 def main():
-    """Script for command-line use"""
+    """Script for command-line use."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
         mission_profile=True,

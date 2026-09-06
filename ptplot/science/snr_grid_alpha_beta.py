@@ -1,4 +1,4 @@
-r"""SNR grid for the $(\alpha_n, \beta/H)$ plane"""
+r"""SNR grid for the $(\alpha_n, \beta/H)$ plane."""
 
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
@@ -11,7 +11,8 @@ from ptplot.science.utils import log_range
 
 
 class SNRGridAlphaBeta(SNRGrid):
-    r"""SNR values on a grid of $(\alpha_n, \beta/H)$ points"""
+    r"""SNR values on a grid of $(\alpha_n, \beta/H)$ points."""
+
     X_NAME = "alpha_n"
     Y_NAME = "beta/H*"
     X_LABEL = r"$\alpha$"
@@ -36,7 +37,7 @@ class SNRGridAlphaBeta(SNRGrid):
             f_max: float = const.DEFAULT_SNR_F_MAX,
             log_progress_percentage: bool = True,
             max_workers: int = MAX_WORKERS_DEFAULT):
-        r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points
+        r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points.
 
         The grid ranges are deduced from the points, unless they are given explicitly.
 
@@ -57,16 +58,20 @@ class SNRGridAlphaBeta(SNRGrid):
         :param f_min: Minimum frequency to consider for SNR calculation
         :param f_max: Maximum frequency to consider for SNR calculation
         """
-        if alpha_n is None and alpha_points is None:
-            raise ValueError("Provide either alpha_n or alpha_points.")
-        if beta_over_H is None and beta_over_H_points is None:
-            raise ValueError("Provide either beta_over_H or beta_over_H_points.")
+        if alpha_n is None:
+            if alpha_points is None:
+                raise ValueError("Provide either alpha_n or alpha_points.")
+            alpha_n = log_range(alpha_points, const.DEFAULT_ALPHA_N_RANGE)
+        if beta_over_H is None:
+            if beta_over_H_points is None:
+                raise ValueError("Provide either beta_over_H or beta_over_H_points.")
+            beta_over_H = log_range(beta_over_H_points, const.DEFAULT_BETA_OVER_H_RANGE)
 
         self.v_wall_points: th.FloatOrArrOrList1D2D | None = v_wall_points
 
         super().__init__(
-            x=log_range(alpha_points, const.DEFAULT_ALPHA_N_RANGE) if alpha_n is None else alpha_n,
-            y=log_range(beta_over_H_points, const.DEFAULT_BETA_OVER_H_RANGE) if beta_over_H is None else beta_over_H,
+            x=alpha_n,
+            y=beta_over_H,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=alpha_points, y_points=beta_over_H_points, labels_points=labels_points, titles=titles,
             mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
@@ -77,20 +82,20 @@ class SNRGridAlphaBeta(SNRGrid):
 
     @property
     def alpha_n(self) -> th.FloatArr1D:
-        r"""Range of $\alpha_n$ values of the grid"""
+        r"""Range of $\alpha_n$ values of the grid."""
         return self.x
 
     @property
     def beta_over_H(self) -> th.FloatArr1D:
-        r"""Range of $\beta/H$ values of the grid"""
+        r"""Range of $\beta/H$ values of the grid."""
         return self.y
 
     @property
     def alpha_points(self) -> th.FloatOrArrOrList1D2D | None:
-        r"""$\alpha$ values of the points to be drawn on the grid"""
+        r"""$\alpha$ values of the points to be drawn on the grid."""
         return self.x_points
 
     @property
     def beta_over_H_points(self) -> th.FloatOrArrOrList1D2D | None:
-        r"""$\beta/H$ values of the points to be drawn on the grid"""
+        r"""$\beta/H$ values of the points to be drawn on the grid."""
         return self.y_points

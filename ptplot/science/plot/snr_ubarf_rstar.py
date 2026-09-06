@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-r"""Create the $\bar{U}_f-R_*$ plot
+r"""Create the $\bar{U}_f-R_*$ plot.
 
 This file contains all the functions related to producing the $\bar{U}_f-R_*$ plot.
 Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
@@ -31,7 +31,7 @@ def snr_figure_ubarf_rstar(
         titles: th.StrOrList | None = None,
         huge_alpha: bool = False,
         filled: bool = False) -> Figure:
-    r"""Produce the $(\bar{U}_f, r_*)$ plot
+    r"""Produce the $(\bar{U}_f, r_*)$ plot.
 
     :param grid: Precomputed SNR grid
     :param labels: Labels for [scenario, point], defaults to those of the grid
@@ -54,9 +54,10 @@ def snr_figure_ubarf_rstar(
         filled=filled
     )
     if grid.has_points:
+        ubarf_points, r_star_points = grid.points()
         add_points(
             ax=ax,
-            x=grid.ubarf_points, y=grid.r_star_points,
+            x=ubarf_points, y=r_star_points,
             labels=grid.labels_points if labels is None else labels,
             titles=grid.titles if titles is None else titles
         )
@@ -64,7 +65,7 @@ def snr_figure_ubarf_rstar(
 
 
 def main():
-    """Script for command-line use"""
+    """Script for command-line use."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
         mission_profile=True,

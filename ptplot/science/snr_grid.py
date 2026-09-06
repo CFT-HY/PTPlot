@@ -1,4 +1,4 @@
-"""Precomputation of the SNR curves
+"""Precomputation of the SNR curves.
 
 This file contains all the functions related to the computation of the signal-to-noise ratio
 curves for the UbarfRstar and AlphaBeta plots. This is done first
@@ -24,17 +24,18 @@ from ptplot.science.snr_ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
-set_forkserver_preload(DEFAULT_FORKSERVER_PRELOAD + ["ptplot", "ptplot.science"])
+set_forkserver_preload([*DEFAULT_FORKSERVER_PRELOAD, "ptplot", "ptplot.science"])
 
 
-class SNRGrid(ABC):
-    r"""SNR values on a grid of two parameters
+class SNRGrid(ABC):  # noqa: B024
+    r"""SNR values on a grid of two parameters.
 
     The grid is computed when the object is created,
     so that the same grid can be reused for several figures.
     The points to be drawn on top of the grid are stored here as well,
     since the grid ranges are derived from them.
     """
+
     X_NAME: str = "x"
     Y_NAME: str = "y"
     X_LABEL: str = "$x$"
@@ -136,5 +137,14 @@ class SNRGrid(ABC):
 
     @property
     def has_points(self) -> bool:
-        """Whether the grid has points to be drawn on top of it"""
+        """Whether the grid has points to be drawn on top of it."""
         return self.x_points is not None and self.y_points is not None
+
+    def points(self) -> tuple[th.FloatOrArrOrList1D2D, th.FloatOrArrOrList1D2D]:
+        """Get the x and y values of the points to be drawn on top of the grid.
+
+        :return: x and y values of the points
+        """
+        if self.x_points is None or self.y_points is None:
+            raise ValueError("The grid has no points to be drawn on top of it.")
+        return self.x_points, self.y_points

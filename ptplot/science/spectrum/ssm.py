@@ -1,7 +1,8 @@
-"""Sound Shell Model (SSM) power spectrum"""
+"""Sound Shell Model (SSM) power spectrum."""
 
 # from functools import lru_cache
 import logging
+import typing as tp
 
 import numpy as np
 from pttools.bubble import Bubble
@@ -20,10 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 class PowerSpectrumSSM(PowerSpectrum):
-    """Sound Shell Model (SSM) power spectrum
+    """Sound Shell Model (SSM) power spectrum.
 
     Uses PTtools to compute the fluid velocity profile and the resulting GW power spectrum.
     """
+
     COLOR = "blue"
     ENGINE: Engine = Engine.SSM
     NAME: str = "Sound Shell Model"
@@ -73,7 +75,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             gs0: float = GS0,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
-        """Power spectrum from the Sound Shell Model
+        """Power spectrum from the Sound Shell Model.
 
         The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
         as is done for the other models (BPL and DBPL).
@@ -82,7 +84,10 @@ class PowerSpectrumSSM(PowerSpectrum):
         try:
             if np.isnan(f).any():
                 raise ValueError("f must not contain nan values.")
-            z = z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
+            z = tp.cast(
+                "th.FloatArr1D",
+                z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
+            )
             if np.isnan(z).any():
                 raise ValueError("z must not contain nan values.")
             spectrum = Spectrum(

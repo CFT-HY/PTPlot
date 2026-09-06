@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
-"""Remove the watermark from PTPlot figures (old version)"""
+"""Remove the watermark from PTPlot figures (old version)."""
 
 import sys
 import typing as tp
 
 from lxml import etree
 
-if len(sys.argv) != 3:
+#: The script takes the input and output file paths as arguments.
+N_ARGS: int = 3
+
+if len(sys.argv) != N_ARGS:
     print("Usage: %s <input> <output>", file=sys.stderr)
     sys.exit(1)
 
@@ -18,7 +21,7 @@ with open(inputfile, "rb") as file:
     tree = etree.parse(file)
 
 # watermark
-to_remove = tp.cast("list[etree._Element]", tree.xpath(
+to_remove = tp.cast("list[etree._Element]", tree.xpath(  # noqa: SLF001
     "/svg:svg/svg:g/svg:g[@id=\"text_23\"]",
     namespaces={"svg": "http://www.w3.org/2000/svg"}))[0]
 g = to_remove.getparent()
@@ -27,7 +30,7 @@ if g is None:
 g.remove(to_remove)
 
 # date stamp
-to_remove = tp.cast("list[etree._Element]", tree.xpath(
+to_remove = tp.cast("list[etree._Element]", tree.xpath(  # noqa: SLF001
     "/svg:svg/svg:g/svg:g[@id=\"text_24\"]",
     namespaces={"svg": "http://www.w3.org/2000/svg"}))[0]
 g = to_remove.getparent()

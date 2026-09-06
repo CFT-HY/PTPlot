@@ -1,4 +1,4 @@
-"""SNR utilities for the Sound Shell Model"""
+"""SNR utilities for the Sound Shell Model."""
 
 import numpy as np
 from pttools.bubble import Bubble
@@ -26,14 +26,16 @@ def snr_column_ssm(
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
         zp: float = const.DEFAULT_ZP,
         parallel: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
+    """Compute a column of an SNR grid with the Sound Shell Model."""
+    x_value: float
     if isinstance(x, np.ndarray):
         if x.size != 1:
             raise ValueError(f"x (alpha_n or ubarf) must be a scalar. Got a {x.shape} array.")
-        x_value = float(x.item())
+        x_value = x.item()
     else:
-        x_value = float(x)
+        x_value = x
 
-    alpha_n, ubarf = PowerSpectrumSSM.validate_alpha_ubarf(
+    alpha_n, _ubarf = PowerSpectrumSSM.validate_alpha_ubarf(
         alpha=None if ubarf_rstar else x_value,
         ubarf=x_value if ubarf_rstar else None,
         v_wall=v_wall,

@@ -1,4 +1,4 @@
-"""Parameter choices for particle physics models"""
+"""Parameter choices for particle physics models."""
 
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -22,7 +22,8 @@ from ptplot.science.spectrum import Engine, power_spectrum
 
 
 class ParameterChoice(models.Model):
-    """A parameter choice, aka. a point, for a particle physics model"""
+    """A parameter choice, aka. a point, for a particle physics model."""
+
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="points")
     number = models.IntegerField()
     short_label = models.CharField(max_length=2)
@@ -61,12 +62,20 @@ class ParameterChoice(models.Model):
         null=True
     )
 
+    class Meta:
+        indexes = [models.Index(fields=["model", "number"])]
+        ordering = ["model", "number"]
+        unique_together = ["model", "number"]
+
     # -----
     # Overridden methods
     # -----
 
     def __str__(self) -> str:
         return self.long_label
+
+    def get_absolute_url(self) -> str:
+        return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
     def clean(self):
         super().clean()
@@ -75,9 +84,6 @@ class ParameterChoice(models.Model):
             errors["scenario"] = ValidationError("The scenario must be for the same model as the parameter choice.")
         if errors:
             raise ValidationError(errors)
-
-    def get_absolute_url(self) -> str:
-        return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
     # -----
     # Properties
@@ -216,8 +222,3 @@ class ParameterChoice(models.Model):
             engine=engine,
             max_workers=max_workers
         )
-
-    class Meta:
-        indexes = [models.Index(fields=["model", "number"])]
-        ordering = ["model", "number"]
-        unique_together = ["model", "number"]

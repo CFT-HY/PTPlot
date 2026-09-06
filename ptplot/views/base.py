@@ -1,4 +1,4 @@
-"""Basic views"""
+"""Basic views."""
 
 import logging
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def csv(request: HttpRequest) -> HttpResponse:
-    """Get the power spectrum as a CSV file"""
+    """Get the power spectrum as a CSV file."""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
@@ -36,7 +36,7 @@ def csv(request: HttpRequest) -> HttpResponse:
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    """Index page"""
+    """Index page."""
     return render(
         request,
         "index.html",

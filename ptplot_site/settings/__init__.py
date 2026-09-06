@@ -1,1 +1,1 @@
-"""PTPlot settings"""
+"""PTPlot settings."""

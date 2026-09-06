@@ -1,4 +1,4 @@
-"""Utilities that are common to various SNR plotting functions"""
+"""Utilities that are common to various SNR plotting functions."""
 
 from matplotlib import cm, rc_context
 from matplotlib.axes import Axes
@@ -34,7 +34,7 @@ def snr_figure(
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
         contour_label_fontsize: int = 8,
         filled: bool = False) -> tuple[Figure, Axes]:
-    """Common code for creating SNR figures
+    """Create the parts that are common to all SNR figures.
 
     The x and y axes are linear instead of logarithmic so that the contour plot is created correctly.
     """
@@ -76,7 +76,7 @@ def snr_figure(
         # Greying out the area according to turbulence
         # TODO: Explain this better
         if not filled:
-            contour_shock_hatch = ax.contourf(
+            contour_shock_hatch = ax.contourf(  # noqa: F841
                 x_log10, y_log10, grid.shock_times, [0.0001, 1],
                 colors="none" if filled else "white",
                 alpha=0.2, hatches="x", extent=extent
