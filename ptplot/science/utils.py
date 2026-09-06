@@ -12,15 +12,14 @@ from ptplot.science import const
 from ptplot.science.espinosa import ubarf as ubarf_func
 import ptplot.science.type_hints as th
 
-
 logger = logging.getLogger(__name__)
 
 GIT_DESCRIPTION: str = "unknown"
-HAVE_GITVER: bool = False  # pylint: disable=invalid-name
+HAVE_GITVER: bool = False
 
 try:
     GIT_DESCRIPTION = describe(Repo.discover(os.path.realpath(os.path.dirname(__file__))))
-    HAVE_GITVER = True  # pylint: disable=invalid-name
+    HAVE_GITVER = True
 except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)
 

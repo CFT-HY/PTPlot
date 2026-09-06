@@ -5,7 +5,6 @@ from django.views.generic import RedirectView
 
 from . import views
 
-
 urlpatterns: list[URLPattern] = [
     # -----
     # Plots and CSV from query parameters

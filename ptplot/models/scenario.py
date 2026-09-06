@@ -13,13 +13,13 @@ from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.model import Model
 from ptplot.science import const
 from ptplot.science.mission_profile import MissionProfile
-from ptplot.science.snr_grid import SNRGrid
-from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
-from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 
 

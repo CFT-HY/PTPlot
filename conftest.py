@@ -3,9 +3,8 @@
 import logging
 import os.path
 
-import pytest
-
 from pttools.logging import setup_logging
+import pytest
 
 logger = logging.getLogger(__name__)
 

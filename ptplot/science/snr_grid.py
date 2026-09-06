@@ -18,10 +18,10 @@ from pttools.bubble.fluid_reference import ref
 from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
 
 from ptplot.science import const
-from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.snr import snr_point
 from ptplot.science.snr_ssm import snr_column_ssm
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
 set_forkserver_preload(DEFAULT_FORKSERVER_PRELOAD + ["ptplot", "ptplot.science"])

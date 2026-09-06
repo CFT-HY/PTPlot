@@ -65,7 +65,6 @@ def check_view(
 
 class ViewTest(TestCase):
     """Tests for Django views"""
-    # pylint: disable=missing-function-docstring, too-many-public-methods
 
     MODEL_ID = 1
     POINT_ID = 1

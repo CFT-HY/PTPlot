@@ -3,8 +3,8 @@
 import argparse
 
 from ptplot.science import const
-from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MISSION_PROFILES
+from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 
 
 def engine_arg(value: str) -> Engine:

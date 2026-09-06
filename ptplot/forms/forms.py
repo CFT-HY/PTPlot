@@ -4,12 +4,22 @@ import logging
 import typing as tp
 
 from django.forms import CharField, Form, Textarea
-from ptplot.forms.fields import \
-    AlphaField, BetaOverHField, CSS2Field, CSB2Field, EngineField, \
-    GStarField, MissionProfileField, ModelField, TStarField, VWallField
+
+from ptplot.forms.fields import (
+    AlphaField,
+    BetaOverHField,
+    CSB2Field,
+    CSS2Field,
+    EngineField,
+    GStarField,
+    MissionProfileField,
+    ModelField,
+    TStarField,
+    VWallField,
+)
 from ptplot.models import Model, ParameterChoice, Scenario
-from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.spectrum.engine import Engine
 
 logger = logging.getLogger(__name__)
 

@@ -8,10 +8,10 @@ the energy budget of a first-order phase transition.
 import typing as tp
 
 import numba
-import scipy.optimize
 import numpy as np
 from pttools.bubble import Phase
 from pttools.models import Model
+import scipy.optimize
 
 from ptplot.science import const
 import ptplot.science.type_hints as th

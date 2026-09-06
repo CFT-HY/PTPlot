@@ -15,10 +15,10 @@ if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from ptplot.science import const
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
 from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 
 
 def power_spectrum_figure(

@@ -9,12 +9,10 @@ from django.core.management.base import BaseCommand
 import numpy as np
 from pandas import DataFrame, read_csv
 
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 from ptplot.models import Model, ParameterChoice, Scenario
+from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 FILEDIR: str = os.path.dirname(os.path.realpath(__file__))
-
-# pylint: disable=missing-function-docstring
 
 
 class Command(BaseCommand):

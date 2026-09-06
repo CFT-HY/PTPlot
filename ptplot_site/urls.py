@@ -16,8 +16,9 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.urls import path, include
+from django.urls import include, path
 from django.views.generic import RedirectView
+
 from ptplot.admin import admin_site
 
 urlpatterns = [

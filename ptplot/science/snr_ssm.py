@@ -5,9 +5,10 @@ from pttools.bubble import Bubble
 from pttools.models import Model
 from pttools.omgw0 import signal_to_noise_ratio
 
-from ptplot.science import const, type_hints as th
+from ptplot.science import const
+from ptplot.science import type_hints as th
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM, BAG
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
 def snr_column_ssm(

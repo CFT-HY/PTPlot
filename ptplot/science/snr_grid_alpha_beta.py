@@ -3,9 +3,9 @@ r"""SNR grid for the $(\alpha_n, \beta/H)$ plane"""
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
-from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range
 

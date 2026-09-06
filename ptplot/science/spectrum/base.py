@@ -6,16 +6,18 @@ import enum
 import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024
-from pttools.omgw0 import G0, GS0, OMEGA_PHOTON, f as f_func, f_star0, F_gw0
+from pttools.omgw0 import G0, GS0, OMEGA_PHOTON, F_gw0, f_star0
+from pttools.omgw0 import f as f_func
 from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
 from pttools.utils import copy_docstrings
 
 from ptplot.science import const
-from ptplot.science.espinosa import ubarf as ubarf_func, alpha_n_from_ubarf
+from ptplot.science.espinosa import alpha_n_from_ubarf
+from ptplot.science.espinosa import ubarf as ubarf_func
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr, FloatOrArr1D
-from ptplot.science.utils import beta, R_star
+from ptplot.science.utils import R_star, beta
 
 
 class Engine(enum.StrEnum):
@@ -142,7 +144,7 @@ class PowerSpectrum(abc.ABC):
         """
         return f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
 
-    def F_gw0(  # pylint: disable=missing-function-docstring
+    def F_gw0(
             self,
             g0: th.FloatOrArr = G0,
             gs0: th.FloatOrArr = GS0,
@@ -158,7 +160,7 @@ class PowerSpectrum(abc.ABC):
 
     def J(
             self,
-            nu: th.FloatOrArr = DEFAULT_NU_GDH2024) -> th.FloatOrArr:  # pylint: disable=missing-function-docstring
+            nu: th.FloatOrArr = DEFAULT_NU_GDH2024) -> th.FloatOrArr:
         return J(
             r_star=self.r_star,
             H_star_tau_v=H_star_tau_v(nu=nu, source_lifetime_factor=self.source_lifetime_factor())

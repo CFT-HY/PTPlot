@@ -2,13 +2,10 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django_github_sso.admin import (
-    GitHubSSOInlineAdmin, get_current_user_and_admin
-)
+from django_github_sso.admin import GitHubSSOInlineAdmin, get_current_user_and_admin
 
 from ptplot import models
 from ptplot.admin.base import CustomModelAdmin, admin_site
-
 
 CurrentUserModel, last_admin, LastUserAdmin = get_current_user_and_admin()
 

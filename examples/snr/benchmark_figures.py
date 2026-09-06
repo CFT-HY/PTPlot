@@ -6,8 +6,6 @@ This scripts generates the SNR figures for all the benchmark models.
 Running this script can take several hours.
 """
 
-# pylint: disable=broad-exception-caught, wrong-import-position
-
 from datetime import timedelta
 import logging
 import os.path
@@ -17,18 +15,17 @@ from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.utils import IS_CFT_BIG_MACHINE
 
-from examples.utils import setup_django
+from examples.utils import FIG_DIR, save_fig, setup_django
 
 if __name__ == "__main__":
     setup_django()
 
-from examples.utils import FIG_DIR, save_fig
 from ptplot.models import Model
 from ptplot.science import const
 from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
-from pttools.utils import IS_CFT_BIG_MACHINE
 
 logger = logging.getLogger(__name__)
 

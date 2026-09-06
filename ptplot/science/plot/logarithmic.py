@@ -6,8 +6,8 @@ import numpy as np
 
 from ptplot.science import const
 from ptplot.science.plot.ticks import add_ticks
-from ptplot.science.utils import atleast_2d
 import ptplot.science.type_hints as th
+from ptplot.science.utils import atleast_2d
 
 
 def add_points(

@@ -15,8 +15,8 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.logarithmic import add_points
-from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.plot.snr import snr_figure
+from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
 import ptplot.science.type_hints as th
 

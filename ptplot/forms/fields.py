@@ -4,14 +4,14 @@ from fractions import Fraction
 import typing as tp
 
 from django import forms
-from django.db.models import QuerySet
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.forms.renderers import BaseRenderer
 from django.utils.safestring import SafeString
 
 from ptplot.models import Model
-from ptplot.science.spectrum.engine import ENGINE_CHOICES
 from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES
+from ptplot.science.spectrum.engine import ENGINE_CHOICES
 
 
 def validate_velocity(value: float) -> None:

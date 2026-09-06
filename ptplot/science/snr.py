@@ -7,9 +7,9 @@ import numpy as np
 from pttools.omgw0 import signal_to_noise_ratio
 
 from ptplot.science import const
-from ptplot.science.spectrum.engine import Engine
 from ptplot.science.mission_profile import MissionProfile
 from ptplot.science.spectrum.create import power_spectrum
+from ptplot.science.spectrum.engine import Engine
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def snr_point(
             f_max=f_max
         )
         return snr, spectrum.shock_time
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except Exception as exc:
         logger.exception(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "
             "mission_profile=%s, engine=%s, adiabatic_ratio=%s, f_min=%s, f_max=%s",

@@ -1,6 +1,6 @@
 """Production settings for PTPlot"""
 
-from .base import *  # pylint: disable=unused-wildcard-import, wildcard-import
+from .base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

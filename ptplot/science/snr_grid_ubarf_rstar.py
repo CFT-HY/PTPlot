@@ -11,13 +11,19 @@ from pttools.speedup import MAX_WORKERS_DEFAULT
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ptplot.science.const import \
-    CS0, DEFAULT_ADIABATIC_RATIO, DEFAULT_SNR_F_MAX, DEFAULT_SNR_F_MIN, DEFAULT_R_STAR_RANGE, \
-    DEFAULT_UBARF_RANGE, DEFAULT_V_WALL
-from ptplot.science.spectrum.engine import Engine
+from ptplot.science.const import (
+    CS0,
+    DEFAULT_ADIABATIC_RATIO,
+    DEFAULT_R_STAR_RANGE,
+    DEFAULT_SNR_F_MAX,
+    DEFAULT_SNR_F_MIN,
+    DEFAULT_UBARF_RANGE,
+    DEFAULT_V_WALL,
+)
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 

@@ -3,8 +3,6 @@
 import numpy as np
 from numpy.typing import NDArray
 
-# pylint: disable=invalid-name
-
 type ArrOrListOfArrs = NDArray | list[NDArray]
 type FloatArr = NDArray[np.float64]
 type FloatArr1D = np.ndarray[tuple[int], np.dtype[np.float64]]

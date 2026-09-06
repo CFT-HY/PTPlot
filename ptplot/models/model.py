@@ -65,7 +65,6 @@ class Model(models.Model):
 
     if tp.TYPE_CHECKING:
         # Added by MODEL_ANNOTATIONS when the object is fetched with annotations.
-        # pylint: disable=invalid-name
         points__alpha__min: float | None
         points__alpha__max: float | None
         points__alpha__avg: float | None

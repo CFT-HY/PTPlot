@@ -12,9 +12,8 @@ def admin_change_url(obj: models.Model):
     """Adapted from
     https://medium.com/@hakibenita/things-you-must-know-about-django-admin-as-your-app-gets-bigger-6be0b0ee9614
     """
-    # pylint: disable=protected-access
-    app_label = obj._meta.app_label
-    model_name = obj._meta.model.__name__.lower()
+    app_label = obj._meta.app_label  # noqa: SLF001
+    model_name = obj._meta.model.__name__.lower()  # noqa: SLF001
     return reverse(f"admin:{app_label}_{model_name}_change", args=(obj.pk, ))
 
 

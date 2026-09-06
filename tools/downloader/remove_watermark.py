@@ -7,7 +7,6 @@ import typing as tp
 
 from lxml import etree
 
-
 if len(sys.argv) != 3:
     print("Usage: %s <input> <output>", file=sys.stderr)
     sys.exit(1)

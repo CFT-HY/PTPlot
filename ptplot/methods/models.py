@@ -7,6 +7,7 @@ from pandas import DataFrame
 
 if tp.TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from ptplot.models.parameter_choice import ParameterChoice
 
 

@@ -4,10 +4,10 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.spectrum.engine import ENGINE_NAMES, Engine
 from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr import snr_point
+from ptplot.science.spectrum.engine import ENGINE_NAMES, Engine
 import ptplot.science.type_hints as th
 
 # if tp.TYPE_CHECKING:

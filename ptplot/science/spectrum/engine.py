@@ -1,6 +1,6 @@
 """GW spectrum engine choices"""
 
-from ptplot.science.spectrum.base import Engine, ENGINE_SPECTRUM_CLASSES
+from ptplot.science.spectrum.base import ENGINE_SPECTRUM_CLASSES, Engine
 from ptplot.science.spectrum.bpl import PowerSpectrumBPL
 from ptplot.science.spectrum.dbpl import PowerSpectrumDBPL
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM

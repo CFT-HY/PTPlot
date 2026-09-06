@@ -7,7 +7,7 @@ from pttools.models import ConstCSModel, Model
 from ptplot.science import const
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM, BAG
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
 def const_cs_model(css2: float | None = None, csb2: float | None = None) -> ConstCSModel:

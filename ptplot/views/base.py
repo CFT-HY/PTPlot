@@ -2,7 +2,7 @@
 
 import logging
 
-from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import render
 
 from ptplot.forms import PTPlotForm

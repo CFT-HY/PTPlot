@@ -6,7 +6,8 @@ import logging
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel, Model
-from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod, z as z_func
+from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
+from pttools.omgw0 import z as z_func
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science import const
