@@ -105,27 +105,29 @@ exclude_also = [
 ]
 show_missing = true
 
-[tool.django-stubs]
-django_settings_module = "ptplot_site.settings.dev"
-
-[tool.mypy]
-exclude = [
-    "_build",
-    "auto_examples"
-]
-files = [
+[tool.pyrefly]
+# The legacy preset keeps the type checking close to the mypy setup that this replaced.
+# preset = "legacy"
+project-includes = [
     "docs",
     "examples",
     "ptplot",
     "ptplot_site",
     "tools",
+    "conftest.py",
     "manage.py"
 ]
-plugins = ["mypy_django_plugin.main"]
-
-[[tool.mypy.overrides]]
-module = ["django_github_sso.*", "debug_toolbar.*", "numba.*", "plotly.*", "sphinx_gallery.*"]
-ignore_missing_imports = true
+project-excludes = [
+    "**/_build*",
+    "**/auto_examples*"
+]
+ignore-missing-imports = [
+    "debug_toolbar.*",
+    "django_github_sso.*",
+    "numba.*",
+    "plotly.*",
+    "sphinx_gallery.*"
+]
 
 [tool.pytest.ini_options]
 # On clusters "--numprocesses=auto" creates processes according to the total number of CPU cores
@@ -149,6 +151,108 @@ DJANGO_SETTINGS_MODULE = "ptplot_site.settings.dev"
 testpaths = [
     "ptplot/tests"
 ]
+
+[tool.ruff]
+extend-exclude = [
+    "docs/_build",
+    "docs/auto_examples"
+]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "A",     # flake8-builtins
+    "ARG",   # flake8-unused-arguments
+    "B",     # flake8-bugbear
+    "BLE",   # flake8-blind-except
+    "C4",    # flake8-comprehensions
+    "D",     # pydocstyle
+    "DJ",    # flake8-django
+    "E",     # pycodestyle errors
+    "F",     # Pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "NPY",   # NumPy-specific rules
+    "PERF",  # Perflint
+    "PL",    # Pylint
+    "PT",    # flake8-pytest-style
+    "RUF",   # Ruff-specific rules
+    "SIM",   # flake8-simplify
+    "SLF",   # flake8-self
+    "TID",   # flake8-tidy-imports
+    "UP",    # pyupgrade
+    "W"      # pycodestyle warnings
+]
+ignore = [
+    # Docstrings are not required for methods that inherit one, for dunder methods,
+    # for nested classes such as the Django Meta classes, or for __init__.
+    "D102",
+    "D105",
+    "D106",
+    "D107",
+    # Docstring layout rules that the existing docstrings of this project don't follow.
+    "D202",
+    "D204",
+    "D205",
+    "D209",
+    "D400",
+    "D401",
+    "D415",
+    "N815",     # The names of the class attributes are not restricted.
+    "PLR0913",  # too-many-arguments
+    "PLR0917",  # too-many-positional-arguments
+    "RUF012"    # The class attributes of Django models, forms and admins are mutable by design.
+]
+
+[tool.ruff.lint.isort]
+# Sort "import x" and "from x import y" together.
+force-sort-within-sections = true
+
+[tool.ruff.lint.pep8-naming]
+# The physics symbols that would otherwise be reported as invalid names
+extend-ignore-names = [
+    "beta_over_H",
+    "beta_over_Hs",
+    "beta_over_H_grid",
+    "beta_over_H_points",
+    "beta_over_H_set",
+    "C",
+    "F_gw0",
+    "J",
+    "K",
+    "log10_beta_over_H_grid",
+    "log10_beta_over_H_set",
+    "log10_R_star",
+    "log10_R_stars",
+    "M",
+    "R_star",
+    "H0",
+    "OmSens",
+    "R",
+    "Sh",
+    "SI",
+    "SII",
+    "S_turb",
+    "Tn",
+    "Tstar_gstar",
+    "T_star",
+    "T_star_snr",
+    "T_star_value"
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The contents of the submodules are re-exported on purpose.
+"**/__init__.py" = ["F403"]
+# The Sphinx configuration variables shadow builtins and are not documented individually.
+"docs/conf.py" = ["A001"]
+"ptplot/tests/**" = ["D100", "D101", "D103", "D104", "N802"]
+# The Django settings are extended with star imports.
+"ptplot_site/settings/*.py" = ["F403", "F405"]
+
+[tool.ruff.lint.pydocstyle]
+# This should be set to "sphinx" once it's supported.
+# https://github.com/astral-sh/ruff/issues/6606
+convention = "pep257"
 
 [tool.setuptools.packages.find]
 include = [

@@ -3,8 +3,8 @@
 ## Commands
 - Install dependencies: `./install_requirements.sh`
 - Run tests: `pytest`
-- Lint: `pylint`
-- Type checking: `mypy`
+- Lint: `ruff check`
+- Type checking: `pyrefly check`
 - Build documentation: `cd docs && make all`
 
 ## Code style

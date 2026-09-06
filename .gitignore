@@ -7,6 +7,7 @@ __pycache__
 *.sqlite3
 .coverage*
 .idea
+.ruff_cache
 .test_durations
 coverage.*
 dist
@@ -23,7 +24,8 @@ htmlcov
 logs
 # This should be removed when the migrations are stable enough to be pushed to Git.
 ptplot/migrations/0*_*.py
-pylint.txt
+pyrefly.txt
+ruff.txt
 test-results
 venv
 wud
