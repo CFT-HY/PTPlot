@@ -63,8 +63,12 @@ jobs:
           pip install --upgrade pip wheel
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Run Ruff
-        run: ruff check docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee ruff.txt
+        run: |
+          set -o pipefail
+          ruff check docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee ruff.txt
       - name: Upload results
+        # The results are the most interesting when the check has failed.
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: Lint
@@ -92,8 +96,12 @@ jobs:
           pip install --upgrade pip wheel
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Run Pyrefly
-        run: pyrefly check 2>&1 | tee pyrefly.txt
+        run: |
+          set -o pipefail
+          pyrefly check 2>&1 | tee pyrefly.txt
       - name: Upload results
+        # The results are the most interesting when the check has failed.
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: Pyrefly
@@ -134,8 +142,10 @@ jobs:
     - name: Run tests with coverage
       run: |
         set -o pipefail
-        pytest --store-durations | tee test-output.txt
+        pytest --store-durations 2>&1 | tee test-output.txt
     - name: Upload results
+      # The results are the most interesting when the tests have failed.
+      if: always()
       uses: actions/upload-artifact@v7
       with:
         name: Test results
@@ -145,7 +155,8 @@ jobs:
           coverage.json
           htmlcov
           test-output.txt
-        if-no-files-found: error
+        # The coverage reports are not created if the tests fail early.
+        if-no-files-found: warn
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v7
       with:
