@@ -18,7 +18,7 @@ def snr_column_ssm(
         T_star: float,
         g_star: float,
         ubarf_rstar: bool = False,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         model: Model = BAG,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
@@ -39,7 +39,7 @@ def snr_column_ssm(
         alpha=None if ubarf_rstar else x_value,
         ubarf=x_value if ubarf_rstar else None,
         v_wall=v_wall,
-        adiabatic_ratio=adiabatic_ratio,
+        adiabatic_index=adiabatic_index,
         cs=const.CS0
     )
     bubble = Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
@@ -55,7 +55,7 @@ def snr_column_ssm(
             T_star=T_star,
             g_star=g_star,
             v_wall=v_wall,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             zp=zp,
             k_turb=k_turb,
             model=model,

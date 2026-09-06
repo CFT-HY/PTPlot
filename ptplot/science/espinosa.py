@@ -25,7 +25,7 @@ def alpha_n_from_ubarf(
         v_wall: th.FloatOrArr,
         ubarf: th.FloatOrArr,
         cs: th.FloatOrArr = const.CS0,
-        adiabatic_ratio: th.FloatOrArr = const.DEFAULT_ADIABATIC_RATIO,
+        adiabatic_index: th.FloatOrArr = const.DEFAULT_ADIABATIC_INDEX,
         alpha_n_min: float = 1e-8,
         alpha_n_max: float = 1e12,
         xtol: float = 1e-6) -> th.FloatOrArr:
@@ -38,19 +38,19 @@ def alpha_n_from_ubarf(
 
     :param v_wall: Wall velocity $v_\text{wall}$
     :param ubarf: List of rms fluid velocities $\bar{U}_f$
-    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param adiabatic_index: Mean adiabatic index $\Gamma$
     :return: Array of phase transition strengths $\alpha$
     """
     # try:
     return scipy.optimize.brentq(
         alpha_n_from_ubarf_solvable,
-        args=(ubarf, v_wall, cs, adiabatic_ratio),
+        args=(ubarf, v_wall, cs, adiabatic_index),
         a=alpha_n_min, b=alpha_n_max, xtol=xtol
     )
     # except ValueError as err:
     #     print(
-    #         "Ubarf at a:", _ubarf(v_wall=v_wall, alpha_n=a, cs=cs, adiabatic_ratio=adiabatic_ratio),
-    #         "Ubarf at b:", _ubarf(v_wall=v_wall, alpha_n=b, cs=cs, adiabatic_ratio=adiabatic_ratio),
+    #         "Ubarf at a:", _ubarf(v_wall=v_wall, alpha_n=a, cs=cs, adiabatic_index=adiabatic_index),
+    #         "Ubarf at b:", _ubarf(v_wall=v_wall, alpha_n=b, cs=cs, adiabatic_index=adiabatic_index),
     #         "Target ubarf:", ubarf
     #     )
     #     raise err
@@ -62,9 +62,9 @@ def alpha_n_from_ubarf_solvable(
         ubarf_target: float,
         v_wall: float,
         cs: float,
-        adiabatic_ratio: float) -> float:
+        adiabatic_index: float) -> float:
     r"""Get the difference of $\bar{U}_f$ from its target value, for solving $\alpha_n$."""
-    return ubarf(v_wall=v_wall, alpha_n=alpha_n, cs=cs, adiabatic_ratio=adiabatic_ratio) - ubarf_target
+    return ubarf(v_wall=v_wall, alpha_n=alpha_n, cs=cs, adiabatic_index=adiabatic_index) - ubarf_target
 
 
 @numba.njit
@@ -229,7 +229,7 @@ def ubarf(
         alpha_n: th.FloatOrArr,
         delta_n: th.FloatOrArr = 0.,
         cs: float = const.CS0,
-        adiabatic_ratio: th.FloatOrArr = const.DEFAULT_ADIABATIC_RATIO) -> th.FloatOrArr:
+        adiabatic_index: th.FloatOrArr = const.DEFAULT_ADIABATIC_INDEX) -> th.FloatOrArr:
     r"""RMS fluid velocity $\bar{U}_f$.
 
     $$
@@ -244,12 +244,12 @@ def ubarf(
     :param alpha_n: Phase transition strength $\alpha_n$
     :param delta_n: $\delta_n$
     :param cs: Sound speed $c_s$
-    :param adiabatic_ratio: Adiabatic index $\Gamma$
+    :param adiabatic_index: Mean adiabatic index $\Gamma$
     :return: Measure of the RMS fluid velocity $\bar{U}_f$
     """
     return np.sqrt(
         kappa_v(v_wall=v_wall, alpha_n=alpha_n, cs=cs) * alpha_n /
-        (adiabatic_ratio * (1. + alpha_n + delta_n))
+        (adiabatic_index * (1. + alpha_n + delta_n))
     )
 
 

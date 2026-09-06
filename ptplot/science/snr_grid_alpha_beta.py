@@ -30,7 +30,7 @@ class SNRGridAlphaBeta(SNRGrid):
             titles: th.StrOrList | None = None,
             alpha_n: th.FloatArr1D | None = None,
             beta_over_H: th.FloatArr1D | None = None,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
             mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
             f_min: float = const.DEFAULT_SNR_F_MIN,
@@ -52,7 +52,7 @@ class SNRGridAlphaBeta(SNRGrid):
         :param titles: Titles of the scenarios
         :param alpha_n: Range of $\alpha_n$ values
         :param beta_over_H: Range of $\beta/H$ values
-        :param adiabatic_ratio: Adiabatic index $\Gamma$
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param engine: Which power spectrum engine to use
         :param mission_profile: Which sensitivity curve to use
         :param f_min: Minimum frequency to consider for SNR calculation
@@ -74,7 +74,7 @@ class SNRGridAlphaBeta(SNRGrid):
             y=beta_over_H,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=alpha_points, y_points=beta_over_H_points, labels_points=labels_points, titles=titles,
-            mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
+            mission_profile=mission_profile, adiabatic_index=adiabatic_index, engine=engine,
             f_min=f_min, f_max=f_max,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers

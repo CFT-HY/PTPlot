@@ -13,7 +13,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science.const import (
     CS0,
-    DEFAULT_ADIABATIC_RATIO,
+    DEFAULT_ADIABATIC_INDEX,
     DEFAULT_R_STAR_RANGE,
     DEFAULT_SNR_F_MAX,
     DEFAULT_SNR_F_MIN,
@@ -48,7 +48,7 @@ class SNRGridUbarfRStar(SNRGrid):
             titles: th.StrOrList | None = None,
             ubarf: th.FloatArr1D | None = None,
             r_star: th.FloatArr1D | None = None,
-            adiabatic_ratio: float = DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
             mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
@@ -72,7 +72,7 @@ class SNRGridUbarfRStar(SNRGrid):
         :param titles: Titles of the scenarios
         :param ubarf: Range of $\bar{U}_f$ values
         :param r_star: Range of $r_*$ values
-        :param adiabatic_ratio: Adiabatic index $\Gamma$
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
         :param mission_profile: Which sensitivity curve to use
@@ -89,7 +89,7 @@ class SNRGridUbarfRStar(SNRGrid):
                 beta_over_H=beta_over_H_points,
                 labels=labels_points,
                 cs=cs,
-                adiabatic_ratio=adiabatic_ratio
+                adiabatic_index=adiabatic_index
             )
             if ubarf is None:
                 ubarf = log_range(ubarf_points, DEFAULT_UBARF_RANGE)
@@ -110,7 +110,7 @@ class SNRGridUbarfRStar(SNRGrid):
             y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
-            mission_profile=mission_profile, adiabatic_ratio=adiabatic_ratio, engine=engine,
+            mission_profile=mission_profile, adiabatic_index=adiabatic_index, engine=engine,
             f_min=f_min, f_max=f_max, ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers

@@ -10,7 +10,7 @@ from pttools.omgw0 import const as omgw0_const
 import ptplot.science.type_hints as th
 
 # Default values
-DEFAULT_ADIABATIC_RATIO: float = bubble_const.DEFAULT_ADIABATIC_INDEX
+DEFAULT_ADIABATIC_INDEX: float = bubble_const.DEFAULT_ADIABATIC_INDEX
 DEFAULT_ALPHA: float = 0.1
 DEFAULT_BETA_OVER_H: float = 10.
 DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR

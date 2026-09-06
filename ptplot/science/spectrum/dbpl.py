@@ -30,7 +30,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             ubarf: float | None = None,
             r_star: float | None = None,
             cs: float = const.CS0,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
             zb: float = 1.,
@@ -39,7 +39,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_over_H=beta_over_H,
             ubarf=ubarf, r_star=r_star,
-            cs=cs, adiabatic_ratio=adiabatic_ratio, zp=zp, k_turb=k_turb, parallel=parallel
+            cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb, parallel=parallel
         )
         self.zb: float = zb
 

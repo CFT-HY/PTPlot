@@ -22,7 +22,7 @@ def snr_point(
         v_wall: float,
         mission_profile: MissionProfile,
         engine: Engine,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         f_min: float = const.DEFAULT_SNR_F_MIN,
         f_max: float = const.DEFAULT_SNR_F_MAX,
         ubarf_rstar: bool = False,
@@ -35,7 +35,7 @@ def snr_point(
             T_star=T_star,
             g_star=g_star,
             v_wall=v_wall,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             engine=engine,
             parallel=parallel,
             **kwargs
@@ -54,10 +54,10 @@ def snr_point(
     except Exception as exc:
         logger.exception(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "
-            "mission_profile=%s, engine=%s, adiabatic_ratio=%s, f_min=%s, f_max=%s",
+            "mission_profile=%s, engine=%s, adiabatic_index=%s, f_min=%s, f_max=%s",
             "ubarf" if ubarf_rstar else "alpha", x,
             "r_star" if ubarf_rstar else "beta_over_H", y,
-            T_star, g_star, v_wall, mission_profile, engine, adiabatic_ratio, f_min, f_max,
+            T_star, g_star, v_wall, mission_profile, engine, adiabatic_index, f_min, f_max,
             exc_info=exc
         )
         return np.nan, np.nan

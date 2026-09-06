@@ -236,7 +236,7 @@ class Model(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
         v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -250,7 +250,7 @@ class Model(models.Model):
             v_wall_points=v_wall,
             labels_points=labels,
             titles=titles,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             engine=engine,
             max_workers=max_workers
         )
@@ -258,7 +258,7 @@ class Model(models.Model):
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
@@ -273,7 +273,7 @@ class Model(models.Model):
             v_wall_points=v_wall,
             labels_points=labels,
             titles=titles,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             cs=cs,
             engine=engine,
             max_workers=max_workers

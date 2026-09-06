@@ -23,7 +23,7 @@ def snr_histogram(
         beta_over_H: th.FloatArr1D,
         T_star: th.FloatArr1D,
         g_star: th.FloatArr1D,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         labels: th.StrOrListOrNestedList | None = None,  # noqa: ARG001
         titles: th.StrOrList | None = None,  # noqa: ARG001
         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
@@ -50,7 +50,7 @@ def snr_histogram(
                 T_star=T_star[i_point],
                 g_star=g_star[i_point],
                 v_wall=v_wall[i_point],
-                adiabatic_ratio=adiabatic_ratio,
+                adiabatic_index=adiabatic_index,
                 f_min=mission_profile.f_min,
                 f_max=mission_profile.f_max,
                 mission_profile=mission_profile,

@@ -142,7 +142,7 @@ class ParameterChoice(models.Model):
 
     # def snr(
     #         self,
-    #         adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+    #         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
     #         f_min: float = const.DEFAULT_SNR_F_MIN,
     #         f_max: float = const.DEFAULT_SNR_F_MAX,
     #         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
@@ -150,7 +150,7 @@ class ParameterChoice(models.Model):
     #     snr, shock_time = snr_point(
     #         x=self.alpha, y=self.beta_over_H,
     #         T_star=self.T_star_value, g_star=self.g_star_value, v_wall=self.v_wall_value,
-    #         adiabatic_ratio=adiabatic_ratio, f_min=f_min, f_max=f_max,
+    #         adiabatic_index=adiabatic_index, f_min=f_min, f_max=f_max,
     #         mission_profile=mission_profile, engine=engine
     #     )
     #     return snr, shock_time
@@ -184,7 +184,7 @@ class ParameterChoice(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
         return SNRGridAlphaBeta(
@@ -196,7 +196,7 @@ class ParameterChoice(models.Model):
             beta_over_H_points=self.beta_over_H,
             v_wall_points=self.v_wall_value,
             labels_points=self.short_label,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             engine=engine,
             max_workers=max_workers
         )
@@ -204,7 +204,7 @@ class ParameterChoice(models.Model):
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             mission_profile: MissionProfile | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
@@ -217,7 +217,7 @@ class ParameterChoice(models.Model):
             beta_over_H_points=self.beta_over_H,
             v_wall_points=self.v_wall_value,
             labels_points=self.short_label,
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             cs=cs,
             engine=engine,
             max_workers=max_workers

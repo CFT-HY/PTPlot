@@ -37,7 +37,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             zp: float = const.DEFAULT_ZP,
             alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
@@ -52,7 +52,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             g_star=g_star,
             v_wall=v_wall,
             # cs=TODO
-            adiabatic_ratio=adiabatic_ratio,
+            adiabatic_index=adiabatic_index,
             zp=zp,
             alpha=alpha,
             k_turb=k_turb,

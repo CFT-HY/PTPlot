@@ -54,7 +54,7 @@ class PowerSpectrum(abc.ABC):
             ubarf: float | None = None,
             r_star: float | None = None,
             cs: float = const.CS0,  # Todo: implement this properly
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
             parallel: bool = True):
@@ -65,7 +65,7 @@ class PowerSpectrum(abc.ABC):
         :param T_star: Transition temperature $T_*$
         :param g_star: Degrees of freedom $g_*$
         :param v_wall: Wall velocity $v_\text{wall}$
-        :param adiabatic_ratio: Adiabatic index $\Gamma$
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param zp: Peak angular frequency in units of the mean bubble separation, $z_p$
         :param alpha: Phase transition strength $\alpha$
         :param k_turb: Fraction of latent heat that is transformed into magnetohydrodynamic turbulence, $k_\text{turb}$
@@ -82,7 +82,7 @@ class PowerSpectrum(abc.ABC):
             raise ValueError(f"Invalid v_wall={v_wall}")
 
         # Parameters that are guaranteed to be set
-        self.adiabatic_ratio: float = adiabatic_ratio
+        self.adiabatic_index: float = adiabatic_index
         self.g_star: float = g_star
         self.k_turb: float = k_turb
         self.N_sh: float = DEFAULT_N_SH
@@ -102,7 +102,7 @@ class PowerSpectrum(abc.ABC):
         #: $\bar{U}_f$
         self.ubarf: float
         self.alpha, self.ubarf = self.validate_alpha_ubarf(
-            alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, cs=cs
+            alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_index=adiabatic_index, cs=cs
         )
         #: $\tilde{\beta} \equiv \frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
         self.beta_over_H: float
@@ -184,7 +184,7 @@ class PowerSpectrum(abc.ABC):
 
         Please see :py:func:pttools.bubble.thermo.kinetic_energy_fraction: for the exact version.
         """
-        return self.adiabatic_ratio * self.ubarf**2
+        return self.adiabatic_index * self.ubarf**2
 
     def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
         r"""Compute the common prefactor of the power spectrum for BPL and DBPL.
@@ -218,13 +218,13 @@ class PowerSpectrum(abc.ABC):
             alpha: float | None,
             ubarf: float | None,
             v_wall: float | None,
-            adiabatic_ratio: float,
+            adiabatic_index: float,
             cs: float) -> tuple[float, float]:
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
-            return alpha, ubarf_func(v_wall=v_wall, alpha_n=alpha, adiabatic_ratio=adiabatic_ratio)
+            return alpha, ubarf_func(v_wall=v_wall, alpha_n=alpha, adiabatic_index=adiabatic_index)
         if (v_wall is not None) and (alpha is None) and (ubarf is not None):
             try:
-                alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_ratio=adiabatic_ratio).item()
+                alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_index=adiabatic_index).item()
             except ValueError:
                 alpha = np.nan
             return alpha, ubarf

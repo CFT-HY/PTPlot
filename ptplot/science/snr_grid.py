@@ -53,7 +53,7 @@ class SNRGrid(ABC):  # noqa: B024
             y_points: th.FloatOrArrOrList1D2D | None = None,
             labels_points: th.StrOrListOrNestedList | None = None,
             titles: th.StrOrList | None = None,
-            adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
             f_min: float = const.DEFAULT_SNR_F_MIN,
             f_max: float = const.DEFAULT_SNR_F_MAX,
@@ -89,7 +89,7 @@ class SNRGrid(ABC):  # noqa: B024
             precompile()
 
         kwargs = {
-            "adiabatic_ratio": adiabatic_ratio,
+            "adiabatic_index": adiabatic_index,
             "f_min": f_min,
             "f_max": f_max,
             "g_star": g_star,

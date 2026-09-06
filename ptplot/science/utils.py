@@ -125,7 +125,7 @@ def ubarf_rstar_from_alpha_beta(
         beta_over_H: th.FloatOrArrOrListOfArr1D,
         labels: th.StrOrListOrNestedList | None,
         cs: float = const.CS0,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO) -> tuple[
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX) -> tuple[
             th.ArrOrListOfArrs,
             th.ArrOrListOfArrs,
             th.ArrOrListOfArrs,
@@ -141,7 +141,7 @@ def ubarf_rstar_from_alpha_beta(
 
     ubarf = [
         np.array([
-            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_ratio=adiabatic_ratio)
+            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_index=adiabatic_index)
             for v_wall, alpha in zip(v_wall_set, alpha_set, strict=True)
         ])
         for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)

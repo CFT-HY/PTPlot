@@ -29,7 +29,7 @@ def power_spectrum(
         beta_over_H: float | None = None,
         ubarf: float | None = None,
         r_star: float | None = None,
-        adiabatic_ratio: float = const.DEFAULT_ADIABATIC_RATIO,
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         zp: float = const.DEFAULT_ZP,
         k_turb: float = const.DEFAULT_K_TURB,
         engine: Engine = Engine.DEFAULT,
@@ -48,13 +48,13 @@ def power_spectrum(
             model = const_cs_model(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(
             beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-            v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
+            v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
             parallel=parallel, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
         beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
-        v_wall=v_wall, adiabatic_ratio=adiabatic_ratio, zp=zp,
+        v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
         alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
         parallel=parallel
     )
