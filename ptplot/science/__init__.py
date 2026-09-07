@@ -1,7 +1,6 @@
 """PTPlot science module."""
 
 from .const import *
-from .espinosa import *
 from .mission_profile import *
 from .parsing import *
 from .snr_grid import *

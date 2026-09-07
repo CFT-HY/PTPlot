@@ -2,7 +2,6 @@
 
 from django.test import TestCase
 
-import ptplot.science.espinosa as esp
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 import ptplot.science.sensitivity.sciencerequirements as req
@@ -20,10 +19,6 @@ G_STAR: float = 100
 
 class ScienceTest(TestCase):
     """Tests for the science module."""
-
-    @staticmethod
-    def test_kappa_v():
-        esp.kappa_v(v_wall=0.7, alpha_n=0.1)
 
     @staticmethod
     def test_power_spectrum():
@@ -62,12 +57,3 @@ class ScienceTest(TestCase):
                 alpha_points=ALPHA, beta_over_H_points=BETA_OVER_H, v_wall_points=V_WALL
             )
         )
-
-    @staticmethod
-    def test_ubarf():
-        esp.ubarf(v_wall=V_WALL, alpha_n=ALPHA)
-
-    @staticmethod
-    def test_ubarf_to_alpha():
-        ubarf = esp.ubarf(v_wall=V_WALL, alpha_n=ALPHA)
-        esp.alpha_n_from_ubarf(ubarf, ubarf=ubarf)

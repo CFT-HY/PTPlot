@@ -8,9 +8,9 @@ from dulwich.errors import NotGitRepository
 from dulwich.porcelain import describe
 from dulwich.repo import Repo
 import numpy as np
+from pttools.bubble.energy_budget import ubarf_approx
 
 from ptplot.science import const
-from ptplot.science.espinosa import ubarf as ubarf_func
 import ptplot.science.type_hints as th
 
 logger = logging.getLogger(__name__)
@@ -141,7 +141,7 @@ def ubarf_rstar_from_alpha_beta(
 
     ubarf = [
         np.array([
-            ubarf_func(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_index=adiabatic_index)
+            ubarf_approx(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_index=adiabatic_index)
             for v_wall, alpha in zip(v_wall_set, alpha_set, strict=True)
         ])
         for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)
