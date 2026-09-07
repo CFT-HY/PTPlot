@@ -37,7 +37,14 @@ def main():  # noqa: PLR0915
     n_models = len(models)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
-    max_workers = MAX_WORKERS_DEFAULT // 4 if IS_CFT_BIG_MACHINE else MAX_WORKERS_DEFAULT
+    if IS_CFT_BIG_MACHINE:
+        n_batches = 3
+        max_workers = min(
+            MAX_WORKERS_DEFAULT,
+            const.DEFAULT_ALPHA_N_RANGE.size // n_batches + int(bool(const.DEFAULT_ALPHA_N_RANGE.size % n_batches))
+        )
+    else:
+        max_workers = MAX_WORKERS_DEFAULT
     logger.info("Creating benchmark figures with %d parallel workers.", max_workers)
 
     # Statistics

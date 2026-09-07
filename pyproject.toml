@@ -106,8 +106,6 @@ exclude_also = [
 show_missing = true
 
 [tool.pyrefly]
-# The legacy preset keeps the type checking close to the mypy setup that this replaced.
-# preset = "legacy"
 project-includes = [
     "docs",
     "examples",
