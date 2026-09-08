@@ -7,9 +7,8 @@ import typing as tp
 import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024
-from pttools.bubble.energy_budget import alpha_n_from_ubarf
-from pttools.bubble.energy_budget import ubarf_approx
-from pttools.omgw0 import G0, GS0, OMEGA_PHOTON, F_gw0, f_star0
+from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
+from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0
 from pttools.omgw0 import f as f_func
 from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
 from pttools.utils import copy_docstrings
@@ -152,13 +151,13 @@ class PowerSpectrum(abc.ABC):
             f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
         )
 
-    def F_gw0(
+    def F_gw0_h2(
             self,
             g0: th.FloatOrArr = G0,
             gs0: th.FloatOrArr = GS0,
             gs_star: th.FloatOrArr | None = None,
-            om_gamma0: th.FloatOrArr = OMEGA_PHOTON) -> th.FloatOrArr:
-        return F_gw0(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0=om_gamma0)
+            om_gamma0_h2: th.FloatOrArr = OMEGA_PHOTON_H2) -> th.FloatOrArr:
+        return F_gw0_h2(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0_h2=om_gamma0_h2)
 
     def h_star(self) -> float:
         r"""$h_*$, inverse Hubble time at GW production, redshifted to today.
@@ -197,7 +196,7 @@ class PowerSpectrum(abc.ABC):
         # The equation has $(\Gamma \bar{U}_f^2)^2$,
         # which is expressed here as kinetic_energy_fraction_approx for convenience.
         # It does not equal the exact kinetic energy fraction.
-        return 3 * const.H2 * self.F_gw0() * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
+        return 3 * tp.cast(float, self.F_gw0_h2()) * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
 
     def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency.
@@ -221,7 +220,7 @@ class PowerSpectrum(abc.ABC):
             adiabatic_index: float,
             cs: float) -> tuple[float, float]:
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
-            return alpha, ubarf_approx(v_wall=v_wall, alpha_n=alpha, adiabatic_index=adiabatic_index)
+            return alpha, tp.cast(float, ubarf_approx(v_wall=v_wall, alpha_n=alpha, adiabatic_index=adiabatic_index))
         if (v_wall is not None) and (alpha is None) and (ubarf is not None):
             try:
                 alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_index=adiabatic_index).item()
@@ -238,8 +237,8 @@ class PowerSpectrum(abc.ABC):
             "Exactly two of v_wall, alpha, ubarf_in must be set. "
             f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
 
+    @staticmethod
     def validate_beta_r_star(
-            self,
             beta_over_H: float | None,
             r_star: float | None,
             v_wall: float | None,
@@ -287,7 +286,7 @@ ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 
 copy_docstrings({
-    PowerSpectrum.F_gw0: F_gw0,
+    PowerSpectrum.F_gw0_h2: F_gw0_h2,
     PowerSpectrum.J: J,
     PowerSpectrum.source_lifetime_factor: source_lifetime_factor
 }, without_params=True)

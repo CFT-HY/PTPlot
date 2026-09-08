@@ -75,11 +75,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             gs0: float = GS0,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
-        """Power spectrum from the Sound Shell Model.
-
-        The result is multiplied by $h^2$ to get a quantity that is independent of $h$,
-        as is done for the other models (BPL and DBPL).
-        """
+        r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model."""
         z = None
         try:
             if np.isnan(f).any():
@@ -101,7 +97,7 @@ class PowerSpectrumSSM(PowerSpectrum):
                 suppression_method=suppression_method,
                 parallel=self.parallel
             )
-            return const.H2 * spectrum.omgw0(g0=g0, gs0=gs0)
+            return spectrum.omgw0_h2(g0=g0, gs0=gs0)
         except Exception as exc:
             if log_errors:
                 if z is None:

@@ -60,7 +60,7 @@ DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
 CS0: tp.Final[float] = bubble_const.CS0
 #: $c_s^2$, bag model sound speed squared
 CS0_2: tp.Final[float] = bubble_const.CS0_2
-#: $h$, dimensionless reduced Hubble constant :planck_2018:`\ `
+#: $h$, dimensionless reduced Hubble constant
 H: float = omgw0_const.H
 #: $h^2$, dimensionless reduced Hubble constant squared
 H2: float = omgw0_const.H2

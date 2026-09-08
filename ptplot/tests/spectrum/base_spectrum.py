@@ -30,8 +30,8 @@ class PowerSpectrumBaseCase(ABC):
     def test_f_peak(self):
         return self.spectrum.f_peak()
 
-    def test_F_gw0(self):
-        return self.spectrum.F_gw0()
+    def test_F_gw0_h2(self):
+        return self.spectrum.F_gw0_h2()
 
     def test_h_star(self):
         return self.spectrum.h_star()
