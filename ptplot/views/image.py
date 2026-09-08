@@ -31,7 +31,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     )
     fig = power_spectrum_figure(
         spectrum=spectrum,
-        mission_profile=form.mission_profile,
+        noise=form.noise,
     )
     return fig_to_response(fig)
 
@@ -53,7 +53,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             alpha_points=form.cleaned_data["alpha"],
             beta_over_H_points=form.cleaned_data["beta_over_H"],
             v_wall_points=form.cleaned_data["v_wall"],
-            mission_profile=form.mission_profile,
+            noise=form.noise,
             engine=form.cleaned_data["engine"]
         )
     ))
@@ -76,7 +76,7 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             alpha_points=form.cleaned_data["alpha"],
             beta_over_H_points=form.cleaned_data["beta_over_H"],
             v_wall_points=form.cleaned_data["v_wall"],
-            mission_profile=form.mission_profile,
+            noise=form.noise,
             engine=form.cleaned_data["engine"]
         )
     ))

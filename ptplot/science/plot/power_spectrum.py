@@ -9,13 +9,12 @@ import sys
 from matplotlib import rc_context
 from matplotlib.figure import Figure
 import numpy as np
-from pttools.omgw0 import signal_to_noise_ratio
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
 from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
@@ -23,29 +22,21 @@ from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectr
 
 def power_spectrum_figure(
         spectrum: PowerSpectrum,
-        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+        noise: Noise | None = None,
         sw_only: bool = True) -> Figure:
     r"""Produce the power spectrum plot.
 
     :param spectrum: power spectrum
-    :param mission_profile: Which sensitivity curve to use
+    :param noise: Which noise curve to use
     :param sw_only: Whether to ignore turbulence
     :return: Power spectrum figure
     """
-    pow_spec = spectrum.power_spectrum(mission_profile.f)
-    snr_value, _f_min, _f_max = signal_to_noise_ratio(
-        f=mission_profile.f,
-        signal=pow_spec,
-        f_noise=mission_profile.f,
-        noise=mission_profile.sensitivity,
-        obs_time=mission_profile.duration_seconds,
-        f_min=1.e-6,
-        f_max=1
-    )
+    noise = resolve_noise(noise)
+    pow_spec, snr_value = spectrum.power_spectrum(noise.f, noise=noise)
     f_more = np.logspace(
-        math.log(mission_profile.f_min),
-        math.log(mission_profile.f_max),
-        num=len(mission_profile.f) * 10
+        math.log(noise.f_min),
+        math.log(noise.f_max),
+        num=noise.f.size * 10
     )
 
     with rc_context(const.DEFAULT_RC_CONTEXT):
@@ -56,15 +47,15 @@ def power_spectrum_figure(
         fig = Figure()
         ax = fig.add_subplot()
 
-        ax.fill_between(mission_profile.f, mission_profile.sensitivity, 1, alpha=0.3, label=r"LISA sensitivity")
+        ax.fill_between(noise.f, noise.noise, 1, alpha=0.3, label=r"LISA noise")
 
         # Avoid expensive recomputation with the SSM
         if isinstance(spectrum, PowerSpectrumSSM):
-            f2 = mission_profile.f
+            f2 = noise.f
             pow_spec2 = pow_spec
         else:
             f2 = f_more
-            pow_spec2 = spectrum.power_spectrum(f_more)
+            pow_spec2 = spectrum.power_spectrum(f_more, noise=noise)[0]
 
         ax.plot(
             f2, pow_spec2, "k" if sw_only else "r",

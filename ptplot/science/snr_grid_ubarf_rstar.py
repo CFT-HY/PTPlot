@@ -15,12 +15,10 @@ from ptplot.science.const import (
     CS0,
     DEFAULT_ADIABATIC_INDEX,
     DEFAULT_R_STAR_RANGE,
-    DEFAULT_SNR_F_MAX,
-    DEFAULT_SNR_F_MIN,
     DEFAULT_UBARF_RANGE,
     DEFAULT_V_WALL,
 )
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr_grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
@@ -51,9 +49,7 @@ class SNRGridUbarfRStar(SNRGrid):
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
-            mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-            f_min: float = DEFAULT_SNR_F_MIN,
-            f_max: float = DEFAULT_SNR_F_MAX,
+            noise: Noise | None = None,
             log_progress_percentage: bool = True,
             max_workers: int = MAX_WORKERS_DEFAULT):
         r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
@@ -75,9 +71,7 @@ class SNRGridUbarfRStar(SNRGrid):
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
-        :param mission_profile: Which sensitivity curve to use
-        :param f_min: Minimum frequency to consider for SNR calculation
-        :param f_max: Maximum frequency to consider for SNR calculation
+        :param noise: Which noise curve to use
         """
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
@@ -110,8 +104,8 @@ class SNRGridUbarfRStar(SNRGrid):
             y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
-            mission_profile=mission_profile, adiabatic_index=adiabatic_index, engine=engine,
-            f_min=f_min, f_max=f_max, ubarf_rstar=True,
+            noise=noise, adiabatic_index=adiabatic_index, engine=engine,
+            ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers
         )
@@ -143,20 +137,20 @@ def main():
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",
         v_wall_alpha_betaoverh=False,
-        mission_profile=True,
+        noise=True,
         engine=True
     )
     args = parser.parse_args()
-    mission_profile = MissionProfile.from_ind(args.mission_profile)
+    noise = noise_curve(obs_years=args.obs_years, eb=args.noise_eb, gb=args.noise_gb)
     grid = SNRGridUbarfRStar(
         v_wall=DEFAULT_V_WALL, T_star=args.Tstar, g_star=args.gstar,
-        mission_profile=mission_profile, engine=args.engine,
+        noise=noise, engine=args.engine,
         ubarf=DEFAULT_UBARF_RANGE, r_star=DEFAULT_R_STAR_RANGE
     )
 
-    # Use the mission profile to load the sensitivity curve name
+    # Use the noise curve to name the output file
     destination = \
-        f"{mission_profile.sensitivity_file_name}_Tn_{args.Tstar}_gstar_{args.gstar}_{args.engine}_precomputed.npz"
+        f"{noise.file_name}_Tn_{args.Tstar}_gstar_{args.gstar}_{args.engine}_precomputed.npz"
 
     np.savez(
         destination,

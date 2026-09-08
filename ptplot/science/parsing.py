@@ -3,7 +3,7 @@
 import argparse
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MISSION_PROFILES
+from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
 from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 
 
@@ -28,7 +28,7 @@ class PTPlotParser(argparse.ArgumentParser):
             *args,
             v_wall_alpha_betaoverh: bool = True,
             Tstar_gstar: bool = True,
-            mission_profile: bool = False,
+            noise: bool = False,
             engine: bool = False,
             **kwargs):
         if "formatter_class" not in kwargs:
@@ -56,13 +56,24 @@ class PTPlotParser(argparse.ArgumentParser):
                 "-gstar", "--gstar", type=float, default=const.DEFAULT_G_STAR,
                 help=const.G_STAR_NAME
             )
-        if mission_profile:
+        if noise:
             self.add_argument(
-                "-mission_profile", "--mission_profile",
-                type=int,
-                choices=range(len(MISSION_PROFILES)),
-                default=DEFAULT_MISSION_PROFILE.ind,
-                help="index of the mission profile for the sensitivity curve"
+                "-obs_years", "--obs_years",
+                type=float,
+                default=DEFAULT_OBS_YEARS,
+                help="mission duration in years"
+            )
+            self.add_argument(
+                "--noise_eb",
+                action=argparse.BooleanOptionalAction,
+                default=DEFAULT_NOISE_EB,
+                help="include the extragalactic compact binary noise"
+            )
+            self.add_argument(
+                "--noise_gb",
+                action=argparse.BooleanOptionalAction,
+                default=DEFAULT_NOISE_GB,
+                help="include the galactic compact binary noise"
             )
         if engine:
             self.add_argument(

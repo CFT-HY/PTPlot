@@ -14,7 +14,7 @@ from pttools.utils import as_latex
 from ptplot.methods.models import min_max_avg, point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.science import const
-from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES, MissionProfile
+from ptplot.science.noise import Noise
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
@@ -58,7 +58,6 @@ class Model(models.Model):
         verbose_name=const.G_STAR_NAME,
         validators=[validators.MinValueValidator(0)]
     )
-    mission_profile_ind = models.IntegerField(default=0, choices=MISSION_PROFILE_CHOICES)
     huge_alpha = models.BooleanField(
         verbose_name=const.HUGE_ALPHA_NAME,
         default=False
@@ -94,22 +93,6 @@ class Model(models.Model):
     class Meta:
         indexes = [models.Index(fields=["name"])]
         ordering = ["name"]
-
-    def __init__(
-            self,
-            *args,
-            mission_profile: int | MissionProfile | None = None,
-            **kwargs):
-        if mission_profile is not None:
-            if "mission_profile_ind" in kwargs:
-                raise ValueError("Cannot set both mission_profile and mission_profile_ind.")
-            if isinstance(mission_profile, MissionProfile):
-                kwargs["mission_profile_ind"] = mission_profile.ind
-            elif isinstance(mission_profile, int):
-                kwargs["mission_profile_ind"] = mission_profile
-            else:
-                raise ValueError("mission_profile must be MissionProfile or int.")
-        super().__init__(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.name
@@ -148,11 +131,6 @@ class Model(models.Model):
             ),
             self.annotated_label("g_*", self.points__g_star__min, self.points__g_star__max, default=self.g_star)
         ]) + "$"
-
-    @property
-    def mission_profile(self) -> MissionProfile:
-        """Get the mission profile object."""
-        return MissionProfile.from_ind(self.mission_profile_ind)
 
     def point_data(self) -> DataFrame:
         """Get the data of the points of this model as a DataFrame."""
@@ -237,14 +215,14 @@ class Model(models.Model):
             self,
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
         v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridAlphaBeta(
             T_star=self.T_star,
             g_star=self.g_star,
             v_wall=self.v_wall,
-            mission_profile=self.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=alpha,
             beta_over_H_points=beta_over_H,
             v_wall_points=v_wall,
@@ -260,14 +238,14 @@ class Model(models.Model):
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
         v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridUbarfRStar(
             v_wall=self.v_wall,
             T_star=self.T_star,
             g_star=self.g_star,
-            mission_profile=self.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=alpha,
             beta_over_H_points=beta_over_H,
             v_wall_points=v_wall,
@@ -279,13 +257,11 @@ class Model(models.Model):
             max_workers=max_workers
         )
 
-    def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:
-        if mission_profile is None:
-            mission_profile = self.mission_profile
+    def snr_histogram(self, noise: Noise | None = None) -> Figure:
         v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field()
         return snr_histogram(
             v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             labels=labels, titles=titles,
-            mission_profile=mission_profile,
+            noise=noise,
             # engines=[form.cleaned_data["engine"]]
         )

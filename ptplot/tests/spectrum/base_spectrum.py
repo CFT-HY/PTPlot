@@ -2,7 +2,7 @@
 
 from abc import ABC
 
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
+from ptplot.science.noise import noise_curve
 from ptplot.science.plot.power_spectrum import power_spectrum_figure
 from ptplot.science.spectrum import PowerSpectrum
 
@@ -43,7 +43,7 @@ class PowerSpectrumBaseCase(ABC):
         return self.spectrum.kinetic_energy_fraction_approx
 
     def test_power_spectrum(self):
-        return self.spectrum.power_spectrum(f=DEFAULT_MISSION_PROFILE.f)
+        return self.spectrum.power_spectrum(f=noise_curve().f)
 
     def test_power_spectrum_common(self):
         return self.spectrum.power_spectrum_common()
@@ -52,7 +52,7 @@ class PowerSpectrumBaseCase(ABC):
         return power_spectrum_figure(self.spectrum, sw_only=False)
 
     def test_s(self):
-        return self.spectrum.s(f=DEFAULT_MISSION_PROFILE.f)
+        return self.spectrum.s(f=noise_curve().f)
 
     def test_source_lifetime_factor(self):
         return self.spectrum.source_lifetime_factor()

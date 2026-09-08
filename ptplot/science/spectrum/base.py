@@ -8,13 +8,13 @@ import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024
 from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
-from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0
+from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
 from pttools.omgw0 import f as f_func
 from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
 from pttools.utils import copy_docstrings
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 from ptplot.science.utils import R_star, beta
@@ -117,17 +117,18 @@ class PowerSpectrum(abc.ABC):
         #: Shock time
         self.H_tsh: float = self.r_star / self.ubarf
 
-    def csv(self, path: str | None = None, mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE) -> str | None:
+    def csv(self, path: str | None = None, noise: Noise | None = None) -> str | None:
         """Export the power spectrum as CSV.
 
         :param path: A path in which to save the data
-        :param mission_profile: Which sensitivity curve to use
+        :param noise: Which noise curve to use
         :return: If a path is not given, the data will be returned as a string.
         """
+        noise = resolve_noise(noise)
         df = DataFrame({
-            "f": mission_profile.f,
-            "omegaSens": mission_profile.sensitivity,
-            "omegaSW": self.power_spectrum(mission_profile.f)
+            "f": noise.f,
+            "omegaNoise": noise.noise,
+            "omegaSW": self.power_spectrum(noise.f, noise=noise)[0]
         })
         return df.to_csv(path_or_buf=path)
 
@@ -206,6 +207,24 @@ class PowerSpectrum(abc.ABC):
         """
         return tp.cast("T", f / self.f_peak())
 
+    @staticmethod
+    def snr(f: th.FloatArr1D, power_spectrum: th.FloatArr1D, noise: Noise) -> float:
+        r"""Signal-to-noise ratio of a power spectrum against a noise curve.
+
+        :param f: Frequencies $f$ of the power spectrum
+        :param power_spectrum: GW power spectrum $\Omega_\text{gw} h^2$
+        :param noise: Noise curve to compare against
+        :return: Signal-to-noise ratio SNR, aka. $\rho$
+        """
+        snr, _f_noise, _noise = signal_to_noise_ratio(
+            f=f,
+            signal=power_spectrum,
+            f_noise=noise.f,
+            noise=noise.noise,
+            obs_time=noise.obs_time
+        )
+        return snr
+
     def source_lifetime_factor(self) -> float:
         return tp.cast(
             "float",
@@ -272,13 +291,19 @@ class PowerSpectrum(abc.ABC):
     # -----
 
     @abc.abstractmethod
-    def power_spectrum(self, f: th.FloatArr1D, log_errors: bool = False) -> th.FloatArr1D:
-        """GW power spectrum.
+    def power_spectrum(
+            self,
+            f: th.FloatArr1D,
+            noise: Noise | None = None,
+            log_errors: bool = False) -> tuple[th.FloatArr1D, float]:
+        """GW power spectrum and its signal-to-noise ratio.
 
         :param f: Frequency range
+        :param noise: Noise curve against which the SNR is computed.
+          The default noise curve is used, if one is not given.
         :param log_errors: Log errors.
           Change the default to True when implementing a PowerSpectrum class that has error logging.
-        :return: GW power spectrum, multiplied by $h^2$ and therefore independent of $h$.
+        :return: GW power spectrum, multiplied by $h^2$ and therefore independent of $h$, and its SNR.
         """
 
 

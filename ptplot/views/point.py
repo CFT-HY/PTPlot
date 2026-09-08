@@ -18,7 +18,7 @@ def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> Http
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
     return render(
@@ -36,13 +36,13 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
         point.snr_figure_alpha_beta(
-            grid=point.snr_grid_alpha_beta(engine=form.cleaned_data["engine"], mission_profile=form.mission_profile)
+            grid=point.snr_grid_alpha_beta(engine=form.cleaned_data["engine"], noise=form.noise)
         )
     )
 
@@ -55,17 +55,17 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     engine = form.cleaned_data["engine"]
     return fig_to_response(
         point.snr_comparison(
-            grid1=point.snr_grid_alpha_beta(engine=Engine.BPL, mission_profile=form.mission_profile),
+            grid1=point.snr_grid_alpha_beta(engine=Engine.BPL, noise=form.noise),
             grid2=point.snr_grid_alpha_beta(
                 engine=Engine.DBPL if engine == Engine.BPL else engine,
-                mission_profile=form.mission_profile
+                noise=form.noise
             )
         )
     )
@@ -79,13 +79,13 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
         point.snr_figure_ubarf_rstar(
-            grid=point.snr_grid_ubarf_rstar(engine=form.cleaned_data["engine"], mission_profile=form.mission_profile)
+            grid=point.snr_grid_ubarf_rstar(engine=form.cleaned_data["engine"], noise=form.noise)
         )
     )
 
@@ -98,12 +98,12 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return HttpResponse(
-        point.csv(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"]),
+        point.csv(noise=form.noise, engine=form.cleaned_data["engine"]),
         content_type="text/csv"
     )
 
@@ -116,10 +116,10 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET, point=point)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
-        point.power_spectrum_figure(mission_profile=form.mission_profile, engine=form.cleaned_data["engine"])
+        point.power_spectrum_figure(noise=form.noise, engine=form.cleaned_data["engine"])
     )

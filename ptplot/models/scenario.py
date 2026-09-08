@@ -14,7 +14,7 @@ from ptplot.methods.models import point_data
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.model import Model
 from ptplot.science import const
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.noise import Noise
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
@@ -105,14 +105,14 @@ class Scenario(models.Model):
             self,
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
         data = self.point_data()
         return SNRGridAlphaBeta(
             T_star=self.T_star_value,
             g_star=self.model.g_star,
             v_wall=self.model.v_wall,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
             beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
             v_wall_points=data["v_wall"].to_numpy(dtype=np.float64),
@@ -128,14 +128,14 @@ class Scenario(models.Model):
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
         data = self.point_data()
         return SNRGridUbarfRStar(
             v_wall=self.model.v_wall,
             T_star=self.T_star_value,
             g_star=self.model.g_star,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
             beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
             v_wall_points=data["v_wall"].to_numpy(dtype=np.float64),
@@ -147,7 +147,7 @@ class Scenario(models.Model):
             max_workers=max_workers
         )
 
-    def snr_histogram(self, mission_profile: MissionProfile | None = None) -> Figure:
+    def snr_histogram(self, noise: Noise | None = None) -> Figure:
         data = self.point_data()
         return snr_histogram(
             v_wall=data["v_wall"].to_numpy(dtype=np.float64),
@@ -157,6 +157,6 @@ class Scenario(models.Model):
             g_star=data["g_star"].to_numpy(dtype=np.float64),
             labels=data["label"].to_list(),
             titles=self.name,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             # engines=[form.cleaned_data["engine"]]
         )

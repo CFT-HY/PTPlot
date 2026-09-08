@@ -3,6 +3,7 @@
 import typing as tp
 
 from ptplot.science import const
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
@@ -91,7 +92,11 @@ class PowerSpectrumDBPL(PowerSpectrum):
             ((1 + self.rb**4) / (self.rb**4 + s**4)) ** ((9 - b) / 4) * \
             ((b + 4) / (b + 4 - m + m * s**2)) ** ((b + 4) / 2)
 
-    def power_spectrum(self, f: th.FloatArr1D, log_errors: bool = False) -> th.FloatArr1D:  # noqa: ARG002
+    def power_spectrum(
+            self,
+            f: th.FloatArr1D,
+            noise: Noise | None = None,
+            log_errors: bool = False) -> tuple[th.FloatArr1D, float]:  # noqa: ARG002
         r"""Calculate power spectrum from sound waves for a given frequency f using the double broken power-law ansatz.
 
         $$\Omega_\text{gw}^\text{fit} = F_{\text{gw},0} \Omega_p M(s, r_b, b)$$
@@ -99,7 +104,8 @@ class PowerSpectrumDBPL(PowerSpectrum):
         $F_{\text{gw},0}$ depends on the value of $h$,
         which is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
         """
-        return tp.cast(
+        power_spectrum = tp.cast(
             "th.FloatArr1D",
             self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
         )
+        return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))

@@ -3,11 +3,10 @@
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import Model
-from pttools.omgw0 import signal_to_noise_ratio
 
 from ptplot.science import const
 from ptplot.science import type_hints as th
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
@@ -20,13 +19,12 @@ def snr_column_ssm(
         ubarf_rstar: bool = False,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         model: Model = BAG,
-        f_min: float = const.DEFAULT_SNR_F_MIN,
-        f_max: float = const.DEFAULT_SNR_F_MAX,
         k_turb: float = const.DEFAULT_K_TURB,
-        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+        noise: Noise | None = None,
         zp: float = const.DEFAULT_ZP,
         parallel: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
     """Compute a column of an SNR grid with the Sound Shell Model."""
+    noise = resolve_noise(noise)
     x_value: float
     if isinstance(x, np.ndarray):
         if x.size != 1:
@@ -62,16 +60,8 @@ def snr_column_ssm(
             bubble=bubble,
             parallel=parallel
         )
-        snr_i, f_min, f_max = signal_to_noise_ratio(
-            f=mission_profile.f,
-            # Error logging is handled in this function
-            signal=spectrum.power_spectrum(mission_profile.f, log_errors=False),
-            f_noise=mission_profile.f,
-            noise=mission_profile.sensitivity,
-            obs_time=mission_profile.duration_seconds,
-            f_min=f_min,
-            f_max=f_max
-        )
+        # Error logging is handled in this function
+        _power_spectrum, snr_i = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
         # snr[i] = snr_i
         # shock_times[i] = spectrum.shock_time
         ret[0, i] = snr_i

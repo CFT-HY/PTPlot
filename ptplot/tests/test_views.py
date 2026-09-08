@@ -3,12 +3,13 @@
 import typing as tp
 
 from django.forms import Form
-from django.http import HttpResponseBase
+from django.http import HttpResponseBase, QueryDict
 from django.test import TestCase
 from django.urls import reverse
 
-from ptplot.forms import PTPlotForm
+from ptplot.forms import BenchmarkForm, PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
+from ptplot.science.noise import noise_curve
 from ptplot.science.spectrum.engine import Engine
 
 ALLOW_CODES: tp.Iterable[int] = (200, 302)
@@ -83,7 +84,9 @@ class ViewTest(TestCase):
             "beta_over_H": 10000,
             "T_star": 100,
             "g_star": 100,
-            "mission_profile_ind": 0,
+            "obs_years": 3,
+            "noise_eb": True,
+            "noise_gb": True,
             "engine": Engine.DEFAULT
         })
         cls.form.is_valid()
@@ -158,6 +161,13 @@ class ViewTest(TestCase):
     def test_point_csv(self):
         check_view(self, "model_point_csv", view_kwargs=self.POINT_KWARGS)
 
+    def test_point_ps_noise(self):
+        """The noise settings should be selectable in the query string."""
+        check_view(
+            self, "model_point_ps", view_kwargs=self.POINT_KWARGS,
+            data={"obs_years": 7, "noise_eb": False, "noise_gb": True}
+        )
+
     def test_scenario(self):
         check_view(self, "model_scenario_plot", view_kwargs=self.SCENARIO_KWARGS)
 
@@ -188,3 +198,26 @@ class ViewTest(TestCase):
 
     def test_old_snr_ubarf_rstar2(self):
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr", allow_codes=(301,))
+
+
+class BenchmarkFormTest(TestCase):
+    """Tests for the noise fields of the benchmark form."""
+
+    @staticmethod
+    def test_defaults():
+        """Without data the form should fall back to the default noise curve."""
+        form = BenchmarkForm()
+        assert form.is_valid()
+        assert form.noise is noise_curve()
+
+    @staticmethod
+    def test_query_dict():
+        """The form should also accept a QueryDict, which stores its values as lists."""
+        obs_years = 7
+        form = BenchmarkForm(QueryDict(f"obs_years={obs_years}&noise_gb=True"))
+        assert form.is_valid(), form.errors
+        noise = form.noise
+        assert noise.obs_years == obs_years
+        # An unchecked checkbox is missing from the query string.
+        assert not noise.eb
+        assert noise.gb

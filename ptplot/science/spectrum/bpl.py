@@ -6,7 +6,7 @@ import typing as tp
 from pandas import DataFrame
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
@@ -32,22 +32,23 @@ class PowerSpectrumBPL(PowerSpectrum):
     def csv(
             self,
             path: str | None = None,
-            mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+            noise: Noise | None = None,
             sw_only: bool = True) -> str | None:
         r"""Export the power spectrum as CSV.
 
         :param path: A path in which to save the data
-        :param mission_profile: Which sensitivity curve to use
+        :param noise: Which noise curve to use
         :param sw_only: Whether to ignore turbulence
         :return: If a path is not given, the data will be returned as a string.
         """
+        noise = resolve_noise(noise)
         if sw_only:
-            return super().csv(path=path, mission_profile=mission_profile)
-        f = mission_profile.f
+            return super().csv(path=path, noise=noise)
+        f = noise.f
         return DataFrame({
             "f": f,
-            "omegaSens": mission_profile.sensitivity,
-            "omegaSW": self.power_spectrum(f),
+            "omegaNoise": noise.noise,
+            "omegaSW": self.power_spectrum(f, noise=noise)[0],
             "omegaTurb": self.power_spectrum_turb(f),
             "omegaTot": self.power_spectrum_full_conservative(f)
         }).to_csv(path)
@@ -80,9 +81,14 @@ class PowerSpectrumBPL(PowerSpectrum):
             raise ValueError("v_wall is required for computing the peak frequency for turbulence.")
         return 27e-6 * (1 / self.v_wall) * self.beta_over_H * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
-    def power_spectrum(self, f: th.FloatArr1D, log_errors: bool = False) -> th.FloatArr1D:  # noqa: ARG002
-        """Power spectrum from sound waves (conservative)."""
-        return tp.cast("th.FloatArr1D", self.power_spectrum_sw_conservative(f))
+    def power_spectrum(
+            self,
+            f: th.FloatArr1D,
+            noise: Noise | None = None,
+            log_errors: bool = False) -> tuple[th.FloatArr1D, float]:  # noqa: ARG002
+        """Power spectrum from sound waves (conservative), and its SNR."""
+        power_spectrum = tp.cast("th.FloatArr1D", self.power_spectrum_sw_conservative(f))
+        return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
 
     def power_spectrum_full(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Total power spectrum from sound waves and turbulence."""

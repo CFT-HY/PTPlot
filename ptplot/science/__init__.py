@@ -1,7 +1,7 @@
 """PTPlot science module."""
 
 from .const import *
-from .mission_profile import *
+from .noise import *
 from .parsing import *
 from .snr_grid import *
 from .snr_ssm import *

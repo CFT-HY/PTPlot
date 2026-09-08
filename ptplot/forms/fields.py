@@ -10,7 +10,7 @@ from django.forms.renderers import BaseRenderer
 from django.utils.safestring import SafeString
 
 from ptplot.models import Model
-from ptplot.science.mission_profile import MISSION_PROFILE_CHOICES
+from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
 from ptplot.science.spectrum.engine import ENGINE_CHOICES
 
 
@@ -61,6 +61,8 @@ class UnitInput(forms.NumberInput):
 
 #: Default widget of the transition temperature field
 GEV_INPUT = UnitInput(units="GeV")
+#: Default widget of the mission duration field
+YEARS_INPUT = UnitInput(units="years")
 
 # Disabling localization for FloatField enables the use of NumberInput
 # https://docs.djangoproject.com/en/5.2/ref/forms/fields/#floatfield
@@ -151,26 +153,45 @@ class GStarField(forms.FloatField):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
-class MissionProfileField(forms.TypedChoiceField):
-    """Field for choosing the mission profile."""
+class NoiseEBField(forms.BooleanField):
+    r"""Field for choosing whether to include the extragalactic compact binary noise $\Omega_\text{eb}$."""
 
     def __init__(
             self,
-            label: str = r"Mission profile",
-            choices=MISSION_PROFILE_CHOICES,
-            coerce=int,
-            empty_value=None,
+            label: str = r"Extragalactic compact binary noise",
+            initial: bool = DEFAULT_NOISE_EB,
+            required: bool = False,
+            **kwargs):
+        super().__init__(label=label, initial=initial, required=required, **kwargs)
+
+
+class NoiseGBField(forms.BooleanField):
+    r"""Field for choosing whether to include the galactic compact binary noise $\Omega_\text{gb}$."""
+
+    def __init__(
+            self,
+            label: str = r"Galactic compact binary noise",
+            initial: bool = DEFAULT_NOISE_GB,
+            required: bool = False,
+            **kwargs):
+        super().__init__(label=label, initial=initial, required=required, **kwargs)
+
+
+class ObsYearsField(forms.FloatField):
+    r"""Field for the mission duration $T_\text{obs}$ in years."""
+
+    def __init__(
+            self,
+            label: str = r"Mission duration",
+            min_value: float = 0.,
+            initial: float = DEFAULT_OBS_YEARS,
+            widget: forms.NumberInput = YEARS_INPUT,
+            localize: bool = False,
             **kwargs):
         super().__init__(
-            label=label, choices=choices, coerce=coerce,
-            empty_value=empty_value, **kwargs
+            label=label, min_value=min_value, initial=initial, widget=widget, localize=localize,
+            **kwargs
         )
-
-    # def to_python(self, value) -> MissionProfile | None:
-    #     if value is None or value == "":
-    #         return None
-    #     converted = int(super().to_python(value))
-    #     return MissionProfile.from_ind(converted)
 
 
 class ModelField(forms.ModelChoiceField):

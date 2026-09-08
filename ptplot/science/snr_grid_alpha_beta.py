@@ -3,7 +3,7 @@ r"""SNR grid for the $(\alpha_n, \beta/H)$ plane."""
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise
 from ptplot.science.snr_grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
@@ -32,9 +32,7 @@ class SNRGridAlphaBeta(SNRGrid):
             beta_over_H: th.FloatArr1D | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
-            mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
-            f_min: float = const.DEFAULT_SNR_F_MIN,
-            f_max: float = const.DEFAULT_SNR_F_MAX,
+            noise: Noise | None = None,
             log_progress_percentage: bool = True,
             max_workers: int = MAX_WORKERS_DEFAULT):
         r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points.
@@ -54,9 +52,7 @@ class SNRGridAlphaBeta(SNRGrid):
         :param beta_over_H: Range of $\beta/H$ values
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param engine: Which power spectrum engine to use
-        :param mission_profile: Which sensitivity curve to use
-        :param f_min: Minimum frequency to consider for SNR calculation
-        :param f_max: Maximum frequency to consider for SNR calculation
+        :param noise: Which noise curve to use
         """
         if alpha_n is None:
             if alpha_points is None:
@@ -74,8 +70,7 @@ class SNRGridAlphaBeta(SNRGrid):
             y=beta_over_H,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=alpha_points, y_points=beta_over_H_points, labels_points=labels_points, titles=titles,
-            mission_profile=mission_profile, adiabatic_index=adiabatic_index, engine=engine,
-            f_min=f_min, f_max=f_max,
+            noise=noise, adiabatic_index=adiabatic_index, engine=engine,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers
         )

@@ -10,7 +10,7 @@ from pttools.speedup import MAX_WORKERS_DEFAULT
 from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
 from ptplot.science import const
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.noise import Noise
 from ptplot.science.plot.power_spectrum import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
@@ -108,9 +108,7 @@ class ParameterChoice(models.Model):
     # Methods
     # -----
 
-    def csv(self, mission_profile: MissionProfile | None = None, engine: Engine = Engine.DEFAULT) -> str:
-        if mission_profile is None:
-            mission_profile = self.model.mission_profile
+    def csv(self, noise: Noise | None = None, engine: Engine = Engine.DEFAULT) -> str:
         csv = power_spectrum(
             T_star=self.T_star_value,
             g_star=self.g_star_value,
@@ -118,14 +116,14 @@ class ParameterChoice(models.Model):
             alpha=self.alpha,
             beta_over_H=self.beta_over_H,
             engine=engine
-        ).csv(mission_profile=mission_profile)
+        ).csv(noise=noise)
         if csv is None:
             raise ValueError("Got no CSV data.")
         return csv
 
     def power_spectrum_figure(
             self,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             engine: Engine = Engine.DEFAULT) -> Figure:
         spectrum = power_spectrum(
             T_star=self.T_star_value,
@@ -135,23 +133,18 @@ class ParameterChoice(models.Model):
             beta_over_H=self.beta_over_H,
             engine=engine
         )
-        return power_spectrum_figure(
-            spectrum=spectrum,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile
-        )
+        return power_spectrum_figure(spectrum=spectrum, noise=noise)
 
     # def snr(
     #         self,
     #         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-    #         f_min: float = const.DEFAULT_SNR_F_MIN,
-    #         f_max: float = const.DEFAULT_SNR_F_MAX,
-    #         mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+    #         noise: Noise | None = None,
     #         engine: Engine = Engine.DEFAULT) -> tuple[float, float]:
     #     snr, shock_time = snr_point(
     #         x=self.alpha, y=self.beta_over_H,
     #         T_star=self.T_star_value, g_star=self.g_star_value, v_wall=self.v_wall_value,
-    #         adiabatic_index=adiabatic_index, f_min=f_min, f_max=f_max,
-    #         mission_profile=mission_profile, engine=engine
+    #         adiabatic_index=adiabatic_index,
+    #         noise=noise, engine=engine
     #     )
     #     return snr, shock_time
 
@@ -185,13 +178,13 @@ class ParameterChoice(models.Model):
             self,
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
         return SNRGridAlphaBeta(
             T_star=self.T_star_value,
             g_star=self.g_star_value,
             v_wall=self.v_wall_value,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=self.alpha,
             beta_over_H_points=self.beta_over_H,
             v_wall_points=self.v_wall_value,
@@ -206,13 +199,13 @@ class ParameterChoice(models.Model):
             engine: Engine = Engine.DEFAULT,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
-            mission_profile: MissionProfile | None = None,
+            noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
         return SNRGridUbarfRStar(
             v_wall=self.v_wall_value,
             T_star=self.T_star_value,
             g_star=self.g_star_value,
-            mission_profile=self.model.mission_profile if mission_profile is None else mission_profile,
+            noise=noise,
             alpha_points=self.alpha,
             beta_over_H_points=self.beta_over_H,
             v_wall_points=self.v_wall_value,

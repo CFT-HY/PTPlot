@@ -4,10 +4,9 @@ import logging
 import typing as tp
 
 import numpy as np
-from pttools.omgw0 import signal_to_noise_ratio
 
 from ptplot.science import const
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
 
@@ -20,14 +19,13 @@ def snr_point(
         T_star: float,
         g_star: float,
         v_wall: float,
-        mission_profile: MissionProfile,
+        noise: Noise | None,
         engine: Engine,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-        f_min: float = const.DEFAULT_SNR_F_MIN,
-        f_max: float = const.DEFAULT_SNR_F_MAX,
         ubarf_rstar: bool = False,
         parallel: bool = True) -> tuple[float, float]:
     """Compute the SNR value of a single point in the parameter space."""
+    noise = resolve_noise(noise)
     kwargs: dict[str, tp.Any] = {"ubarf": x, "r_star": y} if ubarf_rstar \
         else {"alpha": x, "beta_over_H": y}
     try:
@@ -40,24 +38,16 @@ def snr_point(
             parallel=parallel,
             **kwargs
         )
-        snr, f_min, f_max = signal_to_noise_ratio(
-            f=mission_profile.f,
-            # Error logging is handled in this function
-            signal=spectrum.power_spectrum(mission_profile.f, log_errors=False),
-            f_noise=mission_profile.f,
-            noise=mission_profile.sensitivity,
-            obs_time=mission_profile.duration_seconds,
-            f_min=f_min,
-            f_max=f_max
-        )
+        # Error logging is handled in this function
+        _power_spectrum, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
         return snr, spectrum.shock_time
     except Exception as exc:
         logger.exception(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "
-            "mission_profile=%s, engine=%s, adiabatic_index=%s, f_min=%s, f_max=%s",
+            "noise=%s, engine=%s, adiabatic_index=%s",
             "ubarf" if ubarf_rstar else "alpha", x,
             "r_star" if ubarf_rstar else "beta_over_H", y,
-            T_star, g_star, v_wall, mission_profile, engine, adiabatic_index, f_min, f_max,
+            T_star, g_star, v_wall, noise, engine, adiabatic_index,
             exc_info=exc
         )
         return np.nan, np.nan

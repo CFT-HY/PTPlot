@@ -19,7 +19,7 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
         number=scenario_id
     )
 
-    form = BenchmarkForm(request.GET, scenario=scenario)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
@@ -39,14 +39,14 @@ def model_scenario_snr_alpha_beta(request: HttpRequest, model_id: int, scenario_
         model__id=model_id,
         number=scenario_id
     )
-    form = BenchmarkForm(request.GET, scenario=scenario)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
         scenario.snr_figure_alpha_beta(
             grid=scenario.snr_grid_alpha_beta(
-                engine=form.cleaned_data["engine"], mission_profile=form.mission_profile
+                engine=form.cleaned_data["engine"], noise=form.noise
             )
         )
     )
@@ -61,17 +61,17 @@ def model_scenario_snr_comparison(request: HttpRequest, model_id: int, scenario_
         model__id=model_id,
         number=scenario_id
     )
-    form = BenchmarkForm(request.GET, scenario=scenario)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     engine = form.cleaned_data["engine"]
     return fig_to_response(
         scenario.snr_comparison(
-            grid1=scenario.snr_grid_alpha_beta(engine=Engine.BPL, mission_profile=form.mission_profile),
+            grid1=scenario.snr_grid_alpha_beta(engine=Engine.BPL, noise=form.noise),
             grid2=scenario.snr_grid_alpha_beta(
                 engine=Engine.DBPL if engine == Engine.BPL else engine,
-                mission_profile=form.mission_profile
+                noise=form.noise
             )
         )
     )
@@ -86,11 +86,11 @@ def model_scenario_snr_histogram(request: HttpRequest, model_id: int, scenario_i
         model__id=model_id,
         number=scenario_id
     )
-    form = BenchmarkForm(request.GET, scenario=scenario)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    return fig_to_response(scenario.snr_histogram(mission_profile=form.mission_profile))
+    return fig_to_response(scenario.snr_histogram(noise=form.noise))
 
 
 def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -102,14 +102,14 @@ def model_scenario_snr_ubarf_rstar(request: HttpRequest, model_id: int, scenario
         model__id=model_id,
         number=scenario_id
     )
-    form = BenchmarkForm(request.GET, scenario=scenario)
+    form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
         scenario.snr_figure_ubarf_rstar(
             grid=scenario.snr_grid_ubarf_rstar(
-                engine=form.cleaned_data["engine"], mission_profile=form.mission_profile
+                engine=form.cleaned_data["engine"], noise=form.noise
             )
         )
     )

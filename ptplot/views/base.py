@@ -31,7 +31,7 @@ def csv(request: HttpRequest) -> HttpResponse:
         css2=form.cleaned_data["css2"],
         csb2 = form.cleaned_data["csb2"]
     )
-    csv_data = spectrum.csv(mission_profile=form.mission_profile)
+    csv_data = spectrum.csv(noise=form.noise)
     return HttpResponse(csv_data, content_type="text/csv")
 
 

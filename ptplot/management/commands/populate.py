@@ -10,7 +10,6 @@ import numpy as np
 from pandas import DataFrame, read_csv
 
 from ptplot.models import Model, ParameterChoice, Scenario
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE
 
 FILEDIR: str = os.path.dirname(os.path.realpath(__file__))
 
@@ -51,7 +50,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
         )
@@ -144,7 +142,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         dark_photon_moritz.save()
@@ -193,7 +190,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         eft_miki.save()
@@ -285,7 +281,6 @@ class Command(BaseCommand):
             g_star=130,
             # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         gauged_lepton_madge.save()
@@ -377,7 +372,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False,
             huge_alpha=True
         )
@@ -582,7 +576,6 @@ class Command(BaseCommand):
             g_star=107.75,
             # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         singlet_jonathan.save()
@@ -657,7 +650,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         singlet_jonathan_z2.save()
@@ -707,7 +699,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # Changed from 1.0 to 0.95 to improve compatibility with PTtools.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         singlet_miki.save()
@@ -818,7 +809,6 @@ class Command(BaseCommand):
             g_star=106.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=False
         )
         singlet_scalars.save()
@@ -865,7 +855,6 @@ class Command(BaseCommand):
             g_star=108.75,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         susy.save()
@@ -1082,7 +1071,6 @@ class Command(BaseCommand):
             T_star=50,
             g_star=106.75,
             v_wall=0.7,
-            mission_profile=DEFAULT_MISSION_PROFILE,
             has_scenarios=True
         )
         twohdm_josemi.save()

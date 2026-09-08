@@ -6,7 +6,7 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science import const
-from ptplot.science.mission_profile import DEFAULT_MISSION_PROFILE, MissionProfile
+from ptplot.science.noise import Noise
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr import snr_point
 from ptplot.science.spectrum.engine import ENGINE_NAMES, Engine
@@ -26,7 +26,7 @@ def snr_histogram(
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         labels: th.StrOrListOrNestedList | None = None,  # noqa: ARG001
         titles: th.StrOrList | None = None,  # noqa: ARG001
-        mission_profile: MissionProfile = DEFAULT_MISSION_PROFILE,
+        noise: Noise | None = None,
         engines: list[Engine] | None = None,
         n_bins_min: int = 5) -> Figure:
     """Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
@@ -51,9 +51,7 @@ def snr_histogram(
                 g_star=g_star[i_point],
                 v_wall=v_wall[i_point],
                 adiabatic_index=adiabatic_index,
-                f_min=mission_profile.f_min,
-                f_max=mission_profile.f_max,
-                mission_profile=mission_profile,
+                noise=noise,
                 engine=engine
             )
 

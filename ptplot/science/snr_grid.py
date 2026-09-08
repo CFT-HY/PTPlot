@@ -18,7 +18,7 @@ from pttools.bubble.fluid_reference import ref
 from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
 
 from ptplot.science import const
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr import snr_point
 from ptplot.science.snr_ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
@@ -48,15 +48,13 @@ class SNRGrid(ABC):  # noqa: B024
             T_star: float,
             g_star: float,
             v_wall: float,
-            mission_profile: MissionProfile,
+            noise: Noise | None = None,
             x_points: th.FloatOrArrOrList1D2D | None = None,
             y_points: th.FloatOrArrOrList1D2D | None = None,
             labels_points: th.StrOrListOrNestedList | None = None,
             titles: th.StrOrList | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
-            f_min: float = const.DEFAULT_SNR_F_MIN,
-            f_max: float = const.DEFAULT_SNR_F_MAX,
             ubarf_rstar: bool = False,
             log_progress_percentage: bool = True,
             max_workers: int = MAX_WORKERS_DEFAULT):
@@ -80,7 +78,7 @@ class SNRGrid(ABC):  # noqa: B024
         self.T_star: float = T_star
         self.g_star: float = g_star
         self.v_wall: float = v_wall
-        self.mission_profile: MissionProfile = mission_profile
+        self.noise: Noise = resolve_noise(noise)
         self.engine: Engine = engine
 
         # Ensure that SSM is loaded before starting subprocesses
@@ -90,10 +88,8 @@ class SNRGrid(ABC):  # noqa: B024
 
         kwargs = {
             "adiabatic_index": adiabatic_index,
-            "f_min": f_min,
-            "f_max": f_max,
             "g_star": g_star,
-            "mission_profile": mission_profile,
+            "noise": self.noise,
             "parallel": False,
             "T_star": T_star,
             "ubarf_rstar": ubarf_rstar,

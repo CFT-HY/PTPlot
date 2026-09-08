@@ -12,6 +12,7 @@ from pttools.omgw0 import z as z_func
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science import const
+from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
@@ -70,12 +71,26 @@ class PowerSpectrumSSM(PowerSpectrum):
     def power_spectrum(
             self,
             f: th.FloatArr1D,
+            noise: Noise | None = None,
             log_errors: bool = True,
             g0: float = G0,
             gs0: float = GS0,
             suppression: Suppression = DEFAULT_SUPPRESSION,
-            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) -> th.FloatArr1D:
-        r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model."""
+            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) \
+            -> tuple[th.FloatArr1D, float]:
+        r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model, and its SNR.
+
+        The SNR is computed by :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`,
+        which generates the noise curve on the frequencies of the spectrum.
+
+        .. note::
+           When $\frac{\beta}{H_*}$ is given instead of $r_*$,
+           PTtools computes $r_*$ with :py:func:`pttools.ssm.nucleation.r_star`,
+           which differs from :py:func:`ptplot.science.utils.R_star` that is used here for the $f \to z$
+           conversion. The frequencies of the returned spectrum are therefore those given in ``f``,
+           whereas the SNR is integrated over the frequencies that PTtools assigns to the same $z$ values.
+        """
+        noise = resolve_noise(noise)
         z = None
         try:
             if np.isnan(f).any():
@@ -97,7 +112,10 @@ class PowerSpectrumSSM(PowerSpectrum):
                 suppression_method=suppression_method,
                 parallel=self.parallel
             )
-            return spectrum.omgw0_h2(g0=g0, gs0=gs0)
+            snr, _f, _omgw0_h2, _f_noise, _noise = spectrum.snr(
+                obs_time=noise.obs_time, noise_eb=noise.eb, noise_gb=noise.gb
+            )
+            return spectrum.omgw0_h2(g0=g0, gs0=gs0), snr
         except Exception as exc:
             if log_errors:
                 if z is None:

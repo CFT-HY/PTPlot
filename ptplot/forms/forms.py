@@ -12,55 +12,59 @@ from ptplot.forms.fields import (
     CSS2Field,
     EngineField,
     GStarField,
-    MissionProfileField,
     ModelField,
+    NoiseEBField,
+    NoiseGBField,
+    ObsYearsField,
     TStarField,
     VWallField,
 )
-from ptplot.models import Model, ParameterChoice, Scenario
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.models import Model
+from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
 from ptplot.science.spectrum.engine import Engine
 
 logger = logging.getLogger(__name__)
 
 
-class BenchmarkForm(Form):
-    """Form for the arguments of the benchmark plots."""
+class NoiseFormMixin(Form):
+    """Mixin that adds the noise curve fields and the resulting noise curve."""
 
-    mission_profile_ind = MissionProfileField()
-    engine = EngineField()
-
-    def __init__(
-            self,
-            data: tp.Mapping[str, tp.Any] | None = None,
-            model: Model | None = None,
-            point: ParameterChoice | None = None,
-            scenario: Scenario | None = None,
-            **kwargs):
-        if data is None or "mission_profile_ind" not in data:
-            if point is not None:
-                model = point.model
-            elif scenario is not None:
-                model = scenario.model
-
-            if model is not None:
-                data = {"mission_profile_ind": model.mission_profile_ind} \
-                    if data is None else \
-                    {**data, "mission_profile_ind": model.mission_profile_ind}
-        if data is None:
-            data = {"engine": Engine.DEFAULT}
-        elif "engine" not in data:
-            data = {**data, "engine": Engine.DEFAULT}
-
-        super().__init__(data, **kwargs)
+    obs_years = ObsYearsField()
+    noise_eb = NoiseEBField()
+    noise_gb = NoiseGBField()
 
     @property
-    def mission_profile(self) -> MissionProfile:
-        """Get the mission profile object."""
-        return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
+    def noise(self) -> Noise:
+        """Get the noise curve object."""
+        return noise_curve(
+            obs_years=self.cleaned_data["obs_years"],
+            eb=self.cleaned_data["noise_eb"],
+            gb=self.cleaned_data["noise_gb"]
+        )
 
 
-class PTPlotForm(Form):
+class BenchmarkForm(NoiseFormMixin):
+    """Form for the arguments of the benchmark plots."""
+
+    engine = EngineField()
+
+    def __init__(self, data: tp.Mapping[str, tp.Any] | None = None, **kwargs):
+        # dict(data.items()) instead of {**data}, since the latter would give the
+        # underlying lists of values of a QueryDict instead of the values themselves.
+        data = {} if not data else dict(data.items())
+        if "obs_years" not in data:
+            # The form has not been submitted, so the defaults are used.
+            # The checkboxes have to be filled in explicitly,
+            # since an unchecked checkbox is indistinguishable from a missing one.
+            data["obs_years"] = DEFAULT_OBS_YEARS
+            data.setdefault("noise_eb", DEFAULT_NOISE_EB)
+            data.setdefault("noise_gb", DEFAULT_NOISE_GB)
+        if "engine" not in data:
+            data["engine"] = Engine.DEFAULT
+        super().__init__(data, **kwargs)
+
+
+class PTPlotForm(NoiseFormMixin):
     """Form for the arguments of a single point."""
 
     v_wall = VWallField()
@@ -68,40 +72,34 @@ class PTPlotForm(Form):
     beta_over_H = BetaOverHField()
     T_star = TStarField()
     g_star = GStarField()
-    mission_profile_ind = MissionProfileField()
     css2 = CSS2Field(required=False)
     csb2 = CSB2Field(required=False)
     engine = EngineField()
+    # Keep the noise fields of the mixin after the parameters of the point.
+    field_order = [
+        "v_wall", "alpha", "beta_over_H", "T_star", "g_star", "css2", "csb2", "engine",
+        "obs_years", "noise_eb", "noise_gb"
+    ]
     # usetex = forms.BooleanField(
     #     label="Use TeX for labels (slow)?",
     #      initial=False,
     #      required=False
     # )
 
-    def __init__(self, data=None, *args, **kwargs):
-        super().__init__(data, *args, **kwargs)
 
-    @property
-    def mission_profile(self) -> MissionProfile:
-        return MissionProfile.from_ind(self.cleaned_data["mission_profile_ind"])
-
-
-class MultipleForm(Form):
+class MultipleForm(NoiseFormMixin):
     """Form for the arguments of multiple points."""
 
     vw = VWallField()
     T_star = TStarField()
     g_star = GStarField()
-    mission_profile_ind = MissionProfileField()
     table = CharField(
         label="Input table",
         widget=Textarea,
         initial="#alpha_theta,BetaOverH,label"
     )
-
-    @property
-    def mission_profile(self) -> MissionProfile:
-        return MissionProfile.from_ind(self.cleaned_data["mission_profile"])
+    # Keep the noise fields of the mixin after the parameters of the points.
+    field_order = ["vw", "T_star", "g_star", "table", "obs_years", "noise_eb", "noise_gb"]
 
 
 class ParameterChoiceForm(Form):
@@ -124,4 +122,3 @@ class ParameterChoiceForm(Form):
             # tstar = TStarField()
             self.alpha = AlphaField()
             self.beta_over_H = BetaOverHField()
-            self.mission_profile = MissionProfileField()

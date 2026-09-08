@@ -53,7 +53,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                     beta_over_H_points=beta_over_Hs,
                     v_wall_points=form.cleaned_data["v_wall"],
                     labels_points=label_list_final,
-                    mission_profile=form.mission_profile,
+                    noise=form.noise,
                     engine=form.cleaned_data["engine"]
                 )
             )
@@ -95,7 +95,7 @@ def single(request: HttpRequest) -> HttpResponse:
         "beta_over_H": form.cleaned_data["beta_over_H"],
         "T_star": form.cleaned_data["T_star"],
         "g_star": form.cleaned_data["g_star"],
-        "mission_profile": form.mission_profile,
+        "noise": form.noise,
         "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
         "css2": form.cleaned_data["css2"],
         "csb2": form.cleaned_data["csb2"]

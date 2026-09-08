@@ -16,7 +16,7 @@ import numpy as np
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
-from ptplot.science.mission_profile import MissionProfile
+from ptplot.science.noise import noise_curve
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.logarithmic import add_points
 from ptplot.science.plot.snr import snr_figure
@@ -68,16 +68,16 @@ def main():
     """Script for command-line use."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",
-        mission_profile=True,
+        noise=True,
         engine=True
     )
     args = parser.parse_args()
-    mission_profile = MissionProfile.from_ind(args.mission_profile)
+    noise = noise_curve(obs_years=args.obs_years, eb=args.noise_eb, gb=args.noise_gb)
     fig = snr_figure_ubarf_rstar(
         grid=SNRGridUbarfRStar(
             v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar,
             alpha_points=args.alpha, beta_over_H_points=args.BetaoverH, v_wall_points=args.v_wall,
-            mission_profile=mission_profile, engine=args.engine
+            noise=noise, engine=args.engine
         )
     )
     print(fig_to_svg(fig).decode("utf-8"))
