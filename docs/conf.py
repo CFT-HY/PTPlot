@@ -10,24 +10,39 @@ import os.path
 import sys
 import tomllib
 
+from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
+from pttools.docs.links import EXTLINKS
+from pttools.docs.setup import pre_setup, setup_sphinx
 from sphinx_gallery.sorting import ExplicitOrder
 
-dir_path = os.path.dirname(os.path.abspath(__file__))
-repo_path = os.path.dirname(dir_path)
-sys.path.insert(0, os.path.dirname(dir_path))
+DOCS_DIR: str = os.path.dirname(os.path.abspath(__file__))
+REPO_DIR: str = os.path.dirname(DOCS_DIR)
+EXAMPLES_DIR: str = os.path.join(REPO_DIR, "examples")
+PTPLOT_SITE_DIR: str = os.path.join(REPO_DIR, "ptplot_site")
+sys.path.insert(0, REPO_DIR)
+
+from ptplot import PTPLOT_DIR  # noqa: E402
+from ptplot.methods import setup_django  # noqa: E402
+
+setup_django()
+# This is required so that ptplot_site.settings.prod can be imported.
+os.environ["DJANGO_SECRET_KEY"] = "SET_ME_IN_PRODUCION"
+
+DOC_MODULES: tuple[str, ...] = ("docs", "examples", "ptplot", "ptplot_site")
+pre_setup(doc_modules=DOC_MODULES)
 
 # Create a directory for static files to avoid a warning when building.
-os.makedirs(os.path.join(dir_path, "_static"), exist_ok=True)
+os.makedirs(os.path.join(DOCS_DIR, "_static"), exist_ok=True)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'PTPlot'
-with open(os.path.join(repo_path, "AUTHORS")) as file:
+project = "PTPlot"
+with open(os.path.join(REPO_DIR, "AUTHORS")) as file:
     _authors = file.read().splitlines()
 author = f"{', '.join(_authors[:-1])} & {_authors[-1]}"
 copyright = f"2018-{date.today().year}, {author}"
-with open (os.path.join(repo_path, "pyproject.toml"), "rb") as file:
+with open (os.path.join(REPO_DIR, "pyproject.toml"), "rb") as file:
     version = tomllib.load(file)["project"]["version"]
 release = version
 
@@ -35,11 +50,14 @@ release = version
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+setup = setup_sphinx
 extensions = [
     "matplotlib.sphinxext.plot_directive",
     # Automatic documentation for Python code
+    "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
     # Automatic labeling for documentation sections
     "sphinx.ext.autosectionlabel",
     # External links
@@ -57,10 +75,12 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# Automatic section labeling produces duplicated labels. This silences the warnings from those.
-# https://github.com/sphinx-doc/sphinx/issues/7728
-# https://github.com/sphinx-doc/sphinx/issues/7697
-# suppress_warnings = ["autosectionlabel.*"]
+suppress_warnings = [
+    # Automatic section labeling produces duplicated labels. This silences the warnings from those.
+    # https://github.com/sphinx-doc/sphinx/issues/7728
+    # https://github.com/sphinx-doc/sphinx/issues/7697
+    "autosectionlabel.*",
+]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -88,6 +108,36 @@ mathjax3_config = {
 }
 
 
+# -- Apidoc  -----------------------------------------------------------------
+apidoc_modules = [
+    {
+        "path": PTPLOT_DIR,
+        "destination": "gen_modules/ptplot"
+    },
+    {
+        "path": PTPLOT_SITE_DIR,
+        "destination": "gen_modules/ptplot_site"
+    },
+    {
+        # Only the utilities are documented, as the examples themselves are in the gallery,
+        # and importing them for autodoc would run them a second time.
+        "path": EXAMPLES_DIR,
+        "destination": "gen_modules/examples",
+        "exclude_patterns": [os.path.join(EXAMPLES_DIR, "*", "*")]
+    },
+    {
+        # This file is excluded, since importing it for autodoc would run it a second time.
+        # The figure scripts are excluded, as they are already included with the plot directive.
+        "path": DOCS_DIR,
+        "destination": "gen_modules/docs",
+        "exclude_patterns": [os.path.join(DOCS_DIR, "conf.py"), os.path.join(DOCS_DIR, "fig")]
+    }
+]
+# apidoc_max_depth = 6
+apidoc_module_first = True
+apidoc_separate_modules = True
+
+
 # -- Autodoc -----------------------------------------------------------------
 
 autodoc_default_options = {
@@ -96,80 +146,71 @@ autodoc_default_options = {
     "show-inheritance": True,
     "undoc-members": True,
 }
+autoclass_content = "both"
 autodoc_preserve_defaults = True
 autodoc_typehints = "description"
 
 
 # -- Other -------------------------------------------------------------------
 
-# Sphinx 6.0 will require base URLs and caption strings to contain exactly one "%s",
+# Sphinx requires base URLs and caption strings to contain exactly one "%s",
 # and all other "%" need to be escaped as "%%".
 extlinks: dict[str, tuple[str, str]] = {
-    # Articles
-    "espinosa_2010": ("https://arxiv.org/abs/1004.4187%s", "Espinosa et al., 2010%s"),
-    "caprini_2015": ("https://arxiv.org/abs/1512.06239%s", "Caprini et al., 2015%s"),
-    "caprini_2020": ("https://arxiv.org/abs/1910.13125%s", "Caprini et al., 2020%s"),
-    "gowling_2021": ("https://arxiv.org/abs/2106.05984%s", "Gowling & Hindmarsh, 2021%s"),
-    "hindmarsh_2017": ("https://arxiv.org/abs/1704.05871%s", "Hindmarsh et al., 2017%s"),
-    "hindmarsh_2017_erratum": ("https://doi.org/10.1103/PhysRevD.101.089902", "Hindmarsh et al., 2017 erratum%s"),
-    "hindmarsh_2019": ("https://arxiv.org/abs/1909.10040%s", "Hindmarsh et al., 2019%s"),
-    "notes": ("https://arxiv.org/abs/2008.09136%s", "Hindmarsh et al., 2021%s"),
-    # Theses
-    "hakkinen_msc": ("https://hdl.handle.net/10138/576963%s", "Häkkinen, 2024%s"),
+    **EXTLINKS,
     # Other
     "hakkinen_ptplot": (
         "https://version.helsinki.fi/hakkijen/ptplot-with-pttools%s",
         "PTPlot version by Jenni Häkkinen%s"
     )
 }
-intersphinx_mapping: dict[str, tuple[str, str | None]] = {
-    "cobaya": ("https://cobaya.readthedocs.io/en/latest/", None),
+intersphinx_mapping: IntersphinxMapping = {
+    **INTERSPHINX_MAPPING,
     "django": ("https://docs.djangoproject.com/en/stable/", None),
-    "h5py": ("https://docs.h5py.org/en/stable/", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
-    "numba": ("https://numba.readthedocs.io/en/stable/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
+    "dulwich": ("https://dulwich.readthedocs.io/en/latest/", None),
     "pttools": ("https://pttools.readthedocs.io/en/latest/", None),
-    "pyinstrument": ("https://pyinstrument.readthedocs.io/en/latest/", None),
-    "pytest": ("https://docs.pytest.org/en/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    # "yappi": ("https://yappi.readthedocs.io/en/latest/", None),
 }
+linkcheck_ignore: list[str] = [
+    "https://medium.com/*"
+]
+linkcheck_retries = 5
+# Timeout had to be increased from 5 to prevent errors with slow ArXiv links
+linkcheck_timeout = 20
+linkcheck_workers = 10
 
 show_memory = True
 
 sphinx_gallery_conf = {
     "backreferences_dir": "gen_modules/backreferences",
     "compress_images": ("images", "thumbnails"),
-    "doc_module": ("ptplot", ),
-    "examples_dirs": os.path.join(os.path.dirname(dir_path), "examples"),
+    "doc_module": DOC_MODULES,
+    "examples_dirs": EXAMPLES_DIR,
     "filename_pattern": ".*",
     "gallery_dirs": "auto_examples",
-    "ignore_pattern": r"(__init__\.py|utils\.py|p_s_scan_dev\.py|standard_model|entropy|reverse)",
-    # "image_srcset": ["2x"],
+    "ignore_pattern": r"(__init__\.py|utils\.py)",
+    "image_srcset": ["2x"],
     # "line_numbers": True,
-    "matplotlib_animations": True,
+    "matplotlib_animations": (True, "mp4"),
     # Parallelism cannot be enabled simultaneously with "show_memory".
     # It may also produce errors with some IDEs:
     # https://stackoverflow.com/questions/31080829/python-error-io-unsupportedoperation-fileno
     "parallel": not show_memory,
+    # This has to be set in order to avoid a warning when disabling it with a command line option.
+    # https://sphinx-gallery.github.io/stable/configuration.html#building-without-executing-examples
+    "plot_gallery": "True",
     # "prefer_full_module": ...
-    "reference_url": {
-        "pttools": None,
-        "tests": None,
-    },
+    # By default, Sphinx-Gallery refers to the objects by the shortest name with which they are accessible,
+    # e.g. "pttools.models.BagModel", but Sphinx documents them by the module in which they are defined,
+    # e.g. "pttools.models.bag.BagModel". Without this, the hyperlinks from the examples to the API documentation
+    # cannot be resolved, and the backreferences, that the mini-galleries are based on, are stored under names
+    # that don't correspond to the documented objects.
+    "prefer_full_module": {rf"^{module}\." for module in DOC_MODULES},
+    # The None values mean that the objects are documented in this documentation instead of an external one.
+    "reference_url": dict.fromkeys(DOC_MODULES),
     # "run_stale_examples": True
+    "show_api_usage": True,
     "show_memory": show_memory,
     "subsection_order": ExplicitOrder([
-        "../examples/basic",
-        "../examples/const_cs",
-        # "../examples/standard_model",
-        "../examples/props",
-        # "../examples/entropy",
-        "../examples/solvers",
-        "../examples/giese",
-        # "../examples/reverse",
-        # "*"
-    ])
+        "../examples/snr"
+    ]),
 }
 autosummary_generate = True

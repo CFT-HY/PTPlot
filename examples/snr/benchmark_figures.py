@@ -17,7 +17,8 @@ from pandas import DataFrame
 from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.utils import IS_CFT_BIG_MACHINE
 
-from examples.utils import FIG_DIR, save_fig, setup_django
+from examples.utils import FIG_DIR, save_fig
+from ptplot.methods import setup_django
 
 if __name__ == "__main__":
     setup_django()

@@ -2,3 +2,4 @@
 
 from .admin import *
 from .generic import *
+from .models import *

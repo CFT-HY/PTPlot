@@ -12,6 +12,27 @@ documentation for details.
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :caption: Contents:
+  :maxdepth: 2
 
+  install
+  usage
+  auto_examples/index
+  gen_modules/ptplot/ptplot
+  gen_modules/ptplot_site/ptplot_site
+  gen_modules/examples/examples
+  gen_modules/docs/docs
+  history
+  acknowledgements
+  see_also
+  dev
+  sg_api_usage
+  sg_execution_times
+
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

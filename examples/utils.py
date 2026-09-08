@@ -3,12 +3,10 @@
 import os
 import typing as tp
 
-import django
 from django.http import HttpResponse
 from matplotlib.figure import Figure
 import pttools.analysis.utils as plot_utils
 from pttools.analysis.utils import FIG_FORMATS
-from pttools.logging import setup_logging as pttools_logging
 
 EXAMPLES_DIR: str = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR: str = os.path.dirname(EXAMPLES_DIR)
@@ -29,7 +27,6 @@ def save_fig(
     plot_utils.save_fig(fig=fig, path=path, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
 
 
-
 def save_svg_response(response: HttpResponse, path: str):
     """Save an SVG HttpResponse in a file"""
     if not os.path.isabs(path):
@@ -38,10 +35,3 @@ def save_svg_response(response: HttpResponse, path: str):
         path += ".svg"
     with open(path, "wb") as file:
         file.write(response.content)
-
-
-def setup_django():
-    """Configure Django for use in a script"""
-    pttools_logging(name="ptplot", log_dir=LOG_DIR)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ptplot_site.settings.dev")
-    django.setup()

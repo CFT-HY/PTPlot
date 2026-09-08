@@ -16,6 +16,7 @@ docs/_build
 docs/_static
 docs/auto_examples
 docs/gen_modules
+docs/sg_api_usage.rst
 docs/sg_execution_times.rst
 env/django.env
 env/wud.env
