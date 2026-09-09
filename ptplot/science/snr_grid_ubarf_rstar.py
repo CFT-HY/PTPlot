@@ -14,6 +14,7 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science.const import (
     CS0,
     DEFAULT_ADIABATIC_INDEX,
+    DEFAULT_LOG_PROGRESS_PERCENTAGE,
     DEFAULT_R_STAR_RANGE,
     DEFAULT_UBARF_RANGE,
     DEFAULT_V_WALL,
@@ -50,7 +51,7 @@ class SNRGridUbarfRStar(SNRGrid):
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
             noise: Noise | None = None,
-            log_progress_percentage: bool = True,
+            log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
         r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
 
@@ -72,6 +73,8 @@ class SNRGridUbarfRStar(SNRGrid):
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
         :param noise: Which noise curve to use
+        :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
+        :param max_workers: Maximum number of worker processes
         """
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None

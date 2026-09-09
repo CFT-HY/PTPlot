@@ -24,6 +24,8 @@ This value is obtained numerically from simulations.
 :caprini_2020:`\ ` p. 16
 """
 
+#: Log the progress of a parallel computation every $x$ %. Set to None to disable the logging.
+DEFAULT_LOG_PROGRESS_PERCENTAGE: float = 10.
 DEFAULT_SNR_F_MIN: float = 1e-6
 DEFAULT_SNR_F_MAX: float = 1.
 DEFAULT_T_STAR: float = 180.

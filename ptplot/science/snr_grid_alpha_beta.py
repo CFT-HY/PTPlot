@@ -33,7 +33,7 @@ class SNRGridAlphaBeta(SNRGrid):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
             noise: Noise | None = None,
-            log_progress_percentage: bool = True,
+            log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
         r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points.
 
@@ -53,6 +53,8 @@ class SNRGridAlphaBeta(SNRGrid):
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param engine: Which power spectrum engine to use
         :param noise: Which noise curve to use
+        :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
+        :param max_workers: Maximum number of worker processes
         """
         if alpha_n is None:
             if alpha_points is None:

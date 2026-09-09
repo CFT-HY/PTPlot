@@ -56,7 +56,7 @@ class SNRGrid(ABC):  # noqa: B024
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
             ubarf_rstar: bool = False,
-            log_progress_percentage: bool = True,
+            log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
         if T_star is None or not np.isfinite(T_star):
             raise ValueError(f"Invalid T_star={T_star}")
@@ -68,6 +68,7 @@ class SNRGrid(ABC):  # noqa: B024
             raise ValueError(f"Invalid {self.X_NAME}={x}")
         if y is None or np.any(y <= 0) or not np.isfinite(y).all():
             raise ValueError(f"Invalid {self.Y_NAME}={y}")
+
 
         self.x: th.FloatArr1D = x
         self.y: th.FloatArr1D = y
@@ -124,6 +125,8 @@ class SNRGrid(ABC):  # noqa: B024
                 output_dtypes=(np.float64, np.float64),
                 max_workers=max_workers,
                 single_thread=True,
+                # The BPL and DBPL engines are fast and run in a single thread,
+                # so there is no need to log their progress.
                 log_progress_percentage=None,
                 kwargs={
                     **kwargs,
