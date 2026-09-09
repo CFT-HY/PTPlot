@@ -3,3 +3,4 @@
 from .admin import *
 from .generic import *
 from .models import *
+from .parallel import *

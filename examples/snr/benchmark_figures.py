@@ -14,8 +14,6 @@ import time
 from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
-from pttools.speedup import MAX_WORKERS_DEFAULT
-from pttools.utils import IS_CFT_BIG_MACHINE
 
 from examples.utils import FIG_DIR, save_fig
 from ptplot.methods import setup_django
@@ -23,6 +21,7 @@ from ptplot.methods import setup_django
 if __name__ == "__main__":
     setup_django()
 
+from ptplot.methods import n_workers
 from ptplot.models import Model
 from ptplot.science import const
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
@@ -38,14 +37,7 @@ def main():  # noqa: PLR0915
     n_models = len(models)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
-    if IS_CFT_BIG_MACHINE:
-        n_batches = 3
-        max_workers = min(
-            MAX_WORKERS_DEFAULT,
-            const.DEFAULT_ALPHA_N_RANGE.size // n_batches + int(bool(const.DEFAULT_ALPHA_N_RANGE.size % n_batches))
-        )
-    else:
-        max_workers = MAX_WORKERS_DEFAULT
+    max_workers = n_workers()
     logger.info("Creating benchmark figures with %d parallel workers.", max_workers)
 
     # Statistics

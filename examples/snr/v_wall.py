@@ -13,6 +13,7 @@ from ptplot.methods import setup_django
 if __name__ == "__main__":
     setup_django()
 
+from ptplot.methods import n_workers
 from ptplot.models import Model
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
@@ -20,7 +21,7 @@ from ptplot.science.spectrum import Engine
 logger = logging.getLogger(__name__)
 
 
-def snr_grid(model: Model, engine: Engine, v_wall: float) -> SNRGridAlphaBeta:
+def snr_grid(model: Model, engine: Engine, v_wall: float, max_workers: int) -> SNRGridAlphaBeta:
     r"""Compute the SNR grid of a model with the wall velocity of the model overridden.
 
     :param model: Model to compute the grid for
@@ -31,7 +32,8 @@ def snr_grid(model: Model, engine: Engine, v_wall: float) -> SNRGridAlphaBeta:
     return model.snr_grid_alpha_beta(
         engine=engine,
         v_wall=v_wall,
-        name=rf"v_\text{{wall}}={v_wall}"
+        name=rf"v_\text{{wall}}={v_wall}",
+        max_workers=max_workers
     )
 
 
@@ -40,14 +42,15 @@ def main(
         v_wall1: float = 0.95,
         v_wall2: float = 0.99):
     r"""Compare the SNR values of the two wall velocities with each engine."""
+    max_workers = n_workers()
     model = Model.objects.prefetch_related("scenarios", "scenarios__points").get(slug=slug)
 
     for engine in Engine:
         logger.info("Comparing v_wall=%s and v_wall=%s for %s with the %s engine.",
                     v_wall1, v_wall2, model.name, engine.name)
         try:
-            grid1 = snr_grid(model, engine=engine, v_wall=v_wall1)
-            grid2 = snr_grid(model, engine=engine, v_wall=v_wall2)
+            grid1 = snr_grid(model, engine=engine, v_wall=v_wall1, max_workers=max_workers)
+            grid2 = snr_grid(model, engine=engine, v_wall=v_wall2, max_workers=max_workers)
             fig = model.snr_comparison(grid1=grid1, grid2=grid2)
             save_fig(fig, f"{model.slug}_snr_comparison_v_wall_{engine}")
         except Exception as exc:
