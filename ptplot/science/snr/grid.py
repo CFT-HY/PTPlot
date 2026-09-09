@@ -55,6 +55,7 @@ class SNRGrid(ABC):  # noqa: B024
             titles: th.StrOrList | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
+            name: str | None = None,
             ubarf_rstar: bool = False,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
@@ -69,7 +70,6 @@ class SNRGrid(ABC):  # noqa: B024
         if y is None or np.any(y <= 0) or not np.isfinite(y).all():
             raise ValueError(f"Invalid {self.Y_NAME}={y}")
 
-
         self.x: th.FloatArr1D = x
         self.y: th.FloatArr1D = y
         self.x_points: th.FloatOrArrOrList1D2D | None = x_points
@@ -81,6 +81,7 @@ class SNRGrid(ABC):  # noqa: B024
         self.v_wall: float = v_wall
         self.noise: Noise = resolve_noise(noise)
         self.engine: Engine = engine
+        self.name: str = engine if name is None else name
 
         # Ensure that SSM is loaded before starting subprocesses
         if engine == Engine.SSM:

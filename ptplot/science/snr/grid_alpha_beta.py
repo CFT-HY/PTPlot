@@ -32,6 +32,7 @@ class SNRGridAlphaBeta(SNRGrid):
             beta_over_H: th.FloatArr1D | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
+            name: str | None = None,
             noise: Noise | None = None,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
@@ -52,6 +53,7 @@ class SNRGridAlphaBeta(SNRGrid):
         :param beta_over_H: Range of $\beta/H$ values
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param engine: Which power spectrum engine to use
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param noise: Which noise curve to use
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
         :param max_workers: Maximum number of worker processes
@@ -72,7 +74,7 @@ class SNRGridAlphaBeta(SNRGrid):
             y=beta_over_H,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=alpha_points, y_points=beta_over_H_points, labels_points=labels_points, titles=titles,
-            noise=noise, adiabatic_index=adiabatic_index, engine=engine,
+            noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers
         )

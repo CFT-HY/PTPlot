@@ -214,6 +214,7 @@ class Model(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
+            name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
@@ -230,12 +231,14 @@ class Model(models.Model):
             titles=titles,
             adiabatic_index=adiabatic_index,
             engine=engine,
+            name=name,
             max_workers=max_workers
         )
 
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
+            name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
@@ -254,6 +257,7 @@ class Model(models.Model):
             adiabatic_index=adiabatic_index,
             cs=cs,
             engine=engine,
+            name=name,
             max_workers=max_workers
         )
 

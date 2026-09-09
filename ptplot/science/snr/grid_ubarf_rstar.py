@@ -50,6 +50,7 @@ class SNRGridUbarfRStar(SNRGrid):
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
+            name: str | None = None,
             noise: Noise | None = None,
             log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
@@ -72,6 +73,7 @@ class SNRGridUbarfRStar(SNRGrid):
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param noise: Which noise curve to use
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
         :param max_workers: Maximum number of worker processes
@@ -107,7 +109,7 @@ class SNRGridUbarfRStar(SNRGrid):
             y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
-            noise=noise, adiabatic_index=adiabatic_index, engine=engine,
+            noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
             ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers
