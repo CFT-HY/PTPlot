@@ -21,6 +21,7 @@ from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
@@ -188,8 +189,21 @@ class Model(models.Model):
     def snr_comparison(
             self,
             grid1: SNRGrid,
-            grid2: SNRGrid) -> Figure:
-        return snr_comparison(grid1=grid1, grid2=grid2)
+            grid2: SNRGrid,
+            method: ComparisonMethod = ComparisonMethod.DEFAULT,
+            label: str | None = None) -> Figure:
+        """Compare the SNR values of two grids.
+
+        :param grid1: SNR grid of the reference
+        :param grid2: SNR grid to compare to the reference
+        :param method: How to compare the SNR values
+        :param label: Label of the comparison, defaults to a label deduced from the method
+            and the names of the grids
+        :return: Figure of the compared SNR values
+        """
+        return snr_comparison(
+            SNRGridComparison(grid1=grid1, grid2=grid2, method=method, label=label)
+        )
 
     def snr_figure_alpha_beta(
             self,
