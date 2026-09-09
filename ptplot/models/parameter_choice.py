@@ -177,14 +177,29 @@ class ParameterChoice(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
+        r"""Compute the SNR grid of this point in the $(\alpha_n, \beta/H)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the point
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the point
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the point
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
         return SNRGridAlphaBeta(
-            T_star=self.T_star_value,
-            g_star=self.g_star_value,
-            v_wall=self.v_wall_value,
+            T_star=self.T_star_value if T_star is None else T_star,
+            g_star=self.g_star_value if g_star is None else g_star,
+            v_wall=self.v_wall_value if v_wall is None else v_wall,
             noise=noise,
             alpha_points=self.alpha,
             beta_over_H_points=self.beta_over_H,
@@ -199,15 +214,31 @@ class ParameterChoice(models.Model):
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
+        r"""Compute the SNR grid of this point in the $(\bar{U}_f, r_*)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the point
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the point
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the point
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param cs: Sound speed $c_s$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
         return SNRGridUbarfRStar(
-            v_wall=self.v_wall_value,
-            T_star=self.T_star_value,
-            g_star=self.g_star_value,
+            v_wall=self.v_wall_value if v_wall is None else v_wall,
+            T_star=self.T_star_value if T_star is None else T_star,
+            g_star=self.g_star_value if g_star is None else g_star,
             noise=noise,
             alpha_points=self.alpha,
             beta_over_H_points=self.beta_over_H,

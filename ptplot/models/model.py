@@ -214,19 +214,34 @@ class Model(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
-        v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        r"""Compute the SNR grid of this model in the $(\alpha_n, \beta/H)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the model
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the model
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the model
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
+        v_wall_points, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridAlphaBeta(
-            T_star=self.T_star,
-            g_star=self.g_star,
-            v_wall=self.v_wall,
+            T_star=self.T_star if T_star is None else T_star,
+            g_star=self.g_star if g_star is None else g_star,
+            v_wall=self.v_wall if v_wall is None else v_wall,
             noise=noise,
             alpha_points=alpha,
             beta_over_H_points=beta_over_H,
-            v_wall_points=v_wall,
+            v_wall_points=v_wall_points,
             labels_points=labels,
             titles=titles,
             adiabatic_index=adiabatic_index,
@@ -238,20 +253,36 @@ class Model(models.Model):
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
-        v_wall, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        r"""Compute the SNR grid of this model in the $(\bar{U}_f, r_*)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the model
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the model
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the model
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param cs: Sound speed $c_s$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
+        v_wall_points, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridUbarfRStar(
-            v_wall=self.v_wall,
-            T_star=self.T_star,
-            g_star=self.g_star,
+            v_wall=self.v_wall if v_wall is None else v_wall,
+            T_star=self.T_star if T_star is None else T_star,
+            g_star=self.g_star if g_star is None else g_star,
             noise=noise,
             alpha_points=alpha,
             beta_over_H_points=beta_over_H,
-            v_wall_points=v_wall,
+            v_wall_points=v_wall_points,
             labels_points=labels,
             titles=titles,
             adiabatic_index=adiabatic_index,

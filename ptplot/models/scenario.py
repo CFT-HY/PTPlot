@@ -104,15 +104,30 @@ class Scenario(models.Model):
     def snr_grid_alpha_beta(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
+        r"""Compute the SNR grid of this scenario in the $(\alpha_n, \beta/H)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the scenario
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the model
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the model
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
         data = self.point_data()
         return SNRGridAlphaBeta(
-            T_star=self.T_star_value,
-            g_star=self.model.g_star,
-            v_wall=self.model.v_wall,
+            T_star=self.T_star_value if T_star is None else T_star,
+            g_star=self.model.g_star if g_star is None else g_star,
+            v_wall=self.model.v_wall if v_wall is None else v_wall,
             noise=noise,
             alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
             beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
@@ -128,16 +143,32 @@ class Scenario(models.Model):
     def snr_grid_ubarf_rstar(
             self,
             engine: Engine = Engine.DEFAULT,
+            T_star: float | None = None,
+            g_star: float | None = None,
+            v_wall: float | None = None,
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
+        r"""Compute the SNR grid of this scenario in the $(\bar{U}_f, r_*)$ plane.
+
+        :param engine: Which power spectrum engine to use
+        :param T_star: Temperature $T_*$ at which the GWs were produced, defaults to that of the scenario
+        :param g_star: Degrees of freedom $g_*$, defaults to that of the model
+        :param v_wall: Wall velocity $v_\text{wall}$, defaults to that of the model
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param cs: Sound speed $c_s$
+        :param noise: Which noise curve to use
+        :param max_workers: Maximum number of worker processes
+        :return: SNR grid
+        """
         data = self.point_data()
         return SNRGridUbarfRStar(
-            v_wall=self.model.v_wall,
-            T_star=self.T_star_value,
-            g_star=self.model.g_star,
+            v_wall=self.model.v_wall if v_wall is None else v_wall,
+            T_star=self.T_star_value if T_star is None else T_star,
+            g_star=self.model.g_star if g_star is None else g_star,
             noise=noise,
             alpha_points=data["alpha_n"].to_numpy(dtype=np.float64),
             beta_over_H_points=data["beta_over_H"].to_numpy(dtype=np.float64),
