@@ -9,7 +9,7 @@ from ptplot.forms import MultipleForm, ParameterChoiceForm, PTPlotForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
-from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum.engine import ENGINE_NAMES
 
 

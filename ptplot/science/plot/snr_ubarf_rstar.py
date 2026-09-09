@@ -21,7 +21,7 @@ from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.logarithmic import add_points
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.plot.utils import fig_to_svg
-from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 import ptplot.science.type_hints as th
 
 

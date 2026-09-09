@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from ptplot.science.plot.logarithmic import add_points, log_figure
-from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
 

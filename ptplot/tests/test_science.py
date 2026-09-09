@@ -5,8 +5,8 @@ from django.test import TestCase
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 import ptplot.science.sensitivity.sciencerequirements as req
-from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
-from ptplot.science.snr_grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
 

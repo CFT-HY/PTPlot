@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
 from ptplot.models import Model
 from ptplot.science import const
-from ptplot.science.snr_grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
 
 logger = logging.getLogger(__name__)

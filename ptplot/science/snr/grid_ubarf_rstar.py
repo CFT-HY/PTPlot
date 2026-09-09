@@ -21,7 +21,7 @@ from ptplot.science.const import (
 )
 from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta

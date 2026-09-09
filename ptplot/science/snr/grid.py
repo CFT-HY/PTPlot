@@ -19,8 +19,8 @@ from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.snr import snr_point
-from ptplot.science.snr_ssm import snr_column_ssm
+from ptplot.science.snr.point import snr_point
+from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 

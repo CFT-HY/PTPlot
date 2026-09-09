@@ -9,7 +9,7 @@ import numpy as np
 from ptplot.science import const
 from ptplot.science.plot.logarithmic import log_figure
 from ptplot.science.plot.utils import add_text, find_label_place, watermark
-from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
 COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))

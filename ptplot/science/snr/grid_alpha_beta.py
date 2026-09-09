@@ -4,7 +4,7 @@ from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.snr_grid import SNRGrid
+from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range
