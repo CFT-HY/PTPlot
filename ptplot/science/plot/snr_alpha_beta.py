@@ -14,6 +14,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.parsing import PTPlotParser
+from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import add_points
 from ptplot.science.plot.snr import snr_figure
 from ptplot.science.plot.utils import fig_to_svg
@@ -21,6 +22,7 @@ from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 import ptplot.science.type_hints as th
 
 
+@matplotlib_lock
 def snr_figure_alpha_beta(
         grid: SNRGridAlphaBeta,
         labels: th.StrOrListOrNestedList | None = None,

@@ -7,6 +7,7 @@ import numpy as np
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
+from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr import snr_point
 from ptplot.science.spectrum.engine import ENGINE_NAMES, Engine
@@ -16,6 +17,7 @@ import ptplot.science.type_hints as th
 #     from ptplot.models.parameter_choice import ParameterChoice
 
 
+@matplotlib_lock
 def snr_histogram(
         # points: "ParameterChoice",
         v_wall: th.FloatArr1D,

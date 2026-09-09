@@ -3,11 +3,13 @@
 from matplotlib.figure import Figure
 import numpy as np
 
+from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import add_points, log_figure
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
 
+@matplotlib_lock
 def snr_comparison(
         grid1: SNRGrid,
         grid2: SNRGrid,

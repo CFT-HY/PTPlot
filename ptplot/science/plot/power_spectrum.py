@@ -16,10 +16,12 @@ if __name__ == "__main__" and __package__ is None:
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
+from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
 from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, PowerSpectrumSSM, power_spectrum
 
 
+@matplotlib_lock
 def power_spectrum_figure(
         spectrum: PowerSpectrum,
         noise: Noise | None = None,

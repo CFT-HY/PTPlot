@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.text import Text
 import numpy as np
 
+from ptplot.science.plot.lock import matplotlib_lock
 import ptplot.science.type_hints as th
 from ptplot.science.utils import GIT_DESCRIPTION
 
@@ -26,6 +27,7 @@ def add_text(
     return fig.text(x=x, y=y, s=text, fontsize=fontsize, color=color, ha=ha, va=va, alpha=alpha)
 
 
+@matplotlib_lock
 def fig_to_svg(fig: Figure) -> bytes:
     """Convert a Figure to an SVG."""
     with io.BytesIO() as buffer:
