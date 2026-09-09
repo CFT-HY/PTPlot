@@ -11,7 +11,7 @@ import sys
 import tomllib
 
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
-from pttools.docs.links import EXTLINKS
+from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, convert_extlinks
 from pttools.docs.setup import pre_setup, setup_sphinx
 from sphinx_gallery.sorting import ExplicitOrder
 
@@ -155,13 +155,21 @@ autodoc_typehints = "description"
 
 # Sphinx requires base URLs and caption strings to contain exactly one "%s",
 # and all other "%" need to be escaped as "%%".
-extlinks: dict[str, tuple[str, str]] = {
-    **EXTLINKS,
+# EXTLINKS_STATIC: ExtLinks = {
+#     **EXTLINKS_STATIC,
+#     # ...
+# }
+EXTLINKS_DYNAMIC: ExtLinks = {
+    **EXTLINKS_DYNAMIC,
     # Other
     "hakkinen_ptplot": (
-        "https://version.helsinki.fi/hakkijen/ptplot-with-pttools%s",
+        "https://version.helsinki.fi/hakkijen/ptplot-with-pttools/%s",
         "PTPlot version by Jenni Häkkinen%s"
     )
+}
+extlinks: ExtLinks = {
+    **convert_extlinks(EXTLINKS_STATIC),
+    **EXTLINKS_DYNAMIC
 }
 intersphinx_mapping: IntersphinxMapping = {
     **INTERSPHINX_MAPPING,

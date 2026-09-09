@@ -22,6 +22,10 @@
 ## Description of PTPlot
 PTPlot is a plotting tool for visualizing the gravitational wave power
 spectrum from first-order phase transitions.
+PTPlot was first developed for the article
+"Detecting gravitational waves from cosmological phase transitions with LISA: an update"
+by Caprini et al. (2020), arXiv:1910.13125.
+Links to other relevant articles are in `docs.conf.extlinks`.
 
 Modules:
 - `ptplot` is the Django app
