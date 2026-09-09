@@ -116,8 +116,24 @@ class ViewTest(TestCase):
     def test_single(self):
         check_view(self, "single", form=self.form)
 
-    # def test_multiple(self):
-    #     test_view(self, "/ptplot/snr_alphabeta.svg", form=self.form)
+    def test_multiple(self):
+        """The multiple points form is submitted with POST."""
+        url = reverse("multiple")
+        response = self.client.post(url, data={
+            "v_wall": 0.3,
+            "T_star": 100,
+            "g_star": 100,
+            "table": "0.1,10000,A\n0.2,1000,B",
+            "engine": Engine.DEFAULT,
+            "obs_years": 3,
+            "noise_eb": True,
+            "noise_gb": True
+        })
+        check_status_code(response, url=url)
+        # An invalid form results in the form page instead of the figure,
+        # and therefore the status code alone is not enough.
+        assert response.headers["Content-Type"] == "image/svg+xml", \
+            f"The form was not accepted: {response.content[:500]!r}"
 
     def test_models(self):
         check_view(self, "models")

@@ -90,7 +90,7 @@ class PTPlotForm(NoiseFormMixin):
 class MultipleForm(NoiseFormMixin):
     """Form for the arguments of multiple points."""
 
-    vw = VWallField()
+    v_wall = VWallField()
     T_star = TStarField()
     g_star = GStarField()
     table = CharField(
@@ -98,8 +98,9 @@ class MultipleForm(NoiseFormMixin):
         widget=Textarea,
         initial="#alpha_theta,BetaOverH,label"
     )
+    engine = EngineField()
     # Keep the noise fields of the mixin after the parameters of the points.
-    field_order = ["vw", "T_star", "g_star", "table", "obs_years", "noise_eb", "noise_gb"]
+    field_order = ["v_wall", "T_star", "g_star", "table", "engine", "obs_years", "noise_eb", "noise_gb"]
 
 
 class ParameterChoiceForm(Form):
