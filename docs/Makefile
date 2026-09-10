@@ -23,8 +23,25 @@ all:
 	$(MAKE) latexpdf
 	$(MAKE) epub
 
+all-noplot:
+	$(MAKE) clean
+	$(MAKE) linkcheck
+	$(MAKE) html-noplot
+	$(MAKE) latex-noplot
+	$(MAKE) epub-noplot
+
 clean:
 	rm -rf $(BUILDDIR) ./auto_examples ./gen_modules ./sg_api_usage.rst ./sg_execution_times.rst
+
+epub-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b epub "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html-noplot:
+	# https://sphinx-gallery.github.io/stable/configuration.html#building-without-executing-examples
+	$(SPHINXBUILD) -D plot_gallery=0 -b html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+latex-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

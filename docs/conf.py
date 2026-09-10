@@ -178,6 +178,7 @@ intersphinx_mapping: IntersphinxMapping = {
     "pttools": ("https://pttools.readthedocs.io/en/latest/", None),
 }
 linkcheck_ignore: list[str] = [
+    "https://doi.org/10.1103/PhysRevD.101.089902",
     "https://medium.com/*"
 ]
 linkcheck_retries = 5
