@@ -4,8 +4,9 @@ import typing as tp
 
 from matplotlib.typing import RcKeyType
 import numpy as np
-from pttools.bubble import const as bubble_const
-from pttools.omgw0 import const as omgw0_const
+import pttools.bubble.const as bubble_const
+import pttools.omgw0.const as omgw0_const
+import pttools.ssm.const as ssm_const
 
 import ptplot.science.type_hints as th
 
@@ -16,12 +17,12 @@ DEFAULT_BETA_OVER_H: float = 10.
 DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR
 DEFAULT_K_TURB: float = 1.97 / 65.0
 
-DEFAULT_OMEGA_TILDE_GW: float = 0.012
+DEFAULT_OMEGA_TILDE_GW: float = ssm_const.DEFAULT_OMEGA_TILDE_GW
 r"""
-Default $\tilde{\Omega}_\text{gw}$, :hindmarsh_2017:`\ ` p. 13.
-Please note that there is a typo in the original article: $0.12 \rightarrow 0.012$: :hindmarsh_2017_erratum:`\ `.
-This value is obtained numerically from simulations.
-:caprini_2020:`\ ` p. 16
+Default $\tilde{\Omega}_\text{gw}$.
+
+For details, please see
+:py:data.`pttools.ssm.const.DEFAULT_OMEGA_TILDE_GW`.
 """
 
 #: Log the progress of a parallel computation every $x$ %. Set to None to disable the logging.

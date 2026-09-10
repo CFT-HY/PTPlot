@@ -40,7 +40,7 @@ def snr_point(
         )
         # Error logging is handled in this function
         _power_spectrum, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
-        return snr, spectrum.shock_time
+        return snr, spectrum.H_star_tau_nl
     except Exception as exc:
         logger.exception(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "

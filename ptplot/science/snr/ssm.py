@@ -63,8 +63,8 @@ def snr_column_ssm(
         # Error logging is handled in this function
         _power_spectrum, snr_i = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
         # snr[i] = snr_i
-        # shock_times[i] = spectrum.shock_time
+        # shock_times[i] = spectrum.H_star_tau_nl
         ret[0, i] = snr_i
-        ret[1, i] = spectrum.shock_time
+        ret[1, i] = spectrum.H_star_tau_nl
     # return snr, shock_times
     return ret

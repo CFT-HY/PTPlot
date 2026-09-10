@@ -130,7 +130,7 @@ class PowerSpectrumBPL(PowerSpectrum):
 
         For the conservative estimate, take the shock time no larger than 1.
         """
-        return min(self.H_tsh, 1.) * self.power_spectrum_sw(f)
+        return min(self.H_star_tau_nl, 1.) * self.power_spectrum_sw(f)
 
     def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
         r"""Calculate power spectrum from turbulence for a given frequency f.

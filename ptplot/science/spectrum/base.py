@@ -10,7 +10,7 @@ from pttools.bubble import DEFAULT_NU_GDH2024
 from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
 from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
 from pttools.omgw0 import f as f_func
-from pttools.ssm import DEFAULT_N_SH, H_star_tau_v, J, source_lifetime_factor
+from pttools.ssm import DEFAULT_N_SH, H_star_tau_nl, H_star_tau_v, J, J_old, source_lifetime_factor
 from pttools.utils import copy_docstrings
 
 from ptplot.science import const
@@ -60,16 +60,16 @@ class PowerSpectrum(abc.ABC):
         r"""
         Create a power spectrum.
 
-        :param beta_over_H: Inverse phase transition duration relative to H, $\frac{\beta}{H}$
-        :param T_star: Transition temperature $T_*$
-        :param g_star: Degrees of freedom $g_*$
-        :param v_wall: Wall velocity $v_\text{wall}$
-        :param adiabatic_index: Mean adiabatic index $\Gamma$
-        :param zp: Peak angular frequency in units of the mean bubble separation, $z_p$
-        :param alpha: Phase transition strength $\alpha$
-        :param k_turb: Fraction of latent heat that is transformed into magnetohydrodynamic turbulence, $k_\text{turb}$
-        :param r_star: Typical bubble radius
-        :param ubarf: rms fluid velocity $\bar{U}_f$
+        :param beta_over_H: $\frac{\beta}{H}$, Inverse phase transition duration relative to H
+        :param T_star: $T_*$, transition temperature
+        :param g_star: $g_*$, degrees of freedom
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param adiabatic_index: $\Gamma$, mean adiabatic index
+        :param zp: $z_p$, peak angular frequency in units of the mean bubble separation
+        :param alpha: $\alpha$, phase transition strength
+        :param k_turb: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
+        :param r_star: $r_*$, typical bubble radius
+        :param ubarf: $\bar{U}_f$, RMS fluid velocity
         :param parallel: Enable parallel processing for this spectrum if the engine supports it.
             This should be disabled when generating multiple spectra in parallel.
         """
@@ -81,24 +81,33 @@ class PowerSpectrum(abc.ABC):
             raise ValueError(f"Invalid v_wall={v_wall}")
 
         # Parameters that are guaranteed to be set
+        #: $\Gamma$, mean adiabatic index
         self.adiabatic_index: float = adiabatic_index
+        #: $g_*$, degrees of freedom
         self.g_star: float = g_star
+        #: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
         self.k_turb: float = k_turb
+        #: $N_\text{sh}$, number of shock formation times
         self.N_sh: float = DEFAULT_N_SH
+        #: $\nu_\text{gdh2024}$ of :giombi_2024_cs:`\ ` eq. 2.11
         self.nu_gdh2024: float = DEFAULT_NU_GDH2024
+        #: Whether parallel processing is enabled
         self.parallel: bool = parallel
+        #: $T_*$, transition temperature
         self.T_star: float = T_star
+        #: $z_p$, peak angular frequency in units of the mean bubble separation
         self.zp: float = zp
 
         # Parameters that may be set
+        #: $v_\text{wall}$, wall speed
         self.v_wall: float | None = v_wall
 
         # -----
         # Computed parameters
         # -----
-        #: $\alpha$
+        #: $\alpha$, phase transition strength
         self.alpha: float
-        #: $\bar{U}_f$
+        #: $\bar{U}_f$, RMS fluid velocity
         self.ubarf: float
         self.alpha, self.ubarf = self.validate_alpha_ubarf(
             alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_index=adiabatic_index, cs=cs
@@ -114,8 +123,6 @@ class PowerSpectrum(abc.ABC):
         self.beta_over_H, self.r_star = self.validate_beta_r_star(
             beta_over_H=beta_over_H, r_star=r_star, v_wall=v_wall, cs=cs
         )
-        #: Shock time
-        self.H_tsh: float = self.r_star / self.ubarf
 
     def csv(self, path: str | None = None, noise: Noise | None = None) -> str | None:
         """Export the power spectrum as CSV.
@@ -148,7 +155,7 @@ class PowerSpectrum(abc.ABC):
         :return: Peak frequency $f_\text{peak}$ in Hz
         """
         return tp.cast(
-            "float",
+            float,
             f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
         )
 
@@ -167,13 +174,21 @@ class PowerSpectrum(abc.ABC):
         """
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
-    def J(
-            self,
-            nu: th.FloatOrArr = DEFAULT_NU_GDH2024) -> th.FloatOrArr:
-        return J(
-            r_star=self.r_star,
-            H_star_tau_v=H_star_tau_v(nu=nu, source_lifetime_factor=self.source_lifetime_factor())
-        )
+    @property
+    def H_star_tau_nl(self) -> float:
+        return tp.cast(float, H_star_tau_nl(r_star=self.r_star, ubarf=self.ubarf))
+
+    @property
+    def H_star_tau_v(self) -> float:
+        return tp.cast(float, H_star_tau_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024))
+
+    @property
+    def J(self) -> float:
+        return tp.cast(float, J(r_star=self.r_star, H_star_tau_v=self.H_star_tau_v))
+
+    @property
+    def J_old(self) -> float:
+        return tp.cast(float, J_old(r_star=self.r_star, K=self.kinetic_energy_fraction_approx))
 
     @property
     def kinetic_energy_fraction_approx(self) -> float:
@@ -205,7 +220,7 @@ class PowerSpectrum(abc.ABC):
         $$s = \frac{f}{f_\text{peak}}$$
         :gowling_2021:`\ ` p. 9
         """
-        return tp.cast("T", f / self.f_peak())
+        return tp.cast(T, f / self.f_peak())
 
     @staticmethod
     def snr(f: th.FloatArr1D, power_spectrum: th.FloatArr1D, noise: Noise) -> float:
@@ -227,7 +242,7 @@ class PowerSpectrum(abc.ABC):
 
     def source_lifetime_factor(self) -> float:
         return tp.cast(
-            "float",
+            float,
             source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
         )
 
@@ -266,25 +281,16 @@ class PowerSpectrum(abc.ABC):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing r_* from beta/H.")
             # Using beta_over_H instead of beta to compute R_star gives r_star.
-            return beta_over_H, tp.cast("float", R_star(beta=beta_over_H, v_wall=v_wall, cs=cs))
+            return beta_over_H, tp.cast(float, R_star(beta=beta_over_H, v_wall=v_wall, cs=cs))
         if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing beta/H from r_*.")
             # Using r_star instead of R_star to compute beta gives beta_over_H.
-            return tp.cast("float", beta(R_star=r_star, v_wall=v_wall, cs=cs)), r_star
+            return tp.cast(float, beta(R_star=r_star, v_wall=v_wall, cs=cs)), r_star
         raise ValueError(
             "Either r_star or beta_over_H must be set, but not both. "
             f"Got r_star={r_star}, beta_over_H={beta_over_H}."
         )
-
-    # -----
-    # Properties
-    # -----
-
-    @property
-    def shock_time(self) -> float:
-        """Shock time."""
-        return self.H_tsh
 
     # -----
     # Abstract methods
@@ -312,6 +318,8 @@ ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 copy_docstrings({
     PowerSpectrum.F_gw0_h2: F_gw0_h2,
+    PowerSpectrum.H_star_tau_nl: H_star_tau_nl,
     PowerSpectrum.J: J,
+    PowerSpectrum.J_old: J_old,
     PowerSpectrum.source_lifetime_factor: source_lifetime_factor
 }, without_params=True)

@@ -36,8 +36,17 @@ class PowerSpectrumBaseCase(ABC):
     def test_h_star(self):
         return self.spectrum.h_star()
 
+    def test_H_star_tau_nl(self):
+        return self.spectrum.H_star_tau_nl
+
+    def test_H_star_tau_v(self):
+        return self.spectrum.H_star_tau_v
+
     def test_J(self):
-        return self.spectrum.J()
+        return self.spectrum.J
+
+    def test_J_old(self):
+        return self.spectrum.J_old
 
     def test_kinetic_energy(self):
         return self.spectrum.kinetic_energy_fraction_approx
@@ -56,6 +65,3 @@ class PowerSpectrumBaseCase(ABC):
 
     def test_source_lifetime_factor(self):
         return self.spectrum.source_lifetime_factor()
-
-    def test_shock_time(self):
-        return self.spectrum.shock_time
