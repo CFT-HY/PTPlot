@@ -6,10 +6,13 @@
 - Lint: `ruff check`
 - Type checking: `pyrefly check`
 - Build documentation: `cd docs && make all`
+  - This will run the examples and can therefore take 1-3 h.
+- Build documentation without examples: `cd docs && make all-noplot`
+- Update PTtools: update the commit hash of `pttools-gw` in `./requirements.txt` and run `./install_requirements.sh`.
 
 ## Code style
-- Use Python 3.12 type hints where possible
-- JIT compile heavy computations with Numba
+- Use Python 3.12 type hints where possible.
+- JIT compile heavy computations with Numba.
 
 ## General instructions
 - PTtools is installed as a pip package, usually in `./venv`.

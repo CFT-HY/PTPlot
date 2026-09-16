@@ -106,6 +106,6 @@ class PowerSpectrumDBPL(PowerSpectrum):
         """
         power_spectrum = tp.cast(
             "th.FloatArr1D",
-            self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
+            self.power_spectrum_common() / self.mu_approx() * self.J * self.M(s=self.s(f))
         )
         return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
