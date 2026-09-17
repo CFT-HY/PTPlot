@@ -32,8 +32,10 @@ jobs:
         run: python manage.py makemigrations
       - name: Migrate database
         run: python manage.py migrate
-      - name: Generate PTtools reference data
-        run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
+      # - name: Populate database
+      #   run: python manage.py populate
+      # - name: Generate PTtools reference data
+      #   run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Generate documentation
         run: |
           cd docs
