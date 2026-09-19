@@ -11,7 +11,7 @@
 - Update PTtools: update the commit hash of `pttools-gw` in `./requirements.txt` and run `./install_requirements.sh`.
 
 ## Code style
-- Use Python 3.12 type hints where possible.
+- Use Python 3.12+ type hints where possible.
 - JIT compile heavy computations with Numba.
 
 ## General instructions
