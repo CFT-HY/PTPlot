@@ -36,11 +36,11 @@ class PowerSpectrumBaseCase(ABC):
     def test_h_star(self):
         return self.spectrum.h_star()
 
-    def test_H_star_tau_nl(self):
-        return self.spectrum.H_star_tau_nl
+    def test_H_star_eta_sh(self):
+        return self.spectrum.H_star_eta_sh
 
-    def test_H_star_tau_v(self):
-        return self.spectrum.H_star_tau_v
+    def test_H_star_eta_v(self):
+        return self.spectrum.H_star_eta_v
 
     def test_J(self):
         return self.spectrum.J

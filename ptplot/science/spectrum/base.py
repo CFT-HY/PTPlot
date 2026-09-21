@@ -195,16 +195,16 @@ class PowerSpectrum(abc.ABC):
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
     @property
-    def H_star_tau_nl(self) -> float:
-        return tp.cast(float, H_star_tau_nl(r_star=self.r_star, ubarf=self.ubarf))
+    def H_star_eta_sh(self) -> float:
+        return tp.cast(float, H_star_eta_sh(r_star=self.r_star, ubarf=self.ubarf))
 
     @property
-    def H_star_tau_v(self) -> float:
-        return tp.cast(float, H_star_tau_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024))
+    def H_star_eta_v(self) -> float:
+        return tp.cast(float, H_star_eta_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024))
 
     @property
     def J(self) -> float:
-        return tp.cast(float, J(r_star=self.r_star, H_star_tau_v=self.H_star_tau_v))
+        return tp.cast(float, J(r_star=self.r_star, H_star_eta_v=self.H_star_eta_v))
 
     @property
     def J_old(self) -> float:
@@ -338,7 +338,7 @@ ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 copy_docstrings({
     PowerSpectrum.F_gw0_h2: F_gw0_h2,
-    PowerSpectrum.H_star_tau_nl: H_star_tau_nl,
+    PowerSpectrum.H_star_eta_sh: H_star_eta_sh,
     PowerSpectrum.J: J,
     PowerSpectrum.J_old: J_old,
     PowerSpectrum.source_lifetime_factor: source_lifetime_factor
