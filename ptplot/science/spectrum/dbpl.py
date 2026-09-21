@@ -53,7 +53,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         $$m = \frac{9 r_b^4 + b}{r_b^4 + 1}$$
         :gowling_2021:`\ ` eq. 2.17.
         With $b = 1$, this reduces to
-        :hindmarsh_2019:`\ ` p. 22.
+        :gw_pt_ssm:`\ ` p. 22.
         """
         return tp.cast("T", (9 * self.rb**4 + b) / (self.rb**4 + 1))
 
@@ -66,7 +66,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
 
         $$\mu(r_b) = \int_0^\infty \frac{ds}{s} M(s, r_b) \approx 4.78 - 6.27 r_b + 3.34 r_b^2$$
         This approximation is accurate to about 10 % over the relevant range $0 < r_b < 1$.
-        :hindmarsh_2019:`\ ` eq. 5.8, 5.9
+        :gw_pt_ssm:`\ ` eq. 5.8, 5.9
 
         This relates the peak power parameter $A_M$ to the total power parameter $\tilde{\Omega}_\text{gw}$.
         """
@@ -81,7 +81,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
         This formula is a fit to the Sound Shell Model power spectrum.
         :gowling_2021:`\ ` eq. 2.16
         With $b = 1$, this reduces to
-        :hindmarsh_2019:`\ ` eq. 5.7
+        :gw_pt_ssm:`\ ` eq. 5.7
 
         :param s: Frequency $s$ relative to the peak frequency
         :param b: $b$ defines the spectral slope between the two breaks in the spectrum

@@ -24,7 +24,6 @@ documentation for details.
   gen_modules/docs/docs
   history
   acknowledgements
-  see_also
   dev
   sg_api_usage
   sg_execution_times

@@ -14,7 +14,7 @@ import ptplot.science.type_hints as th
 class PowerSpectrumBPL(PowerSpectrum):
     r"""Broken power law (BPL) power spectrum.
 
-    Based on :hindmarsh_2017:`\ ` and `hindmarsh_2017_erratum:`\ `.
+    Based on :hindmarsh_2017:`\ ` and :hindmarsh_2017_erratum:`\ `.
     Original design by Mark Hindmarsh (Sep 2015).
 
     Also contains functions for turbulence.
@@ -72,10 +72,10 @@ class PowerSpectrumBPL(PowerSpectrum):
     def f_turb(self):
         r"""Calculate peak frequency for turbulence.
 
-        $$f_\text{turb} = 2.7 \cdot 10^{-5} \text{Hz} \frac{1}{v_\text{wall}}
+        $$f_\text{turb} = 2.7 \cdot 10^{-5} \text{Hz} \frac{1}{v_{\text{wall}}}
         \frac{\beta}{H_*} \frac{T_*}{100 \text{GeV}}
         \left( \frac{g_*}{100} \right)^{1/6}$$
-        :caprini_2015:`\ ` eq. 18
+        :caprini_2016:`\ ` eq. 18
         """
         if self.v_wall is None:
             raise ValueError("v_wall is required for computing the peak frequency for turbulence.")
@@ -135,7 +135,7 @@ class PowerSpectrumBPL(PowerSpectrum):
     def power_spectrum_turb(self, f: th.FloatOrArr) -> th.FloatOrArr:
         r"""Calculate power spectrum from turbulence for a given frequency f.
 
-        :caprini_2015:`\ ` eq. 16
+        :caprini_2016:`\ ` eq. 16
         """
         fp = f / self.f_turb()
         return 3.35e-4 / self.beta_over_H \
@@ -145,6 +145,6 @@ class PowerSpectrumBPL(PowerSpectrum):
     def S_turb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
         r"""Calculate the spectral shape from turbulence.
 
-        :caprini_2015:`\ ` eq. 17
+        :caprini_2016:`\ ` eq. 17
         """
         return fp**3 / ((1 + fp)**(11/3) * (1 + 8 * math.pi * f / self.h_star()))

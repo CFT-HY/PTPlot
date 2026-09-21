@@ -36,9 +36,9 @@ DEFAULT_ZP: int = 10
 r"""
 This default value is determine from simulations,
 and accounts for the observed peak value of $kR_*$.
-When $v_\text{wall} \approx v_\text{CJ}$, the value of $z_p$ may differ from 10,
+When $v_{\text{wall}} \approx v_{\text{CJ}}$, the value of $z_p$ may differ from 10,
 as the sound shells are so thin that they may set a substantially smaller length scale
-$\Delta R_* = R_* \frac{|v_\text{wall} - c_s|}{c_s}$.
+$\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
 :caprini_2020:`\ ` p. 17
 """
 

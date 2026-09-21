@@ -14,6 +14,20 @@
 - Use Python 3.12+ type hints where possible.
 - JIT compile heavy computations with Numba.
 
+## Docstring conventions
+- Use the Sphinx docstring format.
+- Use `:param:`, `:return:` and `:raises:`, where appropriate.
+  The descriptions of physics variables should begin with the form `$symbol$, name`, where appropriate.
+- For functions that return a physics variable,
+  the first line of the docstring should be of the form `$symbol$, name.`, where appropriate.
+- If a function contains physics equations, add them as LaTeX in its docstring.
+- When using equations from articles, cite the article, including the number of the equation, if possible.
+- Use Sphinx extlinks for references.
+- After changing equations in docstrings, run `python -m pttools.docs.lint`.
+  It builds the documentation without running the examples (`make latexpdf-noplot`), prints the Sphinx errors and warnings
+  and the LaTeX errors, and saves the Sphinx output to `./logs/sphinx_TIMESTAMP.log`. Its exit code is that of `make`.
+  Fix all reported errors, as the documentation is built with `--fail-on-warning`.
+
 ## General instructions
 - PTtools is installed as a pip package, usually in `./venv`.
   The examples and unit tests of PTtools may be available at `../pttools`.

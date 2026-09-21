@@ -31,7 +31,7 @@ The ones that PTtools uses, i.e. those of :smith_2019:`\ `:
 
 The last point is the one that matters most in practice, since
 :py:func:`pttools.omgw0.noise.signal_to_noise_ratio` computes
-$\rho = \sqrt{T_\text{obs} \int df \frac{\Omega_\text{signal}^2}{\Omega_\text{noise}^2}}$,
+$\rho = \sqrt{T_{\text{obs}} \int df \frac{\Omega_\text{signal}^2}{\Omega_\text{noise}^2}}$,
 which is :smith_2019:`\ ` eq. 60.
 The noise that is fed into it therefore has to be defined the way :smith_2019:`\ ` defines it.
 

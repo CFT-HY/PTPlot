@@ -190,7 +190,7 @@ class PowerSpectrum(abc.ABC):
     def h_star(self) -> float:
         r"""$h_*$, inverse Hubble time at GW production, redshifted to today.
 
-        :caprini_2015:`\ ` eq. 11
+        :caprini_2016:`\ ` eq. 11
         """
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
@@ -237,7 +237,7 @@ class PowerSpectrum(abc.ABC):
     def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency.
 
-        $$s = \frac{f}{f_\text{peak}}$$
+        $$s = \frac{f}{f_{\text{peak}}}$$
         :gowling_2021:`\ ` p. 9
         """
         return tp.cast(T, f / self.f_peak())

@@ -12,7 +12,7 @@ import tomllib
 
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
 from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, convert_extlinks
-from pttools.docs.setup import pre_setup, setup_sphinx
+from pttools.docs.setup import pre_setup, setup_sphinx, setup_sphinx_logging
 from sphinx_gallery.sorting import ExplicitOrder
 
 DOCS_DIR: str = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +25,7 @@ from ptplot import PTPLOT_DIR  # noqa: E402
 from ptplot.methods import setup_django  # noqa: E402
 
 setup_django()
+setup_sphinx_logging()
 # This is required so that ptplot_site.settings.prod can be imported.
 os.environ["DJANGO_SECRET_KEY"] = "SET_ME_IN_PRODUCION"
 
@@ -73,7 +74,12 @@ extensions = [
 ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build', 'Thumbs.db', '.DS_Store',
+    # Apidoc generates a table of contents file for each package,
+    # but the packages are included in the main toctree directly.
+    'gen_modules/*/modules.rst',
+]
 
 suppress_warnings = [
     # Automatic section labeling produces duplicated labels. This silences the warnings from those.

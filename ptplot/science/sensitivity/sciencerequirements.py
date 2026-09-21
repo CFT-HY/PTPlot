@@ -48,7 +48,7 @@ def Sh(f: FloatOrArr) -> FloatOrArr:
       so the factor should be $1/\sqrt{2}$.
       See :smith_2019:`\ ` eq. 59, 60 and pttools.omgw0.noise.S_AE, which applies the $1/\sqrt{2}$ there.
     - The A and E channels have twice the noise-to-response ratio of the equivalent Michelson channel:
-      $S_A = S_E = \frac{40}{3} (P_\text{oms} + 4 P_\text{acc}) \left( 1 + \frac{3f}{(4 f_t)^2} \right)$,
+      $S_A = S_E = \frac{40}{3} (P_{\text{oms}} + 4 P_{\text{acc}}) \left( 1 + \frac{3f}{(4 f_t)^2} \right)$,
       :smith_2019:`\ ` eq. 63 and :py:func:`pttools.omgw0.noise.S_AE_approx`.
       Applying the channel gain to the (20/3) sensitivity therefore skips that factor of 2.
     """
