@@ -45,7 +45,7 @@ def main(
     max_workers = n_workers()
     model = Model.objects.prefetch_related("scenarios", "scenarios__points").get(slug=slug)
 
-    for engine in Engine:
+    for engine in Engine.engines(docs=True):
         logger.info("Comparing v_wall=%s and v_wall=%s for %s with the %s engine.",
                     v_wall1, v_wall2, model.name, engine.name)
         try:

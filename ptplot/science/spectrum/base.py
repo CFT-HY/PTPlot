@@ -10,8 +10,8 @@ from pttools.bubble import DEFAULT_NU_GDH2024
 from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
 from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
 from pttools.omgw0 import f as f_func
-from pttools.ssm import DEFAULT_N_SH, H_star_tau_nl, H_star_tau_v, J, J_old, source_lifetime_factor
-from pttools.utils import copy_docstrings
+from pttools.ssm import DEFAULT_N_SH, H_star_eta_sh, H_star_eta_v, J, J_old, source_lifetime_factor
+from pttools.utils import IS_GITHUB_ACTIONS, copy_docstrings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
@@ -26,6 +26,26 @@ class Engine(enum.StrEnum):
     BPL = DEFAULT = "bpl"
     DBPL = "dbpl"
     SSM = "ssm"
+
+    @classmethod
+    def engines(cls, docs: bool = False) -> "list[Engine]":
+        """Get the engines.
+
+        :param: Return only engines that are enabled for docs.
+        :return: Engines (list instead of set to preserve order)
+        """
+        if docs and IS_GITHUB_ACTIONS:
+            return [engine for engine in cls if engine != cls.SSM]
+        return list(cls)
+
+    @classmethod
+    def non_default(cls, docs: bool = False) -> "list[Engine]":
+        """Get the non-default engines.
+
+        :param docs: Return only engines that are enabled for docs.
+        :return: Non-default engines (list instead of set to preserve order)
+        """
+        return [engine for engine in cls.engines(docs=docs) if engine != cls.DEFAULT]
 
     @property
     def spectrum(self) -> "type[PowerSpectrum]":

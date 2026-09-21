@@ -35,22 +35,24 @@ def main():  # noqa: PLR0915
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)
+    engines = Engine.engines(docs=True)
+    engines_non_default = Engine.non_default(docs=True)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
     max_workers = n_workers()
     logger.info("Creating benchmark figures with %d parallel workers.", max_workers)
 
     # Statistics
-    n_spectra_engine = np.zeros((n_models, len(Engine)), dtype=np.int_)
+    n_spectra_engine = np.zeros((n_models, len(engines)), dtype=np.int_)
     n_spectra_other = np.zeros_like(n_spectra_engine)
     times = np.zeros(n_models)
-    times_engine = np.zeros((n_models, len(Engine)))
+    times_engine = np.zeros((n_models, len(engines)))
 
     for i_model, model in enumerate(models):
         model_start_time = time.perf_counter()
         logger.info("##### Processing model %d/%d: %s", i_model+1, n_models, model.name)
         snr_abs: dict[Engine, SNRGridAlphaBeta] = {}
-        for i_engine, engine in enumerate(Engine):
+        for i_engine, engine in enumerate(engines):
             engine_start_time = time.perf_counter()
             try:
                 n_spectra_ab = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
@@ -76,9 +78,9 @@ def main():  # noqa: PLR0915
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time
 
-        for engine in (Engine.DBPL, Engine.SSM):
+        for engine in engines_non_default:
             try:
-                snr_comp = model.snr_comparison(grid1=snr_abs[Engine.BPL], grid2=snr_abs[engine])
+                snr_comp = model.snr_comparison(grid1=snr_abs[Engine.DEFAULT], grid2=snr_abs[engine])
                 save_fig(snr_comp, f"{model.slug}_snr_comparison_{engine}")
             except Exception as exc:
                 logger.exception(
@@ -109,15 +111,21 @@ def main():  # noqa: PLR0915
     )
 
     n_spectra = n_spectra_engine + n_spectra_other
-    times_ssm = times_engine[:, 2] / n_spectra[:, 2]
+    if Engine.SSM in engines:
+        i_ssm = engines.index(Engine.SSM)
+        times_ssm = times_engine[:, i_ssm] / n_spectra[:, i_ssm]
+        ssm_dict = {
+            "SSM time / SSM spectrum": times_ssm,
+            "SSM thread time / SSM spectrum": times_ssm * max_workers
+        }
+    else:
+        ssm_dict = {}
     df = DataFrame(
         data=
-            {engine.upper(): n_spectra[:, i] for i, engine in enumerate(Engine)} |
-            {f"{engine.upper()} time": times_engine[:, i] for i, engine in enumerate(Engine)} | {
-                "total time": times,
-                "SSM time / SSM spectrum": times_ssm,
-                "SSM thread time / SSM spectrum": times_ssm * max_workers
-        },
+            {engine.upper(): n_spectra[:, i] for i, engine in enumerate(engines)} |
+            {f"{engine.upper()} time": times_engine[:, i] for i, engine in enumerate(engines)} |
+            {"total time": times} |
+            ssm_dict,
         index=[model.name for model in models]
     )
     df.to_csv(os.path.join(FIG_DIR, "benchmark_figures.csv"))
