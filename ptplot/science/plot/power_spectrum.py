@@ -88,7 +88,6 @@ def power_spectrum_figure(
         #          ha="right", va="bottom", alpha=0.4)
 
         add_text(fig, f"{watermark()}, SNR={snr_value:g}")
-        fig.tight_layout()
     return fig
 
 

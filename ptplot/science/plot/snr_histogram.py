@@ -92,10 +92,9 @@ def snr_histogram(
         linewidth=2,
         # color=[engine.spectrum.COLOR for engine in engines]
     )
-    add_text(fig, watermark())
     ax.set_xscale("log")
     ax.set_xlabel("SNR")
     ax.set_ylabel("Number of points")
     ax.legend()
-    fig.tight_layout()
+    add_text(ax, watermark())
     return fig

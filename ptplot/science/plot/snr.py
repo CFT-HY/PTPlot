@@ -110,6 +110,5 @@ def snr_figure(
         #     ha="right", va="bottom", alpha=0.4
         # )
 
-        add_text(fig, watermark())
-        fig.tight_layout()
+        add_text(ax, watermark())
         return fig, ax
