@@ -1,6 +1,35 @@
 For developers
 ==============
 
+Setting up the development environment
+--------------------------------------
+The dependencies are managed with `uv <https://docs.astral.sh/uv/>`_.
+Install it with the `instructions of uv <https://docs.astral.sh/uv/getting-started/installation/>`_
+and then run
+
+.. code-block:: bash
+
+  ./install_requirements.sh
+
+This creates the virtualenv ``./.venv``, installs the dependency versions that are pinned in ``uv.lock``,
+and installs PTPlot itself in editable mode.
+It also clears the Numba cache of PTtools when PTtools is updated,
+since those cache files are not tracked by the package manager.
+The commands of the development tools are then run with ``uv run``, e.g.
+
+.. code-block:: bash
+
+  uv run pytest
+  uv run ruff check
+  uv run pyrefly check
+  uv run make -C docs all
+
+PTtools is installed from a Git commit, which is pinned with the ``rev``
+of ``pttools-gw`` in the ``[tool.uv.sources]`` section of ``pyproject.toml``.
+To update PTtools, edit the ``rev`` and run ``./install_requirements.sh``.
+The other dependencies can be updated with ``uv lock --upgrade``.
+
+
 Developing a new feature
 ------------------------
 Create a new feature branch in the repo.
@@ -22,6 +51,8 @@ Update the PTPlot version number in:
 - codemeta.json
 - pyproject.toml
 
+Then run ``uv lock`` to update the version number in ``uv.lock`` as well.
+
 
 Updating Python version requirements
 ------------------------------------
@@ -29,6 +60,7 @@ When updating the Python version requirements,
 update the version numbers in:
 
 - .github/workflows/\*.yml
+- .python-version
 - .readthedocs.yaml
 - Dockerfile
 - pyproject.toml

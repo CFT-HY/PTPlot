@@ -1,14 +1,18 @@
 # AGENTS.md
 
 ## Commands
+The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Install dependencies: `./install_requirements.sh`
-- Run tests: `pytest`
-- Lint: `ruff check`
-- Type checking: `pyrefly check`
-- Build documentation: `cd docs && make all`
+  - This wraps `uv sync` and clears the Numba cache of PTtools when PTtools is updated.
+- Run tests: `uv run pytest`
+- Lint: `uv run ruff check`
+- Type checking: `uv run pyrefly check`
+- Build documentation: `uv run make -C docs all`
   - This will run the examples and can therefore take 1-3 h.
-- Build documentation without examples: `cd docs && make all-noplot`
-- Update PTtools: update the commit hash of `pttools-gw` in `./requirements.txt` and run `./install_requirements.sh`.
+- Build documentation without examples: `uv run make -C docs all-noplot`
+- Update PTtools: update the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml`
+  and run `./install_requirements.sh`.
+- Update the other dependencies: `uv lock --upgrade`, or `uv lock --upgrade-package NAME` for a single one.
 
 ## Code style
 - Use Python 3.12+ type hints where possible.
@@ -23,13 +27,13 @@
 - If a function contains physics equations, add them as LaTeX in its docstring.
 - When using equations from articles, cite the article, including the number of the equation, if possible.
 - Use Sphinx extlinks for references.
-- After changing equations in docstrings, run `python -m pttools.docs.lint`.
+- After changing equations in docstrings, run `uv run python -m pttools.docs.lint`.
   It builds the documentation without running the examples (`make latexpdf-noplot`), prints the Sphinx errors and warnings
   and the LaTeX errors, and saves the Sphinx output to `./logs/sphinx_TIMESTAMP.log`. Its exit code is that of `make`.
   Fix all reported errors, as the documentation is built with `--fail-on-warning`.
 
 ## General instructions
-- PTtools is installed as a pip package, usually in `./venv`.
+- PTtools is installed as a pip package to the uv-managed virtualenv, usually in `./.venv`.
   The examples and unit tests of PTtools may be available at `../pttools`.
 - Before editing code that has physics equations, ensure that there are unit tests that verify the results of that code.
   If there are no such unit tests yet, create them. Use the existing output of the code as a reference,

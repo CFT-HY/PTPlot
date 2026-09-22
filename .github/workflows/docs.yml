@@ -9,37 +9,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-            docs/requirements.txt
-      - name: Print Python version
-        run: python -V
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Install LaTeX
         run: |
           sudo apt-get update
           sudo apt-get install -y cm-super dvipng latexmk optipng texlive-latex-extra texlive-xetex fonts-freefont-otf xindy
       - name: Install requirements
-        run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt -r requirements-dev.txt -r docs/requirements.txt
+        run: uv sync --locked
       - name: Create migrations
-        run: python manage.py makemigrations
+        run: uv run python manage.py makemigrations
       - name: Migrate database
-        run: python manage.py migrate
+        run: uv run python manage.py migrate
       - name: Populate database
-        run: python manage.py populate
+        run: uv run python manage.py populate
       - name: Generate PTtools reference data
-        run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
+        run: uv run python -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Generate documentation
-        run: |
-          cd docs
-          make all
+        run: uv run make -C docs all
       - name: Upload results
         uses: actions/upload-artifact@v7
         with:

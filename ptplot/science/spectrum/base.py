@@ -135,7 +135,7 @@ class PowerSpectrum(abc.ABC):
         :param r_star: $r_*$, typical bubble radius
         :param ubarf: $\bar{U}_f$, RMS fluid velocity
         :param legacy_nucleation_cs_max:
-            Use legacy $\max(v_\text{wall}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param parallel: Enable parallel processing for this spectrum if the engine supports it.
             This should be disabled when generating multiple spectra in parallel.
         """

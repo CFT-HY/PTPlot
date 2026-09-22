@@ -8,22 +8,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: requirements.txt
-      - name: Print Python version
-        run: python -V
-      - name: Install requirements
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade build packaging twine
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Build
-        run: python -m build
+        run: uv build
       - name: Run Twine checks
-        run: twine check dist/*
+        run: uvx twine check dist/*
       - name: Upload built artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -48,24 +38,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-      - name: Print Python version
-        run: python -V
-      - name: Install requirements
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Print versions
         run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt -r requirements-dev.txt
+          uv --version
+          uv run --no-project python -V
+      - name: Install requirements
+        run: uv sync --locked
       - name: Run Ruff
         run: |
           set -o pipefail
-          ruff check docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee ruff.txt
+          uv run ruff check docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee ruff.txt
       - name: Upload results
         # The results are the most interesting when the check has failed.
         if: always()
@@ -81,24 +65,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-      - name: Print Python version
-        run: python -V
-      - name: Install requirements
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Print versions
         run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt -r requirements-dev.txt
+          uv --version
+          uv run --no-project python -V
+      - name: Install requirements
+        run: uv sync --locked
       - name: Run Pyrefly
         run: |
           set -o pipefail
-          pyrefly check 2>&1 | tee pyrefly.txt
+          uv run pyrefly check 2>&1 | tee pyrefly.txt
       - name: Upload results
         # The results are the most interesting when the check has failed.
         if: always()
@@ -115,34 +93,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ env.PRIMARY_PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
-      - name: Print Python version
-        run: python -V
-      - name: Install requirements
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Print versions
         run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt -r requirements-dev.txt
+          uv --version
+          uv run --no-project python -V
+      - name: Install requirements
+        run: uv sync --locked
       - name: Print Numba sysinfo
-        run: numba --sysinfo | tee numba-sysinfo.txt
+        run: uv run numba --sysinfo | tee numba-sysinfo.txt
       - name: Create migrations
-        run: python manage.py makemigrations
+        run: uv run python manage.py makemigrations
       - name: Migrate database
-        run: python manage.py migrate
+        run: uv run python manage.py migrate
       - name: Check configuration
-        run: python manage.py check --fail-level WARNING
+        run: uv run python manage.py check --fail-level WARNING
       - name: Generate PTtools reference data
-        run: python3 -c "from pttools.bubble.fluid_reference import ref; ref()"
+        run: uv run python -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Run tests with coverage
         run: |
           set -o pipefail
-          pytest --store-durations 2>&1 | tee test-output.txt
+          uv run pytest --store-durations 2>&1 | tee test-output.txt
       - name: Upload results
         # The results are the most interesting when the tests have failed.
         if: always()

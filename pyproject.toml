@@ -1,9 +1,6 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build >= 0.12.17, < 0.13"]
+build-backend = "uv_build"
 
 [project]
 name = "ptplot-gw"
@@ -54,8 +51,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed"
 ]
-# Keep this up to date with requirements.txt.
-# Please also ensure that compatible versions are available in LISA ProtoLab.
+# The exact versions that are installed are pinned in uv.lock.
+# Please ensure that compatible versions are available in LISA ProtoLab.
 dependencies = [
     "django >= 6.0.5",
     "django-github-sso >= 5.0.2",
@@ -64,6 +61,8 @@ dependencies = [
     "matplotlib >= 3.10.9",
     "numpy >= 2.4.6",
     "pandas >= 3.0.3",
+    # This is installed from the Git commit that is pinned in [tool.uv.sources] below,
+    # but the users of the pip package get the release from PyPI.
     "pttools-gw[numbalsoda,performance] == 0.10.0",
     "scipy >= 1.17.1"
 ]
@@ -81,6 +80,44 @@ documentation = "https://ptplot.readthedocs.io"
 issues = "https://github.com/CFT-HY/PTPlot/issues"
 repository = "https://github.com/CFT-HY/PTPlot"
 
+# The development and documentation dependencies.
+# These are not installed for the users of the pip package.
+# The exact versions that are installed are pinned in uv.lock.
+[dependency-groups]
+dev = [
+    "allure-pytest == 2.16.0",
+    "django-coverage-plugin == 3.2.2",
+    "django-debug-toolbar == 6.3.0",
+    "django-stubs == 6.0.5",
+    # "hypothesis[django,numpy] == 6.155.1",
+    "lxml == 6.1.1",
+    "lxml-stubs == 0.5.1",
+    "pandas-stubs == 3.0.3.260530",
+    "psutil == 7.2.2",
+    "pyrefly == 1.2.0",
+    "pytest == 9.0.3",
+    "pytest-cov == 7.1.0",
+    "pytest-django == 4.12.0",
+    "pytest-html == 4.2.0",
+    "pytest-split == 0.11.0",
+    "pytest-xdist == 3.8.0",
+    "ruff == 0.16.6",
+    "scipy-stubs == 1.18.0.1",
+    "setuptools == 82.0.1",
+    "tblib == 3.2.2",
+    "types-defusedxml == 0.7.0.20260504",
+    "types-openpyxl == 3.1.5.20260518",
+    "types-python-dateutil == 2.9.0.20260518"
+]
+docs = [
+    "memory-profiler >= 0.61.0",
+    "sphinx == 9.1.0",
+    "sphinxcontrib-video == 0.4.2",
+    "sphinx-gallery == 0.21.0",
+    "sphinx-math-dollar == 1.3",
+    "sphinx-rtd-theme == 3.1.0"
+]
+
 [tool.coverage.run]
 branch = true
 command_line = "manage.py test --noinput --parallel"
@@ -90,6 +127,7 @@ concurrency = [
 ]
 source = ["."]
 omit = [
+    "*/.venv/*",
     "*/envs/*",
     "*/venv/*",
     "*.txt",
@@ -268,18 +306,29 @@ extend-ignore-names = [
 # https://github.com/astral-sh/ruff/issues/6606
 convention = "pep257"
 
-[tool.setuptools.packages.find]
-include = [
-    # "ptplot",
-    "ptplot.forms*",
-    "ptplot.management*",
-    "ptplot.migrations*",
-    "ptplot.science*",
-    "ptplot.static*",
-    "ptplot.templates*",
-    "ptplot.views*"
+[tool.uv]
+# Install the development and documentation dependencies by default,
+# so that "uv sync" creates a complete development environment.
+# Use "uv sync --no-default-groups" to install only the dependencies of the pip package.
+default-groups = ["dev", "docs"]
+
+[tool.uv.build-backend]
+# PTPlot uses a flat layout, in which the Python module is in the repository root
+# instead of a "src" directory.
+module-root = ""
+# The name of the Python module differs from the name of the pip package ("ptplot-gw").
+module-name = "ptplot"
+# The unit tests and the Numba caches are not needed by the users of the pip package.
+source-exclude = [
+    "ptplot/**/__pycache__/**",
+    # "ptplot/tests/**"
 ]
-exclude = [
-    "ptplot.tests",
-    "ptplot_site"
+wheel-exclude = [
+    "**/__pycache__/**",
+    # "tests/**"
 ]
+
+[tool.uv.sources]
+# To update to a different commit hash, update the "rev" below and run "./install_requirements.sh".
+# Remove this section to install the release from PyPI instead.
+pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "b676a461e7bf2cc9c1e7b1dbce2c4722c9201a64" }

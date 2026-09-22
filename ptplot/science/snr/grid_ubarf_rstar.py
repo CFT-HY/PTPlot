@@ -79,7 +79,7 @@ class SNRGridUbarfRStar(SNRGrid):
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
-            Use legacy $\max(v_\text{wall}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         """
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None

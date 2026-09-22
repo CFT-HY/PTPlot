@@ -59,13 +59,15 @@ fi
 
 log "Starting the nightly run at HEAD $(git rev-parse --short HEAD)."
 
-# shellcheck disable=SC1091  # The virtualenv is not available at lint time.
-source "${SCRIPT_DIR}/venv/bin/activate"
+# Run in the virtualenv that uv manages.
+# The --frozen ensures that the locked dependency versions are used as they are,
+# without updating uv.lock.
+UV="uv run --frozen --project ${SCRIPT_DIR}"
 
-pytest
+${UV} pytest
 log "Unit tests finished."
 
-make -C "${SCRIPT_DIR}/docs" all
+${UV} make -C "${SCRIPT_DIR}/docs" all
 log "Documentation build finished."
 
 archive "${FIG_DIR}" "${FIG_ARCHIVE}"
