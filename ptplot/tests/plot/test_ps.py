@@ -17,7 +17,7 @@ def spectra() -> list[PowerSpectrum]:
     """Create one power spectrum of each engine that is tested."""
     return [
         spectrum_class(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_over_H=const.DEFAULT_BETA_OVER_H
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE
         )
         for spectrum_class in SPECTRUM_CLASSES
     ]

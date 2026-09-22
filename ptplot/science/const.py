@@ -13,7 +13,7 @@ import ptplot.science.type_hints as th
 # Default values
 DEFAULT_ADIABATIC_INDEX: float = bubble_const.DEFAULT_ADIABATIC_INDEX
 DEFAULT_ALPHA: float = 0.1
-DEFAULT_BETA_OVER_H: float = 10.
+DEFAULT_BETA_TILDE: float = 10.
 DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR
 DEFAULT_K_TURB: float = 1.97 / 65.0
 
@@ -45,7 +45,7 @@ $\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
 # Default plotting ranges
 DEFAULT_GRID_SIZE: int = 51
 DEFAULT_ALPHA_N_RANGE: th.FloatArr1D = np.logspace(-2, 0.3, DEFAULT_GRID_SIZE)
-DEFAULT_BETA_OVER_H_RANGE: th.FloatArr1D = np.logspace(0.5, 4.5, DEFAULT_GRID_SIZE)
+DEFAULT_beta_tilde_RANGE: th.FloatArr1D = np.logspace(0.5, 4.5, DEFAULT_GRID_SIZE)
 DEFAULT_R_STAR_RANGE: th.FloatArr1D = np.logspace(-4, 0.08, DEFAULT_GRID_SIZE)
 DEFAULT_UBARF_RANGE: th.FloatArr1D = np.logspace(-2, 0, DEFAULT_GRID_SIZE)
 
@@ -72,7 +72,7 @@ YEAR_IN_SECONDS: float = omgw0_const.YEAR_IN_SECONDS
 
 # Names
 ALPHA_NAME: str = "transition strength (α)"
-BETA_OVER_H_NAME: str = "inverse phase transition duration (β/H)"
+BETA_TILDE_NAME: str = "inverse phase transition duration (β/H)"
 G_STAR_NAME: str = "degrees of freedom (g*)"
 HUGE_ALPHA_NAME: str = "huge α"
 T_STAR_NAME: str = "nucleation temperature (T*, GeV)"

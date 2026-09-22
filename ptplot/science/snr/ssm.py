@@ -49,7 +49,7 @@ def snr_column_ssm(
         spectrum = PowerSpectrumSSM(
             alpha=None if ubarf_rstar else x_value,
             ubarf=x_value if ubarf_rstar else None,
-            beta_over_H=None if ubarf_rstar else y_i,
+            beta_tilde=None if ubarf_rstar else y_i,
             r_star=y_i if ubarf_rstar else None,
             T_star=T_star,
             g_star=g_star,

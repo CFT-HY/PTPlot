@@ -26,7 +26,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         g_star=form.cleaned_data["g_star"],
         v_wall=form.cleaned_data["v_wall"],
         alpha=form.cleaned_data["alpha"],
-        beta_over_H=form.cleaned_data["beta_over_H"],
+        beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"]
     )
     fig = power_spectrum_figure(
@@ -51,7 +51,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             T_star=form.cleaned_data["T_star"],
             g_star=form.cleaned_data["g_star"],
             alpha_points=form.cleaned_data["alpha"],
-            beta_over_H_points=form.cleaned_data["beta_over_H"],
+            beta_tilde_points=form.cleaned_data["beta_tilde"],
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
             engine=form.cleaned_data["engine"]
@@ -74,7 +74,7 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             T_star=form.cleaned_data["T_star"],
             g_star=form.cleaned_data["g_star"],
             alpha_points=form.cleaned_data["alpha"],
-            beta_over_H_points=form.cleaned_data["beta_over_H"],
+            beta_tilde_points=form.cleaned_data["beta_tilde"],
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
             engine=form.cleaned_data["engine"]

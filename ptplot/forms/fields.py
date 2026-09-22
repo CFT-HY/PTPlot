@@ -79,8 +79,8 @@ class AlphaField(forms.FloatField):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
-class BetaOverHField(forms.FloatField):
-    r"""Field for the inverse phase transition duration $\frac{\beta}{H_*}$."""
+class BetaTildeField(forms.FloatField):
+    r"""Field for the Hubble-scaled inverse phase transition duration $\tilde{\beta} \equiv \frac{\beta}{H_*}$."""
 
     def __init__(
             self,

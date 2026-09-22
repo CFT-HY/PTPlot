@@ -32,7 +32,7 @@ if tp.TYPE_CHECKING:
 
 
 MODEL_ANNOTATIONS = min_max_avg(
-    "points__alpha", "points__beta_over_H", "points__v_wall", "points__T_star", "points__g_star",
+    "points__alpha", "points__beta_tilde", "points__v_wall", "points__T_star", "points__g_star",
     "scenarios__T_star"
 )
 
@@ -75,9 +75,9 @@ class Model(models.Model):
         points__alpha__min: float | None
         points__alpha__max: float | None
         points__alpha__avg: float | None
-        points__beta_over_H__min: float | None
-        points__beta_over_H__max: float | None
-        points__beta_over_H__avg: float | None
+        points__beta_tilde__min: float | None
+        points__beta_tilde__max: float | None
+        points__beta_tilde__avg: float | None
         points__v_wall__min: float | None
         points__v_wall__max: float | None
         points__v_wall__avg: float | None
@@ -116,7 +116,7 @@ class Model(models.Model):
     def annotated_labels(self) -> str:
         return "$" + r", \ ".join([
             self.annotated_label(r"\alpha_n", self.points__alpha__min, self.points__alpha__max),
-            self.annotated_label(r"\beta/H_*", self.points__beta_over_H__min, self.points__beta_over_H__max),
+            self.annotated_label(r"\beta/H_*", self.points__beta_tilde__min, self.points__beta_tilde__max),
             self.annotated_label(
                 r"v_\text{wall}",
                 self.points__v_wall__min,
@@ -147,12 +147,12 @@ class Model(models.Model):
         data = self.point_data()
         v_wall = data["v_wall"].to_numpy(dtype=np.float64)
         alpha = data["alpha_n"].to_numpy(dtype=np.float64)
-        beta_over_H = data["beta_over_H"].to_numpy(dtype=np.float64)
+        beta_tilde = data["beta_tilde"].to_numpy(dtype=np.float64)
         T_star = data["T_star"].to_numpy(dtype=np.float64)
         g_star = data["g_star"].to_numpy(dtype=np.float64)
         labels = data["label"].to_list()
         titles = self.name
-        return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
+        return v_wall, alpha, beta_tilde, T_star, g_star, labels, titles
 
     def point_data_by_field_and_scenario(self) -> tuple[
                 th.FloatArr1DOrListOfArr1D,
@@ -168,7 +168,7 @@ class Model(models.Model):
         scenarios = self.scenarios.prefetch_related("points").all()
         v_wall = []
         alpha = []
-        beta_over_H = []
+        beta_tilde = []
         T_star = []
         g_star = []
         labels = []
@@ -178,13 +178,13 @@ class Model(models.Model):
             data = scenario.point_data()
             v_wall.append(data["v_wall"].to_numpy(dtype=np.float64))
             alpha.append(data["alpha_n"].to_numpy(dtype=np.float64))
-            beta_over_H.append(data["beta_over_H"].to_numpy(dtype=np.float64))
+            beta_tilde.append(data["beta_tilde"].to_numpy(dtype=np.float64))
             T_star.append(data["T_star"].to_numpy(dtype=np.float64))
             g_star.append(data["g_star"].to_numpy(dtype=np.float64))
             labels.append(data["label"].to_list())
             titles.append(scenario.name)
 
-        return v_wall, alpha, beta_over_H, T_star, g_star, labels, titles
+        return v_wall, alpha, beta_tilde, T_star, g_star, labels, titles
 
     def snr_comparison(
             self,
@@ -247,14 +247,14 @@ class Model(models.Model):
         :param max_workers: Maximum number of worker processes
         :return: SNR grid
         """
-        v_wall_points, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridAlphaBeta(
             T_star=self.T_star if T_star is None else T_star,
             g_star=self.g_star if g_star is None else g_star,
             v_wall=self.v_wall if v_wall is None else v_wall,
             noise=noise,
             alpha_points=alpha,
-            beta_over_H_points=beta_over_H,
+            beta_tilde_points=beta_tilde,
             v_wall_points=v_wall_points,
             labels_points=labels,
             titles=titles,
@@ -288,14 +288,14 @@ class Model(models.Model):
         :param max_workers: Maximum number of worker processes
         :return: SNR grid
         """
-        v_wall_points, alpha, beta_over_H, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
         return SNRGridUbarfRStar(
             v_wall=self.v_wall if v_wall is None else v_wall,
             T_star=self.T_star if T_star is None else T_star,
             g_star=self.g_star if g_star is None else g_star,
             noise=noise,
             alpha_points=alpha,
-            beta_over_H_points=beta_over_H,
+            beta_tilde_points=beta_tilde,
             v_wall_points=v_wall_points,
             labels_points=labels,
             titles=titles,
@@ -307,9 +307,9 @@ class Model(models.Model):
         )
 
     def snr_histogram(self, noise: Noise | None = None, engines: list[Engine] | None = None) -> Figure:
-        v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field()
+        v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
         return snr_histogram(
-            v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
+            v_wall=v_wall, alpha_n=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
             labels=labels, titles=titles,
             noise=noise,
             engines=engines

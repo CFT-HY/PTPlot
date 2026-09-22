@@ -10,9 +10,23 @@ from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024, SolutionType
 from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
 from pttools.models import Model
-from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
+from pttools.omgw0 import (
+    G0,
+    GS0,
+    OMEGA_PHOTON_H2,
+    F_gw0_h2,
+    f_star0,
+    signal_to_noise_ratio,
+)
 from pttools.omgw0 import f as f_func
-from pttools.ssm import DEFAULT_N_SH, H_star_eta_sh, H_star_eta_v, J, J_old, source_lifetime_factor
+from pttools.ssm import (
+    DEFAULT_N_SH,
+    H_star_eta_sh,
+    H_star_eta_v,
+    J,
+    J_old,
+    source_lifetime_factor,
+)
 from pttools.ssm import beta_tilde as beta_tilde_func
 from pttools.ssm import r_star as r_star_func
 from pttools.utils import IS_GITHUB_ACTIONS, copy_docstrings
@@ -98,7 +112,7 @@ class PowerSpectrum(abc.ABC):
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
             alpha: float | None = None,
-            beta_over_H: float | None = None,
+            beta_tilde: float | None = None,
             ubarf: float | None = None,
             r_star: float | None = None,
             cs: float = const.CS0,  # Todo: implement this properly
@@ -109,7 +123,7 @@ class PowerSpectrum(abc.ABC):
         r"""
         Create a power spectrum.
 
-        :param beta_over_H: $\frac{\beta}{H}$, Inverse phase transition duration relative to H
+        :param beta_tilde: $\frac{\beta}{H}$, Inverse phase transition duration relative to H
         :param T_star: $T_*$, transition temperature
         :param g_star: $g_*$, degrees of freedom
         :param v_wall: $v_\text{wall}$, wall velocity
@@ -162,15 +176,15 @@ class PowerSpectrum(abc.ABC):
             alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_index=adiabatic_index, cs=cs
         )
         #: $\tilde{\beta} \equiv \frac{\beta}{H_*}$, inverse phase transition duration relative to Hubble time
-        self.beta_over_H: float
+        self.beta_tilde: float
         #: Given $\tilde{\beta} \equiv \frac{\beta}{H_*}$, not computed
-        self.beta_over_H_given: float | None = beta_over_H
+        self.beta_tilde_given: float | None = beta_tilde
         #: Hubble-scaled mean bubble spacing $r_*$
         self.r_star: float
         #: Given $r_*$, not computed
         self.r_star_given: float | None = r_star
-        self.beta_over_H, self.r_star = self.validate_beta_r_star(
-            beta_over_H=beta_over_H, r_star=r_star, v_wall=v_wall, legacy_cs=cs
+        self.beta_tilde, self.r_star = self.validate_beta_r_star(
+            beta_tilde=beta_tilde, r_star=r_star, v_wall=v_wall, legacy_cs=cs
         )
 
     def csv(self, path: str | None = None, noise: Noise | None = None) -> str | None:
@@ -352,26 +366,26 @@ class PowerSpectrum(abc.ABC):
 
     def validate_beta_r_star(
             self,
-            beta_over_H: float | None,
+            beta_tilde: float | None,
             r_star: float | None,
             v_wall: float | None,
             xi: FloatArr1D | None = None,
             T: FloatArr1D | None = None,
             sol_type: SolutionType = SolutionType.DETON,
             legacy_cs: float | None = None) -> tuple[float, float]:
-        if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
+        if (r_star is None) and (beta_tilde is not None and not np.isnan(beta_tilde)):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing r_* from beta/H.")
-            return beta_over_H, tp.cast(float, r_star_func(
-                beta_tilde=beta_over_H, v_wall=v_wall, xi=xi, T=T, sol_type=sol_type, legacy_cs=legacy_cs)
+            return beta_tilde, tp.cast(float, r_star_func(
+                beta_tilde=beta_tilde, v_wall=v_wall, xi=xi, T=T, sol_type=sol_type, legacy_cs=legacy_cs)
             )
-        if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
+        if (r_star is not None and not np.isnan(r_star)) and (beta_tilde is None):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing beta/H from r_*.")
             return tp.cast(float, beta_tilde_func(r_star=r_star, v_wall=v_wall, legacy_cs=legacy_cs)), r_star
         raise ValueError(
-            "Either r_star or beta_over_H must be set, but not both. "
-            f"Got r_star={r_star}, beta_over_H={beta_over_H}."
+            "Either r_star or beta_tilde must be set, but not both. "
+            f"Got r_star={r_star}, beta_tilde={beta_tilde}."
         )
 
     # -----

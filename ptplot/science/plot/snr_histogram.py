@@ -22,7 +22,7 @@ def snr_histogram(
         # points: "ParameterChoice",
         v_wall: th.FloatArr1D,
         alpha_n: th.FloatArr1D,
-        beta_over_H: th.FloatArr1D,
+        beta_tilde: th.FloatArr1D,
         T_star: th.FloatArr1D,
         g_star: th.FloatArr1D,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
@@ -48,7 +48,7 @@ def snr_histogram(
         for i_point in range(alpha_n.size):
             snr[i_point, i_engine], _ = snr_point(
                 x=alpha_n[i_point],
-                y=beta_over_H[i_point],
+                y=beta_tilde[i_point],
                 T_star=T_star[i_point],
                 g_star=g_star[i_point],
                 v_wall=v_wall[i_point],

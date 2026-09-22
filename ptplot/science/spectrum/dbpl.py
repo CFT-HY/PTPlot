@@ -27,7 +27,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
             alpha: float | None = None,
-            beta_over_H: float | None = None,
+            beta_tilde: float | None = None,
             ubarf: float | None = None,
             r_star: float | None = None,
             cs: float = const.CS0,
@@ -38,7 +38,7 @@ class PowerSpectrumDBPL(PowerSpectrum):
             parallel: bool = True):
         super().__init__(
             T_star=T_star, g_star=g_star, v_wall=v_wall,
-            alpha=alpha, beta_over_H=beta_over_H,
+            alpha=alpha, beta_tilde=beta_tilde,
             ubarf=ubarf, r_star=r_star,
             cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb, parallel=parallel
         )

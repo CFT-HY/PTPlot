@@ -22,7 +22,7 @@ class SNRTest(TestCase):
         snr_figure_alpha_beta(
             grid=SNRGridAlphaBeta(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
-                alpha_points=const.DEFAULT_ALPHA, beta_over_H_points=const.DEFAULT_BETA_OVER_H,
+                alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
                 v_wall_points=const.DEFAULT_V_WALL
             )
         )
@@ -32,7 +32,7 @@ class SNRTest(TestCase):
         snr_figure_ubarf_rstar(
             grid=SNRGridUbarfRStar(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
-                alpha_points=const.DEFAULT_ALPHA, beta_over_H_points=const.DEFAULT_BETA_OVER_H,
+                alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
                 v_wall_points=const.DEFAULT_V_WALL
             )
         )
@@ -42,8 +42,8 @@ class SNRTest(TestCase):
         """Create a small SNR grid for the comparison tests."""
         return SNRGridAlphaBeta(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
-            alpha_n=np.array([0.1, 1.]), beta_over_H=np.array([100., 1000.]),
-            alpha_points=const.DEFAULT_ALPHA, beta_over_H_points=const.DEFAULT_BETA_OVER_H,
+            alpha_n=np.array([0.1, 1.]), beta_tilde=np.array([100., 1000.]),
+            alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
             v_wall_points=const.DEFAULT_V_WALL,
             name=name
         )
@@ -131,8 +131,8 @@ class SNRTest(TestCase):
         """Grids with different ranges cannot be compared."""
         grid2 = SNRGridAlphaBeta(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
-            alpha_n=np.array([0.1, 2.]), beta_over_H=np.array([100., 1000.]),
-            alpha_points=const.DEFAULT_ALPHA, beta_over_H_points=const.DEFAULT_BETA_OVER_H,
+            alpha_n=np.array([0.1, 2.]), beta_tilde=np.array([100., 1000.]),
+            alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
             v_wall_points=const.DEFAULT_V_WALL
         )
         with pytest.raises(ValueError, match="same ranges"):

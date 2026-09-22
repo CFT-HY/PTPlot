@@ -24,7 +24,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
 
             table_lines = form.cleaned_data["table"].splitlines()
             alphas = []
-            beta_over_Hs = []
+            beta_tildes = []
             labels = []
 
             read_lines = 0
@@ -38,7 +38,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
 
                 bits = line.split(",")
                 alphas.append(float(bits[0]))
-                beta_over_Hs.append(float(bits[1]))
+                beta_tildes.append(float(bits[1]))
                 with contextlib.suppress(IndexError):
                     labels.append(bits[2].strip())
 
@@ -50,7 +50,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                     T_star=form.cleaned_data["T_star"],
                     g_star=form.cleaned_data["g_star"],
                     alpha_points=alphas,
-                    beta_over_H_points=beta_over_Hs,
+                    beta_tilde_points=beta_tildes,
                     v_wall_points=form.cleaned_data["v_wall"],
                     labels_points=label_list_final,
                     noise=form.noise,
@@ -92,7 +92,7 @@ def single(request: HttpRequest) -> HttpResponse:
         "querystring": querystring,
         "v_wall": form.cleaned_data["v_wall"],
         "alpha": form.cleaned_data["alpha"],
-        "beta_over_H": form.cleaned_data["beta_over_H"],
+        "beta_tilde": form.cleaned_data["beta_tilde"],
         "T_star": form.cleaned_data["T_star"],
         "g_star": form.cleaned_data["g_star"],
         "noise": form.noise,

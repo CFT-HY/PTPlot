@@ -34,7 +34,7 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def __init__(
             self,
-            beta_over_H: float | None = None,
+            beta_tilde: float | None = None,
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
@@ -52,7 +52,7 @@ class PowerSpectrumSSM(PowerSpectrum):
         self._bubble: Bubble | None = Bubble(model=model, v_wall=v_wall, alpha_n=alpha) \
             if bubble is None and not (v_wall is None or alpha is None) else None
         super().__init__(
-            beta_over_H=beta_over_H,
+            beta_tilde=beta_tilde,
             T_star=T_star,
             g_star=g_star,
             v_wall=v_wall,
@@ -107,7 +107,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             spectrum = Spectrum(
                 bubble=self.bubble,
                 y=z,
-                beta_tilde=self.beta_over_H_given,
+                beta_tilde=self.beta_tilde_given,
                 g_star=self.g_star,
                 r_star=self.r_star_given,
                 T_star=self.T_star,
@@ -155,7 +155,7 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def validate_beta_r_star(
             self,
-            beta_over_H: float | None,
+            beta_tilde: float | None,
             r_star: float | None,
             v_wall: float | None,
             xi: FloatArr1D | None = None,
@@ -165,7 +165,7 @@ class PowerSpectrumSSM(PowerSpectrum):
         if sol_type is None:
             sol_type = SolutionType.DETON if self._bubble is None else self._bubble.sol_type
         return super().validate_beta_r_star(
-            beta_over_H=beta_over_H,
+            beta_tilde=beta_tilde,
             r_star=r_star,
             v_wall=v_wall,
             xi=self._bubble.xi if xi is None and self._bubble is not None else xi,

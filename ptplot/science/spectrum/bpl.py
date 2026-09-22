@@ -79,7 +79,7 @@ class PowerSpectrumBPL(PowerSpectrum):
         """
         if self.v_wall is None:
             raise ValueError("v_wall is required for computing the peak frequency for turbulence.")
-        return 27e-6 * (1 / self.v_wall) * self.beta_over_H * (self.T_star / 100) * (self.g_star / 100)**(1/6)
+        return 27e-6 * (1 / self.v_wall) * self.beta_tilde * (self.T_star / 100) * (self.g_star / 100)**(1/6)
 
     def power_spectrum(
             self,
@@ -138,7 +138,7 @@ class PowerSpectrumBPL(PowerSpectrum):
         :caprini_2016:`\ ` eq. 16
         """
         fp = f / self.f_turb()
-        return 3.35e-4 / self.beta_over_H \
+        return 3.35e-4 / self.beta_tilde \
             * (self.k_turb * self.alpha / (1 + self.alpha))**(3/2) \
             * (100 / self.g_star)**(1/3) * self.v_wall * self.S_turb(f, fp)
 

@@ -118,7 +118,7 @@ def main():
     args = parser.parse_args()
     spectra = [
         power_spectrum(
-            v_wall=args.v_wall, alpha=args.alpha, beta_over_H=args.BetaoverH,
+            v_wall=args.v_wall, alpha=args.alpha, beta_tilde=args.BetaoverH,
             T_star=args.Tstar, g_star=args.gstar,
             engine=engine
         )

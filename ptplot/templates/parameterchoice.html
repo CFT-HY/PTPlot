@@ -9,7 +9,7 @@
   {% for point in model.points.all %}
     <li>
       $v_\mathrm{w} = {{ point.v_wall }}$, $\alpha_\theta = {{ point.alpha }}$,
-      $H/\beta = {{ point.beta_over_H }}$, $h_* = xx$, $T_n = xx \, \mathrm{GeV}$
+      $H/\beta = {{ point.beta_tilde }}$, $h_* = xx$, $T_n = xx \, \mathrm{GeV}$
     </li>
   {% endfor %}
 </ul>

@@ -39,24 +39,24 @@ def snr_figure_alpha_beta(
     :return: SNR figure of $(\alpha_n, \beta/H)$
     """
     log10_alpha_n_grid = np.log10(grid.alpha_n)
-    log10_beta_over_H_grid = np.log10(grid.beta_over_H)
+    log10_beta_tilde_grid = np.log10(grid.beta_tilde)
     alpha_mid = (log10_alpha_n_grid[0] + log10_alpha_n_grid[-1]) / 2
 
     fig, ax = snr_figure(
         grid=grid,
         shock_label_locs=[
             (alpha_mid - 0.3 + 0.2 * i, float(y))
-            for i, y in enumerate(range(int(log10_beta_over_H_grid[0]), int(log10_beta_over_H_grid[-1]) + 1))
+            for i, y in enumerate(range(int(log10_beta_tilde_grid[0]), int(log10_beta_tilde_grid[-1]) + 1))
         ],
         label_wanted_y=2,
         huge_alpha=huge_alpha,
         filled=filled
     )
     if grid.has_points:
-        alpha_points, beta_over_H_points = grid.points()
+        alpha_points, beta_tilde_points = grid.points()
         add_points(
             ax=ax,
-            x=alpha_points, y=beta_over_H_points,
+            x=alpha_points, y=beta_tilde_points,
             labels=grid.labels_points if labels is None else labels,
             titles=grid.titles if titles is None else titles
         )
@@ -75,7 +75,7 @@ def main():
     fig = snr_figure_alpha_beta(
         grid=SNRGridAlphaBeta(
             v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar,
-            alpha_points=args.alpha, beta_over_H_points=args.BetaoverH,
+            alpha_points=args.alpha, beta_tilde_points=args.BetaoverH,
             noise=noise, engine=args.engine
         )
     )

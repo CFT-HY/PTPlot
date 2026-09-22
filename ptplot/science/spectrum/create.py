@@ -26,7 +26,7 @@ def power_spectrum(
         g_star: float = const.DEFAULT_G_STAR,
         v_wall: float | None = None,
         alpha: float | None = None,
-        beta_over_H: float | None = None,
+        beta_tilde: float | None = None,
         ubarf: float | None = None,
         r_star: float | None = None,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
@@ -49,13 +49,13 @@ def power_spectrum(
         if (css2 is not None or csb2 is not None) and model is BAG:
             model = const_cs_model(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(
-            beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
+            beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
             v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
             parallel=parallel, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
-        beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
+        beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
         v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
         alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
         parallel=parallel

@@ -13,26 +13,26 @@ class PowerSpectrumTest(TestCase):
     @staticmethod
     def test_power_spectrum():
         power_spectrum(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_over_H=const.DEFAULT_BETA_OVER_H
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE
         )
 
     @staticmethod
     def test_power_spectrum_dbpl():
         power_spectrum(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_over_H=const.DEFAULT_BETA_OVER_H,
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.DBPL
         )
 
     @staticmethod
     def test_power_spectrum_ssm():
         power_spectrum(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_over_H=const.DEFAULT_BETA_OVER_H,
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.SSM
         )
 
     @staticmethod
     def test_power_spectrum_ssm_const_cs():
         power_spectrum(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_over_H=const.DEFAULT_BETA_OVER_H,
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.SSM, css2=1 / 4, csb2=1 / 4
         )

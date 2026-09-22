@@ -13,7 +13,7 @@ class PowerSpectrumBaseCase(ABC):
     SPECTRUM_CLASS: type[PowerSpectrum]
     V_WALL: float = 0.3
     ALPHA: float = 0.1
-    BETA_OVER_H: float = 10000
+    BETA_TILDE: float = 10000
     T_STAR: float = 100
     G_STAR: float = 100
 
@@ -21,7 +21,7 @@ class PowerSpectrumBaseCase(ABC):
     def setUpClass(cls):
         cls.spectrum = cls.SPECTRUM_CLASS(
             T_star=cls.T_STAR, g_star=cls.G_STAR,
-            v_wall=cls.V_WALL, alpha=cls.ALPHA, beta_over_H=cls.BETA_OVER_H
+            v_wall=cls.V_WALL, alpha=cls.ALPHA, beta_tilde=cls.BETA_TILDE
         )
 
     def test_csv(self):

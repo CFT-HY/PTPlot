@@ -7,7 +7,7 @@ from django.forms import CharField, Form, Textarea
 
 from ptplot.forms.fields import (
     AlphaField,
-    BetaOverHField,
+    BetaTildeField,
     CSB2Field,
     CSS2Field,
     EngineField,
@@ -68,7 +68,7 @@ class PTPlotForm(NoiseFormMixin):
 
     v_wall = VWallField()
     alpha = AlphaField()
-    beta_over_H = BetaOverHField()
+    beta_tilde = BetaTildeField()
     T_star = TStarField()
     g_star = GStarField()
     css2 = CSS2Field(required=False)
@@ -76,7 +76,7 @@ class PTPlotForm(NoiseFormMixin):
     engine = EngineField()
     # Keep the noise fields of the mixin after the parameters of the point.
     field_order = [
-        "v_wall", "alpha", "beta_over_H", "T_star", "g_star", "css2", "csb2", "engine",
+        "v_wall", "alpha", "beta_tilde", "T_star", "g_star", "css2", "csb2", "engine",
         "obs_years", "noise_eb", "noise_gb"
     ]
     # usetex = forms.BooleanField(
@@ -121,4 +121,4 @@ class ParameterChoiceForm(Form):
             self.v_wall = VWallField
             # tstar = TStarField()
             self.alpha = AlphaField()
-            self.beta_over_H = BetaOverHField()
+            self.beta_tilde = BetaTildeField()

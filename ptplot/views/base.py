@@ -26,7 +26,7 @@ def csv(request: HttpRequest) -> HttpResponse:
         g_star=form.cleaned_data["g_star"],
         v_wall=form.cleaned_data["v_wall"],
         alpha=form.cleaned_data["alpha"],
-        beta_over_H=form.cleaned_data["beta_over_H"],
+        beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"],
         css2=form.cleaned_data["css2"],
         csb2 = form.cleaned_data["csb2"]

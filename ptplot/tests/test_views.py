@@ -81,7 +81,7 @@ class ViewTest(TestCase):
         cls.form = PTPlotForm(data={
             "v_wall": 0.3,
             "alpha": 0.1,
-            "beta_over_H": 10000,
+            "beta_tilde": 10000,
             "T_star": 100,
             "g_star": 100,
             "obs_years": 3,

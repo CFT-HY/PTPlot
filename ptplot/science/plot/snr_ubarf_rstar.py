@@ -78,7 +78,7 @@ def main():
     fig = snr_figure_ubarf_rstar(
         grid=SNRGridUbarfRStar(
             v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar,
-            alpha_points=args.alpha, beta_over_H_points=args.BetaoverH, v_wall_points=args.v_wall,
+            alpha_points=args.alpha, beta_tilde_points=args.BetaoverH, v_wall_points=args.v_wall,
             noise=noise, engine=args.engine
         )
     )

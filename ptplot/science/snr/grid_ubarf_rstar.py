@@ -41,7 +41,7 @@ class SNRGridUbarfRStar(SNRGrid):
             T_star: float,
             g_star: float,
             alpha_points: th.FloatOrArrOrListOfArr1D | None = None,
-            beta_over_H_points: th.FloatOrArrOrListOfArr1D | None = None,
+            beta_tilde_points: th.FloatOrArrOrListOfArr1D | None = None,
             v_wall_points: th.FloatOrArrOrListOfArr1D | None = None,
             labels_points: th.StrOrListOrNestedList | None = None,
             titles: th.StrOrList | None = None,
@@ -63,7 +63,7 @@ class SNRGridUbarfRStar(SNRGrid):
         :param T_star: Temperature $T_*$ at which the GWs were produced
         :param g_star: Degrees of freedom $g_*$
         :param alpha_points: Phase transition strengths $\alpha$[scenario, point] to be drawn on the grid
-        :param beta_over_H_points: Inverse phase transition durations
+        :param beta_tilde_points: Inverse phase transition durations
             $\frac{\beta}{H}$[scenario, point] to be drawn on the grid
         :param v_wall_points: Wall velocities $v_\text{wall}$[scenario, point] of the points
         :param labels_points: Labels of the points [scenario, point]
@@ -81,11 +81,11 @@ class SNRGridUbarfRStar(SNRGrid):
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
         r_star_points: th.FloatOrArrOrList1D2D | None
-        if alpha_points is not None and beta_over_H_points is not None:
+        if alpha_points is not None and beta_tilde_points is not None:
             self.v_wall_points, ubarf_points, r_star_points, labels_points = ubarf_rstar_from_alpha_beta(
                 v_wall=v_wall if v_wall_points is None else v_wall_points,
                 alpha=alpha_points,
-                beta_over_H=beta_over_H_points,
+                beta_tilde=beta_tilde_points,
                 labels=labels_points,
                 cs=cs,
                 adiabatic_index=adiabatic_index
@@ -98,7 +98,7 @@ class SNRGridUbarfRStar(SNRGrid):
             if ubarf is None:
                 raise ValueError("Provide either ubarf or alpha_points.")
             if r_star is None:
-                raise ValueError("Provide either r_star or beta_over_H_points.")
+                raise ValueError("Provide either r_star or beta_tilde_points.")
             self.v_wall_points = None
             ubarf_points = None
             r_star_points = None
@@ -141,7 +141,7 @@ def main():
     # Todo: enable the v_wall argument
     parser = PTPlotParser(
         description="Computes signal-to-noise contour to a file.",
-        v_wall_alpha_betaoverh=False,
+        v_wall_alpha_beta_tilde=False,
         noise=True,
         engine=True
     )

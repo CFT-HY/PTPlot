@@ -62,7 +62,7 @@ class Command(BaseCommand):
             long_label=r"Meson-like $m_\chi=600\, \mathrm{GeV}; \, N=5.4$",
             T_star=153.5,
             alpha=3.69994,
-            beta_over_H=274.654
+            beta_tilde=274.654
         )
         pa.save()
 
@@ -73,7 +73,7 @@ class Command(BaseCommand):
             long_label=r"Meson-like $m_\chi=700\, \mathrm{GeV}; \, N=3$",
             T_star=191.881,
             alpha=0.730951,
-            beta_over_H=507.016
+            beta_tilde=507.016
         )
         pb.save()
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
             long_label=r"Glueball-like $m_\chi=200\, \mathrm{GeV}; \, N=6.6$",
             T_star=134.035,
             alpha=392893,
-            beta_over_H=82.7087
+            beta_tilde=82.7087
         )
         pc.save()
 
@@ -95,7 +95,7 @@ class Command(BaseCommand):
             long_label=r"Glueball-like $m_\chi=200\, \mathrm{GeV}; \, N=5.4$",
             T_star=128.961,
             alpha=9454.681,
-            beta_over_H=150.123
+            beta_tilde=150.123
         )
         pd.save()
 
@@ -106,7 +106,7 @@ class Command(BaseCommand):
             long_label=r"Glueball-like $m_\chi=300\, \mathrm{GeV}; \, N=4.2$",
             T_star=147.908,
             alpha=597.929,
-            beta_over_H=184.682
+            beta_tilde=184.682
         )
         pe.save()
 
@@ -117,7 +117,7 @@ class Command(BaseCommand):
             long_label=r"Glueball-like $m_\chi=1000\, \mathrm{GeV}; \, N=4.2$",
             T_star=272.358,
             alpha=6.62143,
-            beta_over_H=176.709
+            beta_tilde=176.709
         )
         pf.save()
 
@@ -160,7 +160,7 @@ class Command(BaseCommand):
                 long_label=f"Point {row.Index + 1:d}",  # type: ignore
                 T_star=row.T_nuc,
                 alpha=row.alpha,
-                beta_over_H=row.beta_per_H,
+                beta_tilde=row.beta_per_H,
                 g_star=row.rel_dof
             )
             point.save()
@@ -227,7 +227,7 @@ class Command(BaseCommand):
                 long_label=rf"$f/\sqrt{{c}} = {row.effscale:.2f} \, \text{{GeV}}$",
                 T_star=50,
                 alpha=row.alpha,
-                beta_over_H=row.betaoverH,
+                beta_tilde=row.betaoverH,
                 g_star=106.75,
                 scenario=scenario_a
             )
@@ -247,7 +247,7 @@ class Command(BaseCommand):
                 long_label=rf"$f/\sqrt{{c}} = {row.effscale:.2f} \, \text{{GeV}}$",
                 T_star=100,
                 alpha=row.alpha,
-                beta_over_H=row.betaoverH,
+                beta_tilde=row.betaoverH,
                 g_star=106.75,
                 scenario=scenario_b
             )
@@ -350,7 +350,7 @@ class Command(BaseCommand):
                 long_label=rf"{letter}: $(m_\phi, m_{{Z'}}) = ({row.mPhi:d},{row.mZp:d})\, \mathrm{{GeV}}$",
                 T_star=row.Tn,
                 alpha=row.alpha,
-                beta_over_H=row.betaoverH,
+                beta_tilde=row.betaoverH,
                 g_star=row.gstar,
                 scenario=scenarios[letter]
             )
@@ -384,7 +384,7 @@ class Command(BaseCommand):
             long_label="$B_1$",
             T_star=1053,
             alpha=1.60,
-            beta_over_H=10**2.36
+            beta_tilde=10**2.36
         )
         pb1.save()
 
@@ -395,7 +395,7 @@ class Command(BaseCommand):
             long_label="$B_2$",
             T_star=821.8,
             alpha=4.61,
-            beta_over_H=10**1.99
+            beta_tilde=10**1.99
         )
         pb2.save()
 
@@ -406,7 +406,7 @@ class Command(BaseCommand):
             long_label="$B_3$",
             T_star=770.4,
             alpha=7.86,
-            beta_over_H=10**1.79
+            beta_tilde=10**1.79
         )
         pb3.save()
 
@@ -417,7 +417,7 @@ class Command(BaseCommand):
             long_label="$B_4$",
             T_star=730.6,
             alpha=17.1,
-            beta_over_H=10**1.48
+            beta_tilde=10**1.48
         )
         pb4.save()
 
@@ -428,7 +428,7 @@ class Command(BaseCommand):
             long_label="$B_5$",
             T_star=694.0,
             alpha=90.1,
-            beta_over_H=10**1.97
+            beta_tilde=10**1.97
         )
         pb5.save()
 
@@ -439,7 +439,7 @@ class Command(BaseCommand):
             long_label="$B_6$",
             T_star=694.0,
             alpha=90.1,
-            beta_over_H=10**1.97
+            beta_tilde=10**1.97
         )
         pb6.save()
 
@@ -450,7 +450,7 @@ class Command(BaseCommand):
             long_label="$B_7$",
             T_star=612.0,
             alpha=1047,
-            beta_over_H=10**1.67
+            beta_tilde=10**1.67
         )
         pb7.save()
 
@@ -461,7 +461,7 @@ class Command(BaseCommand):
             long_label="$B_8$",
             T_star=566.4,
             alpha=4e4,
-            beta_over_H=10**1.23
+            beta_tilde=10**1.23
         )
         pb8.save()
 
@@ -472,7 +472,7 @@ class Command(BaseCommand):
             long_label="$B_9$",
             T_star=549.3,
             alpha=4.1e6,
-            beta_over_H=10**0.64
+            beta_tilde=10**0.64
         )
         pb9.save()
 
@@ -483,7 +483,7 @@ class Command(BaseCommand):
             long_label="$B_{10}$",
             T_star=546.8,
             alpha=3.3e7,
-            beta_over_H=10**0.34
+            beta_tilde=10**0.34
         )
         pb10.save()
 
@@ -494,7 +494,7 @@ class Command(BaseCommand):
             long_label="$B_{11}$",
             T_star=545.6,
             alpha=4.5e8,
-            beta_over_H=10**-0.32
+            beta_tilde=10**-0.32
         )
         pb11.save()
 
@@ -505,7 +505,7 @@ class Command(BaseCommand):
             long_label="$C_1$",
             T_star=578.4,
             alpha=4.3,
-            beta_over_H=10**2.03
+            beta_tilde=10**2.03
         )
         pc1.save()
 
@@ -516,7 +516,7 @@ class Command(BaseCommand):
             long_label="$C_2$",
             T_star=416.2,
             alpha=5e3,
-            beta_over_H=10**1.45
+            beta_tilde=10**1.45
         )
         pc2.save()
 
@@ -527,7 +527,7 @@ class Command(BaseCommand):
             long_label="$D_1$",
             T_star=133.7,
             alpha=5.0,
-            beta_over_H=10**1.05
+            beta_tilde=10**1.05
         )
         pd1.save()
 
@@ -538,7 +538,7 @@ class Command(BaseCommand):
             long_label="$E_1$",
             T_star=567.2,
             alpha=203,
-            beta_over_H=10**1.89
+            beta_tilde=10**1.89
         )
         pe1.save()
 
@@ -596,7 +596,7 @@ class Command(BaseCommand):
         )
         scenario2.save()
 
-        # File contents: alpha, beta_over_H, probe
+        # File contents: alpha, beta_tilde, probe
         # points: DataFrame = read_csv(
         #     os.path.join(FILEDIR, "GW_singlet_combined.dat"),
         #     sep=",",
@@ -619,7 +619,7 @@ class Command(BaseCommand):
                 ),
                 alpha=row.alpha,
                 T_star=row.Tstar,
-                beta_over_H=row.betaoverH,
+                beta_tilde=row.betaoverH,
                 scenario=scenario2 if row.LHCflag else scenario1
             )
             point.save()
@@ -668,7 +668,7 @@ class Command(BaseCommand):
                 long_label=rf"$m = {row.m:.0f}\, \mathrm{{GeV}}, \, a_2 = {row.a2:.1f}$",
                 T_star=row.Tstar,
                 alpha=row.alpha,
-                beta_over_H=row.betaoverH
+                beta_tilde=row.betaoverH
             )
             point.save()
 
@@ -716,7 +716,7 @@ class Command(BaseCommand):
                 long_label=rf"$m = {row.m:.0f}\, \mathrm{{GeV}}, \, a_2 = {row.a2:g}$",
                 T_star=row.Tstar,
                 alpha=row.alpha,
-                beta_over_H=row.betaoverH
+                beta_tilde=row.betaoverH
             )
             point.save()
 
@@ -751,7 +751,7 @@ class Command(BaseCommand):
             long_label=r"$(a_2,b_4) = (2.8,2.1)$",
             T_star=70.6,
             alpha=0.09,
-            beta_over_H=47.35
+            beta_tilde=47.35
         )
         pa.save()
 
@@ -762,7 +762,7 @@ class Command(BaseCommand):
             long_label=r"$(a_2,b_4) = (2.9,2.6)$",
             T_star=65.2,
             alpha=0.12,
-            beta_over_H=29.96
+            beta_tilde=29.96
         )
         pb.save()
 
@@ -773,7 +773,7 @@ class Command(BaseCommand):
             long_label=r"$(a_2,b_4) = (3.0,3.3)$",
             T_star=49.6,
             alpha=0.17,
-            beta_over_H=12.54
+            beta_tilde=12.54
         )
         pc.save()
 
@@ -784,7 +784,7 @@ class Command(BaseCommand):
             long_label=r"$(a_2,b_4) = (3.1,4.0)$",
             T_star=56.4,
             alpha=0.20,
-            beta_over_H=6.42
+            beta_tilde=6.42
         )
         pd.save()
 
@@ -827,7 +827,7 @@ class Command(BaseCommand):
                 long_label=f"Point {row.Index + 1:d}",  # type: ignore
                 T_star=row.T_nuc,
                 alpha=row.alpha,
-                beta_over_H=row.beta_per_H,
+                beta_tilde=row.beta_per_H,
                 g_star=row.rel_dof
             )
             point.save()
@@ -875,7 +875,7 @@ class Command(BaseCommand):
             long_label="SUSY$_1$ point A",
             T_star=112,
             alpha=0.037,
-            beta_over_H=277,
+            beta_tilde=277,
             scenario=scenario1
         )
         p1_a.save()
@@ -887,7 +887,7 @@ class Command(BaseCommand):
             long_label="SUSY$_1$ point B",
             T_star=95,
             alpha=0.066,
-            beta_over_H=106,
+            beta_tilde=106,
             scenario=scenario1
         )
         p1_b.save()
@@ -899,7 +899,7 @@ class Command(BaseCommand):
             long_label="SUSY$_1$ point C",
             T_star=82,
             alpha=0.105,
-            beta_over_H=33,
+            beta_tilde=33,
             scenario=scenario1
         )
         p1_c.save()
@@ -911,7 +911,7 @@ class Command(BaseCommand):
             long_label="SUSY$_1$ point D",
             T_star=76.4,
             alpha=0.143,
-            beta_over_H=6.0,
+            beta_tilde=6.0,
             scenario=scenario1
         )
         p1_d.save()
@@ -932,7 +932,7 @@ class Command(BaseCommand):
             long_label="SUSY$_2$ point A",
             T_star=135,
             alpha=0.050,
-            beta_over_H=830,
+            beta_tilde=830,
             v_wall=0.73,
             scenario=scenario2
         )
@@ -945,7 +945,7 @@ class Command(BaseCommand):
             long_label="SUSY$_2$ point B",
             T_star=146,
             alpha=0.040,
-            beta_over_H=2914,
+            beta_tilde=2914,
             v_wall=0.72,
             scenario=scenario2
         )
@@ -967,7 +967,7 @@ class Command(BaseCommand):
             long_label="SUSY$_3$ point A",
             T_star=74,
             alpha=0.062,
-            beta_over_H=214,
+            beta_tilde=214,
             v_wall=0.1,
             scenario=scenario3
         )
@@ -980,7 +980,7 @@ class Command(BaseCommand):
             long_label="SUSY$_3$ point B",
             T_star=74,
             alpha=0.062,
-            beta_over_H=214,
+            beta_tilde=214,
             v_wall=0.5,
             scenario=scenario3
         )
@@ -993,7 +993,7 @@ class Command(BaseCommand):
             long_label="SUSY$_3$ point C",
             T_star=79,
             alpha=0.045,
-            beta_over_H=200,
+            beta_tilde=200,
             v_wall=0.1,
             scenario=scenario3
         )
@@ -1006,7 +1006,7 @@ class Command(BaseCommand):
             long_label="SUSY$_3$ point D",
             T_star=79,
             alpha=0.045,
-            beta_over_H=200,
+            beta_tilde=200,
             v_wall=0.5,
             scenario=scenario3
         )
@@ -1028,7 +1028,7 @@ class Command(BaseCommand):
             long_label="SUSY$_4$ point A",
             T_star=48,
             alpha=0.22,
-            beta_over_H=57,
+            beta_tilde=57,
             # This has not been changed for PTtools compatibility, but was 0.95 already before.
             v_wall=0.95,
             scenario=scenario4
@@ -1106,7 +1106,7 @@ class Command(BaseCommand):
                     rf"$(m_H,m_A) = ({row.mH:.0f},{row.mA:.0f}) \, \mathrm{{GeV}}$, $\tan \beta = {row.tanb:.0f}$",
                 T_star=row.Tn,
                 alpha=row.alpha_n,
-                beta_over_H=row.beta_H_n,
+                beta_tilde=row.beta_H_n,
                 scenario=scenario1
             )
             point.save()
@@ -1141,7 +1141,7 @@ class Command(BaseCommand):
                     rf"$(m_H,m_A) = ({row.mH:.0f},{row.mA:.0f}) \, \mathrm{{GeV}}$, $\tan \beta = {row.tanb:.0f}$",
                 T_star=row.Tn,
                 alpha=row.alpha_n,
-                beta_over_H=row.beta_H_n,
+                beta_tilde=row.beta_H_n,
                 scenario=scenario2
             )
             point.save()

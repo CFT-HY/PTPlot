@@ -39,8 +39,8 @@ class ParameterChoice(models.Model):
             validators.MinValueValidator(0)
         ]
     )
-    beta_over_H = models.FloatField(
-        verbose_name=const.BETA_OVER_H_NAME,
+    beta_tilde = models.FloatField(
+        verbose_name=const.BETA_TILDE_NAME,
         validators=[
             validators.MinValueValidator(0)
         ]
@@ -117,7 +117,7 @@ class ParameterChoice(models.Model):
             g_star=self.g_star_value,
             v_wall=self.v_wall_value,
             alpha=self.alpha,
-            beta_over_H=self.beta_over_H,
+            beta_tilde=self.beta_tilde,
             engine=engine
         ).csv(noise=noise)
         if csv is None:
@@ -143,7 +143,7 @@ class ParameterChoice(models.Model):
                     g_star=self.g_star_value,
                     v_wall=self.v_wall_value,
                     alpha=self.alpha,
-                    beta_over_H=self.beta_over_H,
+                    beta_tilde=self.beta_tilde,
                     engine=spectrum_engine
                 )
                 for spectrum_engine in Engine.engines(engine)
@@ -157,7 +157,7 @@ class ParameterChoice(models.Model):
     #         noise: Noise | None = None,
     #         engine: Engine = Engine.DEFAULT) -> tuple[float, float]:
     #     snr, shock_time = snr_point(
-    #         x=self.alpha, y=self.beta_over_H,
+    #         x=self.alpha, y=self.beta_tilde,
     #         T_star=self.T_star_value, g_star=self.g_star_value, v_wall=self.v_wall_value,
     #         adiabatic_index=adiabatic_index,
     #         noise=noise, engine=engine
@@ -231,7 +231,7 @@ class ParameterChoice(models.Model):
             v_wall=self.v_wall_value if v_wall is None else v_wall,
             noise=noise,
             alpha_points=self.alpha,
-            beta_over_H_points=self.beta_over_H,
+            beta_tilde_points=self.beta_tilde,
             v_wall_points=self.v_wall_value,
             labels_points=self.short_label,
             adiabatic_index=adiabatic_index,
@@ -270,7 +270,7 @@ class ParameterChoice(models.Model):
             g_star=self.g_star_value if g_star is None else g_star,
             noise=noise,
             alpha_points=self.alpha,
-            beta_over_H_points=self.beta_over_H,
+            beta_tilde_points=self.beta_tilde,
             v_wall_points=self.v_wall_value,
             labels_points=self.short_label,
             adiabatic_index=adiabatic_index,

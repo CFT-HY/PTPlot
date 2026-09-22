@@ -27,7 +27,7 @@ def snr_point(
     """Compute the SNR value of a single point in the parameter space."""
     noise = resolve_noise(noise)
     kwargs: dict[str, tp.Any] = {"ubarf": x, "r_star": y} if ubarf_rstar \
-        else {"alpha": x, "beta_over_H": y}
+        else {"alpha": x, "beta_tilde": y}
     try:
         spectrum = power_spectrum(
             T_star=T_star,
@@ -46,7 +46,7 @@ def snr_point(
             "Failed to compute SNR for %s=%s, %s=%s, T_star=%s, g_star=%s, v_wall=%s, "
             "noise=%s, engine=%s, adiabatic_index=%s",
             "ubarf" if ubarf_rstar else "alpha", x,
-            "r_star" if ubarf_rstar else "beta_over_H", y,
+            "r_star" if ubarf_rstar else "beta_tilde", y,
             T_star, g_star, v_wall, noise, engine, adiabatic_index,
             exc_info=exc
         )

@@ -26,7 +26,7 @@ class PTPlotParser(argparse.ArgumentParser):
     def __init__(
             self,
             *args,
-            v_wall_alpha_betaoverh: bool = True,
+            v_wall_alpha_beta_tilde: bool = True,
             Tstar_gstar: bool = True,
             noise: bool = False,
             engine: bool = False,
@@ -40,7 +40,7 @@ class PTPlotParser(argparse.ArgumentParser):
         if "formatter_class" not in kwargs:
             kwargs["formatter_class"] = argparse.ArgumentDefaultsHelpFormatter
         super().__init__(*args, **kwargs)
-        if v_wall_alpha_betaoverh:
+        if v_wall_alpha_beta_tilde:
             self.add_argument(
                 "-v_wall", "--v_wall", "-vw", "--vw", type=float, default=const.DEFAULT_V_WALL,
                 help=const.V_WALL_NAME
@@ -50,8 +50,8 @@ class PTPlotParser(argparse.ArgumentParser):
                 help=const.ALPHA_NAME
             )
             self.add_argument(
-                "-BetaoverH", "--BetaoverH", type=float, default=const.DEFAULT_BETA_OVER_H,
-                help=const.BETA_OVER_H_NAME
+                "-beta_tilde", "--beta_tilde", type=float, default=const.DEFAULT_BETA_TILDE,
+                help=const.BETA_TILDE_NAME
             )
         if Tstar_gstar:
             self.add_argument(

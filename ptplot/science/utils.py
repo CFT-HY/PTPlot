@@ -123,7 +123,7 @@ def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr
 def ubarf_rstar_from_alpha_beta(
         v_wall: th.FloatOrArrOrListOfArr1D,
         alpha: th.FloatOrArrOrListOfArr1D,
-        beta_over_H: th.FloatOrArrOrListOfArr1D,
+        beta_tilde: th.FloatOrArrOrListOfArr1D,
         labels: th.StrOrListOrNestedList | None,
         model: Model | None = None,
         cs: float = const.CS0,
@@ -134,7 +134,7 @@ def ubarf_rstar_from_alpha_beta(
             th.StrOrListOrNestedList | None]:
     r"""Convert $\alpha$ and $\frac{\beta}{H}$ to $\bar{U}_f$ and $R_*$."""
     # Ensure that input values are 2D arrays
-    v_wall, alpha, beta_over_H = atleast_2d(v_wall, alpha, beta_over_H)
+    v_wall, alpha, beta_tilde = atleast_2d(v_wall, alpha, beta_tilde)
     if labels:
         if isinstance(labels, str):
             labels = [[labels]]
@@ -149,8 +149,8 @@ def ubarf_rstar_from_alpha_beta(
         for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)
     ]
     r_star = [
-        tp.cast(th.FloatArr, R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
-        for beta_over_H_set, v_wall_set in zip(beta_over_H, v_wall, strict=True)
+        tp.cast(th.FloatArr, R_star(beta=beta_tilde_set, v_wall=v_wall_set, cs=const.CS0))
+        for beta_tilde_set, v_wall_set in zip(beta_tilde, v_wall, strict=True)
     ]
     return v_wall, ubarf, r_star, labels
 
