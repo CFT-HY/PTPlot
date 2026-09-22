@@ -6,19 +6,20 @@ import typing as tp
 
 import numpy as np
 from pandas import DataFrame
-from pttools.bubble import DEFAULT_NU_GDH2024
-from pttools.bubble.energy_budget import alpha_n_from_ubarf, delta_n, ubarf_approx
+from pttools.bubble import DEFAULT_NU_GDH2024, SolutionType
+from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
 from pttools.models import Model
 from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
 from pttools.omgw0 import f as f_func
 from pttools.ssm import DEFAULT_N_SH, H_star_eta_sh, H_star_eta_v, J, J_old, source_lifetime_factor
+from pttools.ssm import beta_tilde as beta_tilde_func
+from pttools.ssm import r_star as r_star_func
 from pttools.utils import IS_GITHUB_ACTIONS, copy_docstrings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatOrArr
-from ptplot.science.utils import R_star, beta
+from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 
 class Engine(enum.StrEnum):
@@ -142,7 +143,7 @@ class PowerSpectrum(abc.ABC):
         #: Given $r_*$, not computed
         self.r_star_given: float | None = r_star
         self.beta_over_H, self.r_star = self.validate_beta_r_star(
-            beta_over_H=beta_over_H, r_star=r_star, v_wall=v_wall, cs=cs
+            beta_over_H=beta_over_H, r_star=r_star, v_wall=v_wall, legacy_cs=cs
         )
 
     def csv(self, path: str | None = None, noise: Noise | None = None) -> str | None:
@@ -267,8 +268,8 @@ class PowerSpectrum(abc.ABC):
             source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
         )
 
-    def validate_alpha_ubarf(
-            self,
+    @staticmethod
+    def validate_alpha_ubarf_static(
             alpha: float | None,
             ubarf: float | None,
             v_wall: float | None,
@@ -309,24 +310,38 @@ class PowerSpectrum(abc.ABC):
             "Exactly two of v_wall, alpha, ubarf_in must be set. "
             f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
 
-    validate_alpha_ubarf_static = staticmethod(validate_alpha_ubarf)
+    def validate_alpha_ubarf(
+            self,
+            alpha: float | None,
+            ubarf: float | None,
+            v_wall: float | None,
+            adiabatic_index: float,
+            cs: float,
+            v_cj: float | None = None,
+            model: Model | None = None) -> tuple[float, float]:
+        return self.validate_alpha_ubarf_static(
+            alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_index=adiabatic_index, cs=cs, v_cj=v_cj, model=model
+        )
 
-    @staticmethod
     def validate_beta_r_star(
+            self,
             beta_over_H: float | None,
             r_star: float | None,
             v_wall: float | None,
-            cs: float) -> tuple[float, float]:
+            xi: FloatArr1D | None = None,
+            T: FloatArr1D | None = None,
+            sol_type: SolutionType = SolutionType.DETON,
+            legacy_cs: float | None = None) -> tuple[float, float]:
         if (r_star is None) and (beta_over_H is not None and not np.isnan(beta_over_H)):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing r_* from beta/H.")
-            # Using beta_over_H instead of beta to compute R_star gives r_star.
-            return beta_over_H, tp.cast(float, R_star(beta=beta_over_H, v_wall=v_wall, cs=cs))
+            return beta_over_H, tp.cast(float, r_star_func(
+                beta_tilde=beta_over_H, v_wall=v_wall, xi=xi, T=T, sol_type=sol_type, legacy_cs=legacy_cs)
+            )
         if (r_star is not None and not np.isnan(r_star)) and (beta_over_H is None):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing beta/H from r_*.")
-            # Using r_star instead of R_star to compute beta gives beta_over_H.
-            return tp.cast(float, beta(R_star=r_star, v_wall=v_wall, cs=cs)), r_star
+            return tp.cast(float, beta_tilde_func(r_star=r_star, v_wall=v_wall, legacy_cs=legacy_cs)), r_star
         raise ValueError(
             "Either r_star or beta_over_H must be set, but not both. "
             f"Got r_star={r_star}, beta_over_H={beta_over_H}."

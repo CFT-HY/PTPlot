@@ -236,6 +236,7 @@ extend-ignore-names = [
     "SI",
     "SII",
     "S_turb",
+    "T",
     "Tn",
     "Tstar_gstar",
     "T_star",

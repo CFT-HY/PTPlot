@@ -5,7 +5,7 @@ import logging
 import typing as tp
 
 import numpy as np
-from pttools.bubble import Bubble
+from pttools.bubble import Bubble, SolutionType
 from pttools.models import BagModel, Model
 from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
 from pttools.omgw0 import z as z_func
@@ -14,7 +14,7 @@ from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
-import ptplot.science.type_hints as th
+from ptplot.science.type_hints import FloatArr1D
 
 BAG = BagModel(alpha_n_min=0.0001)
 
@@ -48,6 +48,9 @@ class PowerSpectrumSSM(PowerSpectrum):
             bubble: Bubble | None = None,
             parallel: bool = True):
         self.model: Model = model
+        # Compute the bubble early if possible so that it can be used for nucleation suppression.
+        self._bubble: Bubble | None = Bubble(model=model, v_wall=v_wall, alpha_n=alpha) \
+            if bubble is None and not (v_wall is None or alpha is None) else None
         super().__init__(
             beta_over_H=beta_over_H,
             T_star=T_star,
@@ -66,18 +69,18 @@ class PowerSpectrumSSM(PowerSpectrum):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
-            if bubble is None else bubble
+            if self._bubble is None else self._bubble
 
     def power_spectrum(
             self,
-            f: th.FloatArr1D,
+            f: FloatArr1D,
             noise: Noise | None = None,
             log_errors: bool = True,
             g0: float = G0,
             gs0: float = GS0,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) \
-            -> tuple[th.FloatArr1D, float]:
+            -> tuple[FloatArr1D, float]:
         r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model, and its SNR.
 
         The SNR is computed by :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`,
@@ -96,7 +99,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             if np.isnan(f).any():
                 raise ValueError("f must not contain nan values.")
             z = tp.cast(
-                "th.FloatArr1D",
+                "FloatArr1D",
                 z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
             )
             if np.isnan(z).any():
@@ -148,6 +151,27 @@ class PowerSpectrumSSM(PowerSpectrum):
             cs=cs,
             v_cj=v_cj,
             model=self.model if model is None else model
+        )
+
+    def validate_beta_r_star(
+            self,
+            beta_over_H: float | None,
+            r_star: float | None,
+            v_wall: float | None,
+            xi: FloatArr1D | None = None,
+            T: FloatArr1D | None = None,
+            sol_type: SolutionType | None = None,
+            legacy_cs: float | None = None) -> tuple[float, float]:
+        if sol_type is None:
+            sol_type = SolutionType.DETON if self._bubble is None else self._bubble.sol_type
+        return super().validate_beta_r_star(
+            beta_over_H=beta_over_H,
+            r_star=r_star,
+            v_wall=v_wall,
+            xi=self._bubble.xi if xi is None and self._bubble is not None else xi,
+            T=tp.cast(FloatArr1D, self._bubble.T) if T is None and self._bubble is not None else T,
+            sol_type=sol_type,
+            legacy_cs=legacy_cs
         )
 
 # @lru_cache(maxsize=256)
