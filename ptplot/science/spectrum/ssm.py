@@ -47,6 +47,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             model: Model = BAG,
             bubble: Bubble | None = None,
             parallel: bool = True):
+        self.model: Model = model
         super().__init__(
             beta_over_H=beta_over_H,
             T_star=T_star,
@@ -64,7 +65,6 @@ class PowerSpectrumSSM(PowerSpectrum):
         if self.v_wall is None or np.isnan(self.v_wall):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
 
-        self.model: Model = model
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
             if bubble is None else bubble
 
@@ -131,6 +131,24 @@ class PowerSpectrumSSM(PowerSpectrum):
                 )
             raise exc
 
+    def validate_alpha_ubarf(
+            self,
+            alpha: float | None,
+            ubarf: float | None,
+            v_wall: float | None,
+            adiabatic_index: float,
+            cs: float,
+            v_cj: float | None = None,
+            model: Model | None = None) -> tuple[float, float]:
+        return super().validate_alpha_ubarf(
+            alpha=alpha,
+            ubarf=ubarf,
+            v_wall=v_wall,
+            adiabatic_index=adiabatic_index,
+            cs=cs,
+            v_cj=v_cj,
+            model=self.model if model is None else model
+        )
 
 # @lru_cache(maxsize=256)
 # def bubble(model: Model, v_wall: float, alpha_n: float) -> Bubble:

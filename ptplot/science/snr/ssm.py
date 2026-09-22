@@ -33,12 +33,13 @@ def snr_column_ssm(
     else:
         x_value = x
 
-    alpha_n, _ubarf = PowerSpectrumSSM.validate_alpha_ubarf(
+    alpha_n, _ubarf = PowerSpectrumSSM.validate_alpha_ubarf_static(
         alpha=None if ubarf_rstar else x_value,
         ubarf=x_value if ubarf_rstar else None,
         v_wall=v_wall,
         adiabatic_index=adiabatic_index,
-        cs=const.CS0
+        cs=const.CS0,
+        model=model
     )
     bubble = Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
     # snr = np.zeros_like(y)

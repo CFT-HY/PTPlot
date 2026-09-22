@@ -7,7 +7,8 @@ import typing as tp
 import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024
-from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
+from pttools.bubble.energy_budget import alpha_n_from_ubarf, delta_n, ubarf_approx
+from pttools.models import Model
 from pttools.omgw0 import G0, GS0, OMEGA_PHOTON_H2, F_gw0_h2, f_star0, signal_to_noise_ratio
 from pttools.omgw0 import f as f_func
 from pttools.ssm import DEFAULT_N_SH, H_star_eta_sh, H_star_eta_v, J, J_old, source_lifetime_factor
@@ -266,18 +267,35 @@ class PowerSpectrum(abc.ABC):
             source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
         )
 
-    @staticmethod
     def validate_alpha_ubarf(
+            self,
             alpha: float | None,
             ubarf: float | None,
             v_wall: float | None,
             adiabatic_index: float,
-            cs: float) -> tuple[float, float]:
+            cs: float,
+            v_cj: float | None = None,
+            model: Model | None = None) -> tuple[float, float]:
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
-            return alpha, tp.cast(float, ubarf_approx(v_wall=v_wall, alpha_n=alpha, adiabatic_index=adiabatic_index))
+            return alpha, tp.cast(
+                float, ubarf_approx(
+                    v_wall=v_wall,
+                    alpha_n=alpha,
+                    model=model,
+                    cs=cs,
+                    v_cj=v_cj,
+                    adiabatic_index=adiabatic_index
+                )
+            )
         if (v_wall is not None) and (alpha is None) and (ubarf is not None):
             try:
-                alpha = alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_index=adiabatic_index).item()
+                alpha = alpha_n_from_ubarf(
+                    v_wall=v_wall,
+                    ubarf=ubarf,
+                    model=model,
+                    cs=cs,
+                    adiabatic_index=adiabatic_index
+                ).item()
             except ValueError:
                 alpha = np.nan
             return alpha, ubarf
@@ -290,6 +308,8 @@ class PowerSpectrum(abc.ABC):
         raise ValueError(
             "Exactly two of v_wall, alpha, ubarf_in must be set. "
             f"Got v_wall={v_wall}, alpha={alpha}, ubarf={ubarf}.")
+
+    validate_alpha_ubarf_static = staticmethod(validate_alpha_ubarf)
 
     @staticmethod
     def validate_beta_r_star(

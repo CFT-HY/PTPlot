@@ -9,6 +9,7 @@ from dulwich.porcelain import describe
 from dulwich.repo import Repo
 import numpy as np
 from pttools.bubble.energy_budget import ubarf_approx
+from pttools.models import Model
 
 from ptplot.science import const
 import ptplot.science.type_hints as th
@@ -124,6 +125,7 @@ def ubarf_rstar_from_alpha_beta(
         alpha: th.FloatOrArrOrListOfArr1D,
         beta_over_H: th.FloatOrArrOrListOfArr1D,
         labels: th.StrOrListOrNestedList | None,
+        model: Model | None = None,
         cs: float = const.CS0,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX) -> tuple[
             th.ArrOrListOfArrs,
@@ -141,13 +143,13 @@ def ubarf_rstar_from_alpha_beta(
 
     ubarf = [
         np.array([
-            ubarf_approx(v_wall=v_wall, alpha_n=alpha, cs=cs, adiabatic_index=adiabatic_index)
+            ubarf_approx(v_wall=v_wall, alpha_n=alpha, model=model, cs=cs, adiabatic_index=adiabatic_index)
             for v_wall, alpha in zip(v_wall_set, alpha_set, strict=True)
         ])
         for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)
     ]
     r_star = [
-        tp.cast("th.FloatArr", R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
+        tp.cast(th.FloatArr, R_star(beta=beta_over_H_set, v_wall=v_wall_set, cs=const.CS0))
         for beta_over_H_set, v_wall_set in zip(beta_over_H, v_wall, strict=True)
     ]
     return v_wall, ubarf, r_star, labels
