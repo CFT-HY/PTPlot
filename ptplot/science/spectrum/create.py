@@ -36,7 +36,8 @@ def power_spectrum(
         css2: float | None = None,
         csb2: float | None = None,
         model: Model = BAG,
-        parallel: bool = True) -> PowerSpectrum:
+        parallel: bool = True,
+        legacy_nucleation_cs_max: bool = False) -> PowerSpectrum:
     """Create a power spectrum object from the given parameters."""
     if engine is None or not engine:
         engine = Engine.DEFAULT
@@ -52,11 +53,11 @@ def power_spectrum(
             beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
             v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
             alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
-            parallel=parallel, model=model
+            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
         beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
         v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
         alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
-        parallel=parallel
+        parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max
     )

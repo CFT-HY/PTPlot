@@ -35,12 +35,14 @@ class PowerSpectrumDBPL(PowerSpectrum):
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
             zb: float = 1.,
-            parallel: bool = True):
+            parallel: bool = True,
+            legacy_nucleation_cs_max: bool = False):
         super().__init__(
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_tilde=beta_tilde,
             ubarf=ubarf, r_star=r_star,
-            cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb, parallel=parallel
+            cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb,
+            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
         self.zb: float = zb
 

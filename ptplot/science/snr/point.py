@@ -23,7 +23,8 @@ def snr_point(
         engine: Engine,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         ubarf_rstar: bool = False,
-        parallel: bool = True) -> tuple[float, float]:
+        parallel: bool = True,
+        legacy_nucleation_cs_max: bool = False) -> tuple[float, float]:
     """Compute the SNR value of a single point in the parameter space."""
     noise = resolve_noise(noise)
     kwargs: dict[str, tp.Any] = {"ubarf": x, "r_star": y} if ubarf_rstar \
@@ -36,6 +37,7 @@ def snr_point(
             adiabatic_index=adiabatic_index,
             engine=engine,
             parallel=parallel,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             **kwargs
         )
         # Error logging is handled in this function

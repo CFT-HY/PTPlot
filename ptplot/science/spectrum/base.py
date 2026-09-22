@@ -119,6 +119,7 @@ class PowerSpectrum(abc.ABC):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
+            legacy_nucleation_cs_max: bool = False,
             parallel: bool = True):
         r"""
         Create a power spectrum.
@@ -133,6 +134,8 @@ class PowerSpectrum(abc.ABC):
         :param k_turb: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
         :param r_star: $r_*$, typical bubble radius
         :param ubarf: $\bar{U}_f$, RMS fluid velocity
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_\text{wall}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param parallel: Enable parallel processing for this spectrum if the engine supports it.
             This should be disabled when generating multiple spectra in parallel.
         """
@@ -184,7 +187,7 @@ class PowerSpectrum(abc.ABC):
         #: Given $r_*$, not computed
         self.r_star_given: float | None = r_star
         self.beta_tilde, self.r_star = self.validate_beta_r_star(
-            beta_tilde=beta_tilde, r_star=r_star, v_wall=v_wall, legacy_cs=cs
+            beta_tilde=beta_tilde, r_star=r_star, v_wall=v_wall, legacy_cs=cs if legacy_nucleation_cs_max else None
         )
 
     def csv(self, path: str | None = None, noise: Noise | None = None) -> str | None:

@@ -58,7 +58,8 @@ class SNRGrid(ABC):  # noqa: B024
             name: str | None = None,
             ubarf_rstar: bool = False,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
-            max_workers: int = MAX_WORKERS_DEFAULT):
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = False):
         if engine is None or not engine:
             engine = Engine.DEFAULT
         if g_star is None or not np.isfinite(g_star):
@@ -93,11 +94,12 @@ class SNRGrid(ABC):  # noqa: B024
         kwargs = {
             "adiabatic_index": adiabatic_index,
             "g_star": g_star,
+            "legacy_nucleation_cs_max": legacy_nucleation_cs_max,
             "noise": self.noise,
             "parallel": False,
             "T_star": T_star,
             "ubarf_rstar": ubarf_rstar,
-            "v_wall": v_wall
+            "v_wall": v_wall,
         }
         if engine == Engine.SSM:
             ret: th.FloatArr = tp.cast("th.FloatArr", run_parallel(

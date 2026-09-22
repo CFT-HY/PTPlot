@@ -44,9 +44,10 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
             ubarf: float | None = None,
+            parallel: bool = True,
+            legacy_nucleation_cs_max: bool = False,
             model: Model = BAG,
-            bubble: Bubble | None = None,
-            parallel: bool = True):
+            bubble: Bubble | None = None):
         self.model: Model = model
         # Compute the bubble early if possible so that it can be used for nucleation suppression.
         self._bubble: Bubble | None = Bubble(model=model, v_wall=v_wall, alpha_n=alpha) \
@@ -63,7 +64,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             k_turb=k_turb,
             r_star=r_star,
             ubarf=ubarf,
-            parallel=parallel
+            parallel=parallel,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
         if self.v_wall is None or np.isnan(self.v_wall):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")

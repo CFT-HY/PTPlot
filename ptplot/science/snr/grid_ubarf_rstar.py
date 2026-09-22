@@ -53,7 +53,8 @@ class SNRGridUbarfRStar(SNRGrid):
             name: str | None = None,
             noise: Noise | None = None,
             log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
-            max_workers: int = MAX_WORKERS_DEFAULT):
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = False):
         r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
 
         The points are converted from $(\alpha, \beta/H)$ to $(\bar{U}_f, r_*)$,
@@ -77,6 +78,8 @@ class SNRGridUbarfRStar(SNRGrid):
         :param noise: Which noise curve to use
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
         :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_\text{wall}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         """
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
@@ -88,7 +91,8 @@ class SNRGridUbarfRStar(SNRGrid):
                 beta_tilde=beta_tilde_points,
                 labels=labels_points,
                 cs=cs,
-                adiabatic_index=adiabatic_index
+                adiabatic_index=adiabatic_index,
+                legacy_nucleation_cs_max=legacy_nucleation_cs_max
             )
             if ubarf is None:
                 ubarf = log_range(ubarf_points, DEFAULT_UBARF_RANGE)
@@ -112,7 +116,8 @@ class SNRGridUbarfRStar(SNRGrid):
             noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
             ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
-            max_workers=max_workers
+            max_workers=max_workers,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
 
     @property

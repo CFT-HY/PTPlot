@@ -10,6 +10,7 @@ from dulwich.repo import Repo
 import numpy as np
 from pttools.bubble.energy_budget import ubarf_approx
 from pttools.models import Model
+from pttools.ssm.nucleation import r_star as r_star_func
 
 from ptplot.science import const
 import ptplot.science.type_hints as th
@@ -69,36 +70,6 @@ def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:  #
     return [np.array(sub_values) for sub_values in nested]
 
 
-def beta(R_star: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Convert R_* to \beta for a given wall velocity.
-
-    $$\beta = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{R_*}$$
-    Inverted from :caprini_2020:`\ ` eq. 6
-
-    :param R_star: Mean bubble separation $R_*$
-    :param v_wall: Wall velocity $v_w$
-    :param cs: Sound speed $c_s$
-    :return: Inverse phase transition duration $\beta$
-    """
-    # Todo: Use the PTtools function when it's available.
-    return (8 * np.pi)**(1/3) * np.maximum(v_wall, cs) / R_star
-
-
-def R_star(beta: th.FloatOrArr, v_wall: th.FloatOrArr, cs: th.FloatOrArr = const.CS0) -> th.FloatOrArr:
-    r"""Mean bubble separation $R_*$.
-
-    $$R_* = \frac{8\pi}{3} \frac{\max (v_w, c_s)}{\beta}$$
-    :caprini_2020:`\ ` eq. 6
-
-    :param beta: Inverse phase transition duration $\beta$
-    :param v_wall: Wall velocity $v_w$
-    :param cs: Sound speed $c_s$
-    :return: Mean bubble separation $R_*$
-    """
-    # Todo: Use the PTtools function when it's available.
-    return (8 * np.pi)**(1/3) * np.maximum(v_wall, cs) / beta
-
-
 def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr1D:
     """Get a logarithmic range that covers the values in x, but is not smaller than the default range."""
     x_min: float
@@ -127,7 +98,8 @@ def ubarf_rstar_from_alpha_beta(
         labels: th.StrOrListOrNestedList | None,
         model: Model | None = None,
         cs: float = const.CS0,
-        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX) -> tuple[
+        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
+        legacy_nucleation_cs_max: bool = False) -> tuple[
             th.ArrOrListOfArrs,
             th.ArrOrListOfArrs,
             th.ArrOrListOfArrs,
@@ -143,13 +115,18 @@ def ubarf_rstar_from_alpha_beta(
 
     ubarf = [
         np.array([
-            ubarf_approx(v_wall=v_wall, alpha_n=alpha, model=model, cs=cs, adiabatic_index=adiabatic_index)
-            for v_wall, alpha in zip(v_wall_set, alpha_set, strict=True)
+            ubarf_approx(v_wall=vw, alpha_n=al, model=model, cs=cs, adiabatic_index=adiabatic_index)
+            for vw, al in zip(v_wall_set, alpha_set, strict=True)
         ])
         for v_wall_set, alpha_set in zip(v_wall, alpha, strict=True)
     ]
     r_star = [
-        tp.cast(th.FloatArr, R_star(beta=beta_tilde_set, v_wall=v_wall_set, cs=const.CS0))
+        np.array([
+            r_star_func(
+                beta_tilde=bt, v_wall=vw,
+                legacy_cs=cs if legacy_nucleation_cs_max else None
+            ) for bt, vw in zip(beta_tilde_set, v_wall_set, strict=True)
+        ])
         for beta_tilde_set, v_wall_set in zip(beta_tilde, v_wall, strict=True)
     ]
     return v_wall, ubarf, r_star, labels

@@ -22,7 +22,8 @@ def snr_column_ssm(
         k_turb: float = const.DEFAULT_K_TURB,
         noise: Noise | None = None,
         zp: float = const.DEFAULT_ZP,
-        parallel: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
+        parallel: bool = False,
+        legacy_nucleation_cs_max: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
     """Compute a column of an SNR grid with the Sound Shell Model."""
     noise = resolve_noise(noise)
     x_value: float
@@ -59,7 +60,8 @@ def snr_column_ssm(
             k_turb=k_turb,
             model=model,
             bubble=bubble,
-            parallel=parallel
+            parallel=parallel,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
         # Error logging is handled in this function
         _power_spectrum, snr_i = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
