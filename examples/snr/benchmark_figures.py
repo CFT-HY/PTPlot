@@ -35,7 +35,7 @@ def main():  # noqa: PLR0915
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)
-    engines = Engine.engines(docs=True)
+    engines = Engine.engines(docs=True, log=True)
     engines_non_default = Engine.non_default(docs=True)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
@@ -90,7 +90,7 @@ def main():  # noqa: PLR0915
                 )
 
         try:
-            snr_hist = model.snr_histogram()
+            snr_hist = model.snr_histogram(engines=engines)
             n_spectra_other[i_model, :] += model.n_points
             save_fig(snr_hist, f"{model.slug}_snr_histogram")
         except Exception as exc:

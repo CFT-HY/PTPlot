@@ -306,11 +306,11 @@ class Model(models.Model):
             max_workers=max_workers
         )
 
-    def snr_histogram(self, noise: Noise | None = None) -> Figure:
+    def snr_histogram(self, noise: Noise | None = None, engines: list[Engine] | None = None) -> Figure:
         v_wall, alpha, beta_over_H, T_star, g_star, labels, titles = self.point_data_by_field()
         return snr_histogram(
             v_wall=v_wall, alpha_n=alpha, beta_over_H=beta_over_H, T_star=T_star, g_star=g_star,
             labels=labels, titles=titles,
             noise=noise,
-            # engines=[form.cleaned_data["engine"]]
+            engines=engines
         )

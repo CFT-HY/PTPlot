@@ -2,6 +2,7 @@
 
 import abc
 import enum
+import logging
 import typing as tp
 
 import numpy as np
@@ -21,6 +22,8 @@ from ptplot.science.noise import Noise, resolve_noise
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
+logger = logging.getLogger(__name__)
+
 
 class Engine(enum.StrEnum):
     """Enumeration of power spectrum engines."""
@@ -30,24 +33,34 @@ class Engine(enum.StrEnum):
     SSM = "ssm"
 
     @classmethod
-    def engines(cls, docs: bool = False) -> "list[Engine]":
+    def engines(cls, docs: bool = False, log: bool = False) -> "list[Engine]":
         """Get the engines.
 
         :param: Return only engines that are enabled for docs.
         :return: Engines (list instead of set to preserve order)
         """
-        if docs and IS_GITHUB_ACTIONS:
-            return [engine for engine in cls if engine != cls.SSM]
-        return list(cls)
+        engines = [engine for engine in cls if engine != cls.SSM] if docs and IS_GITHUB_ACTIONS else list(cls)
+        if log:
+            logger.info(
+                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
+                engines, docs, IS_GITHUB_ACTIONS
+            )
+        return engines
 
     @classmethod
-    def non_default(cls, docs: bool = False) -> "list[Engine]":
+    def non_default(cls, docs: bool = False, log: bool = False) -> "list[Engine]":
         """Get the non-default engines.
 
         :param docs: Return only engines that are enabled for docs.
         :return: Non-default engines (list instead of set to preserve order)
         """
-        return [engine for engine in cls.engines(docs=docs) if engine != cls.DEFAULT]
+        engines = [engine for engine in cls.engines(docs=docs) if engine != cls.DEFAULT]
+        if log:
+            logger.info(
+                "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
+                engines, docs, IS_GITHUB_ACTIONS
+            )
+        return engines
 
     @property
     def spectrum(self) -> "type[PowerSpectrum]":
