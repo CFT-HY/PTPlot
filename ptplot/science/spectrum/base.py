@@ -37,9 +37,11 @@ class Engine(enum.StrEnum):
         """Get the engines.
 
         :param: Return only engines that are enabled for docs.
+        :param log: Enable logging
         :return: Engines (list instead of set to preserve order)
         """
-        engines = [engine for engine in cls if engine != cls.SSM] if docs and IS_GITHUB_ACTIONS else list(cls)
+        get_all = not (docs and IS_GITHUB_ACTIONS)
+        engines = [engine for engine in cls if get_all or (engine != cls.SSM)]
         if log:
             logger.info(
                 "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
@@ -52,6 +54,7 @@ class Engine(enum.StrEnum):
         """Get the non-default engines.
 
         :param docs: Return only engines that are enabled for docs.
+        :param log: Enable logging
         :return: Non-default engines (list instead of set to preserve order)
         """
         engines = [engine for engine in cls.engines(docs=docs) if engine != cls.DEFAULT]
