@@ -19,4 +19,8 @@ MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG  # type: ignore[index]  # Wildcard import from .base
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}

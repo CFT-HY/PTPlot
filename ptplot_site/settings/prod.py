@@ -22,10 +22,16 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # The University of Helsinki virtual machine provides a Postfix configuration.
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# These default values are OK for use with Postfix
-# EMAIL_HOST = "localhost"
-# EMAIL_HOST_PASSWORD = ""
-# EMAIL_HOST_USER = ""
-# EMAIL_PORT = 25
-# EMAIL_USE_TLS = False
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        # These default values are OK for use with Postfix
+        "OPTIONS": {
+            "host": "localhost",
+            # "port": 25,
+            # "username": "",
+            # "password": "",
+            # "use_tls": False,
+        },
+    },
+}
