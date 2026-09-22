@@ -3,7 +3,7 @@
 from abc import ABC
 
 from ptplot.science.noise import noise_curve
-from ptplot.science.plot.power_spectrum import power_spectrum_figure
+from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.spectrum import PowerSpectrum
 
 

@@ -4,7 +4,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpR
 
 from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
-from ptplot.science.plot.power_spectrum import power_spectrum_figure
+from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta

@@ -11,7 +11,7 @@ from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.plot.power_spectrum import power_spectrum_figure
+from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar

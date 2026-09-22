@@ -1,7 +1,7 @@
 """Plotting tools for PTPlot."""
 
 from .logarithmic import *
-from .power_spectrum import *
+from .ps import *
 from .snr import *
 from .snr_alpha_beta import *
 from .snr_comparison import *
