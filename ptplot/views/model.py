@@ -71,7 +71,7 @@ def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
-    engine = form.cleaned_data["engine"]
+    engine = Engine.engine(form.cleaned_data["engine"])
     return fig_to_response(
         model.snr_comparison(
             grid1=model.snr_grid_alpha_beta(engine=Engine.BPL, noise=form.noise),

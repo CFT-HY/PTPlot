@@ -33,35 +33,46 @@ class Engine(enum.StrEnum):
     SSM = "ssm"
 
     @classmethod
-    def engines(cls, docs: bool = False, log: bool = False) -> "list[Engine]":
+    def engine(cls, name: str | None, default: "Engine | None" = None) -> "Engine":
+        return (cls.DEFAULT if default is None else default) if name is None or not name else Engine(name)
+
+    @classmethod
+    def engines(
+            cls,
+            engines: "Engine | str | tp.Iterable[Engine] | None" = None,
+            fast: bool = False,
+            log: bool = False) -> "list[Engine]":
         """Get the engines.
 
-        :param: Return only engines that are enabled for docs.
+        :param engines: Engine or engines to be filtered. Using all engines if not given.
+        :param fast: Return only engines that are fast
         :param log: Enable logging
         :return: Engines (list instead of set to preserve order)
         """
-        get_all = not (docs and IS_GITHUB_ACTIONS)
-        engines = [engine for engine in cls if get_all or (engine != cls.SSM)]
+        engines2 = ([Engine(engines)] if isinstance(engines, str) else list(engines)) \
+            if engines is not None and engines else cls
+        get_all = not (fast and IS_GITHUB_ACTIONS)
+        engines = [engine for engine in engines2 if get_all or (engine != cls.SSM)]
         if log:
             logger.info(
                 "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, docs, IS_GITHUB_ACTIONS
+                engines, fast, IS_GITHUB_ACTIONS
             )
         return engines
 
     @classmethod
-    def non_default(cls, docs: bool = False, log: bool = False) -> "list[Engine]":
+    def non_default(cls, fast: bool = False, log: bool = False) -> "list[Engine]":
         """Get the non-default engines.
 
-        :param docs: Return only engines that are enabled for docs.
+        :param fast: Return only engines that are fast
         :param log: Enable logging
         :return: Non-default engines (list instead of set to preserve order)
         """
-        engines = [engine for engine in cls.engines(docs=docs) if engine != cls.DEFAULT]
+        engines = [engine for engine in cls.engines(fast=fast) if engine != cls.DEFAULT]
         if log:
             logger.info(
                 "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, docs, IS_GITHUB_ACTIONS
+                engines, fast, IS_GITHUB_ACTIONS
             )
         return engines
 

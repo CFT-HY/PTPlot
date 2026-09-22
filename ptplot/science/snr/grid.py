@@ -59,10 +59,12 @@ class SNRGrid(ABC):  # noqa: B024
             ubarf_rstar: bool = False,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT):
-        if T_star is None or not np.isfinite(T_star):
-            raise ValueError(f"Invalid T_star={T_star}")
+        if engine is None or not engine:
+            engine = Engine.DEFAULT
         if g_star is None or not np.isfinite(g_star):
             raise ValueError(f"Invalid g_star={g_star}")
+        if T_star is None or not np.isfinite(T_star):
+            raise ValueError(f"Invalid T_star={T_star}")
         if v_wall is None or not 0 < v_wall <= 1:
             raise ValueError(f"Invalid v_wall={v_wall}")
         if x is None or np.any(x <= 0) or not np.isfinite(x).all():

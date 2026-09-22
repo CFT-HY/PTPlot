@@ -21,7 +21,6 @@ from ptplot.forms.fields import (
 )
 from ptplot.models import Model
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
-from ptplot.science.spectrum.engine import Engine
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,7 @@ class NoiseFormMixin(Form):
 class BenchmarkForm(NoiseFormMixin):
     """Form for the arguments of the benchmark plots."""
 
-    engine = EngineField()
+    engine = EngineField(required=False)
 
     def __init__(self, data: tp.Mapping[str, tp.Any] | None = None, **kwargs):
         # dict(data.items()) instead of {**data}, since the latter would give the
@@ -59,8 +58,8 @@ class BenchmarkForm(NoiseFormMixin):
             data["obs_years"] = DEFAULT_OBS_YEARS
             data.setdefault("noise_eb", DEFAULT_NOISE_EB)
             data.setdefault("noise_gb", DEFAULT_NOISE_GB)
-        if "engine" not in data:
-            data["engine"] = Engine.DEFAULT
+        # if "engine" not in data:
+        #    data["engine"] = Engine.DEFAULT
         super().__init__(data, **kwargs)
 
 

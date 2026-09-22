@@ -38,6 +38,8 @@ def power_spectrum(
         model: Model = BAG,
         parallel: bool = True) -> PowerSpectrum:
     """Create a power spectrum object from the given parameters."""
+    if engine is None or not engine:
+        engine = Engine.DEFAULT
     if engine not in ENGINE_SPECTRUM_CLASSES:
         raise ValueError(f"Invalid engine: {engine}")
 

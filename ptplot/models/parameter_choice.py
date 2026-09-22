@@ -1,5 +1,7 @@
 """Parameter choices for particle physics models."""
 
+import typing as tp
+
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -125,16 +127,29 @@ class ParameterChoice(models.Model):
     def power_spectrum_figure(
             self,
             noise: Noise | None = None,
-            engine: Engine = Engine.DEFAULT) -> Figure:
-        spectrum = power_spectrum(
-            T_star=self.T_star_value,
-            g_star=self.g_star_value,
-            v_wall=self.v_wall_value,
-            alpha=self.alpha,
-            beta_over_H=self.beta_over_H,
-            engine=engine
+            engine: Engine | str | tp.Iterable[Engine] | None = None) -> Figure:
+        """Plot the power spectrum of this parameter choice.
+
+        :param noise: Which noise curve to use
+        :param engine: Engine, or multiple engines, whose spectra are drawn in the same figure.
+            Defaults to all engines.
+            A single engine can also be given as a string, as that's what the forms provide.
+        :return: Power spectrum figure
+        """
+        return power_spectrum_figure(
+            spectra=[
+                power_spectrum(
+                    T_star=self.T_star_value,
+                    g_star=self.g_star_value,
+                    v_wall=self.v_wall_value,
+                    alpha=self.alpha,
+                    beta_over_H=self.beta_over_H,
+                    engine=spectrum_engine
+                )
+                for spectrum_engine in Engine.engines(engine)
+            ],
+            noise=noise
         )
-        return power_spectrum_figure(spectrum=spectrum, noise=noise)
 
     # def snr(
     #         self,

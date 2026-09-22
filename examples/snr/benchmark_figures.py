@@ -35,8 +35,8 @@ def main():  # noqa: PLR0915
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)
-    engines = Engine.engines(docs=True, log=True)
-    engines_non_default = Engine.non_default(docs=True)
+    engines = Engine.engines(fast=True, log=True)
+    engines_non_default = Engine.non_default(fast=True)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
     max_workers = n_workers()

@@ -225,6 +225,7 @@ sphinx_gallery_conf = {
     "show_api_usage": True,
     "show_memory": show_memory,
     "subsection_order": ExplicitOrder([
+        "../examples/ps",
         "../examples/snr"
     ]),
 }

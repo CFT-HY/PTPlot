@@ -30,7 +30,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         engine=form.cleaned_data["engine"]
     )
     fig = power_spectrum_figure(
-        spectrum=spectrum,
+        spectra=spectrum,
         noise=form.noise,
     )
     return fig_to_response(fig)

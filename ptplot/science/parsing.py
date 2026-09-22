@@ -30,7 +30,13 @@ class PTPlotParser(argparse.ArgumentParser):
             Tstar_gstar: bool = True,
             noise: bool = False,
             engine: bool = False,
+            engines: bool = False,
             **kwargs):
+        """Create the argument parser.
+
+        :param engine: Add an argument for choosing a single engine
+        :param engines: Add an argument for choosing one or more engines, defaulting to all of them
+        """
         if "formatter_class" not in kwargs:
             kwargs["formatter_class"] = argparse.ArgumentDefaultsHelpFormatter
         super().__init__(*args, **kwargs)
@@ -75,11 +81,13 @@ class PTPlotParser(argparse.ArgumentParser):
                 default=DEFAULT_NOISE_GB,
                 help="include the galactic compact binary noise"
             )
-        if engine:
+        if engine or engines:
             self.add_argument(
                 "-engine", "--engine", "-ps", "--ps",
                 type=engine_arg,
                 choices=list(Engine),
-                default=Engine.DEFAULT,
-                help="Method for computing the power spectrum"
+                default=Engine.engines() if engines else Engine.DEFAULT,
+                nargs="+" if engines else None,
+                help="Method(s) for computing the power spectrum" if engines
+                else "Method for computing the power spectrum"
             )
