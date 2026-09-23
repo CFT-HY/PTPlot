@@ -1,7 +1,7 @@
 name: CI
 on: push
-env:
-  PRIMARY_PYTHON_VERSION: "3.14"
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-slim
@@ -10,6 +10,11 @@ jobs:
         uses: actions/checkout@v7
       - name: Install uv
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Print uv version
+        run: |
+          echo "uv ${UV_VERSION}"
+        env:
+          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
       - name: Build
         run: uv build
       - name: Run Twine checks
@@ -33,59 +38,42 @@ jobs:
         with:
           options: ${{ github.workspace }} --by-file-by-lang --vcs=git
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      - name: Print versions
-        run: |
-          uv --version
-          uv run --no-project python -V
-      - name: Install requirements
-        run: uv sync --locked
       - name: Run Ruff
-        run: |
-          set -o pipefail
-          uv run ruff check docs examples ptplot ptplot_site tools conftest.py manage.py 2>&1 | tee ruff.txt
-      - name: Upload results
-        # The results are the most interesting when the check has failed.
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: Lint
-          path: |
-            ${{ github.workspace }}/ruff.txt
-          if-no-files-found: error
-  pyrefly:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+        uses: astral-sh/ruff-action@v4.1.0
+  typecheck:
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install uv
+      - name: Setup uv
+        id: setup-uv
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      - name: Print versions
+        with:
+          activate-environment: true
+      - name: Print uv and Python versions
         run: |
-          uv --version
-          uv run --no-project python -V
+          echo "uv ${UV_VERSION}"
+          echo "Python ${PYTHON_VERSION}"
+        env:
+          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
+          PYTHON_VERSION: ${{ steps.setup-uv.outputs.python-version }}
       - name: Install requirements
         run: uv sync --locked
       - name: Run Pyrefly
         run: |
           set -o pipefail
-          uv run pyrefly check 2>&1 | tee pyrefly.txt
-      - name: Upload results
-        # The results are the most interesting when the check has failed.
+          pyrefly check --output-format=full-text-with-github
+      - name: Run Pyrefly coverage
         if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: Pyrefly
-          path: |
-            ${{ github.workspace }}/pyrefly.txt
-          if-no-files-found: error
+        run: |
+          pyrefly coverage report > coverage.json
+          pyrefly coverage check --output-format=full-text-with-github
   test:
     runs-on: ubuntu-latest
     env:
@@ -94,29 +82,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install uv
+        id: setup-uv
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      - name: Print versions
+        with:
+          activate-environment: true
+      - name: Print uv and Python versions
         run: |
-          uv --version
-          uv run --no-project python -V
+          echo "uv ${UV_VERSION}"
+          echo "Python ${PYTHON_VERSION}"
+        env:
+          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
+          PYTHON_VERSION: ${{ steps.setup-uv.outputs.python-version }}
       - name: Install requirements
         run: uv sync --locked
       - name: Print Numba sysinfo
-        run: uv run numba --sysinfo | tee numba-sysinfo.txt
+        run: numba --sysinfo | tee numba-sysinfo.txt
       - name: Create migrations
-        run: uv run python manage.py makemigrations
+        run: python manage.py makemigrations
       - name: Migrate database
-        run: uv run python manage.py migrate
+        run: python manage.py migrate
       - name: Check configuration
-        run: uv run python manage.py check --fail-level WARNING
+        run: python manage.py check --fail-level WARNING
       - name: Generate PTtools reference data
-        run: uv run python -c "from pttools.bubble.fluid_reference import ref; ref()"
+        run: python -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Run tests with coverage
         run: |
           set -o pipefail
-          uv run pytest --store-durations 2>&1 | tee test-output.txt
+          pytest --store-durations 2>&1 | tee test-output.txt
       - name: Upload results
-        # The results are the most interesting when the tests have failed.
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -126,9 +119,9 @@ jobs:
             coverage.xml
             coverage.json
             htmlcov
+            numba-sysinfo.txt
             test-output.txt
-          # The coverage reports are not created if the tests fail early.
-          if-no-files-found: warn
+          if-no-files-found: error
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v7
         with:

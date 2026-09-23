@@ -3,8 +3,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   deploy-shf:
+    # The sdruskat/swh-save-action action is Docker-based, and therefore cannot be run on ubuntu-slim.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     # https://github.com/marketplace/actions/save-to-software-heritage

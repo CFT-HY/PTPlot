@@ -1,7 +1,7 @@
 name: Docs
 on: push
-env:
-  PRIMARY_PYTHON_VERSION: "3.14"
+permissions:
+  contents: read
 jobs:
   docs:
     runs-on: ubuntu-latest
@@ -10,23 +10,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install uv
+        id: setup-uv
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          activate-environment: true
+      - name: Print uv and Python versions
+        run: |
+          echo "uv ${UV_VERSION}"
+          echo "Python ${PYTHON_VERSION}"
+        env:
+          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
+          PYTHON_VERSION: ${{ steps.setup-uv.outputs.python-version }}
       - name: Install LaTeX
         run: |
           sudo apt-get update
           sudo apt-get install -y cm-super dvipng latexmk optipng texlive-latex-extra texlive-xetex fonts-freefont-otf xindy
-      - name: Install requirements
-        run: uv sync --locked
       - name: Create migrations
-        run: uv run python manage.py makemigrations
+        run: python manage.py makemigrations
       - name: Migrate database
-        run: uv run python manage.py migrate
+        run: python manage.py migrate
       - name: Populate database
-        run: uv run python manage.py populate
+        run: python manage.py populate
       - name: Generate PTtools reference data
-        run: uv run python -c "from pttools.bubble.fluid_reference import ref; ref()"
+        run: python -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Generate documentation
-        run: uv run make -C docs all
+        run: make -C docs all
       - name: Upload results
         uses: actions/upload-artifact@v7
         with:
