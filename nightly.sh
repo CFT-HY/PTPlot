@@ -59,6 +59,22 @@ fi
 
 log "Starting the nightly run at HEAD $(git rev-parse --short HEAD)."
 
+# Cron runs with a minimal PATH, which does not include the user-specific directories
+# where the standalone installer of uv puts it.
+# $UV_INSTALL_DIR and $XDG_BIN_HOME are the custom installation directories supported by the installer,
+# ~/.local/bin is its default, and ~/.cargo/bin is the default of older uv versions.
+for dir in "${HOME}/.cargo/bin" "${HOME}/.local/bin" "${XDG_BIN_HOME:-}" "${UV_INSTALL_DIR:-}"; do
+  if [ -n "${dir}" ] && [ -d "${dir}" ]; then
+    PATH="${dir}:${PATH}"
+  fi
+done
+export PATH
+if ! command -v uv &> /dev/null; then
+  log "uv was not found in PATH: ${PATH}"
+  exit 1
+fi
+log "Using $(command -v uv) ($(uv --version))."
+
 # Run in the virtualenv that uv manages.
 # The --frozen ensures that the locked dependency versions are used as they are,
 # without updating uv.lock.
