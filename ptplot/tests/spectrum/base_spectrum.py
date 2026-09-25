@@ -1,6 +1,15 @@
-"""Shared test case for the power spectrum classes."""
+"""Shared test case for the power spectrum classes.
+
+The test classes of the individual power spectra should inherit from both
+:class:`PowerSpectrumBaseCase` and :class:`unittest.TestCase`.
+The base case does not inherit from :class:`unittest.TestCase` itself,
+as then its tests would also be run for the abstract base case.
+"""
 
 from abc import ABC
+import typing as tp
+
+import numpy as np
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.plot.ps import power_spectrum_figure
@@ -17,51 +26,64 @@ class PowerSpectrumBaseCase(ABC):
     T_STAR: float = 100
     G_STAR: float = 100
 
+    spectrum: PowerSpectrum
+
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()  # pyrefly: ignore[missing-attribute]
         cls.spectrum = cls.SPECTRUM_CLASS(
             T_star=cls.T_STAR, g_star=cls.G_STAR,
             v_wall=cls.V_WALL, alpha=cls.ALPHA, beta_tilde=cls.BETA_TILDE
         )
 
+    def assert_positive(self, value: tp.Any) -> None:
+        """Assert that all values are finite and positive."""
+        arr = np.asarray(value)
+        assert np.all(np.isfinite(arr)), f"Got non-finite values: {value}"
+        assert np.all(arr > 0), f"Got non-positive values: {value}"
+
     def test_csv(self):
-        return self.spectrum.csv()
+        assert self.spectrum.csv()
 
     def test_f_peak(self):
-        return self.spectrum.f_peak()
+        self.assert_positive(self.spectrum.f_peak())
 
     def test_F_gw0_h2(self):
-        return self.spectrum.F_gw0_h2()
+        self.assert_positive(self.spectrum.F_gw0_h2())
 
     def test_h_star(self):
-        return self.spectrum.h_star()
+        self.assert_positive(self.spectrum.h_star())
 
     def test_H_star_eta_sh(self):
-        return self.spectrum.H_star_eta_sh
+        self.assert_positive(self.spectrum.H_star_eta_sh)
 
     def test_H_star_eta_v(self):
-        return self.spectrum.H_star_eta_v
+        self.assert_positive(self.spectrum.H_star_eta_v)
 
     def test_J(self):
-        return self.spectrum.J
+        self.assert_positive(self.spectrum.J)
 
     def test_J_old(self):
-        return self.spectrum.J_old
+        self.assert_positive(self.spectrum.J_old)
 
     def test_kinetic_energy(self):
-        return self.spectrum.kinetic_energy_fraction_approx
+        self.assert_positive(self.spectrum.kinetic_energy_fraction_approx)
 
     def test_power_spectrum(self):
-        return self.spectrum.power_spectrum(f=noise_curve().f)
+        f = noise_curve().f
+        power_spectrum, snr = self.spectrum.power_spectrum(f=f)
+        assert power_spectrum.shape == f.shape
+        self.assert_positive(power_spectrum)
+        assert snr >= 0
 
     def test_power_spectrum_common(self):
-        return self.spectrum.power_spectrum_common()
+        self.assert_positive(self.spectrum.power_spectrum_common())
 
     def test_ps_image(self):
-        return power_spectrum_figure(self.spectrum, sw_only=False)
+        assert power_spectrum_figure(self.spectrum, sw_only=False) is not None
 
     def test_s(self):
-        return self.spectrum.s(f=noise_curve().f)
+        self.assert_positive(self.spectrum.s(f=noise_curve().f))
 
     def test_source_lifetime_factor(self):
-        return self.spectrum.source_lifetime_factor()
+        self.assert_positive(self.spectrum.source_lifetime_factor())
