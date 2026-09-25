@@ -318,14 +318,12 @@ default-groups = ["dev", "docs"]
 module-root = ""
 # The name of the Python module differs from the name of the pip package ("ptplot-gw").
 module-name = "ptplot"
-# The unit tests and the Numba caches are not needed by the users of the pip package.
+# The Numba caches are not needed by the users of the pip package.
 source-exclude = [
     "ptplot/**/__pycache__/**",
-    # "ptplot/tests/**"
 ]
 wheel-exclude = [
     "**/__pycache__/**",
-    # "tests/**"
 ]
 
 [tool.uv.sources]

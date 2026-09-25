@@ -6,7 +6,9 @@ __pycache__
 *.pyc
 *.sqlite3
 .coverage*
+.env
 .idea
+.mcp.json
 .ruff_cache
 .test_durations
 .venv
