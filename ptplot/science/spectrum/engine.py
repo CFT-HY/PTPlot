@@ -1,8 +1,8 @@
 """GW spectrum engine choices."""
 
 from ptplot.science.spectrum.base import ENGINE_SPECTRUM_CLASSES, Engine
-from ptplot.science.spectrum.bpl import PowerSpectrumBPL
-from ptplot.science.spectrum.dbpl import PowerSpectrumDBPL
+from ptplot.science.spectrum.bpl2020 import PowerSpectrumBPL2020
+from ptplot.science.spectrum.dbpl2021 import PowerSpectrumDBPL2021
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
 # -----
@@ -10,8 +10,8 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 # -----
 
 ENGINE_SPECTRUM_CLASSES.update({
-    Engine.BPL: PowerSpectrumBPL,
-    Engine.DBPL: PowerSpectrumDBPL,
+    Engine.BPL2020: PowerSpectrumBPL2020,
+    Engine.DBPL2021: PowerSpectrumDBPL2021,
     Engine.SSM: PowerSpectrumSSM,
 })
 

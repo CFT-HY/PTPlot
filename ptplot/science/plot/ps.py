@@ -18,7 +18,7 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
-from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL, power_spectrum
+from ptplot.science.spectrum import PowerSpectrum, PowerSpectrumBPL2020, power_spectrum
 
 #: Line style of the turbulence curves, when multiple spectra are drawn in the same figure.
 TURB_LINESTYLE: str = "--"
@@ -74,7 +74,7 @@ def power_spectrum_figure(
                 noise.f, pow_spec, color=color,
                 label=r"$\Omega_\mathrm{sw}$" + label_suffix
             )
-            if not sw_only and isinstance(spectrum, PowerSpectrumBPL):
+            if not sw_only and isinstance(spectrum, PowerSpectrumBPL2020):
                 ax.plot(
                     noise.f, spectrum.power_spectrum_turb(noise.f),
                     color=color if multiple else "b",

@@ -1,4 +1,4 @@
-"""Double broken power law (DBPL) power spectrum."""
+"""Double broken power law (DBPL) power spectrum of Gowling & Hindmarsh (2021)."""
 
 import typing as tp
 
@@ -9,17 +9,17 @@ import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 
 
-class PowerSpectrumDBPL(PowerSpectrum):
+class PowerSpectrumDBPL2021(PowerSpectrum):
     r"""
-    Double broken power law (DBPL) power spectrum.
+    Double broken power law (DBPL) power spectrum of Gowling & Hindmarsh (2021).
 
     Based on :hakkinen_ptplot:`\ `, :hakkinen_msc:`\ ` and :gowling_2021:`\ `.
     """
 
     COLOR = "green"
-    ENGINE: Engine = Engine.DBPL
-    NAME: str = "Double broken power law"
-    SHORT_NAME: str = "DBPL"
+    ENGINE: Engine = Engine.DBPL2021
+    NAME: str = "Double broken power law (2021)"
+    SHORT_NAME: str = "DBPL2021"
 
     def __init__(
             self,

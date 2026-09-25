@@ -10,14 +10,16 @@ from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
 def engine_arg(value: str) -> Engine:
     """Convert a command-line argument to an Engine.
 
-    Both the short names, such as "BPL", and the internal names, such as "bpl", are accepted.
+    Both the short names, such as "BPL2020", and the internal names, such as "bpl-2020", are accepted.
+    The comparison is case-insensitive.
     """
-    try:
-        return Engine(value.lower())
-    except ValueError:
-        raise argparse.ArgumentTypeError(
-            f"Invalid engine: {value}. Valid engines are: {', '.join(ENGINE_SHORT_NAMES.values())}."
-        ) from None
+    value_lower = value.lower()
+    for engine, short_name in ENGINE_SHORT_NAMES.items():
+        if value_lower in (engine.value, short_name.lower()):
+            return engine
+    raise argparse.ArgumentTypeError(
+        f"Invalid engine: {value}. Valid engines are: {', '.join(ENGINE_SHORT_NAMES.values())}."
+    )
 
 
 class PTPlotParser(argparse.ArgumentParser):

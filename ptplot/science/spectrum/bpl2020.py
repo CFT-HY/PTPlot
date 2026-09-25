@@ -1,4 +1,4 @@
-"""Broken power law (BPL) power spectrum."""
+"""Broken power law (BPL) power spectrum of Hindmarsh et al. (2017) and Caprini et al. (2020)."""
 
 import math
 import typing as tp
@@ -11,10 +11,10 @@ from ptplot.science.spectrum.base import Engine, PowerSpectrum
 import ptplot.science.type_hints as th
 
 
-class PowerSpectrumBPL(PowerSpectrum):
-    r"""Broken power law (BPL) power spectrum.
+class PowerSpectrumBPL2020(PowerSpectrum):
+    r"""Broken power law (BPL) power spectrum of Hindmarsh et al. (2017) and Caprini et al. (2020).
 
-    Based on :hindmarsh_2017:`\ ` and :hindmarsh_2017_erratum:`\ `.
+    Based on :hindmarsh_2017:`\ `, :hindmarsh_2017_erratum:`\ ` and :caprini_2020:`\ `.
     Original design by Mark Hindmarsh (Sep 2015).
 
     Also contains functions for turbulence.
@@ -25,9 +25,9 @@ class PowerSpectrumBPL(PowerSpectrum):
     """
 
     COLOR = "red"
-    ENGINE = Engine.BPL
-    NAME = "Broken power law"
-    SHORT_NAME = "BPL"
+    ENGINE = Engine.BPL2020
+    NAME = "Broken power law (2020)"
+    SHORT_NAME = "BPL2020"
 
     def csv(
             self,

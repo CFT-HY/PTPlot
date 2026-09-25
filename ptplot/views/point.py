@@ -62,9 +62,9 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
     engine = Engine.engine(form.cleaned_data["engine"])
     return fig_to_response(
         point.snr_comparison(
-            grid1=point.snr_grid_alpha_beta(engine=Engine.BPL, noise=form.noise),
+            grid1=point.snr_grid_alpha_beta(engine=Engine.BPL2020, noise=form.noise),
             grid2=point.snr_grid_alpha_beta(
-                engine=Engine.DBPL if engine == Engine.BPL else engine,
+                engine=Engine.DBPL2021 if engine == Engine.BPL2020 else engine,
                 noise=form.noise
             )
         )

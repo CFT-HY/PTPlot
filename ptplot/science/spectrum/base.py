@@ -42,8 +42,8 @@ logger = logging.getLogger(__name__)
 class Engine(enum.StrEnum):
     """Enumeration of power spectrum engines."""
 
-    BPL = DEFAULT = "bpl"
-    DBPL = "dbpl"
+    BPL2020 = DEFAULT = "bpl-2020"
+    DBPL2021 = "dbpl-2021"
     SSM = "ssm"
 
     @classmethod
@@ -268,7 +268,7 @@ class PowerSpectrum(abc.ABC):
         return self.adiabatic_index * self.ubarf**2
 
     def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
-        r"""Compute the common prefactor of the power spectrum for BPL and DBPL.
+        r"""Compute the common prefactor of the power spectrum for BPL2020 and DBPL2021.
 
         $$3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
 
