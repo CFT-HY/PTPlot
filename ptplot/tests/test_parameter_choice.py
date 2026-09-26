@@ -7,7 +7,7 @@ from ptplot.science.spectrum import Engine
 from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
-ENGINES: tuple[Engine, ...] = (Engine.BPL2020, Engine.DBPL2021)
+ENGINES: tuple[Engine, ...] = (Engine.BPL2020, Engine.BPL2024, Engine.DBPL2021, Engine.DBPL2024)
 
 
 def point() -> ParameterChoice:

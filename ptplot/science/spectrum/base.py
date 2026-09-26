@@ -43,7 +43,9 @@ class Engine(enum.StrEnum):
     """Enumeration of power spectrum engines."""
 
     BPL2020 = DEFAULT = "bpl-2020"
+    BPL2024 = "bpl-2024"
     DBPL2021 = "dbpl-2021"
+    DBPL2024 = "dbpl-2024"
     SSM = "ssm"
 
     @classmethod
@@ -124,7 +126,7 @@ class PowerSpectrum(abc.ABC):
         r"""
         Create a power spectrum.
 
-        :param beta_tilde: $\frac{\beta}{H}$, Inverse phase transition duration relative to H
+        :param beta_tilde: $\frac{\beta}{H}$, Inverse phase transition duration relative to $H_*$
         :param T_star: $T_*$, transition temperature
         :param g_star: $g_*$, degrees of freedom
         :param v_wall: $v_\text{wall}$, wall velocity

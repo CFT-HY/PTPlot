@@ -10,12 +10,14 @@ from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.spectrum import (
     PowerSpectrum,
     PowerSpectrumBPL2020,
+    PowerSpectrumBPL2024,
     PowerSpectrumDBPL2021,
+    PowerSpectrumDBPL2024,
 )
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
 SPECTRUM_CLASSES: tuple[type[PowerSpectrum], ...] = (
-    PowerSpectrumBPL2020, PowerSpectrumDBPL2021
+    PowerSpectrumBPL2020, PowerSpectrumBPL2024, PowerSpectrumDBPL2021, PowerSpectrumDBPL2024
 )
 
 

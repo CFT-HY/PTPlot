@@ -11,7 +11,7 @@ import sys
 import tomllib
 
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
-from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, convert_extlinks
+from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, arxiv_link, convert_extlinks
 from pttools.docs.setup import pre_setup, setup_sphinx, setup_sphinx_logging
 from sphinx_gallery.sorting import ExplicitOrder
 
@@ -161,10 +161,13 @@ autodoc_typehints = "description"
 
 # Sphinx requires base URLs and caption strings to contain exactly one "%s",
 # and all other "%" need to be escaped as "%%".
-# EXTLINKS_STATIC: ExtLinks = {
-#     **EXTLINKS_STATIC,
-#     # ...
-# }
+EXTLINKS_STATIC: ExtLinks = {
+    **EXTLINKS_STATIC,
+    "babak_2021": arxiv_link("2108.01167", "Babak, Hewitson & Petiteau"),
+    "schmitz_2020": arxiv_link("2005.10789", "Schmitz"),
+    "jinno_2023": arxiv_link("2209.04369", "Jinno et al.", year=2023),
+    "caprini_2024_weak_strong": arxiv_link("2409.03651", "Caprini et al.")
+}
 EXTLINKS_DYNAMIC: ExtLinks = {
     **EXTLINKS_DYNAMIC,
     # Other

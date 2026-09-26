@@ -2,7 +2,9 @@
 
 from ptplot.science.spectrum.base import ENGINE_SPECTRUM_CLASSES, Engine
 from ptplot.science.spectrum.bpl2020 import PowerSpectrumBPL2020
+from ptplot.science.spectrum.bpl2024 import PowerSpectrumBPL2024
 from ptplot.science.spectrum.dbpl2021 import PowerSpectrumDBPL2021
+from ptplot.science.spectrum.dbpl2024 import PowerSpectrumDBPL2024
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
 # -----
@@ -11,7 +13,9 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
 ENGINE_SPECTRUM_CLASSES.update({
     Engine.BPL2020: PowerSpectrumBPL2020,
+    Engine.BPL2024: PowerSpectrumBPL2024,
     Engine.DBPL2021: PowerSpectrumDBPL2021,
+    Engine.DBPL2024: PowerSpectrumDBPL2024,
     Engine.SSM: PowerSpectrumSSM,
 })
 

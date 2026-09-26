@@ -30,6 +30,11 @@ class PowerSpectrumTest(TestCase):
             engine=Engine.DBPL2021
         )
 
+    @staticmethod
+    def test_power_spectrum_dbpl2024():
+        power_spectrum(
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
+            engine=Engine.DBPL2024
         )
 
     @staticmethod

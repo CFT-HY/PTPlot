@@ -54,7 +54,9 @@ Modules:
 - `ptplot_site` is the Django site
 - `tools` contains external utilities
 
-PTPlot supports three modeling engines:
+PTPlot supports five modeling engines:
 - Broken power law (BPL) of Hindmarsh et al. (2017) and Caprini et al. (2020), `bpl-2020` (default)
+- Broken power law (BPL) of Caprini et al. (2024), `bpl-2024`
 - Double-broken power law (DBPL) of Gowling & Hindmarsh (2021), `dbpl-2021`
+- Double-broken power law (DBPL) of Caprini et al. (2024), `dbpl-2024`
 - Sound Shell Model (SSM), provided by the PTtools library from the same authors as PTPlot
