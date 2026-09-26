@@ -9,6 +9,8 @@ from django.urls import reverse
 
 from ptplot.forms import BenchmarkForm, PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
+from ptplot.models import ParameterChoice
+from ptplot.science import const
 from ptplot.science.noise import noise_curve
 from ptplot.science.spectrum.engine import Engine
 
@@ -177,6 +179,68 @@ class ViewTest(TestCase):
     def test_point_csv(self):
         check_view(self, "model_point_csv", view_kwargs=self.POINT_KWARGS)
 
+    def test_point_legacy_nucleation_cs_max(self):
+        r"""The legacy $\max(v_{\text{wall}}, c_s)$ option should be selectable in the query string."""
+        for view in ("model_point_snr_alpha_beta", "model_point_snr_ubarf_rstar", "model_point_ps"):
+            check_view(self, view, view_kwargs=self.POINT_KWARGS, data={"legacy_nucleation_cs_max": True})
+
+    def test_model_legacy_nucleation_cs_max(self):
+        for view in ("model_snr_alpha_beta", "model_snr_ubarf_rstar", "model_snr_histogram"):
+            check_view(self, view, view_kwargs=self.MODEL_KWARGS, data={"legacy_nucleation_cs_max": True})
+
+    def test_scenario_legacy_nucleation_cs_max(self):
+        for view in ("model_scenario_snr_alpha_beta", "model_scenario_snr_comparison"):
+            check_view(self, view, view_kwargs=self.SCENARIO_KWARGS, data={"legacy_nucleation_cs_max": True})
+
+    def form_data(self, **kwargs) -> dict[str, tp.Any]:
+        """Get the data of the test form without None values, which cannot be encoded in a query string."""
+        return {key: value for key, value in {**self.form.cleaned_data, **kwargs}.items() if value is not None}
+
+    def csv_content(self, url: str, data: dict[str, tp.Any]) -> bytes:
+        response = self.client.get(url, data=data)
+        check_status_code(response, url=url)
+        return response.content
+
+    def test_csv_legacy_nucleation_cs_max(self):
+        r"""The legacy option should change the spectrum only when $v_{\text{wall}} < c_s$."""
+        url = reverse("csv")
+        for v_wall, should_differ in ((0.3, True), (0.9, False)):
+            data = self.form_data(v_wall=v_wall)
+            legacy = self.csv_content(url, {**data, "legacy_nucleation_cs_max": True})
+            default = self.csv_content(url, {**data, "legacy_nucleation_cs_max": False})
+            assert (legacy != default) == should_differ, f"v_wall={v_wall}"
+
+    def test_point_csv_legacy_nucleation_cs_max(self):
+        """The legacy option should reach the spectra of the benchmark points."""
+        point = ParameterChoice.objects.filter(v_wall__lt=const.CS0).select_related("model").first()
+        assert point is not None, "The test data should have a point with v_wall < c_s."
+        url = reverse("model_point_csv", kwargs={"model_id": point.model.id, "point_id": point.number})
+        legacy = self.csv_content(url, {"legacy_nucleation_cs_max": True})
+        default = self.csv_content(url, {})
+        assert legacy != default
+
+    def test_multiple_legacy_nucleation_cs_max(self):
+        url = reverse("multiple")
+        response = self.client.post(url, data={
+            "v_wall": 0.3,
+            "T_star": 100,
+            "g_star": 100,
+            "table": "0.1,10000,A\n0.2,1000,B",
+            "engine": Engine.DEFAULT,
+            "obs_years": 3,
+            "noise_eb": True,
+            "noise_gb": True,
+            "legacy_nucleation_cs_max": True
+        })
+        check_status_code(response, url=url)
+        assert response.headers["Content-Type"] == "image/svg+xml", \
+            f"The form was not accepted: {response.content[:500]!r}"
+
+    def test_single_legacy_nucleation_cs_max(self):
+        response = self.client.get(reverse("single"), data=self.form_data(legacy_nucleation_cs_max=True))
+        check_status_code(response)
+        assert b"legacy, with" in response.content
+
     def test_point_ps_noise(self):
         """The noise settings should be selectable in the query string."""
         check_view(
@@ -237,3 +301,16 @@ class BenchmarkFormTest(TestCase):
         # An unchecked checkbox is missing from the query string.
         assert not noise.eb
         assert noise.gb
+        assert not form.cleaned_data["legacy_nucleation_cs_max"]
+
+    @staticmethod
+    def test_legacy_nucleation_cs_max_default():
+        form = BenchmarkForm()
+        assert form.is_valid()
+        assert form.cleaned_data["legacy_nucleation_cs_max"] == const.DEFAULT_LEGACY_NUCLEATION_CS_MAX
+
+    @staticmethod
+    def test_legacy_nucleation_cs_max_query_dict():
+        form = BenchmarkForm(QueryDict("obs_years=3&legacy_nucleation_cs_max=True"))
+        assert form.is_valid(), form.errors
+        assert form.cleaned_data["legacy_nucleation_cs_max"]

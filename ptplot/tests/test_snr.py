@@ -28,6 +28,46 @@ class SNRTest(TestCase):
         )
 
     @staticmethod
+    def snr_alpha_beta_legacy(v_wall: float, legacy: bool) -> np.ndarray:
+        return SNRGridAlphaBeta(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=v_wall,
+            alpha_n=np.logspace(-2, 0, 5), beta_tilde=np.logspace(1, 4, 5),
+            legacy_nucleation_cs_max=legacy, log_progress_percentage=None
+        ).snr
+
+    @classmethod
+    def test_snr_alpha_beta_legacy_detonation(cls):
+        r"""For $v_{\text{wall}} > c_s$ the legacy $\max(v_{\text{wall}}, c_s)$ should not change anything."""
+        v_wall = 0.9
+        np.testing.assert_array_equal(
+            cls.snr_alpha_beta_legacy(v_wall, legacy=True),
+            cls.snr_alpha_beta_legacy(v_wall, legacy=False)
+        )
+
+    @classmethod
+    def test_snr_alpha_beta_legacy_deflagration(cls):
+        r"""For $v_{\text{wall}} < c_s$ the legacy option should correspond to a larger $r_*$.
+
+        The BPL2020 SNR at $(\alpha, \beta/H_*)$ with the legacy option equals
+        that at $(\alpha, \beta/H_* \cdot v_{\text{wall}} / c_s)$ without it.
+        """
+        v_wall = 0.3
+        alpha_n = np.logspace(-2, 0, 5)
+        beta_tilde = np.logspace(1, 4, 5)
+        legacy = SNRGridAlphaBeta(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=v_wall,
+            alpha_n=alpha_n, beta_tilde=beta_tilde,
+            legacy_nucleation_cs_max=True, log_progress_percentage=None
+        ).snr
+        default_rescaled = SNRGridAlphaBeta(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=v_wall,
+            alpha_n=alpha_n, beta_tilde=beta_tilde * v_wall / const.CS0,
+            legacy_nucleation_cs_max=False, log_progress_percentage=None
+        ).snr
+        np.testing.assert_allclose(legacy, default_rescaled, rtol=1e-10)
+        assert not np.allclose(legacy, cls.snr_alpha_beta_legacy(v_wall, legacy=False), rtol=1e-2)
+
+    @staticmethod
     def test_snr_ubarf_rstar():
         snr_figure_ubarf_rstar(
             grid=SNRGridUbarfRStar(

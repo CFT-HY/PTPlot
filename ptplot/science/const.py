@@ -16,6 +16,10 @@ DEFAULT_ALPHA: float = 0.1
 DEFAULT_BETA_TILDE: float = 10.
 DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR
 DEFAULT_K_TURB: float = 1.97 / 65.0
+#: Whether to use the legacy $\max(v_{\text{wall}}, c_s)$
+#: in the $\tilde{\beta} \leftrightarrow r_*$ conversion by default.
+#: Please see :py:func:`pttools.ssm.nucleation.beta` for details.
+DEFAULT_LEGACY_NUCLEATION_CS_MAX: bool = False
 
 DEFAULT_OMEGA_TILDE_GW: float = ssm_const.DEFAULT_OMEGA_TILDE_GW
 r"""

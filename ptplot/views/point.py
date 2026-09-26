@@ -42,7 +42,10 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
 
     return fig_to_response(
         point.snr_figure_alpha_beta(
-            grid=point.snr_grid_alpha_beta(engine=form.cleaned_data["engine"], noise=form.noise)
+            grid=point.snr_grid_alpha_beta(
+                engine=form.cleaned_data["engine"], noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            )
         )
     )
 
@@ -62,10 +65,14 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
     engine = Engine.engine(form.cleaned_data["engine"])
     return fig_to_response(
         point.snr_comparison(
-            grid1=point.snr_grid_alpha_beta(engine=Engine.BPL2020, noise=form.noise),
+            grid1=point.snr_grid_alpha_beta(
+                engine=Engine.BPL2020, noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            ),
             grid2=point.snr_grid_alpha_beta(
                 engine=Engine.DBPL2021 if engine == Engine.BPL2020 else engine,
-                noise=form.noise
+                noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
             )
         )
     )
@@ -85,7 +92,10 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
 
     return fig_to_response(
         point.snr_figure_ubarf_rstar(
-            grid=point.snr_grid_ubarf_rstar(engine=form.cleaned_data["engine"], noise=form.noise)
+            grid=point.snr_grid_ubarf_rstar(
+                engine=form.cleaned_data["engine"], noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            )
         )
     )
 
@@ -103,7 +113,10 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return HttpResponse(
-        point.csv(noise=form.noise, engine=form.cleaned_data["engine"]),
+        point.csv(
+            noise=form.noise, engine=form.cleaned_data["engine"],
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+        ),
         content_type="text/csv"
     )
 
@@ -121,5 +134,8 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
-        point.power_spectrum_figure(noise=form.noise, engine=form.cleaned_data["engine"])
+        point.power_spectrum_figure(
+            noise=form.noise, engine=form.cleaned_data["engine"],
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+        )
     )

@@ -8,6 +8,10 @@
 </p>
 <p>Engine: <em>{{ engine_name }}</em></p>
 <p>Noise: <em>{{ noise }}</em>.</p>
+<p>
+  $\beta/H_* \leftrightarrow r_*$ conversion:
+  <em>{% if legacy_nucleation_cs_max %}legacy, with $\max(v_\mathrm{w}, c_s)${% else %}with $v_\mathrm{w}${% endif %}</em>.
+</p>
 
 <h3>Notes</h3>
 <ul>

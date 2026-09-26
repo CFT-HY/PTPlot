@@ -55,7 +55,10 @@ def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:
 
     return fig_to_response(
         model.snr_figure_alpha_beta(
-            grid=model.snr_grid_alpha_beta(engine=form.cleaned_data["engine"], noise=form.noise)
+            grid=model.snr_grid_alpha_beta(
+                engine=form.cleaned_data["engine"], noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            )
         )
     )
 
@@ -74,10 +77,14 @@ def model_snr_comparison(request: HttpRequest, model_id: int) -> HttpResponse:
     engine = Engine.engine(form.cleaned_data["engine"])
     return fig_to_response(
         model.snr_comparison(
-            grid1=model.snr_grid_alpha_beta(engine=Engine.BPL2020, noise=form.noise),
+            grid1=model.snr_grid_alpha_beta(
+                engine=Engine.BPL2020, noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            ),
             grid2=model.snr_grid_alpha_beta(
                 engine=Engine.DBPL2021 if engine == Engine.BPL2020 else engine,
-                noise=form.noise
+                noise=form.noise,
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
             )
         )
     )
@@ -95,7 +102,10 @@ def model_snr_histogram(request: HttpRequest, model_id: int) -> HttpResponse:
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
 
     return fig_to_response(
-        model.snr_histogram(noise=form.noise)
+        model.snr_histogram(
+            noise=form.noise,
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+        )
     )
 
 
@@ -112,6 +122,9 @@ def model_snr_ubarf_rstar(request: HttpRequest, model_id: int) -> HttpResponse:
 
     return fig_to_response(
         model.snr_figure_ubarf_rstar(
-            grid=model.snr_grid_ubarf_rstar(noise=form.noise, engine=form.cleaned_data["engine"])
+            grid=model.snr_grid_ubarf_rstar(
+                noise=form.noise, engine=form.cleaned_data["engine"],
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            )
         )
     )

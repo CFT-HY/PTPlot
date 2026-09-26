@@ -10,6 +10,7 @@ from django.forms.renderers import BaseRenderer
 from django.utils.safestring import SafeString
 
 from ptplot.models import Model
+from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
 from ptplot.science.spectrum.engine import ENGINE_CHOICES
 
@@ -151,6 +152,26 @@ class GStarField(forms.FloatField):
             localize: bool = False,
             **kwargs):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
+
+
+class LegacyNucleationCsMaxField(forms.BooleanField):
+    r"""Field for the legacy $\max(v_{\text{wall}}, c_s)$ in the $\tilde{\beta} \leftrightarrow r_*$ conversion.
+
+    The legacy conversion $r_* = (8 \pi)^{1/3} \max(v_{\text{wall}}, c_s) / \tilde{\beta}$
+    was used by PTPlot until September 2026 and by :caprini_2020:`\ `.
+    It only differs from the default $r_* = (8 \pi)^{1/3} v_{\text{wall}} / \tilde{\beta}$
+    for subsonic deflagrations with $v_{\text{wall}} < c_s$.
+    """
+
+    def __init__(
+            self,
+            label: str = r"Legacy $\beta/H_* \leftrightarrow r_*$ conversion with $\max(v_{\mathrm{w}}, c_s)$",
+            help_text: str = "As in Caprini et al. (2020) and PTPlot until September 2026. "
+                             "Only affects walls slower than the speed of sound.",
+            initial: bool = DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            required: bool = False,
+            **kwargs):
+        super().__init__(label=label, help_text=help_text, initial=initial, required=required, **kwargs)
 
 
 class NoiseEBField(forms.BooleanField):

@@ -30,12 +30,16 @@ def snr_histogram(
         titles: th.StrOrList | None = None,  # noqa: ARG001
         noise: Noise | None = None,
         engines: list[Engine] | None = None,
-        n_bins_min: int = 5) -> Figure:
-    """Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
+        n_bins_min: int = 5,
+        legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+    r"""Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
 
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html
     https://matplotlib.org/stable/gallery/statistics/histogram_histtypes.html
     https://matplotlib.org/stable/gallery/statistics/histogram_multihist.html
+
+    :param legacy_nucleation_cs_max:
+        Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
     """
     fig = Figure()
     ax = fig.add_subplot()
@@ -54,7 +58,8 @@ def snr_histogram(
                 v_wall=v_wall[i_point],
                 adiabatic_index=adiabatic_index,
                 noise=noise,
-                engine=engine
+                engine=engine,
+                legacy_nucleation_cs_max=legacy_nucleation_cs_max
             )
 
     snr_finite = np.isfinite(snr)

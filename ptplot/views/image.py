@@ -27,7 +27,8 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         v_wall=form.cleaned_data["v_wall"],
         alpha=form.cleaned_data["alpha"],
         beta_tilde=form.cleaned_data["beta_tilde"],
-        engine=form.cleaned_data["engine"]
+        engine=form.cleaned_data["engine"],
+        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
     )
     fig = power_spectrum_figure(
         spectra=spectrum,
@@ -54,7 +55,8 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             beta_tilde_points=form.cleaned_data["beta_tilde"],
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
-            engine=form.cleaned_data["engine"]
+            engine=form.cleaned_data["engine"],
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
         )
     ))
 
@@ -77,6 +79,7 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             beta_tilde_points=form.cleaned_data["beta_tilde"],
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
-            engine=form.cleaned_data["engine"]
+            engine=form.cleaned_data["engine"],
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
         )
     ))

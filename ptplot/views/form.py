@@ -54,7 +54,8 @@ def multiple(request: HttpRequest) -> HttpResponse:
                     v_wall_points=form.cleaned_data["v_wall"],
                     labels_points=label_list_final,
                     noise=form.noise,
-                    engine=form.cleaned_data["engine"]
+                    engine=form.cleaned_data["engine"],
+                    legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
                 )
             )
             return fig_to_response(fig)
@@ -96,6 +97,7 @@ def single(request: HttpRequest) -> HttpResponse:
         "T_star": form.cleaned_data["T_star"],
         "g_star": form.cleaned_data["g_star"],
         "noise": form.noise,
+        "legacy_nucleation_cs_max": form.cleaned_data["legacy_nucleation_cs_max"],
         "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
         "css2": form.cleaned_data["css2"],
         "csb2": form.cleaned_data["csb2"]

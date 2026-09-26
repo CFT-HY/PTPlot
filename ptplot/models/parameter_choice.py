@@ -111,14 +111,19 @@ class ParameterChoice(models.Model):
     # Methods
     # -----
 
-    def csv(self, noise: Noise | None = None, engine: Engine = Engine.DEFAULT) -> str:
+    def csv(
+            self,
+            noise: Noise | None = None,
+            engine: Engine = Engine.DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> str:
         csv = power_spectrum(
             T_star=self.T_star_value,
             g_star=self.g_star_value,
             v_wall=self.v_wall_value,
             alpha=self.alpha,
             beta_tilde=self.beta_tilde,
-            engine=engine
+            engine=engine,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         ).csv(noise=noise)
         if csv is None:
             raise ValueError("Got no CSV data.")
@@ -127,13 +132,16 @@ class ParameterChoice(models.Model):
     def power_spectrum_figure(
             self,
             noise: Noise | None = None,
-            engine: Engine | str | tp.Iterable[Engine] | None = None) -> Figure:
-        """Plot the power spectrum of this parameter choice.
+            engine: Engine | str | tp.Iterable[Engine] | None = None,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+        r"""Plot the power spectrum of this parameter choice.
 
         :param noise: Which noise curve to use
         :param engine: Engine, or multiple engines, whose spectra are drawn in the same figure.
             Defaults to all engines.
             A single engine can also be given as a string, as that's what the forms provide.
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :return: Power spectrum figure
         """
         return power_spectrum_figure(
@@ -144,7 +152,8 @@ class ParameterChoice(models.Model):
                     v_wall=self.v_wall_value,
                     alpha=self.alpha,
                     beta_tilde=self.beta_tilde,
-                    engine=spectrum_engine
+                    engine=spectrum_engine,
+                    legacy_nucleation_cs_max=legacy_nucleation_cs_max
                 )
                 for spectrum_engine in Engine.engines(engine)
             ],
@@ -212,7 +221,8 @@ class ParameterChoice(models.Model):
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this point in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -223,6 +233,8 @@ class ParameterChoice(models.Model):
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param noise: Which noise curve to use
         :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :return: SNR grid
         """
         return SNRGridAlphaBeta(
@@ -237,7 +249,8 @@ class ParameterChoice(models.Model):
             adiabatic_index=adiabatic_index,
             engine=engine,
             name=name,
-            max_workers=max_workers
+            max_workers=max_workers,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
 
     def snr_grid_ubarf_rstar(
@@ -250,7 +263,8 @@ class ParameterChoice(models.Model):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this point in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -262,6 +276,8 @@ class ParameterChoice(models.Model):
         :param cs: Sound speed $c_s$
         :param noise: Which noise curve to use
         :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :return: SNR grid
         """
         return SNRGridUbarfRStar(
@@ -277,5 +293,6 @@ class ParameterChoice(models.Model):
             cs=cs,
             engine=engine,
             name=name,
-            max_workers=max_workers
+            max_workers=max_workers,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )

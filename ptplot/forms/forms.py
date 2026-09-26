@@ -12,6 +12,7 @@ from ptplot.forms.fields import (
     CSS2Field,
     EngineField,
     GStarField,
+    LegacyNucleationCsMaxField,
     ModelField,
     NoiseEBField,
     NoiseGBField,
@@ -20,6 +21,7 @@ from ptplot.forms.fields import (
     VWallField,
 )
 from ptplot.models import Model
+from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
 
 logger = logging.getLogger(__name__)
@@ -42,10 +44,17 @@ class NoiseFormMixin(Form):
         )
 
 
-class BenchmarkForm(NoiseFormMixin):
+class NucleationFormMixin(Form):
+    r"""Mixin that adds the choice of the $\tilde{\beta} \leftrightarrow r_*$ conversion."""
+
+    legacy_nucleation_cs_max = LegacyNucleationCsMaxField()
+
+
+class BenchmarkForm(NoiseFormMixin, NucleationFormMixin):
     """Form for the arguments of the benchmark plots."""
 
     engine = EngineField(required=False)
+    field_order = ["obs_years", "noise_eb", "noise_gb", "legacy_nucleation_cs_max", "engine"]
 
     def __init__(self, data: tp.Mapping[str, tp.Any] | None = None, **kwargs):
         # dict(data.items()) instead of {**data}, since the latter would give the
@@ -58,12 +67,13 @@ class BenchmarkForm(NoiseFormMixin):
             data["obs_years"] = DEFAULT_OBS_YEARS
             data.setdefault("noise_eb", DEFAULT_NOISE_EB)
             data.setdefault("noise_gb", DEFAULT_NOISE_GB)
+            data.setdefault("legacy_nucleation_cs_max", DEFAULT_LEGACY_NUCLEATION_CS_MAX)
         # if "engine" not in data:
         #    data["engine"] = Engine.DEFAULT
         super().__init__(data, **kwargs)
 
 
-class PTPlotForm(NoiseFormMixin):
+class PTPlotForm(NoiseFormMixin, NucleationFormMixin):
     """Form for the arguments of a single point."""
 
     v_wall = VWallField()
@@ -74,10 +84,10 @@ class PTPlotForm(NoiseFormMixin):
     css2 = CSS2Field(required=False)
     csb2 = CSB2Field(required=False)
     engine = EngineField()
-    # Keep the noise fields of the mixin after the parameters of the point.
+    # Keep the noise and nucleation fields of the mixins after the parameters of the point.
     field_order = [
         "v_wall", "alpha", "beta_tilde", "T_star", "g_star", "css2", "csb2", "engine",
-        "obs_years", "noise_eb", "noise_gb"
+        "obs_years", "noise_eb", "noise_gb", "legacy_nucleation_cs_max"
     ]
     # usetex = forms.BooleanField(
     #     label="Use TeX for labels (slow)?",
@@ -86,7 +96,7 @@ class PTPlotForm(NoiseFormMixin):
     # )
 
 
-class MultipleForm(NoiseFormMixin):
+class MultipleForm(NoiseFormMixin, NucleationFormMixin):
     """Form for the arguments of multiple points."""
 
     v_wall = VWallField()
@@ -98,8 +108,10 @@ class MultipleForm(NoiseFormMixin):
         initial="#alpha_theta,BetaOverH,label"
     )
     engine = EngineField()
-    # Keep the noise fields of the mixin after the parameters of the points.
-    field_order = ["v_wall", "T_star", "g_star", "table", "engine", "obs_years", "noise_eb", "noise_gb"]
+    # Keep the noise and nucleation fields of the mixins after the parameters of the points.
+    field_order = [
+        "v_wall", "T_star", "g_star", "table", "engine", "obs_years", "noise_eb", "noise_gb", "legacy_nucleation_cs_max"
+    ]
 
 
 class ParameterChoiceForm(Form):

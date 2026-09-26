@@ -29,7 +29,8 @@ def csv(request: HttpRequest) -> HttpResponse:
         beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"],
         css2=form.cleaned_data["css2"],
-        csb2 = form.cleaned_data["csb2"]
+        csb2 = form.cleaned_data["csb2"],
+        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
     )
     csv_data = spectrum.csv(noise=form.noise)
     return HttpResponse(csv_data, content_type="text/csv")

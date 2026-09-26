@@ -234,7 +234,8 @@ class Model(models.Model):
             name: str | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridAlphaBeta:
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -245,6 +246,8 @@ class Model(models.Model):
         :param adiabatic_index: Mean adiabatic index $\Gamma$
         :param noise: Which noise curve to use
         :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -261,7 +264,8 @@ class Model(models.Model):
             adiabatic_index=adiabatic_index,
             engine=engine,
             name=name,
-            max_workers=max_workers
+            max_workers=max_workers,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
 
     def snr_grid_ubarf_rstar(
@@ -274,7 +278,8 @@ class Model(models.Model):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             cs: float = const.CS0,
             noise: Noise | None = None,
-            max_workers: int = MAX_WORKERS_DEFAULT) -> SNRGridUbarfRStar:
+            max_workers: int = MAX_WORKERS_DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -286,6 +291,8 @@ class Model(models.Model):
         :param cs: Sound speed $c_s$
         :param noise: Which noise curve to use
         :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -303,14 +310,20 @@ class Model(models.Model):
             cs=cs,
             engine=engine,
             name=name,
-            max_workers=max_workers
+            max_workers=max_workers,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
 
-    def snr_histogram(self, noise: Noise | None = None, engines: list[Engine] | None = None) -> Figure:
+    def snr_histogram(
+            self,
+            noise: Noise | None = None,
+            engines: list[Engine] | None = None,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
         v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
         return snr_histogram(
             v_wall=v_wall, alpha_n=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
             labels=labels, titles=titles,
             noise=noise,
-            engines=engines
+            engines=engines,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
         )
