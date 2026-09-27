@@ -119,7 +119,7 @@ class ParameterChoiceForm(Form):
     """Parameter choice form."""
 
     underlying_model: ModelField
-    v_wall: type[VWallField]
+    v_wall: VWallField
     alpha: AlphaField
     beta_tilde: BetaTildeField
 
@@ -136,7 +136,7 @@ class ParameterChoiceForm(Form):
             #     for i, (gstar, Tn) in enumerate(zip(precomputed_gstar, precomputed_Tn))
             # ]
 
-            self.v_wall = VWallField
+            self.v_wall = VWallField()
             # tstar = TStarField()
             self.alpha = AlphaField()
             self.beta_tilde = BetaTildeField()
