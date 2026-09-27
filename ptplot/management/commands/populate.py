@@ -4,6 +4,7 @@ from collections import defaultdict
 from collections.abc import Hashable
 from inspect import cleandoc
 import os
+import typing as tp
 
 from django.core.management.base import BaseCommand
 import numpy as np
@@ -835,7 +836,7 @@ class Command(BaseCommand):
         return singlet_scalars
 
     @staticmethod
-    def susy():
+    def susy() -> None:
         susy = Model(
             name="Some SUSY embeddings",
             slug="susy",
@@ -1146,7 +1147,7 @@ class Command(BaseCommand):
             )
             point.save()
 
-    def handle(self, *args, **options):
+    def handle(self, *args: tp.Any, **options: tp.Any) -> None:
         """Populate the database with benchmark models, scenarios and points."""
         print("Populating DB...")
         # This order determines the indices of the models.

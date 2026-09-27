@@ -12,7 +12,7 @@ from django.utils.safestring import SafeString
 from ptplot.models import Model
 from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
-from ptplot.science.spectrum.engine import ENGINE_CHOICES
+from ptplot.science.spectrum.engine import ENGINE_CHOICES, Engine
 
 
 def validate_velocity(value: float) -> None:
@@ -40,16 +40,16 @@ class FractionField(forms.CharField):
 class UnitInput(forms.NumberInput):
     """NumberInput with units."""
 
-    def __init__(self, attrs=None, units: str | None = None):
+    def __init__(self, attrs: dict[str, tp.Any] | None = None, units: str | None = None):
         super().__init__(attrs)
-        self.units_string = None if units is None else SafeString(f"&nbsp;{units}")
+        self.units_string: SafeString | None = None if units is None else SafeString(f"&nbsp;{units}")
 
     def render(
             self,
             name: str,
             value: tp.Any,
             attrs: dict[str, tp.Any] | None = None,
-            renderer: BaseRenderer | None = None):
+            renderer: BaseRenderer | None = None) -> SafeString:
         ret = super().render(name, value, attrs, renderer)
         if self.units_string is None:
             return ret
@@ -61,9 +61,9 @@ class UnitInput(forms.NumberInput):
 # -----
 
 #: Default widget of the transition temperature field
-GEV_INPUT = UnitInput(units="GeV")
+GEV_INPUT: UnitInput = UnitInput(units="GeV")
 #: Default widget of the mission duration field
-YEARS_INPUT = UnitInput(units="years")
+YEARS_INPUT: UnitInput = UnitInput(units="years")
 
 # Disabling localization for FloatField enables the use of NumberInput
 # https://docs.djangoproject.com/en/5.2/ref/forms/fields/#floatfield
@@ -76,7 +76,7 @@ class AlphaField(forms.FloatField):
             label: str = r"Phase transition strength $\alpha_\theta$",
             min_value: float = 0.,
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
@@ -88,7 +88,7 @@ class BetaTildeField(forms.FloatField):
             label: str = r"Inverse phase transition duration $\beta/H_*$",
             min_value: float = 0.,
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
@@ -102,7 +102,7 @@ class CS2Field(FractionField):
             # min_value: float = 0.,
             # max_value: float = 1.,
             validators: tp.Sequence[tp.Callable] = (validate_velocity, ),
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(
             label=label, help_text=help_text,
             # min_value=min_value, max_value=max_value,
@@ -117,7 +117,7 @@ class CSS2Field(CS2Field):
     def __init__(
             self,
             label: str = r"Sound speed squared in the symmetric phase $c_{s,s}^2$",
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, **kwargs)
 
 
@@ -127,7 +127,7 @@ class CSB2Field(CS2Field):
     def __init__(
             self,
             label: str = r"Sound speed squared in the broken phase $c_{s,b}^2$",
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, **kwargs)
 
 
@@ -137,8 +137,8 @@ class EngineField(forms.ChoiceField):
     def __init__(
             self,
             label: str = "Engine",
-            choices=ENGINE_CHOICES,
-            **kwargs):
+            choices: tuple[tuple[Engine, str], ...] = ENGINE_CHOICES,
+            **kwargs: tp.Any):
         super().__init__(label=label, choices=choices, **kwargs)
 
 
@@ -150,7 +150,7 @@ class GStarField(forms.FloatField):
             label: str = r"Degrees of freedom $g_\star$",
             min_value: float = 0.,
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, min_value=min_value, localize=localize, **kwargs)
 
 
@@ -170,7 +170,7 @@ class LegacyNucleationCsMaxField(forms.BooleanField):
                              "Only affects walls slower than the speed of sound.",
             initial: bool = DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             required: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, help_text=help_text, initial=initial, required=required, **kwargs)
 
 
@@ -182,7 +182,7 @@ class NoiseEBField(forms.BooleanField):
             label: str = r"Extragalactic compact binary noise",
             initial: bool = DEFAULT_NOISE_EB,
             required: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, initial=initial, required=required, **kwargs)
 
 
@@ -194,7 +194,7 @@ class NoiseGBField(forms.BooleanField):
             label: str = r"Galactic compact binary noise",
             initial: bool = DEFAULT_NOISE_GB,
             required: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(label=label, initial=initial, required=required, **kwargs)
 
 
@@ -208,7 +208,7 @@ class ObsYearsField(forms.FloatField):
             initial: float = DEFAULT_OBS_YEARS,
             widget: forms.NumberInput = YEARS_INPUT,
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(
             label=label, min_value=min_value, initial=initial, widget=widget, localize=localize,
             **kwargs
@@ -222,7 +222,7 @@ class ModelField(forms.ModelChoiceField):
             self,
             queryset: QuerySet | None = None,
             label: str = "Model",
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(
             queryset=Model.objects.all() if queryset is None else queryset,
             label=label,
@@ -239,7 +239,7 @@ class TStarField(forms.FloatField):
             min_value: float = 0.,
             widget: forms.NumberInput = GEV_INPUT,
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(
             label=label, min_value=min_value, widget=widget, localize=localize,
             **kwargs
@@ -256,7 +256,7 @@ class VWallField(forms.FloatField):
             max_value: float = 1.,
             validators: tp.Sequence[tp.Callable] = (validate_velocity, ),
             localize: bool = False,
-            **kwargs):
+            **kwargs: tp.Any):
         super().__init__(
             label=label,
             min_value=min_value, max_value=max_value,

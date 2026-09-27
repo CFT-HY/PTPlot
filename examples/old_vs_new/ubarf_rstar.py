@@ -33,7 +33,7 @@ from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.tests.old_ptplot import OLD_OBS_YEARS, old_or_reconstructed_grid, snr_factor
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 T_STAR: float = 100.
 G_STAR: float = 100.
@@ -77,7 +77,7 @@ def contour_comparison(
     save_fig(fig, path)
 
 
-def main():
+def main() -> None:
     r"""Compare the old and the new SNR grids on the $(\bar{U}_f, r_*)$ plane."""
     (_, snr_old, log10_r_star, log10_ubarf), from_old_code = old_or_reconstructed_grid(T_STAR, G_STAR)
     old_label = "old code, old noise" if from_old_code else "old noise (reconstructed)"

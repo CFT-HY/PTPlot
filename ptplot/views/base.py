@@ -9,7 +9,7 @@ from ptplot.forms import PTPlotForm
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.utils import GIT_DESCRIPTION, HAVE_GITVER
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def csv(request: HttpRequest) -> HttpResponse:

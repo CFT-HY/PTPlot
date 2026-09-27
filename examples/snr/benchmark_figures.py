@@ -27,10 +27,10 @@ from ptplot.science import const
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def main():  # noqa: PLR0915
+def main() -> None:  # noqa: PLR0915
     """Create the SNR figures for all the benchmark models."""
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))

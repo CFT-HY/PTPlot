@@ -6,7 +6,7 @@ from pttools.utils import IS_CFT_BIG_MACHINE
 from ptplot.science.const import DEFAULT_ALPHA_N_RANGE
 
 
-def n_workers(n_tasks: int = DEFAULT_ALPHA_N_RANGE.size):
+def n_workers(n_tasks: int = DEFAULT_ALPHA_N_RANGE.size) -> int:
     """Get the optimal number of parallel workers.
 
     Some of the computations are quite heavy,

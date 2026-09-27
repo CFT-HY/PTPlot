@@ -3,6 +3,7 @@
 import logging
 import typing as tp
 
+from django.db.models import QuerySet
 from django.forms import CharField, Form, Textarea
 
 from ptplot.forms.fields import (
@@ -24,7 +25,7 @@ from ptplot.models import Model
 from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class NoiseFormMixin(Form):
@@ -56,7 +57,7 @@ class BenchmarkForm(NoiseFormMixin, NucleationFormMixin):
     engine = EngineField(required=False)
     field_order = ["obs_years", "noise_eb", "noise_gb", "legacy_nucleation_cs_max", "engine"]
 
-    def __init__(self, data: tp.Mapping[str, tp.Any] | None = None, **kwargs):
+    def __init__(self, data: tp.Mapping[str, tp.Any] | None = None, **kwargs: tp.Any):
         # dict(data.items()) instead of {**data}, since the latter would give the
         # underlying lists of values of a QueryDict instead of the values themselves.
         data = {} if not data else dict(data.items())
@@ -117,9 +118,14 @@ class MultipleForm(NoiseFormMixin, NucleationFormMixin):
 class ParameterChoiceForm(Form):
     """Parameter choice form."""
 
-    def __init__(self):
+    underlying_model: ModelField
+    v_wall: type[VWallField]
+    alpha: AlphaField
+    beta_tilde: BetaTildeField
+
+    def __init__(self) -> None:
         super().__init__()
-        self.models = Model.objects.all()
+        self.models: QuerySet[Model] = Model.objects.all()
 
         for _model in self.models:
             # Why is this defined within the loop?

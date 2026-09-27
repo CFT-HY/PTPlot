@@ -18,12 +18,12 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.urls import include, path
+from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import RedirectView
 
 from ptplot.admin import admin_site
 
-urlpatterns = [
+urlpatterns: list[URLPattern | URLResolver] = [
     path("", RedirectView.as_view(url='/ptplot', permanent=True), name="index_redirect"),
     path("admin/", admin_site.urls),
     path("ptplot/", include("ptplot.urls")),

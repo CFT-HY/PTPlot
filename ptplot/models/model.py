@@ -31,7 +31,7 @@ if tp.TYPE_CHECKING:
     from ptplot.models.scenario import Scenario
 
 
-MODEL_ANNOTATIONS = min_max_avg(
+MODEL_ANNOTATIONS: list[models.Avg | models.Max | models.Min] = min_max_avg(
     "points__alpha", "points__beta_tilde", "points__v_wall", "points__T_star", "points__g_star",
     "scenarios__T_star"
 )

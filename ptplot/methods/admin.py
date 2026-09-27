@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 
-def admin_change_url(obj: models.Model):
+def admin_change_url(obj: models.Model) -> str:
     """Get the admin change URL of an object.
 
     Adapted from
@@ -37,7 +37,7 @@ def generate_link(target: str, name: str | None = None) -> tp.Callable:
     return staticmethod(generated_link)
 
 
-def link(obj: models.Model):
+def link(obj: models.Model | None) -> str:
     """Create a link to the given object."""
     if obj is None:
         return ""

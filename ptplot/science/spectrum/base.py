@@ -36,7 +36,7 @@ from ptplot.science.noise import Noise, resolve_noise
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Engine(enum.StrEnum):

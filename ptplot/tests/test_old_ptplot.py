@@ -72,20 +72,20 @@ class OldPTPlotUbarfRStarTest(TestCase):
     r"""Compare the $(\bar{U}_f, r_*)$ SNR grid of BPL2020 with the old PTPlot."""
 
     @staticmethod
-    def test_grid_ranges():
+    def test_grid_ranges() -> None:
         """The default grid should still be that of the old code."""
         _, _, log10_r_star, log10_ubarf = old_grid(T_STAR, G_STAR)
         np.testing.assert_allclose(10**log10_r_star, const.DEFAULT_R_STAR_RANGE, rtol=1e-12)
         np.testing.assert_allclose(10**log10_ubarf, const.DEFAULT_UBARF_RANGE, rtol=1e-12)
 
     @staticmethod
-    def test_shock_times():
+    def test_shock_times() -> None:
         r"""The shock times $H_* \tau_\text{sh} = r_* / \bar{U}_f$ do not depend on the noise."""
         shock_times, _, _, _ = old_grid(T_STAR, G_STAR)
         np.testing.assert_allclose(new_grid_ubarf_rstar(exact_noise()).shock_times, shock_times, rtol=1e-12)
 
     @staticmethod
-    def test_snr_exact_noise():
+    def test_snr_exact_noise() -> None:
         """With the exact response, the SNR should match for spectra that peak at low frequencies."""
         _, snr_old, log10_r_star, _ = old_grid(T_STAR, G_STAR)
         rows = 10**log10_r_star >= R_STAR_MIN_EXACT
@@ -93,14 +93,14 @@ class OldPTPlotUbarfRStarTest(TestCase):
         np.testing.assert_allclose(snr_new[rows] / SNR_FACTOR, snr_old[rows], rtol=RTOL_EXACT)
 
     @staticmethod
-    def test_snr_approx_noise():
+    def test_snr_approx_noise() -> None:
         """With the approximate response, the SNR should match over the whole grid."""
         _, snr_old, _, _ = old_grid(T_STAR, G_STAR)
         snr_new = new_grid_ubarf_rstar(approx_noise()).snr
         np.testing.assert_allclose(snr_new / SNR_FACTOR, snr_old, rtol=RTOL_APPROX)
 
     @staticmethod
-    def test_snr_ratio_depends_only_on_r_star():
+    def test_snr_ratio_depends_only_on_r_star() -> None:
         r"""The noise changes the SNR by a factor that depends on $r_*$ but not on $\bar{U}_f$.
 
         This is why the new noise curves change the shape of the SNR contours
@@ -111,7 +111,7 @@ class OldPTPlotUbarfRStarTest(TestCase):
         np.testing.assert_allclose(ratio, np.repeat(ratio[:, :1], ratio.shape[1], axis=1), rtol=1e-10)
 
     @staticmethod
-    def test_reconstructed():
+    def test_reconstructed() -> None:
         """The reconstruction of the old grid with the new code should match the old code."""
         for ubarf_max in (1., OLD_UBARF_MAX_ALPHA_BETA):
             shock_times, snr, log10_r_star, log10_ubarf = old_grid(T_STAR, G_STAR, ubarf_max)
@@ -122,7 +122,7 @@ class OldPTPlotUbarfRStarTest(TestCase):
             np.testing.assert_allclose(snr2, snr, rtol=RTOL_RECONSTRUCTED)
 
     @staticmethod
-    def test_points_legacy():
+    def test_points_legacy() -> None:
         r"""With the legacy $\max(v_{\text{wall}}, c_s)$, the points should be converted as in the old code."""
         old = old_modules()
         v_wall = 0.3
@@ -180,16 +180,16 @@ class OldPTPlotAlphaBetaTest(TestCase):
             err_msg=f"v_wall={v_wall}, legacy_nucleation_cs_max={legacy}"
         )
 
-    def test_detonation(self):
+    def test_detonation(self) -> None:
         r"""For $v_{\text{wall}} > c_s$ the conversion does not depend on the legacy option."""
         for legacy in (True, False):
             self.check(v_wall=0.9, legacy=legacy)
 
-    def test_deflagration_legacy(self):
+    def test_deflagration_legacy(self) -> None:
         r"""For $v_{\text{wall}} < c_s$ the legacy option should reproduce the old grid."""
         self.check(v_wall=0.3, legacy=True)
 
-    def test_deflagration_default(self):
+    def test_deflagration_default(self) -> None:
         r"""For $v_{\text{wall}} < c_s$ the default conversion should differ from the old grid.
 
         The default $r_*$ is smaller by the factor $v_{\text{wall}} / c_s$.

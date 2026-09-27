@@ -75,9 +75,10 @@ class ViewTest(TestCase):
     MODEL_KWARGS = {"model_id": MODEL_ID}
     POINT_KWARGS = {"model_id": MODEL_ID, "point_id": POINT_ID}
     SCENARIO_KWARGS = {"model_id": MODEL_ID, "scenario_id": SCENARIO_ID}
+    form: PTPlotForm
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         super().setUpClass()
         PopulateCommand().handle()
         cls.form = PTPlotForm(data={
@@ -93,32 +94,32 @@ class ViewTest(TestCase):
         })
         cls.form.is_valid()
 
-    def test_form(self):
+    def test_form(self) -> None:
         assert self.form.is_valid()
 
     # -----
     # Views
     # -----
 
-    def test_csv(self):
+    def test_csv(self) -> None:
         check_view(self, "csv", form=self.form)
 
-    def test_index(self):
+    def test_index(self) -> None:
         check_view(self, "index")
 
-    def test_snr_alpha_beta(self):
+    def test_snr_alpha_beta(self) -> None:
         check_view(self, "snr_alpha_beta", form=self.form)
 
-    def test_snr_ubarf_rstar(self):
+    def test_snr_ubarf_rstar(self) -> None:
         check_view(self, "snr_ubarf_rstar", form=self.form)
 
-    def test_ps(self):
+    def test_ps(self) -> None:
         check_view(self, "ps", form=self.form)
 
-    def test_single(self):
+    def test_single(self) -> None:
         check_view(self, "single", form=self.form)
 
-    def test_multiple(self):
+    def test_multiple(self) -> None:
         """The multiple points form is submitted with POST."""
         url = reverse("multiple")
         response = self.client.post(url, data={
@@ -137,62 +138,62 @@ class ViewTest(TestCase):
         assert response.headers["Content-Type"] == "image/svg+xml", \
             f"The form was not accepted: {response.content[:500]!r}"
 
-    def test_models(self):
+    def test_models(self) -> None:
         check_view(self, "models")
 
-    def test_model(self):
+    def test_model(self) -> None:
         check_view(self, "model_detail", view_kwargs=self.MODEL_KWARGS)
 
-    def test_model_plot(self):
+    def test_model_plot(self) -> None:
         check_view(self, "model_detail_plot", view_kwargs=self.MODEL_KWARGS)
 
-    def test_model_snr_alphabeta(self):
+    def test_model_snr_alphabeta(self) -> None:
         check_view(self, "model_snr_alpha_beta", view_kwargs=self.MODEL_KWARGS)
 
-    def test_model_snr_comparison(self):
+    def test_model_snr_comparison(self) -> None:
         check_view(self, "model_snr_comparison", view_kwargs=self.MODEL_KWARGS)
 
-    def test_model_snr_histogram(self):
+    def test_model_snr_histogram(self) -> None:
         check_view(self, "model_snr_histogram", view_kwargs=self.MODEL_KWARGS)
 
-    def test_model_snr_ubarf_rstar(self):
+    def test_model_snr_ubarf_rstar(self) -> None:
         check_view(self, "model_snr_ubarf_rstar", view_kwargs=self.MODEL_KWARGS)
 
-    def test_parameter_choice(self):
+    def test_parameter_choice(self) -> None:
         check_view(self, "parameter_choice")
 
-    def test_point(self):
+    def test_point(self) -> None:
         check_view(self, "model_point_plot", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_snr_alpha_beta(self):
+    def test_point_snr_alpha_beta(self) -> None:
         check_view(self, "model_point_snr_alpha_beta", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_snr_comparison(self):
+    def test_point_snr_comparison(self) -> None:
         check_view(self, "model_point_snr_comparison", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_snr(self):
+    def test_point_snr(self) -> None:
         check_view(self, "model_point_snr_ubarf_rstar", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_ps(self):
+    def test_point_ps(self) -> None:
         check_view(self, "model_point_ps", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_csv(self):
+    def test_point_csv(self) -> None:
         check_view(self, "model_point_csv", view_kwargs=self.POINT_KWARGS)
 
-    def test_point_legacy_nucleation_cs_max(self):
+    def test_point_legacy_nucleation_cs_max(self) -> None:
         r"""The legacy $\max(v_{\text{wall}}, c_s)$ option should be selectable in the query string."""
         for view in ("model_point_snr_alpha_beta", "model_point_snr_ubarf_rstar", "model_point_ps"):
             check_view(self, view, view_kwargs=self.POINT_KWARGS, data={"legacy_nucleation_cs_max": True})
 
-    def test_model_legacy_nucleation_cs_max(self):
+    def test_model_legacy_nucleation_cs_max(self) -> None:
         for view in ("model_snr_alpha_beta", "model_snr_ubarf_rstar", "model_snr_histogram"):
             check_view(self, view, view_kwargs=self.MODEL_KWARGS, data={"legacy_nucleation_cs_max": True})
 
-    def test_scenario_legacy_nucleation_cs_max(self):
+    def test_scenario_legacy_nucleation_cs_max(self) -> None:
         for view in ("model_scenario_snr_alpha_beta", "model_scenario_snr_comparison"):
             check_view(self, view, view_kwargs=self.SCENARIO_KWARGS, data={"legacy_nucleation_cs_max": True})
 
-    def form_data(self, **kwargs) -> dict[str, tp.Any]:
+    def form_data(self, **kwargs: tp.Any) -> dict[str, tp.Any]:
         """Get the data of the test form without None values, which cannot be encoded in a query string."""
         return {key: value for key, value in {**self.form.cleaned_data, **kwargs}.items() if value is not None}
 
@@ -201,7 +202,7 @@ class ViewTest(TestCase):
         check_status_code(response, url=url)
         return response.content
 
-    def test_csv_legacy_nucleation_cs_max(self):
+    def test_csv_legacy_nucleation_cs_max(self) -> None:
         r"""The legacy option should change the spectrum only when $v_{\text{wall}} < c_s$."""
         url = reverse("csv")
         for v_wall, should_differ in ((0.3, True), (0.9, False)):
@@ -210,7 +211,7 @@ class ViewTest(TestCase):
             default = self.csv_content(url, {**data, "legacy_nucleation_cs_max": False})
             assert (legacy != default) == should_differ, f"v_wall={v_wall}"
 
-    def test_point_csv_legacy_nucleation_cs_max(self):
+    def test_point_csv_legacy_nucleation_cs_max(self) -> None:
         """The legacy option should reach the spectra of the benchmark points."""
         point = ParameterChoice.objects.filter(v_wall__lt=const.CS0).select_related("model").first()
         assert point is not None, "The test data should have a point with v_wall < c_s."
@@ -219,7 +220,7 @@ class ViewTest(TestCase):
         default = self.csv_content(url, {})
         assert legacy != default
 
-    def test_multiple_legacy_nucleation_cs_max(self):
+    def test_multiple_legacy_nucleation_cs_max(self) -> None:
         url = reverse("multiple")
         response = self.client.post(url, data={
             "v_wall": 0.3,
@@ -236,47 +237,47 @@ class ViewTest(TestCase):
         assert response.headers["Content-Type"] == "image/svg+xml", \
             f"The form was not accepted: {response.content[:500]!r}"
 
-    def test_single_legacy_nucleation_cs_max(self):
+    def test_single_legacy_nucleation_cs_max(self) -> None:
         response = self.client.get(reverse("single"), data=self.form_data(legacy_nucleation_cs_max=True))
         check_status_code(response)
         assert b"legacy, with" in response.content
 
-    def test_point_ps_noise(self):
+    def test_point_ps_noise(self) -> None:
         """The noise settings should be selectable in the query string."""
         check_view(
             self, "model_point_ps", view_kwargs=self.POINT_KWARGS,
             data={"obs_years": 7, "noise_eb": False, "noise_gb": True}
         )
 
-    def test_scenario(self):
+    def test_scenario(self) -> None:
         check_view(self, "model_scenario_plot", view_kwargs=self.SCENARIO_KWARGS)
 
-    def test_scenario_snr_alpha_beta(self):
+    def test_scenario_snr_alpha_beta(self) -> None:
         check_view(self, "model_scenario_snr_alpha_beta", view_kwargs=self.SCENARIO_KWARGS)
 
-    def test_scenario_snr_comparison(self):
+    def test_scenario_snr_comparison(self) -> None:
         check_view(self, "model_scenario_snr_comparison", view_kwargs=self.SCENARIO_KWARGS)
 
-    def test_scenario_snr_histogram(self):
+    def test_scenario_snr_histogram(self) -> None:
         check_view(self, "model_scenario_snr_histogram", view_kwargs=self.SCENARIO_KWARGS)
 
-    def test_scenario_snr_ubarf_rstar(self):
+    def test_scenario_snr_ubarf_rstar(self) -> None:
         check_view(self, "model_scenario_snr_ubarf_rstar", view_kwargs=self.SCENARIO_KWARGS)
 
     # -----
     # Old urls
     # -----
 
-    def test_old_snr_alpha_beta(self):
+    def test_old_snr_alpha_beta(self) -> None:
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr_alphabeta.svg", allow_codes=(301,))
 
-    def test_old_snr_alpha_beta2(self):
+    def test_old_snr_alpha_beta2(self) -> None:
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr_alphabeta", allow_codes=(301,))
 
-    def test_old_snr_ubarf_rstar(self):
+    def test_old_snr_ubarf_rstar(self) -> None:
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr.svg", allow_codes=(301,))
 
-    def test_old_snr_ubarf_rstar2(self):
+    def test_old_snr_ubarf_rstar2(self) -> None:
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr", allow_codes=(301,))
 
 
@@ -284,14 +285,14 @@ class BenchmarkFormTest(TestCase):
     """Tests for the noise fields of the benchmark form."""
 
     @staticmethod
-    def test_defaults():
+    def test_defaults() -> None:
         """Without data the form should fall back to the default noise curve."""
         form = BenchmarkForm()
         assert form.is_valid()
         assert form.noise is noise_curve()
 
     @staticmethod
-    def test_query_dict():
+    def test_query_dict() -> None:
         """The form should also accept a QueryDict, which stores its values as lists."""
         obs_years = 7
         form = BenchmarkForm(QueryDict(f"obs_years={obs_years}&noise_gb=True"))
@@ -304,13 +305,13 @@ class BenchmarkFormTest(TestCase):
         assert not form.cleaned_data["legacy_nucleation_cs_max"]
 
     @staticmethod
-    def test_legacy_nucleation_cs_max_default():
+    def test_legacy_nucleation_cs_max_default() -> None:
         form = BenchmarkForm()
         assert form.is_valid()
         assert form.cleaned_data["legacy_nucleation_cs_max"] == const.DEFAULT_LEGACY_NUCLEATION_CS_MAX
 
     @staticmethod
-    def test_legacy_nucleation_cs_max_query_dict():
+    def test_legacy_nucleation_cs_max_query_dict() -> None:
         form = BenchmarkForm(QueryDict("obs_years=3&legacy_nucleation_cs_max=True"))
         assert form.is_valid(), form.errors
         assert form.cleaned_data["legacy_nucleation_cs_max"]

@@ -10,26 +10,33 @@ from lxml import etree
 #: The script takes the input and output file paths as arguments.
 N_ARGS: int = 3
 
-if len(sys.argv) != N_ARGS:
-    print("Usage: %s <input> <output>", file=sys.stderr)
-    sys.exit(1)
 
-inputfile = sys.argv[1]
-outputfile = sys.argv[2]
+def main() -> None:
+    """Remove the watermark and the timestamp from the SVG file given as the first argument."""
+    if len(sys.argv) != N_ARGS:
+        print(f"Usage: {sys.argv[0]} <input> <output>", file=sys.stderr)
+        sys.exit(1)
 
-with open(inputfile, "rb") as file:
-    tree = etree.parse(file)
+    inputfile = sys.argv[1]
+    outputfile = sys.argv[2]
 
-# matches annotations: watermark and timestamp
-to_remove = tp.cast("list[etree._Element]", tree.xpath(  # noqa: SLF001
-    "/svg:svg/svg:g/svg:g[re:match(@id, \"text_*\")]",
-    namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"}))
+    with open(inputfile, "rb") as file:
+        tree = etree.parse(file)
 
-for t in to_remove:
-    g = t.getparent()
-    if g is None:
-        raise ValueError(f"The element {t} has no parent.")
-    g.remove(t)
+    # matches annotations: watermark and timestamp
+    to_remove = tp.cast("list[etree._Element]", tree.xpath(  # noqa: SLF001
+        "/svg:svg/svg:g/svg:g[re:match(@id, \"text_*\")]",
+        namespaces={"svg": "http://www.w3.org/2000/svg","re": "http://exslt.org/regular-expressions"}))
 
-with open(outputfile, "wb") as o:
-    o.write(etree.tostring(tree, pretty_print=True))
+    for t in to_remove:
+        g = t.getparent()
+        if g is None:
+            raise ValueError(f"The element {t} has no parent.")
+        g.remove(t)
+
+    with open(outputfile, "wb") as o:
+        o.write(etree.tostring(tree, pretty_print=True))
+
+
+if __name__ == "__main__":
+    main()

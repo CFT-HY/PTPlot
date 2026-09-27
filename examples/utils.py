@@ -22,12 +22,12 @@ def save_fig(
         fig_dir: str | None = FIG_DIR,
         formats: tp.Iterable[str] = FIG_FORMATS,
         makedirs: bool = True,
-        **kwargs) -> None:
+        **kwargs: tp.Any) -> None:
     """Save a figure in the figure directory of the examples."""
     plot_utils.save_fig(fig=fig, path=path, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
 
 
-def save_svg_response(response: HttpResponse, path: str):
+def save_svg_response(response: HttpResponse, path: str) -> None:
     """Save an SVG HttpResponse in a file"""
     if not os.path.isabs(path):
         path = os.path.join(FIG_DIR, path)

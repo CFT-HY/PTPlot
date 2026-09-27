@@ -41,7 +41,7 @@ class AddTextTest(TestCase):
     since the text is placed with respect to the plot area instead of the figure.
     """
 
-    def test_within_figure(self):
+    def test_within_figure(self) -> None:
         """The text should stay within the figure."""
         for tick_label_format in TICK_LABEL_FORMATS:
             with self.subTest(tick_label_format):
@@ -52,7 +52,7 @@ class AddTextTest(TestCase):
                 assert bbox.y0 >= 0
                 assert bbox.y1 <= 1
 
-    def test_does_not_overlap_plot(self):
+    def test_does_not_overlap_plot(self) -> None:
         """The text should not overlap with the plot area."""
         for tick_label_format in TICK_LABEL_FORMATS:
             with self.subTest(tick_label_format):
@@ -60,7 +60,7 @@ class AddTextTest(TestCase):
                 bbox = text_bbox(fig, add_text(ax, TEXT))
                 assert bbox.y0 >= ax.get_position().y1 + pad_y(fig)
 
-    def test_same_place_in_plot_coordinates(self):
+    def test_same_place_in_plot_coordinates(self) -> None:
         """The text should be placed at the same spot of the plot area, regardless of the figure layout."""
         for tick_label_format in TICK_LABEL_FORMATS:
             with self.subTest(tick_label_format):
@@ -71,7 +71,7 @@ class AddTextTest(TestCase):
                 assert bbox.x0 == pytest.approx(corner_x)
                 assert bbox.y0 == pytest.approx(corner_y + TEXT_PAD * fig.dpi / POINTS_PER_INCH)
 
-    def test_figure_and_axes_equivalent(self):
+    def test_figure_and_axes_equivalent(self) -> None:
         """Giving a figure should place the text the same way as giving its first axes."""
         fig_from_figure, _ = figure()
         fig_from_axes, ax_from_axes = figure()
@@ -79,7 +79,7 @@ class AddTextTest(TestCase):
         bbox_from_axes = text_bbox(fig_from_axes, add_text(ax_from_axes, TEXT))
         assert bbox_from_figure.bounds == pytest.approx(bbox_from_axes.bounds)
 
-    def test_no_axes(self):
+    def test_no_axes(self) -> None:
         """Adding text to a figure without axes should fail with a clear error."""
         with pytest.raises(ValueError, match="no axes"):
             add_text(Figure(), TEXT)

@@ -10,9 +10,11 @@ from django_github_sso.admin import GitHubSSOInlineAdmin, get_current_user_and_a
 from ptplot import models
 from ptplot.admin.base import CustomModelAdmin, admin_site
 
+last_admin: DjangoUserAdmin | None
+LastUserAdmin: type[DjangoUserAdmin]
 _current_user_model, last_admin, LastUserAdmin = get_current_user_and_admin()
 # get_current_user_and_admin() is annotated to return a user, but it returns the user model class.
-CurrentUserModel = tp.cast("type[AbstractUser]", _current_user_model)
+CurrentUserModel: type[AbstractUser] = tp.cast("type[AbstractUser]", _current_user_model)
 
 if admin.site.is_registered(CurrentUserModel):
     admin.site.unregister(CurrentUserModel)

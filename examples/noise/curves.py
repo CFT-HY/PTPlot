@@ -31,7 +31,7 @@ from ptplot.science.noise import Noise
 from ptplot.tests.old_ptplot import OLD_OBS_YEARS, OLD_SENSITIVITY_FILE
 from ptplot.tests.test_noise import SENSITIVITY_FILE_FACTOR, load_sensitivity
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 #: $T_*$ for the peak frequency markers
 T_STAR: float = 100.
@@ -39,7 +39,7 @@ T_STAR: float = 100.
 R_STARS: tuple[float, ...] = (1e-3, 1e-2, 3e-2, 1e-1, 1.)
 
 
-def main():
+def main() -> None:
     """Plot the noise curves and their ratios to the old sensitivity curve."""
     f_old, om_old = load_sensitivity(OLD_SENSITIVITY_FILE)
     noise = Noise(obs_years=OLD_OBS_YEARS)

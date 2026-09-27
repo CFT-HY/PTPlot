@@ -10,7 +10,7 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def snr_point(

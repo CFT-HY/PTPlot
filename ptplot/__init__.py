@@ -2,4 +2,4 @@
 
 import os.path
 
-PTPLOT_DIR = os.path.dirname(__file__)
+PTPLOT_DIR: str = os.path.dirname(__file__)

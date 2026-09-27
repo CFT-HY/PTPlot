@@ -9,7 +9,7 @@ import numpy as np
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 #: Number of decades to include in a logarithmic color scale
 DEFAULT_N_DECADES: int = 6

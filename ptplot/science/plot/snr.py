@@ -13,10 +13,10 @@ from ptplot.science.plot.utils import add_text, find_label_place, watermark
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
-COLOR_TUPLE = cm.plasma_r(np.linspace(0.1, 1, 6))
-LEVELS = np.array([1, 5, 10, 20, 50, 100])
-LEVELS_TSH = np.array([0.001, 0.01, 0.1, 1, 10, 100])
-LEVELS_TSH_HUGE_ALPHA = np.array([1e-7, 1e-6, 1e-5, 1e-4])
+COLOR_TUPLE: th.FloatArr2D = cm.plasma_r(np.linspace(0.1, 1, 6))
+LEVELS: th.FloatArr1D = np.array([1, 5, 10, 20, 50, 100])
+LEVELS_TSH: th.FloatArr1D = np.array([0.001, 0.01, 0.1, 1, 10, 100])
+LEVELS_TSH_HUGE_ALPHA: th.FloatArr1D = np.array([1e-7, 1e-6, 1e-5, 1e-4])
 
 
 @matplotlib_lock

@@ -69,7 +69,7 @@ class PowerSpectrumBPL2020(PowerSpectrum):
         """
         return norm * s**3 * (7 / (4 + 3 * s ** 2))**(7 / 2)
 
-    def f_turb(self):
+    def f_turb(self) -> float:
         r"""Calculate peak frequency for turbulence.
 
         $$f_\text{turb} = 2.7 \cdot 10^{-5} \text{Hz} \frac{1}{v_{\text{wall}}}
@@ -142,7 +142,7 @@ class PowerSpectrumBPL2020(PowerSpectrum):
             * (self.k_turb * self.alpha / (1 + self.alpha))**(3/2) \
             * (100 / self.g_star)**(1/3) * self.v_wall * self.S_turb(f, fp)
 
-    def S_turb(self, f: th.FloatOrArr, fp: float) -> th.FloatOrArr:
+    def S_turb(self, f: th.FloatOrArr, fp: th.FloatOrArr) -> th.FloatOrArr:
         r"""Calculate the spectral shape from turbulence.
 
         :caprini_2016:`\ ` eq. 17

@@ -80,7 +80,7 @@ class ParameterChoice(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
-    def clean(self):
+    def clean(self) -> None:
         super().clean()
         errors = {}
         if self.scenario is not None and self.scenario.model != self.model:

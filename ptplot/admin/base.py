@@ -14,4 +14,4 @@ class CustomModelAdmin(admin.ModelAdmin):
     """Custom base class for model admins."""
 
 
-admin_site = PTPlotAdminSite(name="ptplot-admin")
+admin_site: PTPlotAdminSite = PTPlotAdminSite(name="ptplot-admin")

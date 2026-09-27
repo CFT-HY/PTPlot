@@ -16,9 +16,9 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import Engine, PowerSpectrum
 from ptplot.science.type_hints import FloatArr1D
 
-BAG = BagModel(alpha_n_min=0.0001)
+BAG: BagModel = BagModel(alpha_n_min=0.0001)
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PowerSpectrumSSM(PowerSpectrum):

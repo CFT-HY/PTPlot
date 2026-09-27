@@ -18,7 +18,7 @@ from ptplot.models import Model
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def snr_grid(model: Model, engine: Engine, v_wall: float, max_workers: int) -> SNRGridAlphaBeta:
@@ -38,9 +38,9 @@ def snr_grid(model: Model, engine: Engine, v_wall: float, max_workers: int) -> S
 
 
 def main(
-        slug="singlet_jonathan",
+        slug: str = "singlet_jonathan",
         v_wall1: float = 0.95,
-        v_wall2: float = 0.99):
+        v_wall2: float = 0.99) -> None:
     r"""Compare the SNR values of the two wall velocities with each engine."""
     max_workers = n_workers()
     model = Model.objects.prefetch_related("scenarios", "scenarios__points").get(slug=slug)

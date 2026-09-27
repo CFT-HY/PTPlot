@@ -15,7 +15,7 @@ from pttools.ssm.nucleation import r_star as r_star_func
 from ptplot.science import const
 import ptplot.science.type_hints as th
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 GIT_DESCRIPTION: str = "unknown"
 HAVE_GITVER: bool = False

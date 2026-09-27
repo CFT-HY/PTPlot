@@ -63,7 +63,7 @@ def snr_figure_alpha_beta(
     return fig
 
 
-def main():
+def main() -> None:
     """Script for command-line use."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",

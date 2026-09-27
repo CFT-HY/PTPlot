@@ -104,7 +104,7 @@ def OmSens(f: FloatOrArr) -> FloatOrArr:
     return (2.0 * math.pi**2 / (3.0 * H100_OLD**2)) * f**3 * Sh(f)
 
 
-def main(print_points: bool = True):
+def main(print_points: bool = True) -> None:
     """Print StochBkg-style sensitivity data to stdout.
 
     The first column is frequency; second is square root of strain

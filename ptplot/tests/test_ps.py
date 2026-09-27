@@ -11,41 +11,41 @@ class PowerSpectrumTest(TestCase):
     """Tests for the power spectra."""
 
     @staticmethod
-    def test_power_spectrum():
+    def test_power_spectrum() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE
         )
 
     @staticmethod
-    def test_power_spectrum_bpl2024():
+    def test_power_spectrum_bpl2024() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.BPL2024
         )
 
     @staticmethod
-    def test_power_spectrum_dbpl2021():
+    def test_power_spectrum_dbpl2021() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.DBPL2021
         )
 
     @staticmethod
-    def test_power_spectrum_dbpl2024():
+    def test_power_spectrum_dbpl2024() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.DBPL2024
         )
 
     @staticmethod
-    def test_power_spectrum_ssm():
+    def test_power_spectrum_ssm() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.SSM
         )
 
     @staticmethod
-    def test_power_spectrum_ssm_const_cs():
+    def test_power_spectrum_ssm_const_cs() -> None:
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
             engine=Engine.SSM, css2=1 / 4, csb2=1 / 4

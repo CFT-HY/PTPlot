@@ -49,14 +49,14 @@ class PowerSpectrumFigureTest(TestCase):
     """Tests for :func:`ptplot.science.plot.ps.power_spectrum_figure`."""
 
     @staticmethod
-    def test_single():
+    def test_single() -> None:
         """A single spectrum should be drawn with its engine in the legend."""
         spectrum = spectra()[0]
         fig = power_spectrum_figure(spectrum)
         assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})"]
 
     @staticmethod
-    def test_multiple():
+    def test_multiple() -> None:
         """Each of the spectra should be drawn with its own color and engine in the legend."""
         spectra_list = spectra()
         fig = power_spectrum_figure(spectra_list)
@@ -69,7 +69,7 @@ class PowerSpectrumFigureTest(TestCase):
         ]
 
     @staticmethod
-    def test_multiple_with_turbulence():
+    def test_multiple_with_turbulence() -> None:
         """Each component of each spectrum should be drawn with its engine in the legend."""
         spectra_list = spectra()
         fig = power_spectrum_figure(spectra_list, sw_only=False)
@@ -80,7 +80,7 @@ class PowerSpectrumFigureTest(TestCase):
         assert f"Total ({PowerSpectrumBPL2020.SHORT_NAME})" in labels(fig)
 
     @staticmethod
-    def test_no_spectra():
+    def test_no_spectra() -> None:
         """Drawing without spectra should fail with a clear error."""
         with pytest.raises(ValueError, match="no power spectra"):
             power_spectrum_figure([])

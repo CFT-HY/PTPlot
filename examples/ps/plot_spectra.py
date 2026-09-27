@@ -16,10 +16,10 @@ if __name__ == "__main__":
 from ptplot.models import ParameterChoice
 from ptplot.science.spectrum import Engine
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def main(slug: str = "singlet_jonathan", number: int = 121):
+def main(slug: str = "singlet_jonathan", number: int = 121) -> None:
     """Plot the power spectra of a single parameter choice with each engine.
 
     :param slug: Slug of the model that the parameter choice belongs to

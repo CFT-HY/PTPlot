@@ -18,7 +18,7 @@ class SNRTest(TestCase):
     """Tests for the SNR grids and their comparisons."""
 
     @staticmethod
-    def test_snr_alpha_beta():
+    def test_snr_alpha_beta() -> None:
         snr_figure_alpha_beta(
             grid=SNRGridAlphaBeta(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
@@ -36,7 +36,7 @@ class SNRTest(TestCase):
         ).snr
 
     @classmethod
-    def test_snr_alpha_beta_legacy_detonation(cls):
+    def test_snr_alpha_beta_legacy_detonation(cls) -> None:
         r"""For $v_{\text{wall}} > c_s$ the legacy $\max(v_{\text{wall}}, c_s)$ should not change anything."""
         v_wall = 0.9
         np.testing.assert_array_equal(
@@ -45,7 +45,7 @@ class SNRTest(TestCase):
         )
 
     @classmethod
-    def test_snr_alpha_beta_legacy_deflagration(cls):
+    def test_snr_alpha_beta_legacy_deflagration(cls) -> None:
         r"""For $v_{\text{wall}} < c_s$ the legacy option should correspond to a larger $r_*$.
 
         The BPL2020 SNR at $(\alpha, \beta/H_*)$ with the legacy option equals
@@ -68,7 +68,7 @@ class SNRTest(TestCase):
         assert not np.allclose(legacy, cls.snr_alpha_beta_legacy(v_wall, legacy=False), rtol=1e-2)
 
     @staticmethod
-    def test_snr_ubarf_rstar():
+    def test_snr_ubarf_rstar() -> None:
         snr_figure_ubarf_rstar(
             grid=SNRGridUbarfRStar(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
@@ -98,7 +98,7 @@ class SNRTest(TestCase):
         return grid1, grid2
 
     @classmethod
-    def test_snr_comparison_relative(cls):
+    def test_snr_comparison_relative(cls) -> None:
         grid1, grid2 = cls.snr_grids()
         comparison = SNRGridComparison(grid1=grid1, grid2=grid2)
 
@@ -115,7 +115,7 @@ class SNRTest(TestCase):
         snr_comparison(comparison)
 
     @classmethod
-    def test_snr_comparison_absolute(cls):
+    def test_snr_comparison_absolute(cls) -> None:
         grid1, grid2 = cls.snr_grids()
         comparison = SNRGridComparison(
             grid1=grid1, grid2=grid2,
@@ -136,7 +136,7 @@ class SNRTest(TestCase):
         snr_comparison(comparison)
 
     @classmethod
-    def test_snr_comparison_axes(cls):
+    def test_snr_comparison_axes(cls) -> None:
         """The comparison provides the axes of the grids."""
         grid1, grid2 = cls.snr_grids()
         comparison = SNRGridComparison(grid1=grid1, grid2=grid2)
@@ -149,13 +149,13 @@ class SNRTest(TestCase):
         assert comparison.Y_LABEL == grid1.Y_LABEL
 
     @classmethod
-    def test_snr_comparison_label(cls):
+    def test_snr_comparison_label(cls) -> None:
         """A label given by the user overrides the automatic one."""
         grid1, grid2 = cls.snr_grids()
         assert SNRGridComparison(grid1=grid1, grid2=grid2, label="custom").label == "custom"
 
     @classmethod
-    def test_snr_comparison_identical(cls):
+    def test_snr_comparison_identical(cls) -> None:
         """Identical grids cannot be drawn on a logarithmic scale, so a linear one is used."""
         grid = cls.snr_grid()
         comparison = SNRGridComparison(
@@ -167,7 +167,7 @@ class SNRTest(TestCase):
         snr_comparison(comparison)
 
     @classmethod
-    def test_snr_comparison_invalid(cls):
+    def test_snr_comparison_invalid(cls) -> None:
         """Grids with different ranges cannot be compared."""
         grid2 = SNRGridAlphaBeta(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,

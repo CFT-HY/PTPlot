@@ -34,7 +34,7 @@ from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 T_STAR: float = 100.
 G_STAR: float = 100.
@@ -74,7 +74,7 @@ def snr_grid(noise: Noise) -> th.FloatArr2D:
     ).snr
 
 
-def main():
+def main() -> None:
     """Plot the SNR with the variants of the galactic foreground."""
     noises = noise_variants()
     default = Noise(obs_years=OBS_YEARS)

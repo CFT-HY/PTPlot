@@ -29,7 +29,7 @@ class PowerSpectrumBaseCase(ABC):
     spectrum: PowerSpectrum
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         super().setUpClass()  # pyrefly: ignore[missing-attribute]
         cls.spectrum = cls.SPECTRUM_CLASS(
             T_star=cls.T_STAR, g_star=cls.G_STAR,
@@ -42,48 +42,48 @@ class PowerSpectrumBaseCase(ABC):
         assert np.all(np.isfinite(arr)), f"Got non-finite values: {value}"
         assert np.all(arr > 0), f"Got non-positive values: {value}"
 
-    def test_csv(self):
+    def test_csv(self) -> None:
         assert self.spectrum.csv()
 
-    def test_f_peak(self):
+    def test_f_peak(self) -> None:
         self.assert_positive(self.spectrum.f_peak())
 
-    def test_F_gw0_h2(self):
+    def test_F_gw0_h2(self) -> None:
         self.assert_positive(self.spectrum.F_gw0_h2())
 
-    def test_h_star(self):
+    def test_h_star(self) -> None:
         self.assert_positive(self.spectrum.h_star())
 
-    def test_H_star_eta_sh(self):
+    def test_H_star_eta_sh(self) -> None:
         self.assert_positive(self.spectrum.H_star_eta_sh)
 
-    def test_H_star_eta_v(self):
+    def test_H_star_eta_v(self) -> None:
         self.assert_positive(self.spectrum.H_star_eta_v)
 
-    def test_J(self):
+    def test_J(self) -> None:
         self.assert_positive(self.spectrum.J)
 
-    def test_J_old(self):
+    def test_J_old(self) -> None:
         self.assert_positive(self.spectrum.J_old)
 
-    def test_kinetic_energy(self):
+    def test_kinetic_energy(self) -> None:
         self.assert_positive(self.spectrum.kinetic_energy_fraction_approx)
 
-    def test_power_spectrum(self):
+    def test_power_spectrum(self) -> None:
         f = noise_curve().f
         power_spectrum, snr = self.spectrum.power_spectrum(f=f)
         assert power_spectrum.shape == f.shape
         self.assert_positive(power_spectrum)
         assert snr >= 0
 
-    def test_power_spectrum_common(self):
+    def test_power_spectrum_common(self) -> None:
         self.assert_positive(self.spectrum.power_spectrum_common())
 
-    def test_ps_image(self):
+    def test_ps_image(self) -> None:
         assert power_spectrum_figure(self.spectrum, sw_only=False) is not None
 
-    def test_s(self):
+    def test_s(self) -> None:
         self.assert_positive(self.spectrum.s(f=noise_curve().f))
 
-    def test_source_lifetime_factor(self):
+    def test_source_lifetime_factor(self) -> None:
         self.assert_positive(self.spectrum.source_lifetime_factor())

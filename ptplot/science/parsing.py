@@ -1,6 +1,7 @@
 """Argument parsing for command-line use of PTPlot."""
 
 import argparse
+import typing as tp
 
 from ptplot.science import const
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
@@ -27,13 +28,13 @@ class PTPlotParser(argparse.ArgumentParser):
 
     def __init__(
             self,
-            *args,
+            *args: tp.Any,
             v_wall_alpha_beta_tilde: bool = True,
             Tstar_gstar: bool = True,
             noise: bool = False,
             engine: bool = False,
             engines: bool = False,
-            **kwargs):
+            **kwargs: tp.Any) -> None:
         """Create the argument parser.
 
         :param engine: Add an argument for choosing a single engine

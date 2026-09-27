@@ -109,7 +109,7 @@ def power_spectrum_figure(
     return fig
 
 
-def main():
+def main() -> None:
     """Write a power spectrum figure to stdout as an SVG."""
     parser = PTPlotParser(
         description="Writes a scalable vector graphic to stdout.",

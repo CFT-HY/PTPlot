@@ -97,8 +97,8 @@ AUTH_USER_MODEL = "ptplot.User"
 # GITHUB_SSO_ALLOWABLE_ORGS = ["CFT-HY"]
 GITHUB_SSO_ALWAYS_UPDATE_USER_DATA = True
 GITHUB_SSO_NEEDED_REPOS = ["CFT-HY/PTPlot"]
-GITHUB_SSO_CLIENT_ID = os.environ.setdefault("GITHUB_SSO_CLIENT_ID", "ChangeMe")
-GITHUB_SSO_CLIENT_SECRET = os.environ.setdefault("GITHUB_SSO_CLIENT_SECRET", "ChangeMe")
+GITHUB_SSO_CLIENT_ID: str = os.environ.setdefault("GITHUB_SSO_CLIENT_ID", "ChangeMe")
+GITHUB_SSO_CLIENT_SECRET: str = os.environ.setdefault("GITHUB_SSO_CLIENT_SECRET", "ChangeMe")
 GITHUB_SSO_SUPERUSER_LIST = [
     "AgenttiX",  # Mika Mäki
     "davidjamesweir",  # David Weir

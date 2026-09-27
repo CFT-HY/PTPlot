@@ -9,6 +9,7 @@ from datetime import date
 import os.path
 import sys
 import tomllib
+import typing as tp
 
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
 from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, arxiv_link, convert_extlinks
@@ -39,6 +40,7 @@ os.makedirs(os.path.join(DOCS_DIR, "_static"), exist_ok=True)
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "PTPlot"
+file: tp.IO[tp.Any]
 with open(os.path.join(REPO_DIR, "AUTHORS")) as file:
     _authors = file.read().splitlines()
 author = f"{', '.join(_authors[:-1])} & {_authors[-1]}"

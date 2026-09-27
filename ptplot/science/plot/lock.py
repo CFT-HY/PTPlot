@@ -18,7 +18,7 @@ import typing as tp
 
 #: Global lock for Matplotlib.
 #: This is re-entrant so that the locked functions can call each other.
-MATPLOTLIB_LOCK = threading.RLock()
+MATPLOTLIB_LOCK: threading.RLock = threading.RLock()
 
 
 def matplotlib_lock[**P, R](func: tp.Callable[P, R]) -> tp.Callable[P, R]:

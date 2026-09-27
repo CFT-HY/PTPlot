@@ -141,7 +141,7 @@ class SNRGridUbarfRStar(SNRGrid):
         return self.y_points
 
 
-def main():
+def main() -> None:
     """Script for command-line use."""
     # Todo: enable the v_wall argument
     parser = PTPlotParser(

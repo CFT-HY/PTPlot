@@ -1,6 +1,7 @@
 """Generic utility methods."""
 
 import os
+import typing as tp
 
 import django
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,10 +21,10 @@ def fig_to_response(fig: Figure) -> HttpResponse:
 
 def get_object_or_404_related[T: Model](
         model: type[T],
-        annotate: list | None = None,
+        annotate: list[tp.Any] | None = None,
         related: list[str] | None = None,
         prefetch: list[str] | None = None,
-        **kwargs) -> T:
+        **kwargs: tp.Any) -> T:
     """Get an object with related objects, or a 404 error."""
     try:
         queryset = model._default_manager.get_queryset()  # noqa: SLF001
@@ -39,7 +40,7 @@ def get_object_or_404_related[T: Model](
     return obj
 
 
-def setup_django(log_dir: str | None = None, settings: str = "ptplot_site.settings.dev"):
+def setup_django(log_dir: str | None = None, settings: str = "ptplot_site.settings.dev") -> None:
     """Configure Django for use in a script."""
     if log_dir is None:
         repo_dir = os.path.dirname(PTPLOT_DIR)

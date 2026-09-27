@@ -15,7 +15,7 @@ def add_points(
         x: th.FloatOrArrOrList1D2D,
         y: th.FloatOrArrOrList1D2D,
         labels: th.StrOrListOrNestedList | None = None,
-        titles: th.StrOrList | None = None):
+        titles: th.StrOrList | None = None) -> tuple[th.ArrOrListOfArrs, th.ArrOrListOfArrs]:
     r"""Add points to a $(\alpha, \beta/H)$ plot."""
     x2, y2 = atleast_2d(x, y)
     if labels:

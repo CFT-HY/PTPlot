@@ -24,19 +24,19 @@ class PowerSpectrumFigureTest(TestCase):
     """Tests for :func:`ptplot.models.parameter_choice.ParameterChoice.power_spectrum_figure`."""
 
     @staticmethod
-    def test_single_engine():
+    def test_single_engine() -> None:
         """A single engine should result in a single curve."""
         fig = point().power_spectrum_figure(engine=Engine.BPL2020)
         assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.BPL2020.spectrum.SHORT_NAME})"]
 
     @staticmethod
-    def test_engine_as_str():
+    def test_engine_as_str() -> None:
         """The engine should also be accepted as a string, as that's what the forms provide."""
         fig = point().power_spectrum_figure(engine="bpl-2020")
         assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.BPL2020.spectrum.SHORT_NAME})"]
 
     @staticmethod
-    def test_default_engines():
+    def test_default_engines() -> None:
         """All engines should be drawn by default."""
         fig = point().power_spectrum_figure()
         assert labels(fig) == [
@@ -44,7 +44,7 @@ class PowerSpectrumFigureTest(TestCase):
         ]
 
     @staticmethod
-    def test_multiple_engines():
+    def test_multiple_engines() -> None:
         """Each engine should result in a curve of its own in the same figure."""
         fig = point().power_spectrum_figure(engine=ENGINES)
         assert labels(fig) == [

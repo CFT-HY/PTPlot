@@ -45,7 +45,7 @@ from ptplot.tests.old_ptplot import (
     old_or_reconstructed_grid,
 )
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 T_STAR: float = 180.
 G_STAR: float = 100.
@@ -62,7 +62,7 @@ def new_grid(v_wall: float, noise: Noise, legacy: bool = False) -> th.FloatArr2D
     ).snr
 
 
-def main():
+def main() -> None:
     r"""Plot the old and the new SNR contours on the $(\alpha, \beta/H_*)$ plane."""
     (_, snr_old, log10_r_star, log10_ubarf), from_old_code = old_or_reconstructed_grid(
         T_STAR, G_STAR, OLD_UBARF_MAX_ALPHA_BETA

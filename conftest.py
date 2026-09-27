@@ -6,7 +6,7 @@ import os.path
 from pttools.logging import setup_logging
 import pytest
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
@@ -15,7 +15,7 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
 
 
 @pytest.fixture(autouse=True)
-def log_test_name_at_start(request):
+def log_test_name_at_start(request: pytest.FixtureRequest) -> None:
     """
     Before starting a test, log its name.
 

@@ -141,7 +141,7 @@ class NoiseTest(TestCase):
     """Tests for the noise curve object."""
 
     @staticmethod
-    def test_default():
+    def test_default() -> None:
         noise = noise_curve()
         assert noise.obs_years == DEFAULT_OBS_YEARS
         assert noise.eb
@@ -150,12 +150,12 @@ class NoiseTest(TestCase):
         assert np.all(noise.noise > 0)
 
     @staticmethod
-    def test_cached():
+    def test_cached() -> None:
         """The same noise curve should be reused instead of being generated again."""
         assert noise_curve(obs_years=4, eb=False, gb=False) is noise_curve(obs_years=4, eb=False, gb=False)
 
     @staticmethod
-    def test_components():
+    def test_components() -> None:
         """Disabling a noise source should lower the total noise."""
         full = Noise()
         ins_only = Noise(eb=False, gb=False)
@@ -163,11 +163,11 @@ class NoiseTest(TestCase):
         assert np.any(ins_only.noise < full.noise)
 
     @staticmethod
-    def test_obs_time():
+    def test_obs_time() -> None:
         assert Noise(obs_years=3).obs_time == 3 * YEAR_IN_SECONDS
 
     @staticmethod
-    def test_invalid():
+    def test_invalid() -> None:
         with pytest.raises(ValueError, match="Invalid obs_years"):
             Noise(obs_years=0)
         with pytest.raises(ValueError, match="Invalid frequency range"):
@@ -178,7 +178,7 @@ class SensitivityFileTest(TestCase):
     """Compare the old precomputed sensitivity curves with the PTtools noise."""
 
     @staticmethod
-    def test_main_reproduces_the_file():
+    def test_main_reproduces_the_file() -> None:
         """The module should still generate the exact file that was saved with it.
 
         This pins down the outdated $H_0$ of
@@ -192,7 +192,7 @@ class SensitivityFileTest(TestCase):
         assert out.getvalue() == saved, f"main() no longer reproduces {MAIN_SENSITIVITY_FILE}.txt."
 
     @staticmethod
-    def test_files_match_the_formula():
+    def test_files_match_the_formula() -> None:
         r"""The saved files should equal :py:func:`OmSens`.
 
         The residual is the six significant digits with which the files were written.
@@ -205,13 +205,13 @@ class SensitivityFileTest(TestCase):
             )
 
     @staticmethod
-    def test_files_h0():
+    def test_files_h0() -> None:
         r"""The $H_0$ of the old curves should be the outdated one, not the PTtools one."""
         assert req.H100_OLD > H0_100_HZ
         np.testing.assert_allclose(req.H100_OLD / H0_100_HZ, 1.0286, rtol=1e-4)
 
     @staticmethod
-    def test_low_frequency():
+    def test_low_frequency() -> None:
         r"""At low frequencies the PTtools instrument noise is a constant factor above the old curves."""
         for name in SENSITIVITY_FILES:
             f, sensitivity = load_sensitivity(name)
@@ -224,7 +224,7 @@ class SensitivityFileTest(TestCase):
             )
 
     @staticmethod
-    def test_full_band():
+    def test_full_band() -> None:
         r"""Over the full band the approximate PTtools noise matches the old curves to a few per cent."""
         for name in SENSITIVITY_FILES:
             f, sensitivity = load_sensitivity(name)
@@ -236,7 +236,7 @@ class SensitivityFileTest(TestCase):
             )
 
     @staticmethod
-    def test_factor():
+    def test_factor() -> None:
         """The factor between the old and the new curves should be explained by the conventions."""
         np.testing.assert_allclose(CONVENTION_FACTOR, 4 * math.sqrt(2))
         np.testing.assert_allclose(SENSITIVITY_FILE_FACTOR, 5.9846, rtol=1e-4)
