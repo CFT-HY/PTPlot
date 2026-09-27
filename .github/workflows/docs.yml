@@ -25,6 +25,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cm-super dvipng latexmk optipng texlive-latex-extra texlive-xetex fonts-freefont-otf xindy
+      - name: Install requirements
+        run: uv sync --locked
+      - name: Print Numba sysinfo
+        run: numba --sysinfo | tee numba-sysinfo.txt
       - name: Create migrations
         run: python manage.py makemigrations
       - name: Migrate database
