@@ -229,7 +229,8 @@ sphinx_gallery_conf = {
     "show_memory": show_memory,
     "subsection_order": ExplicitOrder([
         "../examples/ps",
-        "../examples/snr"
+        "../examples/snr",
+        "../examples/old_vs_new"
     ]),
 }
 autosummary_generate = True
