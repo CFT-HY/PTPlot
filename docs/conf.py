@@ -230,6 +230,7 @@ sphinx_gallery_conf = {
     "subsection_order": ExplicitOrder([
         "../examples/ps",
         "../examples/snr",
+        "../examples/noise",
         "../examples/old_vs_new"
     ]),
 }
