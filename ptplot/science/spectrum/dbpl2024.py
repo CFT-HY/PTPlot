@@ -31,7 +31,7 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
     #: "This accounts for the efficiency in producing kinetic energy in the bulk fluid motion
     #: with respect to the single bubble case" :caprini_2024:`\ ` p. 10.
     #: This was found in :jinno_2023:`\ `.
-    #: See also the discussion in :caprini_weak_strong:`\ `.
+    #: See also the discussion in :caprini_2024_weak_strong:`\ `.
     K_EFFICIENCY: float = 0.6
     #: $f_1 \frac{H_* R_*}{H_{\ast,0}}$, :caprini_2024:`\ ` eq. 2.9
     F1_COEFF: float = 0.2
