@@ -46,7 +46,8 @@ jobs:
       - name: Run Ruff
         uses: astral-sh/ruff-action@v4.1.0
   typecheck:
-    runs-on: ubuntu-slim
+    # NumbaLSODA requires a Fortran compiler, which is not installed by default on ubuntu-slim.
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Checkout
