@@ -61,13 +61,10 @@ class PowerSpectrumBaseCase(ABC):
         self.assert_positive(self.spectrum.H_star_eta_v)
 
     def test_J(self) -> None:
-        self.assert_positive(self.spectrum.J)
-
-    def test_J_old(self) -> None:
-        self.assert_positive(self.spectrum.J_old)
+        self.assert_positive(self.spectrum.J())
 
     def test_kinetic_energy(self) -> None:
-        self.assert_positive(self.spectrum.kinetic_energy_fraction_approx)
+        self.assert_positive(self.spectrum.kinetic_energy_fraction)
 
     def test_power_spectrum(self) -> None:
         f = noise_curve().f

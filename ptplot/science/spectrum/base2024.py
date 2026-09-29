@@ -8,8 +8,7 @@ from scipy.optimize import brentq
 
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
-import ptplot.science.type_hints as th
-from ptplot.science.type_hints import FloatOrArr
+from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 
 class PowerSpectrum2024(PowerSpectrum, abc.ABC):
@@ -96,13 +95,13 @@ class PowerSpectrum2024(PowerSpectrum, abc.ABC):
 
     def power_spectrum(
             self,
-            f: th.FloatArr1D,
+            f: FloatArr1D,
             noise: Noise | None = None,
-            log_errors: bool = False) -> tuple[th.FloatArr1D, float]:  # noqa: ARG002
+            log_errors: bool = False) -> tuple[FloatArr1D, float]:  # noqa: ARG002
         r"""GW power spectrum using a power law template of :caprini_2024:`\ `.
 
         $$h^2 \Omega_{\text{gw}}(f) = h^2 \Omega_{\text{gw}}(f_{\text{ref}}) \frac{S(f)}{S(f_{\text{ref}})}$$
         :caprini_2024:`\ ` eq. 2.4 and 2.8
         """
-        power_spectrum = tp.cast("th.FloatArr1D", self.omega_ref_h2() * self.shape(f))
+        power_spectrum = tp.cast(FloatArr1D, self.omega_ref_h2() * self.shape(f))
         return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))

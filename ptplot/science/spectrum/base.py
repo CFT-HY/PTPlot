@@ -32,7 +32,6 @@ from pttools.utils import copy_docstrings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 if tp.TYPE_CHECKING:
@@ -52,8 +51,17 @@ class PowerSpectrum(abc.ABC):
     NAME: str
     SHORT_NAME: str
 
+    OLD_J: bool = False
+    REQUIRE_V_WALL: bool = False
+    REQUIRE_SOUND_SHELL_THICKNESS: bool = False
+
+    #: Efficiency of producing bulk kinetic energy relative to a single bubble.
+    #: Used by :py:class:`ptplot.science.spectrum.PowerSpectrumDBPL2024`.
+    K_EFFICIENCY: float = 1.
+
     def __init__(
             self,
+            # Primary parameters
             T_star: float = const.DEFAULT_T_STAR,
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
@@ -61,10 +69,13 @@ class PowerSpectrum(abc.ABC):
             beta_tilde: float | None = None,
             ubarf: float | None = None,
             r_star: float | None = None,
+            # Additional parameters
             cs: float = const.CS0,  # Todo: implement this properly
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             zp: float = const.DEFAULT_ZP,
             k_turb: float = const.DEFAULT_K_TURB,
+            nu_gdh2024: float = DEFAULT_NU_GDH2024,
+            # Switches
             legacy_nucleation_cs_max: bool = False,
             parallel: bool = True):
         r"""
@@ -74,11 +85,16 @@ class PowerSpectrum(abc.ABC):
         :param T_star: $T_*$, transition temperature
         :param g_star: $g_*$, degrees of freedom
         :param v_wall: $v_\text{wall}$, wall velocity
+        :param cs: $c_s$, sound speed. Used in this base class for:
+            1) validation of sound shell thickness,
+            2) $\alpha \leftrightarrow \bar{U}_\text{f}$ conversion
+            3) $\tilde{\beta} \leftrightarrow r_*$ conversion if ``legacy_nucleation_cs_max`` is enabled
         :param adiabatic_index: $\Gamma$, mean adiabatic index
         :param zp: $z_p$, peak angular frequency in units of the mean bubble separation
         :param alpha: $\alpha$, phase transition strength
         :param k_turb: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
         :param r_star: $r_*$, typical bubble radius
+        :param nu_gdh2024: $\nu_\text{gdh2024}$ of :giombi_2024_cs:`\ ` eq. 2.11
         :param ubarf: $\bar{U}_f$, RMS fluid velocity
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
@@ -89,12 +105,12 @@ class PowerSpectrum(abc.ABC):
             raise ValueError(f"Invalid g_star={g_star}")
         if T_star is None or np.isnan(T_star):
             raise ValueError(f"Invalid T_star={T_star}")
-        if not (v_wall is None or 0 < v_wall <= 1):
-            raise ValueError(f"Invalid v_wall={v_wall}")
 
         # Parameters that are guaranteed to be set
         #: $\Gamma$, mean adiabatic index
         self.adiabatic_index: float = adiabatic_index
+        #: $c_s$, speed of sound
+        self.cs: float = cs
         #: $g_*$, degrees of freedom
         self.g_star: float = g_star
         #: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
@@ -102,7 +118,7 @@ class PowerSpectrum(abc.ABC):
         #: $N_\text{sh}$, number of shock formation times
         self.N_sh: float = DEFAULT_N_SH
         #: $\nu_\text{gdh2024}$ of :giombi_2024_cs:`\ ` eq. 2.11
-        self.nu_gdh2024: float = DEFAULT_NU_GDH2024
+        self.nu_gdh2024: float = nu_gdh2024
         #: Whether parallel processing is enabled
         self.parallel: bool = parallel
         #: $T_*$, transition temperature
@@ -112,7 +128,7 @@ class PowerSpectrum(abc.ABC):
 
         # Parameters that may be set
         #: $v_\text{wall}$, wall speed
-        self.v_wall: float | None = v_wall
+        self.v_wall: float | None = self.validate_v_wall(v_wall=v_wall, cs=cs)
 
         # -----
         # Computed parameters
@@ -173,10 +189,10 @@ class PowerSpectrum(abc.ABC):
 
     def F_gw0_h2(
             self,
-            g0: th.FloatOrArr = G0,
-            gs0: th.FloatOrArr = GS0,
-            gs_star: th.FloatOrArr | None = None,
-            om_gamma0_h2: th.FloatOrArr = OMEGA_PHOTON_H2) -> th.FloatOrArr:
+            g0: FloatOrArr = G0,
+            gs0: FloatOrArr = GS0,
+            gs_star: FloatOrArr | None = None,
+            om_gamma0_h2: FloatOrArr = OMEGA_PHOTON_H2) -> FloatOrArr:
         return F_gw0_h2(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0_h2=om_gamma0_h2)
 
     def h_star(self) -> float:
@@ -188,43 +204,56 @@ class PowerSpectrum(abc.ABC):
 
     @property
     def H_star_eta_sh(self) -> float:
-        return tp.cast(float, H_star_eta_sh(r_star=self.r_star, ubarf=self.ubarf))
+        return H_star_eta_sh(r_star=self.r_star, ubarf=self.ubarf)
 
     @property
     def H_star_eta_v(self) -> float:
-        return tp.cast(float, H_star_eta_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024))
+        return H_star_eta_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024)
+
+    def J(self, old: bool | None = None) -> float:
+        r"""Combined lifetime factor $J$.
+
+        $$J \equiv r_* \mathcal{H}_* \eta_\text{v}$$.
+
+        This is defined as
+        :py:func:`pttools.ssm.scaling.J` or
+        :py:func:`pttools.ssm.scaling.J_old`
+        depending on the model.
+        """
+        if self.OLD_J if old is None else old:
+            return J_old(r_star=self.r_star, K=self.kinetic_energy_fraction)
+        return J(r_star=self.r_star, H_star_eta_v=self.H_star_eta_v)
 
     @property
-    def J(self) -> float:
-        return tp.cast(float, J(r_star=self.r_star, H_star_eta_v=self.H_star_eta_v))
+    def kinetic_energy_fraction(self) -> float:
+        r"""Bubble volume averaged kinetic energy fraction $K_\text{bva}$.
 
-    @property
-    def J_old(self) -> float:
-        return tp.cast(float, J_old(r_star=self.r_star, K=self.kinetic_energy_fraction_approx))
-
-    @property
-    def kinetic_energy_fraction_approx(self) -> float:
-        r"""Approximate bubble volume averaged kinetic energy fraction $K_\text{bva}$.
-
+        This is computed as
         $$K = \frac{{e}_{K,\text{bva}}}{\bar{e}} \approx \Gamma \bar{U}_f^2$$
-        :gw_pt_ssm:`\ ` eq. B.32
+        :gw_pt_ssm:`\ ` eq. B.32,
+        unless overwritten for a particular model.
+        Since $\bar{U}_f$ is computed in
+        :py:meth:`PowerSpectrum.validate_alpha_ubarf_static` with
+        :py:func:`pttools.bubble.energy_budget.ubarf_approx`,
+        this corresponds exactly to
+        :py:func:`pttools.bubble.energy_budget.kinetic_energy_fraction_approx`.
 
         Please see :py:func:pttools.bubble.thermo.kinetic_energy_fraction: for the exact version.
         """
-        return self.adiabatic_index * self.ubarf**2
+        return self.K_EFFICIENCY * self.adiabatic_index * self.ubarf**2
 
     def power_spectrum_common(self, omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> float:
         r"""Compute the common prefactor of the power spectrum for BPL2020 and DBPL2021.
 
         $$3h^2 F_{\text{gw},0} \Gamma^2 \bar{U}_f^4 \tilde{\Omega}_\text{gw}$$
 
-        Please note that $F_{\text{gw},0}$ depends on the value of $h$.
+        Note that $F_{\text{gw},0}$ depends on the value of $h$.
         This is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
+
+        Note that this equation has $(\Gamma \bar{U}_f^2)^2$,
+        which does not exactly equal the kinetic energy fraction $K$.
         """
-        # The equation has $(\Gamma \bar{U}_f^2)^2$,
-        # which is expressed here as kinetic_energy_fraction_approx for convenience.
-        # It does not equal the exact kinetic energy fraction.
-        return 3 * tp.cast(float, self.F_gw0_h2()) * self.kinetic_energy_fraction_approx**2 * omega_tilde_gw
+        return 3 * tp.cast(float, self.F_gw0_h2()) * (self.adiabatic_index * self.ubarf**2)**2 * omega_tilde_gw
 
     def s[T: FloatOrArr](self, f: T) -> T:
         r"""Relative frequency $s$ with respect to the peak frequency.
@@ -235,7 +264,7 @@ class PowerSpectrum(abc.ABC):
         return tp.cast(T, f / self.f_peak())
 
     @staticmethod
-    def snr(f: th.FloatArr1D, power_spectrum: th.FloatArr1D, noise: Noise) -> float:
+    def snr(f: FloatArr1D, power_spectrum: FloatArr1D, noise: Noise) -> float:
         r"""Signal-to-noise ratio of a power spectrum against a noise curve.
 
         :param f: Frequencies $f$ of the power spectrum
@@ -309,6 +338,7 @@ class PowerSpectrum(abc.ABC):
             cs: float,
             v_cj: float | None = None,
             model: Model | None = None) -> tuple[float, float]:
+        r"""Validate $\alpha$ and $\bar{U}_\text{f}$."""
         return self.validate_alpha_ubarf_static(
             alpha=alpha, ubarf=ubarf, v_wall=v_wall, adiabatic_index=adiabatic_index, cs=cs, v_cj=v_cj, model=model
         )
@@ -322,6 +352,7 @@ class PowerSpectrum(abc.ABC):
             T: FloatArr1D | None = None,
             sol_type: SolutionType = SolutionType.DETON,
             legacy_cs: float | None = None) -> tuple[float, float]:
+        r"""Validate $\tilde{\beta}$ and $r_*$."""
         if (r_star is None) and (beta_tilde is not None and not np.isnan(beta_tilde)):
             if v_wall is None:
                 raise ValueError("v_wall is required for computing r_* from beta/H.")
@@ -337,6 +368,21 @@ class PowerSpectrum(abc.ABC):
             f"Got r_star={r_star}, beta_tilde={beta_tilde}."
         )
 
+    def validate_v_wall(self, v_wall: float | None, cs: float = const.CS0) -> float | None:
+        r"""Validate $v_\text{wall}$."""
+        if v_wall is None or np.isnan(v_wall):
+            if self.REQUIRE_V_WALL:
+                raise ValueError(f"{self.ENGINE.name} requires v_wall to be set. Got v_wall={v_wall}.")
+        elif v_wall < 0 or v_wall >= 1:
+            raise ValueError(f"Invalid v_wall={v_wall}")
+        elif np.isclose(v_wall, cs):
+            msg = f"The sound shell thickness is zero for v_wall=cs={cs}."
+            if self.REQUIRE_SOUND_SHELL_THICKNESS:
+                raise ValueError(msg)
+            logger.error(msg)
+
+        return v_wall
+
     # -----
     # Abstract methods
     # -----
@@ -344,9 +390,9 @@ class PowerSpectrum(abc.ABC):
     @abc.abstractmethod
     def power_spectrum(
             self,
-            f: th.FloatArr1D,
+            f: FloatArr1D,
             noise: Noise | None = None,
-            log_errors: bool = False) -> tuple[th.FloatArr1D, float]:
+            log_errors: bool = False) -> tuple[FloatArr1D, float]:
         """GW power spectrum and its signal-to-noise ratio.
 
         :param f: Frequency range
@@ -361,7 +407,5 @@ class PowerSpectrum(abc.ABC):
 copy_docstrings({
     PowerSpectrum.F_gw0_h2: F_gw0_h2,
     PowerSpectrum.H_star_eta_sh: H_star_eta_sh,
-    PowerSpectrum.J: J,
-    PowerSpectrum.J_old: J_old,
     PowerSpectrum.source_lifetime_factor: source_lifetime_factor
 }, without_params=True)

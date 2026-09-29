@@ -4,7 +4,8 @@ import typing as tp
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base import Engine, PowerSpectrum
+from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 
@@ -20,6 +21,8 @@ class PowerSpectrumDBPL2021(PowerSpectrum):
     ENGINE: Engine = Engine.DBPL2021
     NAME: str = "Double broken power law (2021)"
     SHORT_NAME: str = "DBPL2021"
+
+    OLD_J = True
 
     def __init__(
             self,
@@ -57,7 +60,7 @@ class PowerSpectrumDBPL2021(PowerSpectrum):
         With $b = 1$, this reduces to
         :gw_pt_ssm:`\ ` p. 22.
         """
-        return tp.cast("T", (9 * self.rb**4 + b) / (self.rb**4 + 1))
+        return tp.cast(T, (9 * self.rb**4 + b) / (self.rb**4 + 1))
 
     def mu(self) -> float:
         # Todo: implement the full mu integration to get rid of the 10 % error in the approximation.
@@ -107,7 +110,7 @@ class PowerSpectrumDBPL2021(PowerSpectrum):
         which is why the result is multiplied by $h^2$ to get a quantity that is independent of $h$.
         """
         power_spectrum = tp.cast(
-            "th.FloatArr1D",
-            self.power_spectrum_common() / self.mu_approx() * self.J * self.M(s=self.s(f))
+            th.FloatArr1D,
+            self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
         )
         return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))

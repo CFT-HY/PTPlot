@@ -5,7 +5,7 @@ import logging
 import typing as tp
 
 import numpy as np
-from pttools.bubble import Bubble, SolutionType
+from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.models import BagModel, Model
 from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
 from pttools.omgw0 import z as z_func
@@ -13,7 +13,8 @@ from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base import Engine, PowerSpectrum
+from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.engine import Engine
 from ptplot.science.type_hints import FloatArr1D
 
 BAG: BagModel = BagModel(alpha_n_min=0.0001)
@@ -32,6 +33,8 @@ class PowerSpectrumSSM(PowerSpectrum):
     NAME: str = "Sound Shell Model"
     SHORT_NAME: str = "SSM"
 
+    REQUIRE_V_WALL = True
+
     def __init__(
             self,
             beta_tilde: float | None = None,
@@ -39,7 +42,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             g_star: float = const.DEFAULT_G_STAR,
             v_wall: float | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            zp: float = const.DEFAULT_ZP,
+            zp: float = np.nan,
             alpha: float | None = None,
             k_turb: float = const.DEFAULT_K_TURB,
             r_star: float | None = None,
@@ -62,6 +65,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             zp=zp,
             alpha=alpha,
             k_turb=k_turb,
+            nu_gdh2024=DEFAULT_NU_GDH2024 if self._bubble is None else self._bubble.nu_gdh2024,
             r_star=r_star,
             ubarf=ubarf,
             parallel=parallel,
@@ -72,6 +76,14 @@ class PowerSpectrumSSM(PowerSpectrum):
 
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
             if self._bubble is None else self._bubble
+
+    @property
+    def kinetic_energy_fraction(self) -> float:
+        """Kinetic energy fraction $K$.
+
+        Computed from the fluid shell using :py:func:`pttools.bubble.thermo.kinetic_energy_fraction`.
+        """
+        return self.bubble.kinetic_energy_fraction
 
     def power_spectrum(
             self,

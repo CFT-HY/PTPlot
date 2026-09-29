@@ -7,7 +7,8 @@ from pandas import DataFrame
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base import Engine, PowerSpectrum
+from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
 

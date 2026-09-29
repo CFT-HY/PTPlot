@@ -4,9 +4,8 @@ import typing as tp
 
 import numpy as np
 
-from ptplot.science import const
-from ptplot.science.spectrum.base import Engine
 from ptplot.science.spectrum.base2024 import PowerSpectrum2024
+from ptplot.science.spectrum.engine import Engine
 
 
 class PowerSpectrumDBPL2024(PowerSpectrum2024):
@@ -25,6 +24,9 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
     NAME: str = "Double broken power law (2024)"
     SHORT_NAME: str = "DBPL2024"
 
+    REQUIRE_SOUND_SHELL_THICKNESS = True
+    REQUIRE_V_WALL = True
+
     #: $A_{\text{sw}}$, amplitude constant, :caprini_2024:`\ ` p. 10
     A_SW: float = 0.11
     #: Efficiency of producing bulk kinetic energy relative to a single bubble.
@@ -39,35 +41,6 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
     F2_COEFF: float = 0.5
     SLOPES: tuple[float, ...] = (3., 1., -3.)
     SMOOTHNESS: tuple[float, ...] = (2., 4.)
-
-    def __init__(
-            self,
-            T_star: float = const.DEFAULT_T_STAR,
-            g_star: float = const.DEFAULT_G_STAR,
-            v_wall: float | None = None,
-            alpha: float | None = None,
-            beta_tilde: float | None = None,
-            ubarf: float | None = None,
-            r_star: float | None = None,
-            cs: float = const.CS0,
-            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            zp: float = const.DEFAULT_ZP,
-            k_turb: float = const.DEFAULT_K_TURB,
-            parallel: bool = True,
-            legacy_nucleation_cs_max: bool = False):
-        super().__init__(
-            T_star=T_star, g_star=g_star, v_wall=v_wall,
-            alpha=alpha, beta_tilde=beta_tilde,
-            ubarf=ubarf, r_star=r_star,
-            cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb,
-            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max
-        )
-        if self.v_wall is None or np.isnan(self.v_wall):
-            raise ValueError(f"The DBPL2024 spectrum requires v_wall to be set. Got v_wall={v_wall}.")
-        if np.isclose(self.v_wall, cs):
-            raise ValueError(f"The sound shell thickness is zero for v_wall=cs={cs}.")
-        #: $c_s$, speed of sound
-        self.cs: float = cs
 
     @property
     def delta_w(self) -> float:
@@ -137,10 +110,8 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
         $$K \simeq 0.6 \kappa \frac{\alpha}{1 + \alpha} \approx 0.6 \Gamma \bar{U}_f^2$$
         :caprini_2024:`\ ` p. 10.
         The factor 0.6 is the efficiency of producing bulk kinetic energy relative to a single bubble.
-        The single bubble kinetic energy fraction $\kappa \alpha / (1 + \alpha)$ is approximated with
-        :py:attr:`kinetic_energy_fraction_approx`.
         """
-        return self.K_EFFICIENCY * self.kinetic_energy_fraction_approx
+        return super().kinetic_energy_fraction
 
     def omega_int_h2(self) -> float:
         r"""$h^2 \Omega_{\text{int}}$, integrated amplitude of the spectrum.

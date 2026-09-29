@@ -1,7 +1,7 @@
 """Broken power law (BPL) power spectrum of Caprini et al. (2024)."""
 
-from ptplot.science.spectrum.base import Engine
 from ptplot.science.spectrum.base2024 import PowerSpectrum2024
+from ptplot.science.spectrum.engine import Engine
 
 
 class PowerSpectrumBPL2024(PowerSpectrum2024):
