@@ -87,7 +87,7 @@ The old ``Sens_L6A2M5N2P2D28`` curves are for a different LISA configuration
 import contextlib
 import io
 import math
-import os.path
+from pathlib import Path
 
 from django.test import TestCase
 import numpy as np
@@ -100,9 +100,7 @@ from ptplot.science.noise import DEFAULT_OBS_YEARS, Noise, noise_curve
 from ptplot.science.sensitivity import sciencerequirements as req
 import ptplot.science.type_hints as th
 
-SENSITIVITY_ROOT: str = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "science", "sensitivity"
-)
+SENSITIVITY_ROOT: Path = Path(__file__).resolve().parents[1] / "science" / "sensitivity"
 #: Names of the old sensitivity curves that were generated with
 #: :py:mod:`ptplot.science.sensitivity.sciencerequirements`
 SENSITIVITY_FILES: tuple[str, ...] = ("ScienceRequirements", "ScienceRequirementsLite")
@@ -132,7 +130,7 @@ def load_sensitivity(name: str) -> tuple[th.FloatArr1D, th.FloatArr1D]:
     r"""Load the frequencies $f$ and the sensitivities $\Omega_\text{sens} h^2$ of an old curve."""
     # The output must be C-contiguous, so that it can be passed to the Numba-compiled PTtools functions.
     f, sensitivity = np.ascontiguousarray(
-        np.loadtxt(os.path.join(SENSITIVITY_ROOT, f"{name}.txt"), usecols=(0, 2), unpack=True)
+        np.loadtxt(SENSITIVITY_ROOT / f"{name}.txt", usecols=(0, 2), unpack=True)
     )
     return f, sensitivity
 
@@ -187,8 +185,7 @@ class SensitivityFileTest(TestCase):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             req.main()
-        with open(os.path.join(SENSITIVITY_ROOT, f"{MAIN_SENSITIVITY_FILE}.txt")) as file:
-            saved = file.read()
+        saved = (SENSITIVITY_ROOT / f"{MAIN_SENSITIVITY_FILE}.txt").read_text()
         assert out.getvalue() == saved, f"main() no longer reproduces {MAIN_SENSITIVITY_FILE}.txt."
 
     @staticmethod

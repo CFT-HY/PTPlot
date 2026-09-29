@@ -7,14 +7,14 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015). SNR plots for PTPlot by David Weir (Feb 2018).
 """
 
-import os.path
+from pathlib import Path
 import sys
 
 from matplotlib.figure import Figure
 import numpy as np
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+    sys.path.append(str(Path(__file__).resolve().parents[3]))
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.parsing import PTPlotParser

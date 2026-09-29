@@ -8,7 +8,6 @@ Running this script can take several hours.
 
 from datetime import timedelta
 import logging
-import os.path
 import time
 
 from django.db.models import Count
@@ -129,7 +128,7 @@ def main() -> None:  # noqa: PLR0915
             ssm_dict,
         index=[model.name for model in models]
     )
-    df.to_csv(os.path.join(FIG_DIR, "benchmark_figures.csv"))
+    df.to_csv(FIG_DIR / "benchmark_figures.csv")
 
 
 if __name__ == "__main__":

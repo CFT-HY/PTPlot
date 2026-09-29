@@ -1,5 +1,5 @@
 """PTPlot."""
 
-import os.path
+from pathlib import Path
 
-PTPLOT_DIR: str = os.path.dirname(__file__)
+PTPLOT_DIR: Path = Path(__file__).resolve().parent

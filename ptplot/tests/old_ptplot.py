@@ -24,6 +24,7 @@ import importlib
 import logging
 import math
 import os
+from pathlib import Path
 import sys
 import types
 import typing as tp
@@ -48,15 +49,12 @@ from ptplot.tests.test_noise import SENSITIVITY_FILE_FACTOR, load_sensitivity
 #: Environment variable that overrides the location of the old PTPlot
 OLD_PTPLOT_ENV: str = "PTPLOT_OLD_DIR"
 #: Location of the old PTPlot, by default ``../old/PTPlot`` relative to this repository
-OLD_PTPLOT_DIR: str = os.environ.get(
-    OLD_PTPLOT_ENV,
-    os.path.join(os.path.dirname(os.path.dirname(PTPLOT_DIR)), "old", "PTPlot")
-)
-OLD_SCIENCE_DIR: str = os.path.join(OLD_PTPLOT_DIR, "ptplot", "science")
+OLD_PTPLOT_DIR: Path = Path(os.environ.get(OLD_PTPLOT_ENV, PTPLOT_DIR.parents[1] / "old" / "PTPlot"))
+OLD_SCIENCE_DIR: Path = OLD_PTPLOT_DIR / "ptplot" / "science"
 #: The old modules, in the order of their dependencies
 OLD_MODULES: tuple[str, ...] = ("espinosa", "snr", "precomputed", "calculate_powerspectrum", "SNR_precompute")
 #: Whether the old PTPlot was found
-HAVE_OLD_PTPLOT: bool = all(os.path.isfile(os.path.join(OLD_SCIENCE_DIR, f"{name}.py")) for name in OLD_MODULES)
+HAVE_OLD_PTPLOT: bool = all((OLD_SCIENCE_DIR / f"{name}.py").is_file() for name in OLD_MODULES)
 NOT_FOUND_MESSAGE: str = f"The old PTPlot was not found in {OLD_PTPLOT_DIR}. Set {OLD_PTPLOT_ENV} to its location."
 
 #: Mission profile 0 of the old code: the science requirements curve for 3 years
@@ -112,19 +110,19 @@ def old_modules() -> types.SimpleNamespace:
     if not HAVE_OLD_PTPLOT:
         raise FileNotFoundError(NOT_FOUND_MESSAGE)
     saved = {name: sys.modules.pop(name) for name in OLD_MODULES if name in sys.modules}
-    sys.path.insert(0, OLD_SCIENCE_DIR)
+    sys.path.insert(0, str(OLD_SCIENCE_DIR))
     try:
         with warnings.catch_warnings():
             # The old code has invalid escape sequences in regular expressions.
             warnings.simplefilter("ignore", SyntaxWarning)
             modules = {name: importlib.import_module(name) for name in OLD_MODULES}
     finally:
-        sys.path.remove(OLD_SCIENCE_DIR)
+        sys.path.remove(str(OLD_SCIENCE_DIR))
         for name in OLD_MODULES:
             sys.modules.pop(name, None)
         sys.modules.update(saved)
     # The old code looks for the sensitivity curves relative to the working directory.
-    vars(modules["SNR_precompute"])["sensitivity_root"] = os.path.join(OLD_SCIENCE_DIR, "sensitivity")
+    vars(modules["SNR_precompute"])["sensitivity_root"] = str(OLD_SCIENCE_DIR / "sensitivity")
     return types.SimpleNamespace(**modules)
 
 

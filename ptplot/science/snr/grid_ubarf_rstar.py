@@ -2,14 +2,14 @@
 
 r"""SNR grid for the $(\bar{U}_f, r_*)$ plane."""
 
-import os
+from pathlib import Path
 import sys
 
 import numpy as np
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from ptplot.science.const import (
     CS0,

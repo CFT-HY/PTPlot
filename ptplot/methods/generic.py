@@ -40,15 +40,13 @@ def get_object_or_404_related[T: Model](
     return obj
 
 
-def setup_django(log_dir: str | None = None, settings: str = "ptplot_site.settings.dev") -> None:
+def setup_django(log_dir: str | os.PathLike[str] | None = None, settings: str = "ptplot_site.settings.dev") -> None:
     """Configure Django for use in a script."""
     if log_dir is None:
-        repo_dir = os.path.dirname(PTPLOT_DIR)
-        examples_dir = os.path.join(repo_dir, "examples")
-        if not os.path.isdir(examples_dir):
+        repo_dir = PTPLOT_DIR.parent
+        if not (repo_dir / "examples").is_dir():
             raise ValueError("log_dir must be specified when PTPlot is not installed with \"git clone\".")
-        log_dir = os.path.join(os.path.dirname(PTPLOT_DIR), "logs")
-        os.makedirs(log_dir, exist_ok=True)
+        log_dir = repo_dir / "logs"
     pttools_logging(name="ptplot", log_dir=log_dir)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings)
     django.setup()

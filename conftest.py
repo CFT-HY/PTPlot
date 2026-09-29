@@ -1,7 +1,7 @@
 """Configuration for the pytest test suite."""
 
 import logging
-import os.path
+from pathlib import Path
 
 from pttools.logging import setup_logging
 import pytest
@@ -11,7 +11,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     """Set up logging for the test suite."""
-    setup_logging(name="ptplot", log_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs"))
+    setup_logging(name="ptplot", log_dir=Path(__file__).resolve().parent / "logs")
 
 
 @pytest.fixture(autouse=True)

@@ -1,7 +1,7 @@
 """Utilities for PTPlot science module."""
 
 import logging
-import os
+from pathlib import Path
 import typing as tp
 
 from dulwich.errors import NotGitRepository
@@ -21,7 +21,7 @@ GIT_DESCRIPTION: str = "unknown"
 HAVE_GITVER: bool = False
 
 try:
-    GIT_DESCRIPTION = describe(Repo.discover(os.path.realpath(os.path.dirname(__file__))))
+    GIT_DESCRIPTION = describe(Repo.discover(Path(__file__).resolve().parent))
     HAVE_GITVER = True
 except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)

@@ -3,7 +3,7 @@
 from collections import defaultdict
 from collections.abc import Hashable
 from inspect import cleandoc
-import os
+from pathlib import Path
 import typing as tp
 
 from django.core.management.base import BaseCommand
@@ -12,7 +12,7 @@ from pandas import DataFrame, read_csv
 
 from ptplot.models import Model, ParameterChoice, Scenario
 
-FILEDIR: str = os.path.dirname(os.path.realpath(__file__))
+FILEDIR: Path = Path(__file__).resolve().parent
 
 
 class Command(BaseCommand):
@@ -148,7 +148,7 @@ class Command(BaseCommand):
         dark_photon_moritz.save()
 
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "datapoints_DarkPhoton.csv"),
+            FILEDIR / "datapoints_DarkPhoton.csv",
             sep=",",
             dtype=np.float64,
             engine="c",
@@ -214,7 +214,7 @@ class Command(BaseCommand):
         scenario_b.save()
 
         points_a: DataFrame = read_csv(
-            os.path.join(FILEDIR, "forDavidTn50.txt"),
+            FILEDIR / "forDavidTn50.txt",
             sep=" ",
             dtype=np.float64,
             engine="c",
@@ -235,7 +235,7 @@ class Command(BaseCommand):
             point.save()
 
         points_b: DataFrame = read_csv(
-            os.path.join(FILEDIR, "forDavidTn100.txt"),
+            FILEDIR / "forDavidTn100.txt",
             sep=" ",
             dtype=np.float64,
             engine="c",
@@ -319,7 +319,7 @@ class Command(BaseCommand):
         scenario_d.save()
 
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "BenchmarksGaugedLeptonNumber.csv"),
+            FILEDIR / "BenchmarksGaugedLeptonNumber.csv",
             sep=",",
             dtype={
                 "vPhi": np.int_,
@@ -599,12 +599,12 @@ class Command(BaseCommand):
 
         # File contents: alpha, beta_tilde, probe
         # points: DataFrame = read_csv(
-        #     os.path.join(FILEDIR, "GW_singlet_combined.dat"),
+        #     FILEDIR / "GW_singlet_combined.dat",
         #     sep=",",
         #     skipinitialspace=True
         # )
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "GW_singlet_combined_all_params.dat"),
+            FILEDIR / "GW_singlet_combined_all_params.dat",
             sep=",",
             dtype=defaultdict[Hashable, type](lambda: np.float64, {"LHCflag": np.bool_}),
             engine="c",
@@ -656,7 +656,7 @@ class Command(BaseCommand):
         singlet_jonathan_z2.save()
 
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "GW_singlet_Z2.dat"),
+            FILEDIR / "GW_singlet_Z2.dat",
             sep=",",
             dtype=np.float64,
             engine="c",
@@ -705,7 +705,7 @@ class Command(BaseCommand):
         singlet_miki.save()
 
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "miki_singlet_portal.txt"),
+            FILEDIR / "miki_singlet_portal.txt",
             sep=" ",
             dtype=np.float64,
             engine="c",
@@ -815,7 +815,7 @@ class Command(BaseCommand):
         singlet_scalars.save()
 
         points: DataFrame = read_csv(
-            os.path.join(FILEDIR, "datapoints_TwoRealScalarSinglets.csv"),
+            FILEDIR / "datapoints_TwoRealScalarSinglets.csv",
             sep=",",
             dtype=np.float64,
             engine="c",
@@ -1091,7 +1091,7 @@ class Command(BaseCommand):
         scenario1.save()
 
         points1: DataFrame = read_csv(
-            os.path.join(FILEDIR, "josemi_2hdm.txt"),
+            FILEDIR / "josemi_2hdm.txt",
             sep=",",
             dtype=np.float64,
             engine="c",
@@ -1127,7 +1127,7 @@ class Command(BaseCommand):
         # SET 2 (YELLOW/GOLD points): 2HDM points which are currently allowed
         # for Type I 2HDM, but excluded for Type II 2HDM, by LHC searches.
         points2: DataFrame = read_csv(
-            os.path.join(FILEDIR, "josemi_2hdm_set2.txt"),
+            FILEDIR / "josemi_2hdm_set2.txt",
             sep=",",
             dtype=np.float64,
             engine="c",

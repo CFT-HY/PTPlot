@@ -2,6 +2,7 @@
 
 """Remove the watermark from PTPlot figures."""
 
+from pathlib import Path
 import sys
 import typing as tp
 
@@ -20,7 +21,7 @@ def main() -> None:
     inputfile = sys.argv[1]
     outputfile = sys.argv[2]
 
-    with open(inputfile, "rb") as file:
+    with Path(inputfile).open("rb") as file:
         tree = etree.parse(file)
 
     # matches annotations: watermark and timestamp
@@ -34,7 +35,7 @@ def main() -> None:
             raise ValueError(f"The element {t} has no parent.")
         g.remove(t)
 
-    with open(outputfile, "wb") as o:
+    with Path(outputfile).open("wb") as o:
         o.write(etree.tostring(tree, pretty_print=True))
 
 

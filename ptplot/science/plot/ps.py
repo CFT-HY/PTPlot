@@ -2,7 +2,7 @@
 
 """Power spectrum plotting."""
 
-import os.path
+from pathlib import Path
 import sys
 import typing as tp
 
@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from pttools.utils.formatting import as_latex
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+    sys.path.append(str(Path(__file__).resolve().parents[3]))
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
