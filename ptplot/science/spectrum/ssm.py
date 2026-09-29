@@ -11,7 +11,7 @@ from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
 from pttools.omgw0 import z as z_func
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
-from ptplot.science import const
+from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
@@ -37,18 +37,19 @@ class PowerSpectrumSSM(PowerSpectrum):
 
     def __init__(
             self,
-            beta_tilde: float | None = None,
-            T_star: float = const.DEFAULT_T_STAR,
-            g_star: float = const.DEFAULT_G_STAR,
+            # Primary parameters
             v_wall: float | None = None,
-            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            zp: float = np.nan,
             alpha: float | None = None,
-            k_turb: float = const.DEFAULT_K_TURB,
-            r_star: float | None = None,
+            beta_tilde: float | None = None,
             ubarf: float | None = None,
-            parallel: bool = True,
+            r_star: float | None = None,
+            T_star: float = DEFAULT_T_STAR,
+            g_star: float = DEFAULT_G_STAR,
+            # Additional parameters
+            adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            # Switches
             legacy_nucleation_cs_max: bool = False,
+            parallel: bool = False,
             model: Model = BAG,
             bubble: Bubble | None = None):
         self.model: Model = model
@@ -62,9 +63,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             v_wall=v_wall,
             # cs=TODO
             adiabatic_index=adiabatic_index,
-            zp=zp,
             alpha=alpha,
-            k_turb=k_turb,
             nu_gdh2024=DEFAULT_NU_GDH2024 if self._bubble is None else self._bubble.nu_gdh2024,
             r_star=r_star,
             ubarf=ubarf,
@@ -113,11 +112,9 @@ class PowerSpectrumSSM(PowerSpectrum):
             if np.isnan(f).any():
                 raise ValueError("f must not contain nan values.")
             z = tp.cast(
-                "FloatArr1D",
+                FloatArr1D,
                 z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
             )
-            if np.isnan(z).any():
-                raise ValueError("z must not contain nan values.")
             spectrum = Spectrum(
                 bubble=self.bubble,
                 y=z,

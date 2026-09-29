@@ -2,15 +2,15 @@
 
 import typing as tp
 
-from ptplot.science import const
+from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.base2020 import DEFAULT_ZP, PowerSpectrum2020
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 
 
-class PowerSpectrumDBPL2021(PowerSpectrum):
+class PowerSpectrumDBPL2021(PowerSpectrum2020):
     r"""
     Double broken power law (DBPL) power spectrum of Gowling & Hindmarsh (2021).
 
@@ -26,26 +26,29 @@ class PowerSpectrumDBPL2021(PowerSpectrum):
 
     def __init__(
             self,
-            T_star: float = const.DEFAULT_T_STAR,
-            g_star: float = const.DEFAULT_G_STAR,
+            # Primary parameters
             v_wall: float | None = None,
             alpha: float | None = None,
             beta_tilde: float | None = None,
             ubarf: float | None = None,
             r_star: float | None = None,
-            cs: float = const.CS0,
-            adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-            zp: float = const.DEFAULT_ZP,
-            k_turb: float = const.DEFAULT_K_TURB,
-            zb: float = 1.,
-            parallel: bool = True,
-            legacy_nucleation_cs_max: bool = False):
+            T_star: float = DEFAULT_T_STAR,
+            g_star: float = DEFAULT_G_STAR,
+            # Additional parameters
+            adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            # Switches
+            legacy_nucleation_cs_max: bool = False,
+            # Model-specific parameters
+            zb: float = 1.0,
+            zp: float = DEFAULT_ZP,
+        ):
         super().__init__(
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_tilde=beta_tilde,
             ubarf=ubarf, r_star=r_star,
-            cs=cs, adiabatic_index=adiabatic_index, zp=zp, k_turb=k_turb,
-            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            adiabatic_index=adiabatic_index,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            zp=zp,
         )
         self.zb: float = zb
 

@@ -19,9 +19,7 @@ def snr_column_ssm(
         ubarf_rstar: bool = False,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         model: Model = BAG,
-        k_turb: float = const.DEFAULT_K_TURB,
         noise: Noise | None = None,
-        zp: float = const.DEFAULT_ZP,
         parallel: bool = False,
         legacy_nucleation_cs_max: bool = False) -> th.FloatArr2D:  # tuple[th.FloatArr1D, th.FloatArr1D]:
     """Compute a column of an SNR grid with the Sound Shell Model."""
@@ -56,8 +54,6 @@ def snr_column_ssm(
             g_star=g_star,
             v_wall=v_wall,
             adiabatic_index=adiabatic_index,
-            zp=zp,
-            k_turb=k_turb,
             model=model,
             bubble=bubble,
             parallel=parallel,

@@ -16,17 +16,17 @@ from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.spectrum import PowerSpectrum
 
 
-class PowerSpectrumBaseCase(ABC):
+class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     """Tests that are run for each power spectrum class."""
 
-    SPECTRUM_CLASS: type[PowerSpectrum]
+    SPECTRUM_CLASS: type[S]
     V_WALL: float = 0.3
     ALPHA: float = 0.1
     BETA_TILDE: float = 10000
     T_STAR: float = 100
     G_STAR: float = 100
 
-    spectrum: PowerSpectrum
+    spectrum: S
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -36,7 +36,8 @@ class PowerSpectrumBaseCase(ABC):
             v_wall=cls.V_WALL, alpha=cls.ALPHA, beta_tilde=cls.BETA_TILDE
         )
 
-    def assert_positive(self, value: tp.Any) -> None:
+    @staticmethod
+    def assert_positive(value: tp.Any) -> None:
         """Assert that all values are finite and positive."""
         arr = np.asarray(value)
         assert np.all(np.isfinite(arr)), f"Got non-finite values: {value}"
@@ -44,9 +45,6 @@ class PowerSpectrumBaseCase(ABC):
 
     def test_csv(self) -> None:
         assert self.spectrum.csv()
-
-    def test_f_peak(self) -> None:
-        self.assert_positive(self.spectrum.f_peak())
 
     def test_F_gw0_h2(self) -> None:
         self.assert_positive(self.spectrum.F_gw0_h2())
@@ -73,14 +71,8 @@ class PowerSpectrumBaseCase(ABC):
         self.assert_positive(power_spectrum)
         assert snr >= 0
 
-    def test_power_spectrum_common(self) -> None:
-        self.assert_positive(self.spectrum.power_spectrum_common())
-
     def test_ps_image(self) -> None:
         assert power_spectrum_figure(self.spectrum, sw_only=False) is not None
-
-    def test_s(self) -> None:
-        self.assert_positive(self.spectrum.s(f=noise_curve().f))
 
     def test_source_lifetime_factor(self) -> None:
         self.assert_positive(self.spectrum.source_lifetime_factor())

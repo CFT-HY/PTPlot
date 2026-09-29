@@ -10,14 +10,14 @@ import pytest
 
 from ptplot.science.spectrum.bpl2024 import PowerSpectrumBPL2024
 import ptplot.science.type_hints as th
-from ptplot.tests.spectrum.base_spectrum import PowerSpectrumBaseCase
+from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
 #: Reference values of $h^2 \Omega_p$, $f_p$ and $h^2 \Omega_{\text{gw}}(f_p / 10)$
 #: for the default parameters of :func:`spectrum`, from the first implementation
 REFERENCE: th.FloatArr1D = np.array([6.826356098972105e-11, 0.00018150000000000002, 3.4042341173288775e-12])
 
 
-class BPL2024Test(PowerSpectrumBaseCase, unittest.TestCase):
+class BPL2024Test(PowerSpectrumBaseCase[PowerSpectrumBPL2024], unittest.TestCase):
     """Tests for the broken power law (BPL) power spectrum of 2024."""
 
     SPECTRUM_CLASS = PowerSpectrumBPL2024

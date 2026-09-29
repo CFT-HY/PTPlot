@@ -11,11 +11,14 @@ import pttools.ssm.const as ssm_const
 import ptplot.science.type_hints as th
 
 # Default values
+#: Default mean adiabatic index $\Gamma$
 DEFAULT_ADIABATIC_INDEX: float = bubble_const.DEFAULT_ADIABATIC_INDEX
+#: Default transition strength $\alpha$
 DEFAULT_ALPHA: float = 0.1
+#: Default Hubble-scaled nucleation rate parameter $\tilde{\beta} \equiv \frac{\beta}{H_*}$
 DEFAULT_BETA_TILDE: float = 10.
+#: Default degrees of freedom $g_*$
 DEFAULT_G_STAR: float = omgw0_const.DEFAULT_G_STAR
-DEFAULT_K_TURB: float = 1.97 / 65.0
 #: Whether to use the legacy $\max(v_{\text{wall}}, c_s)$
 #: in the $\tilde{\beta} \leftrightarrow r_*$ conversion by default.
 #: Please see :py:func:`pttools.ssm.nucleation.beta` for details.
@@ -35,16 +38,6 @@ DEFAULT_SNR_F_MIN: float = 1e-6
 DEFAULT_SNR_F_MAX: float = 1.
 DEFAULT_T_STAR: float = 180.
 DEFAULT_V_WALL: float = 0.9
-
-DEFAULT_ZP: int = 10
-r"""
-This default value is determine from simulations,
-and accounts for the observed peak value of $kR_*$.
-When $v_{\text{wall}} \approx v_{\text{CJ}}$, the value of $z_p$ may differ from 10,
-as the sound shells are so thin that they may set a substantially smaller length scale
-$\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
-:caprini_2020:`\ ` p. 17
-"""
 
 # Default plotting ranges
 DEFAULT_GRID_SIZE: int = 51

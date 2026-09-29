@@ -1,40 +1,26 @@
 """Utilities for creating power spectra."""
 
-import typing as tp
-
+import numpy as np
 from pttools.models import ConstCSModel, Model
 
-from ptplot.science import const
+from ptplot.science.const import CS0_2, DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES, Engine
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
-def const_cs_model(css2: float | None = None, csb2: float | None = None) -> ConstCSModel:
-    """Create a ConstCSModel, using its default sound speeds for the values that were not given."""
-    # Todo: Make PTtools ConstCSModel accept None values for css2 and csb2.
-    kwargs: dict[str, tp.Any] = {}
-    if css2 is not None:
-        kwargs["css2"] = css2
-    if csb2 is not None:
-        kwargs["csb2"] = csb2
-    return ConstCSModel(**kwargs)
-
-
 def power_spectrum(
-        T_star: float = const.DEFAULT_T_STAR,
-        g_star: float = const.DEFAULT_G_STAR,
         v_wall: float | None = None,
         alpha: float | None = None,
         beta_tilde: float | None = None,
         ubarf: float | None = None,
         r_star: float | None = None,
-        adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-        zp: float = const.DEFAULT_ZP,
-        k_turb: float = const.DEFAULT_K_TURB,
+        T_star: float = DEFAULT_T_STAR,
+        g_star: float = DEFAULT_G_STAR,
+        adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
         engine: Engine = Engine.DEFAULT,
-        css2: float | None = None,
-        csb2: float | None = None,
+        css2: float = CS0_2,
+        csb2: float = CS0_2,
         model: Model = BAG,
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False) -> PowerSpectrum:
@@ -47,17 +33,17 @@ def power_spectrum(
     # SSM requires additional arguments
     if engine == Engine.SSM:
         # If css2 or csb2 is provided, but the model has not been specified, use ConstCSModel.
-        if (css2 is not None or csb2 is not None) and model is BAG:
-            model = const_cs_model(css2=css2, csb2=csb2)
+        if model is BAG and (not np.isclose(css2, CS0_2) or not np.isclose(csb2, CS0_2)):
+            model = ConstCSModel(css2=css2, csb2=csb2)
         return PowerSpectrumSSM(
             beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
-            v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
-            alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
+            v_wall=v_wall, adiabatic_index=adiabatic_index,
+            alpha=alpha, r_star=r_star, ubarf=ubarf,
             parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
         beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
-        v_wall=v_wall, adiabatic_index=adiabatic_index, zp=zp,
-        alpha=alpha, k_turb=k_turb, r_star=r_star, ubarf=ubarf,
-        parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max
+        v_wall=v_wall, adiabatic_index=adiabatic_index,
+        alpha=alpha, r_star=r_star, ubarf=ubarf,
+        legacy_nucleation_cs_max=legacy_nucleation_cs_max
     )

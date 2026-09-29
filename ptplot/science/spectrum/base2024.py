@@ -1,4 +1,4 @@
-"""Base class for the power law templates of Caprini et al. (2024)."""
+r"""Base class for the power law templates of :caprini_2024:`\ `."""
 
 import abc
 import typing as tp

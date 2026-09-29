@@ -12,14 +12,14 @@ from scipy.integrate import quad
 from ptplot.science import const
 from ptplot.science.spectrum.dbpl2024 import PowerSpectrumDBPL2024
 import ptplot.science.type_hints as th
-from ptplot.tests.spectrum.base_spectrum import PowerSpectrumBaseCase
+from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
 #: Reference values of $h^2 \Omega_{\text{int}}$, $h^2 \Omega_2$ and $h^2 \Omega_{\text{gw}}(f_1)$
 #: for the default parameters of :func:`spectrum`, from the first implementation
 REFERENCE: th.FloatArr1D = np.array([1.2910820190499549e-11, 6.966806570012265e-12, 1.0191520402793716e-12])
 
 
-class DBPL2024Test(PowerSpectrumBaseCase, unittest.TestCase):
+class DBPL2024Test(PowerSpectrumBaseCase[PowerSpectrumDBPL2024], unittest.TestCase):
     """Tests for the double broken power law (DBPL) power spectrum of 2024."""
 
     SPECTRUM_CLASS = PowerSpectrumDBPL2024

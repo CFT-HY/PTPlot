@@ -5,14 +5,17 @@ import typing as tp
 
 from pandas import DataFrame
 
-from ptplot.science import const
+from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_OMEGA_TILDE_GW, DEFAULT_T_STAR
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.base2020 import PowerSpectrum2020
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
+#: Default $k_\text{turb}$, the fraction of latent heat that is transformed to magnetohydrodynamic turbulence.
+DEFAULT_K_TURB: float = 1.97 / 65.0
 
-class PowerSpectrumBPL2020(PowerSpectrum):
+
+class PowerSpectrumBPL2020(PowerSpectrum2020):
     r"""Broken power law (BPL) power spectrum of Hindmarsh et al. (2017) and Caprini et al. (2020).
 
     Based on :hindmarsh_2017:`\ `, :hindmarsh_2017_erratum:`\ ` and :caprini_2020:`\ `.
@@ -29,6 +32,40 @@ class PowerSpectrumBPL2020(PowerSpectrum):
     ENGINE = Engine.BPL2020
     NAME = "Broken power law (2020)"
     SHORT_NAME = "BPL2020"
+
+    def __init__(
+            self,
+            # Primary parameters
+            v_wall: float | None = None,
+            alpha: float | None = None,
+            beta_tilde: float | None = None,
+            ubarf: float | None = None,
+            r_star: float | None = None,
+            T_star: float = DEFAULT_T_STAR,
+            g_star: float = DEFAULT_G_STAR,
+            # Additional parameters
+            adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            # Switches
+            legacy_nucleation_cs_max: bool = False,
+            # Model-specific parameters
+            k_turb: float = DEFAULT_K_TURB):
+        r"""Create a BPL power spectrum.
+
+        :param k_turb: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
+        """
+        super().__init__(
+            v_wall=v_wall,
+            alpha=alpha,
+            beta_tilde=beta_tilde,
+            ubarf=ubarf,
+            r_star=r_star,
+            T_star=T_star,
+            g_star=g_star,
+            adiabatic_index=adiabatic_index,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+        )
+        #: $k_\text{turb}$, fraction of latent heat that is transformed into magnetohydrodynamic turbulence
+        self.k_turb: float = k_turb
 
     def csv(
             self,
@@ -102,7 +139,7 @@ class PowerSpectrumBPL2020(PowerSpectrum):
     def power_spectrum_sw(
             self,
             f: th.FloatOrArr,
-            omega_tilde_gw: float = const.DEFAULT_OMEGA_TILDE_GW) -> th.FloatOrArr:
+            omega_tilde_gw: float = DEFAULT_OMEGA_TILDE_GW) -> th.FloatOrArr:
         r"""Power spectrum from sound waves.
 
         $$h^2 \frac{d \Omega_{\text{gw},0}}{d \ln f}

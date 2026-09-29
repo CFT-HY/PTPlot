@@ -22,7 +22,14 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
-import ptplot.science.type_hints as th
+from ptplot.science.type_hints import (
+    FloatArr,
+    FloatArr1D,
+    FloatArr2D,
+    FloatOrArrOrList1D2D,
+    StrOrList,
+    StrOrListOrNestedList,
+)
 
 set_forkserver_preload([*DEFAULT_FORKSERVER_PRELOAD, "ptplot", "ptplot.science"])
 
@@ -43,16 +50,16 @@ class SNRGrid(ABC):  # noqa: B024
 
     def __init__(
             self,
-            x: th.FloatArr1D,
-            y: th.FloatArr1D,
+            x: FloatArr1D,
+            y: FloatArr1D,
             T_star: float,
             g_star: float,
             v_wall: float,
             noise: Noise | None = None,
-            x_points: th.FloatOrArrOrList1D2D | None = None,
-            y_points: th.FloatOrArrOrList1D2D | None = None,
-            labels_points: th.StrOrListOrNestedList | None = None,
-            titles: th.StrOrList | None = None,
+            x_points: FloatOrArrOrList1D2D | None = None,
+            y_points: FloatOrArrOrList1D2D | None = None,
+            labels_points: StrOrListOrNestedList | None = None,
+            titles: StrOrList | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             engine: Engine = Engine.DEFAULT,
             name: str | None = None,
@@ -73,12 +80,12 @@ class SNRGrid(ABC):  # noqa: B024
         if y is None or np.any(y <= 0) or not np.isfinite(y).all():
             raise ValueError(f"Invalid {self.Y_NAME}={y}")
 
-        self.x: th.FloatArr1D = x
-        self.y: th.FloatArr1D = y
-        self.x_points: th.FloatOrArrOrList1D2D | None = x_points
-        self.y_points: th.FloatOrArrOrList1D2D | None = y_points
-        self.labels_points: th.StrOrListOrNestedList | None = labels_points
-        self.titles: th.StrOrList | None = titles
+        self.x: FloatArr1D = x
+        self.y: FloatArr1D = y
+        self.x_points: FloatOrArrOrList1D2D | None = x_points
+        self.y_points: FloatOrArrOrList1D2D | None = y_points
+        self.labels_points: StrOrListOrNestedList | None = labels_points
+        self.titles: StrOrList | None = titles
         self.T_star: float = T_star
         self.g_star: float = g_star
         self.v_wall: float = v_wall
@@ -102,7 +109,7 @@ class SNRGrid(ABC):  # noqa: B024
             "v_wall": v_wall,
         }
         if engine == Engine.SSM:
-            ret: th.FloatArr = tp.cast("th.FloatArr", run_parallel(
+            ret: FloatArr = tp.cast(FloatArr, run_parallel(
                 func=snr_column_ssm,
                 params=x,
                 output_dtypes=(np.float64,),
@@ -119,10 +126,10 @@ class SNRGrid(ABC):  # noqa: B024
             # The values are computed column by column, one column per x value,
             # resulting in ret[x, quantity, y].
             # Transpose to the [y, x] indexing used by the other engines and by Matplotlib contours.
-            self.snr: th.FloatArr2D = ret[:, 0, :].T
-            self.shock_times: th.FloatArr2D = ret[:, 1, :].T
+            self.snr: FloatArr2D = ret[:, 0, :].T
+            self.shock_times: FloatArr2D = ret[:, 1, :].T
         else:
-            self.snr, self.shock_times = tp.cast("tuple[th.FloatArr2D, th.FloatArr2D]", run_parallel(
+            self.snr, self.shock_times = tp.cast(tuple[FloatArr2D, FloatArr2D], run_parallel(
                 func=snr_point,
                 params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),  # This works also for ubarf and r_star
                 multiple_params=True,
@@ -144,7 +151,7 @@ class SNRGrid(ABC):  # noqa: B024
         """Whether the grid has points to be drawn on top of it."""
         return self.x_points is not None and self.y_points is not None
 
-    def points(self) -> tuple[th.FloatOrArrOrList1D2D, th.FloatOrArrOrList1D2D]:
+    def points(self) -> tuple[FloatOrArrOrList1D2D, FloatOrArrOrList1D2D]:
         """Get the x and y values of the points to be drawn on top of the grid.
 
         :return: x and y values of the points
