@@ -27,6 +27,9 @@ from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
+    # A stub-only class, as Django defines it inside a function.
+    from django.db.models.fields.related_descriptors import RelatedManager
+
     from ptplot.models.parameter_choice import ParameterChoice
     from ptplot.models.scenario import Scenario
 
@@ -67,8 +70,8 @@ class Model(models.Model):
 
     if tp.TYPE_CHECKING:
         # Reverse relations of the foreign keys that point to this model.
-        points: models.Manager["ParameterChoice"]
-        scenarios: models.Manager["Scenario"]
+        points: "RelatedManager[ParameterChoice]"
+        scenarios: "RelatedManager[Scenario]"
         # Added by Count("points") when the object is fetched with the annotation.
         n_points: int
         # Added by MODEL_ANNOTATIONS when the object is fetched with annotations.

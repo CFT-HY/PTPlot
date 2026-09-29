@@ -26,6 +26,9 @@ from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 
 if tp.TYPE_CHECKING:
+    # A stub-only class, as Django defines it inside a function.
+    from django.db.models.fields.related_descriptors import RelatedManager
+
     from ptplot.models.parameter_choice import ParameterChoice
 
 
@@ -44,7 +47,7 @@ class Scenario(models.Model):
 
     if tp.TYPE_CHECKING:
         # Reverse relation of the foreign key that points to this model.
-        points: models.Manager["ParameterChoice"]
+        points: "RelatedManager[ParameterChoice]"
 
     class Meta:
         indexes = [models.Index(fields=["name"])]
