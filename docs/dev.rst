@@ -75,10 +75,9 @@ update the version numbers in:
 Nightly runs
 ------------
 The ``nightly.sh`` script runs the unit tests, builds the documentation
-(which also runs the examples) and archives the results with 7-Zip:
-
-- the figures from ``./examples/fig`` to ``./examples/fig_YYYY-MM-DD.7z``
-- the documentation from ``./docs/_build`` to ``./docs/nightly/docs_YYYY-MM-DD.7z``
+(which also runs the examples) and archives the documentation from ``./docs/_build``
+and the figures from ``./examples/fig`` with 7-Zip to ``./docs/nightly/nightly_YYYY-MM-DD.7z``.
+If an archive of the same day already exists, a suffix ``_2``, ``_3`` etc. is added to the filename.
 
 It logs to ``./logs/nightly_YYYY-MM-DD.log``.
 The run is skipped if the HEAD commit is older than 24 hours,

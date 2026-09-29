@@ -11,9 +11,8 @@ DATE="$(date +%F)"
 LOG_DIR="${SCRIPT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/nightly_${DATE}.log"
 FIG_DIR="${SCRIPT_DIR}/examples/fig"
-FIG_ARCHIVE="${SCRIPT_DIR}/examples/fig_${DATE}.7z"
 DOCS_BUILD_DIR="${SCRIPT_DIR}/docs/_build"
-DOCS_ARCHIVE="${SCRIPT_DIR}/docs/nightly/docs_${DATE}.7z"
+ARCHIVE="${SCRIPT_DIR}/docs/nightly/nightly_${DATE}.7z"
 # The maximum age of the HEAD commit for the run to be started, in seconds.
 MAX_COMMIT_AGE="${MAX_COMMIT_AGE:-86400}"
 
@@ -25,23 +24,29 @@ log() {
   echo "[$(date --iso-8601=seconds)] $*"
 }
 
-# Compress a directory to a 7-Zip archive.
+# Compress directories to a 7-Zip archive.
+# Usage: archive ARCHIVE DIR...
 archive() {
-  local dir="$1"
-  local archive="$2"
-  if [ ! -d "${dir}" ]; then
-    log "The directory ${dir} does not exist."
-    return 1
-  fi
+  local archive="$1"
+  shift
+  local dir
+  for dir in "$@"; do
+    if [ ! -d "${dir}" ]; then
+      log "The directory ${dir} does not exist."
+      return 1
+    fi
+  done
   # 7-Zip appends to an existing archive instead of replacing it,
-  # so a previous archive of the same day has to be removed.
-  if [ -e "${archive}" ]; then
-    log "Removing the existing archive ${archive}."
-    rm -f "${archive}"
-  fi
+  # so if there is already an archive of the same day, a suffix _2, _3 etc. is added to the filename.
+  local base="${archive%.7z}"
+  local i=2
+  while [ -e "${archive}" ]; do
+    archive="${base}_${i}.7z"
+    i=$(( i + 1 ))
+  done
   mkdir -p "$(dirname "${archive}")"
-  7z a -mx=9 "${archive}" "${dir}"
-  log "${dir} archived to ${archive}."
+  7z a -mx=9 "${archive}" "$@"
+  log "$* archived to ${archive}."
 }
 
 on_error() {
@@ -86,7 +91,6 @@ log "Unit tests finished."
 ${UV} make -C "${SCRIPT_DIR}/docs" all
 log "Documentation build finished."
 
-archive "${FIG_DIR}" "${FIG_ARCHIVE}"
-archive "${DOCS_BUILD_DIR}" "${DOCS_ARCHIVE}"
+archive "${ARCHIVE}" "${DOCS_BUILD_DIR}" "${FIG_DIR}"
 
 log "Nightly run finished."
