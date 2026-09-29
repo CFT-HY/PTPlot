@@ -48,6 +48,7 @@ def main() -> None:  # noqa: PLR0915
     times = np.zeros(n_models)
     times_engine = np.zeros((n_models, len(engines)))
 
+    model: Model
     for i_model, model in enumerate(models):
         model_start_time = time.perf_counter()
         logger.info("##### Processing model %d/%d: %s", i_model+1, n_models, model.name)
