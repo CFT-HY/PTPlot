@@ -9,7 +9,8 @@ from matplotlib.figure import Figure
 import pttools.analysis.utils as plot_utils
 from pttools.analysis.utils import FIG_FORMATS
 
-from ptplot.models import Model
+if tp.TYPE_CHECKING:
+    from ptplot.models import Model
 
 EXAMPLES_DIR: Path = Path(__file__).resolve().parent
 PROJECT_DIR: Path = EXAMPLES_DIR.parent

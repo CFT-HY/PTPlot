@@ -1,7 +1,6 @@
 """Base class for power spectra."""
 
 import abc
-import enum
 import logging
 import typing as tp
 
@@ -29,72 +28,17 @@ from pttools.ssm import (
 )
 from pttools.ssm import beta_tilde as beta_tilde_func
 from pttools.ssm import r_star as r_star_func
-from pttools.utils import IS_GITHUB_ACTIONS, copy_docstrings
+from pttools.utils import copy_docstrings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
+if tp.TYPE_CHECKING:
+    from ptplot.science.spectrum.engine import Engine
+
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-class Engine(enum.StrEnum):
-    """Enumeration of power spectrum engines."""
-
-    BPL2020 = DEFAULT = "bpl-2020"
-    BPL2024 = "bpl-2024"
-    DBPL2021 = "dbpl-2021"
-    DBPL2024 = "dbpl-2024"
-    SSM = "ssm"
-
-    @classmethod
-    def engine(cls, name: str | None, default: "Engine | None" = None) -> "Engine":
-        return (cls.DEFAULT if default is None else default) if name is None or not name else Engine(name)
-
-    @classmethod
-    def engines(
-            cls,
-            engines: "Engine | str | tp.Iterable[Engine] | None" = None,
-            fast: bool = False,
-            log: bool = False) -> "list[Engine]":
-        """Get the engines.
-
-        :param engines: Engine or engines to be filtered. Using all engines if not given.
-        :param fast: Return only engines that are fast
-        :param log: Enable logging
-        :return: Engines (list instead of set to preserve order)
-        """
-        engines2 = ([Engine(engines)] if isinstance(engines, str) else list(engines)) \
-            if engines is not None and engines else cls
-        get_all = not (fast and IS_GITHUB_ACTIONS)
-        engines = [engine for engine in engines2 if get_all or (engine != cls.SSM)]
-        if log:
-            logger.info(
-                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, fast, IS_GITHUB_ACTIONS
-            )
-        return engines
-
-    @classmethod
-    def non_default(cls, fast: bool = False, log: bool = False) -> "list[Engine]":
-        """Get the non-default engines.
-
-        :param fast: Return only engines that are fast
-        :param log: Enable logging
-        :return: Non-default engines (list instead of set to preserve order)
-        """
-        engines = [engine for engine in cls.engines(fast=fast) if engine != cls.DEFAULT]
-        if log:
-            logger.info(
-                "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, fast, IS_GITHUB_ACTIONS
-            )
-        return engines
-
-    @property
-    def spectrum(self) -> "type[PowerSpectrum]":
-        return ENGINE_SPECTRUM_CLASSES[self]
 
 
 class PowerSpectrum(abc.ABC):
@@ -324,8 +268,8 @@ class PowerSpectrum(abc.ABC):
             v_cj: float | None = None,
             model: Model | None = None) -> tuple[float, float]:
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
-            return alpha, tp.cast(
-                float, ubarf_approx(
+            return alpha, tp.cast(float,
+                ubarf_approx(
                     v_wall=v_wall,
                     alpha_n=alpha,
                     model=model,
@@ -412,9 +356,6 @@ class PowerSpectrum(abc.ABC):
           Change the default to True when implementing a PowerSpectrum class that has error logging.
         :return: GW power spectrum, multiplied by $h^2$ and therefore independent of $h$, and its SNR.
         """
-
-
-ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
 
 
 copy_docstrings({

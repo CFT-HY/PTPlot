@@ -1,35 +1,73 @@
-"""GW spectrum engine choices."""
+"""Enumeration of power spectrum engines."""
 
-from ptplot.science.spectrum.base import ENGINE_SPECTRUM_CLASSES, Engine
-from ptplot.science.spectrum.bpl2020 import PowerSpectrumBPL2020
-from ptplot.science.spectrum.bpl2024 import PowerSpectrumBPL2024
-from ptplot.science.spectrum.dbpl2021 import PowerSpectrumDBPL2021
-from ptplot.science.spectrum.dbpl2024 import PowerSpectrumDBPL2024
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM
+from enum import StrEnum
+import logging
+import typing as tp
 
-# -----
-# Update this when adding new engines
-# -----
+from pttools.utils import IS_GITHUB_ACTIONS
 
-ENGINE_SPECTRUM_CLASSES.update({
-    Engine.BPL2020: PowerSpectrumBPL2020,
-    Engine.BPL2024: PowerSpectrumBPL2024,
-    Engine.DBPL2021: PowerSpectrumDBPL2021,
-    Engine.DBPL2024: PowerSpectrumDBPL2024,
-    Engine.SSM: PowerSpectrumSSM,
-})
+if tp.TYPE_CHECKING:
+    from ptplot.science.spectrum.base import PowerSpectrum
 
-# -----
-# These are generated automatically
-# -----
+logger: logging.Logger = logging.getLogger(__name__)
 
-ENGINE_NAMES: dict[Engine, str] = {
-    engine: spectrum.NAME
-    for engine, spectrum in ENGINE_SPECTRUM_CLASSES.items()
-}
-ENGINE_NAMES[Engine.DEFAULT] += " (default)"
-ENGINE_SHORT_NAMES: dict[Engine, str] = {
-    engine: spectrum.SHORT_NAME
-    for engine, spectrum in ENGINE_SPECTRUM_CLASSES.items()
-}
-ENGINE_CHOICES: tuple[tuple[Engine, str], ...] = tuple(ENGINE_NAMES.items())
+
+class Engine(StrEnum):
+    """Enumeration of power spectrum engines."""
+
+    BPL2020 = DEFAULT = "bpl-2020"
+    BPL2024 = "bpl-2024"
+    DBPL2021 = "dbpl-2021"
+    DBPL2024 = "dbpl-2024"
+    SSM = "ssm"
+
+    @classmethod
+    def engine(cls, name: str | None, default: "Engine | None" = None) -> "Engine":
+        return (cls.DEFAULT if default is None else default) if name is None or not name else Engine(name)
+
+    @classmethod
+    def engines(
+            cls,
+            engines: "Engine | str | tp.Iterable[Engine] | None" = None,
+            fast: bool = False,
+            log: bool = False) -> "list[Engine]":
+        """Get the engines.
+
+        :param engines: Engine or engines to be filtered. Using all engines if not given.
+        :param fast: Return only engines that are fast
+        :param log: Enable logging
+        :return: Engines (list instead of set to preserve order)
+        """
+        engines2 = ([Engine(engines)] if isinstance(engines, str) else list(engines)) \
+            if engines is not None and engines else cls
+        get_all = not (fast and IS_GITHUB_ACTIONS)
+        engines = [engine for engine in engines2 if get_all or (engine != cls.SSM)]
+        if log:
+            logger.info(
+                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
+                engines, fast, IS_GITHUB_ACTIONS
+            )
+        return engines
+
+    @classmethod
+    def non_default(cls, fast: bool = False, log: bool = False) -> "list[Engine]":
+        """Get the non-default engines.
+
+        :param fast: Return only engines that are fast
+        :param log: Enable logging
+        :return: Non-default engines (list instead of set to preserve order)
+        """
+        engines = [engine for engine in cls.engines(fast=fast) if engine != cls.DEFAULT]
+        if log:
+            logger.info(
+                "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
+                engines, fast, IS_GITHUB_ACTIONS
+            )
+        return engines
+
+    @property
+    def spectrum(self) -> type[PowerSpectrum]:
+        return ENGINE_SPECTRUM_CLASSES[self]
+
+
+ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
