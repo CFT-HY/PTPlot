@@ -1832,12 +1832,13 @@ dev = [
     { name = "pytest-django" },
     { name = "pytest-html" },
     { name = "pytest-split" },
-    { name = "pytest-xdist" },
+    { name = "pytest-xdist", extra = ["psutil"] },
     { name = "ruff" },
     { name = "scipy-stubs" },
     { name = "setuptools" },
     { name = "tblib" },
     { name = "types-defusedxml" },
+    { name = "types-docutils" },
     { name = "types-openpyxl" },
     { name = "types-python-dateutil" },
 ]
@@ -1859,7 +1860,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandas", specifier = ">=3.0.3" },
-    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=3e437ee30a4c3bb674f6499c68794ffda05f4834" },
+    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=79a9fb37041b99443e757ce89d294694d191ee90" },
     { name = "scipy", specifier = ">=1.17.1" },
 ]
 
@@ -1879,12 +1880,13 @@ dev = [
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-html", specifier = ">=4.2.0" },
     { name = "pytest-split", specifier = ">=0.11.0" },
-    { name = "pytest-xdist", specifier = ">=3.8.0" },
+    { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.8.0" },
     { name = "ruff", specifier = ">=0.16.6" },
     { name = "scipy-stubs", specifier = ">=1.18.0.1" },
     { name = "setuptools", specifier = ">=82.0.1" },
     { name = "tblib", specifier = ">=3.2.2" },
     { name = "types-defusedxml", specifier = ">=0.7.0.20260504" },
+    { name = "types-docutils", specifier = ">=0.23.0.20260923" },
     { name = "types-openpyxl", specifier = ">=3.1.5.20260518" },
     { name = "types-python-dateutil", specifier = ">=2.9.0.20260518" },
 ]
@@ -1900,7 +1902,7 @@ docs = [
 [[package]]
 name = "pttools-gw"
 version = "0.10.0"
-source = { git = "https://github.com/CFT-HY/pttools.git?rev=3e437ee30a4c3bb674f6499c68794ffda05f4834#3e437ee30a4c3bb674f6499c68794ffda05f4834" }
+source = { git = "https://github.com/CFT-HY/pttools.git?rev=79a9fb37041b99443e757ce89d294694d191ee90#79a9fb37041b99443e757ce89d294694d191ee90" }
 dependencies = [
     { name = "h5py" },
     { name = "kaleido" },
@@ -2125,6 +2127,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/78/b4/439b179d1ff526791eb921115fca8e44e596a13efeda518b9d845a619450/pytest_xdist-3.8.0.tar.gz", hash = "sha256:7e578125ec9bc6050861aa93f2d59f1d8d085595d6551c2c90b6f4fad8d3a9f1", size = 88069, upload-time = "2025-07-01T13:30:59.346Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl", hash = "sha256:202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88", size = 46396, upload-time = "2025-07-01T13:30:56.632Z" },
+]
+
+[package.optional-dependencies]
+psutil = [
+    { name = "psutil" },
 ]
 
 [[package]]
@@ -2555,6 +2562,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/da/d2/4553c8fa9cdebfe1e84b950cf790a4d2376a97fa016e43f7c65323fa6c7d/types_defusedxml-0.7.0.20260504.tar.gz", hash = "sha256:2ab2828a3f97111ba1c16cee273ad4124a831fc9198c41bf8368ff6ea48ad300", size = 10729, upload-time = "2026-05-04T05:22:50.192Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bf/2d/8a4b5ba1d732b8bc691f0efbb1c6f77cb5f6f473b2afe181d83d910773c5/types_defusedxml-0.7.0.20260504-py3-none-any.whl", hash = "sha256:a959e3a0a43b93e464bd625d91ec9193a2703ddc10443bdd627792485fae0b10", size = 13467, upload-time = "2026-05-04T05:22:49.319Z" },
+]
+
+[[package]]
+name = "types-docutils"
+version = "0.23.0.20260923"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/ff/e5c4e5383a226703fc81e3e53bb2072526ec4b7e834eeb7146ea674192ed/types_docutils-0.23.0.20260923.tar.gz", hash = "sha256:486d9054ea84410cc201a30c15759077a5f32234247cfc08aa7290ff2509f770", size = 58327, upload-time = "2026-09-23T06:51:56.366Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/43/b39c0af29de3b02bcf6194a3d6675685d2d7b8b336a31af4525bc0022c4b/types_docutils-0.23.0.20260923-py3-none-any.whl", hash = "sha256:62851b429db623e36853a4a189ce15a846e0636fe090c135d6dc5dd4f9108ef5", size = 92174, upload-time = "2026-09-23T06:51:54.908Z" },
 ]
 
 [[package]]

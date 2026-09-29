@@ -17,8 +17,9 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Build documentation with examples: `uv run make -C docs all`
   - This will run the examples and can therefore take 1-3 h.
 - Build documentation without examples: `uv run make -C docs all-noplot`
-- Update PTtools: update the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml`
-  and run `./install_requirements.sh`.
+- Update PTtools to the latest commit of its `dev` branch: `./install_requirements.sh --update-pttools`
+  - This updates the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml` before installing.
+  - To use a different commit, update the `rev` manually and run `./install_requirements.sh`.
 - Update the other dependencies: `uv lock --upgrade`, or `uv lock --upgrade-package NAME` for a single one.
 
 ## Code style

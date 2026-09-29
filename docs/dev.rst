@@ -26,7 +26,13 @@ The commands of the development tools are then run with ``uv run``, e.g.
 
 PTtools is installed from a Git commit, which is pinned with the ``rev``
 of ``pttools-gw`` in the ``[tool.uv.sources]`` section of ``pyproject.toml``.
-To update PTtools, edit the ``rev`` and run ``./install_requirements.sh``.
+To update PTtools to the latest commit of its ``dev`` branch, run
+
+.. code-block:: bash
+
+  ./install_requirements.sh --update-pttools
+
+To use a different commit, edit the ``rev`` and run ``./install_requirements.sh``.
 The other dependencies can be updated with ``uv lock --upgrade``.
 
 
