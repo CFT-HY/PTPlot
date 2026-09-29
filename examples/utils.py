@@ -9,6 +9,8 @@ from matplotlib.figure import Figure
 import pttools.analysis.utils as plot_utils
 from pttools.analysis.utils import FIG_FORMATS
 
+from ptplot.models import Model
+
 EXAMPLES_DIR: Path = Path(__file__).resolve().parent
 PROJECT_DIR: Path = EXAMPLES_DIR.parent
 FIG_DIR: Path = EXAMPLES_DIR / "fig"
@@ -26,6 +28,11 @@ def save_fig(
         **kwargs: tp.Any) -> None:
     """Save a figure in the figure directory of the examples."""
     plot_utils.save_fig(fig=fig, path=path, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
+
+
+def save_model_fig(fig: Figure, model: Model, name: str) -> None:
+    """Save a figure of a model as ``FORMAT/SLUG/SLUG_NAME.FORMAT`` in the figure directory."""
+    save_fig(fig, Path(model.slug) / f"{model.slug}_{name}")
 
 
 def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> None:

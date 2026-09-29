@@ -14,7 +14,7 @@ from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
 
-from examples.utils import FIG_DIR, save_fig
+from examples.utils import FIG_DIR, save_model_fig
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -60,9 +60,9 @@ def main() -> None:  # noqa: PLR0915
                 snr_abs[engine] = snr_ab
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
                 snr_ab_fig = model.snr_figure_alpha_beta(grid=snr_ab)
-                save_fig(snr_ab_fig, f"{model.slug}_snr_alpha_beta_{engine}")
+                save_model_fig(snr_ab_fig, model, f"snr_alpha_beta_{engine}")
                 snr_ab_fig2 = model.snr_figure_alpha_beta(grid=snr_ab, filled=True)
-                save_fig(snr_ab_fig2, f"{model.slug}_snr_alpha_beta_{engine}_filled")
+                save_model_fig(snr_ab_fig2, model, f"snr_alpha_beta_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_alpha_beta for %s", model.name, exc_info=exc)
 
@@ -71,9 +71,9 @@ def main() -> None:  # noqa: PLR0915
                 snr_ur = model.snr_grid_ubarf_rstar(engine=engine, max_workers=max_workers)
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
                 snr_ur_fig = model.snr_figure_ubarf_rstar(grid=snr_ur)
-                save_fig(snr_ur_fig, f"{model.slug}_snr_ubarf_rstar_{engine}")
+                save_model_fig(snr_ur_fig, model, f"snr_ubarf_rstar_{engine}")
                 snr_ur_fig2 = model.snr_figure_ubarf_rstar(grid=snr_ur, filled=True)
-                save_fig(snr_ur_fig2, f"{model.slug}_snr_ubarf_rstar_{engine}_filled")
+                save_model_fig(snr_ur_fig2, model, f"snr_ubarf_rstar_{engine}_filled")
             except Exception as exc:
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time
@@ -81,7 +81,7 @@ def main() -> None:  # noqa: PLR0915
         for engine in engines_non_default:
             try:
                 snr_comp = model.snr_comparison(grid1=snr_abs[Engine.DEFAULT], grid2=snr_abs[engine])
-                save_fig(snr_comp, f"{model.slug}_snr_comparison_{engine}")
+                save_model_fig(snr_comp, model, f"snr_comparison_{engine}")
             except Exception as exc:
                 logger.exception(
                     "Failed to plot snr_comparison_%s for %s",
@@ -92,7 +92,7 @@ def main() -> None:  # noqa: PLR0915
         try:
             snr_hist = model.snr_histogram(engines=engines)
             n_spectra_other[i_model, :] += model.n_points
-            save_fig(snr_hist, f"{model.slug}_snr_histogram")
+            save_model_fig(snr_hist, model, "snr_histogram")
         except Exception as exc:
             logger.exception("Failed to plot snr_histogram for %s", model.name, exc_info=exc)
 
