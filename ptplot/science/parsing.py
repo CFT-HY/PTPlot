@@ -5,7 +5,8 @@ import typing as tp
 
 from ptplot.science import const
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
-from ptplot.science.spectrum.engine import ENGINE_SHORT_NAMES, Engine
+from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
 
 
 def engine_arg(value: str) -> Engine:

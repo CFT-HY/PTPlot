@@ -12,7 +12,8 @@ from django.utils.safestring import SafeString
 from ptplot.models import Model
 from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
-from ptplot.science.spectrum.engine import ENGINE_CHOICES, Engine
+from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.engines import ENGINE_CHOICES
 
 
 def validate_velocity(value: float) -> None:

@@ -10,7 +10,8 @@ from ptplot.science.noise import Noise
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr import snr_point
-from ptplot.science.spectrum.engine import ENGINE_NAMES, Engine
+from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.engines import ENGINE_NAMES
 import ptplot.science.type_hints as th
 
 # if tp.TYPE_CHECKING:
