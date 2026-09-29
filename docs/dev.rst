@@ -11,10 +11,17 @@ and then run
 
   ./install_requirements.sh
 
-This creates the virtualenv ``./.venv``, installs the dependency versions that are pinned in ``uv.lock``,
+This creates the virtualenv ``.venv``, installs the dependency versions that are pinned in ``uv.lock``,
 and installs PTPlot itself in editable mode.
 It also clears the Numba cache of PTtools when PTtools is updated,
 since those cache files are not tracked by the package manager.
+
+Git hooks are managed with `prek <https://github.com/j178/prek>`_ and configured in ``.pre-commit-config.yaml``.
+Enable them with ``uv run prek install``.
+The pre-commit hooks run the same checks as the fast lint ``./lint.sh --fast``
+(``pyrefly check``, ``pyrefly coverage check`` and ``ruff check``) in parallel on the staged changes,
+and block the commit if any of them fails.
+
 The commands of the development tools are then run with ``uv run``, e.g.
 
 .. code-block:: bash
