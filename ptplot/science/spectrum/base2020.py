@@ -1,4 +1,4 @@
-r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ ."""
+r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ `."""
 
 import abc
 import typing as tp
@@ -22,7 +22,7 @@ $\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
 
 
 class PowerSpectrum2020(PowerSpectrum, abc.ABC):
-    r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ ."""
+    r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ `."""
 
     def __init__(
             self,

@@ -2,110 +2,45 @@ name: CI
 on: push
 permissions:
   contents: read
+# The reusable workflows and the setup-env action are from the dev branch of PTtools.
+#
+# Job dependencies, as in PTtools:
+# lint -> build, docs, graph, test
 jobs:
   build:
-    runs-on: ubuntu-slim
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Install uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      - name: Print uv version
-        run: |
-          echo "uv ${UV_VERSION}"
-        env:
-          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
-      - name: Build
-        run: uv build
-      - name: Run Twine checks
-        run: uvx twine check dist/*
-      - name: Upload built artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: pip packages
-          path: dist
-          if-no-files-found: error
-  cloc:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Count Lines of Code (cloc) for the PTPlot module
-        uses: djdefi/cloc-action@6
-        with:
-          options: ${{ github.workspace }}/ptplot --by-file-by-lang --vcs=git
-      - name: Count Lines of Code (cloc) for the repository
-        uses: djdefi/cloc-action@6
-        with:
-          options: ${{ github.workspace }} --by-file-by-lang --vcs=git
+    needs: lint
+    uses: CFT-HY/pttools/.github/workflows/build.yml@dev
+  docs:
+    # This lints the documentation without running the examples, and then builds the full documentation.
+    needs: lint
+    uses: CFT-HY/pttools/.github/workflows/docs.yml@dev
+    with:
+      timeout-minutes: 35
+  graph:
+    needs: lint
+    uses: CFT-HY/pttools/.github/workflows/graph.yml@dev
+    with:
+      target: ptplot
   lint:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Run Ruff
-        uses: astral-sh/ruff-action@v4.1.0
-  typecheck:
-    # NumbaLSODA requires a Fortran compiler, which is not installed by default on ubuntu-slim.
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Setup uv
-        id: setup-uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-        with:
-          activate-environment: true
-      - name: Print uv and Python versions
-        run: |
-          echo "uv ${UV_VERSION}"
-          echo "Python ${PYTHON_VERSION}"
-        env:
-          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
-          PYTHON_VERSION: ${{ steps.setup-uv.outputs.python-version }}
-      - name: Install requirements
-        run: uv sync --locked
-      - name: Run Pyrefly
-        run: |
-          set -o pipefail
-          pyrefly check --output-format=full-text-with-github
-      - name: Run Pyrefly coverage
-        if: always()
-        run: |
-          pyrefly coverage report > coverage.json
-          pyrefly coverage check --output-format=full-text-with-github
+    uses: CFT-HY/pttools/.github/workflows/lint.yml@dev
   test:
+    needs: lint
     runs-on: ubuntu-latest
     env:
       DJANGO_SETTINGS_MODULE: ptplot_site.settings.dev
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install uv
-        id: setup-uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Setup uv and Python environment
+        uses: CFT-HY/pttools/.github/actions/setup-env@dev
         with:
-          activate-environment: true
-      - name: Print uv and Python versions
-        run: |
-          echo "uv ${UV_VERSION}"
-          echo "Python ${PYTHON_VERSION}"
-        env:
-          UV_VERSION: ${{ steps.setup-uv.outputs.uv-version }}
-          PYTHON_VERSION: ${{ steps.setup-uv.outputs.python-version }}
-      - name: Install requirements
-        run: uv sync --locked
-      - name: Print Numba sysinfo
-        run: numba --sysinfo | tee numba-sysinfo.txt
+          generate-reference-data: true
       - name: Create migrations
         run: python manage.py makemigrations
       - name: Migrate database
         run: python manage.py migrate
       - name: Check configuration
         run: python manage.py check --fail-level WARNING
-      - name: Generate PTtools reference data
-        run: python -c "from pttools.bubble.fluid_reference import ref; ref()"
       - name: Run tests with coverage
         run: |
           set -o pipefail
@@ -127,3 +62,8 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+  typecheck:
+    uses: CFT-HY/pttools/.github/workflows/typecheck.yml@dev
+    with:
+      # NumbaLSODA requires a Fortran compiler, which is not installed by default on ubuntu-slim.
+      runs-on: ubuntu-latest

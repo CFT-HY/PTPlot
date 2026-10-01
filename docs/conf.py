@@ -230,7 +230,8 @@ sphinx_gallery_conf = {
         "../examples/ps",
         "../examples/snr",
         "../examples/noise",
-        "../examples/old_vs_new"
+        "../examples/old_vs_new",
+        "../examples/docs",
     ]),
 }
 autosummary_generate = True

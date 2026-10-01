@@ -22,6 +22,11 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
   - To use a different commit, update the `rev` manually and run `./install_requirements.sh`.
 - Update the other dependencies: `uv lock --upgrade`, or `uv lock --upgrade-package NAME` for a single one.
 
+## CI
+- The CI and deploy workflows use reusable workflows and composite actions from the `dev` branch of PTtools,
+  and have the same job structure as those of PTtools.
+  Changes to the shared parts have to be made in the PTtools repository (`../pttools/.github`).
+
 ## Code style
 - Use Python 3.12+ type hints where possible.
 - JIT compile heavy computations with Numba.
