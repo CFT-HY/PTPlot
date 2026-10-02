@@ -50,7 +50,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             # Switches
             legacy_nucleation_cs_max: bool = False,
             parallel: bool = False,
-            model: Model = BAG,
+            model: Model | None = None,
             bubble: Bubble | None = None):
         r"""Create an SSM power spectrum.
 
@@ -67,8 +67,9 @@ class PowerSpectrumSSM(PowerSpectrum):
             raise ValueError("The fluid shell must have the same model as the power spectrum.")
         self.model: Model = model
         # Compute the bubble early if possible so that it can be used for nucleation suppression.
-        self._bubble: Bubble | None = Bubble(model=model, v_wall=v_wall, alpha_n=alpha) \
-            if bubble is None and not (v_wall is None or alpha is None) else None
+        self._bubble: Bubble | None = bubble if bubble is not None \
+            else None if v_wall is None or alpha is None \
+            else Bubble(model=model, v_wall=v_wall, alpha_n=alpha)
         super().__init__(
             beta_tilde=beta_tilde,
             T_star=T_star,
@@ -85,6 +86,13 @@ class PowerSpectrumSSM(PowerSpectrum):
         )
         if self.v_wall is None or np.isnan(self.v_wall):
             raise ValueError(f"Sound Shell Model requires v_wall to be set. Got v_wall={v_wall}.")
+        if bubble is not None and not (
+                np.isclose(bubble.v_wall, self.v_wall) and np.isclose(bubble.alpha_n, self.alpha)):
+            raise ValueError(
+                "The fluid shell must have the same v_wall and alpha as the power spectrum. "
+                f"Got v_wall={self.v_wall}, alpha={self.alpha} for the spectrum and "
+                f"v_wall={bubble.v_wall}, alpha_n={bubble.alpha_n} for the fluid shell."
+            )
 
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
             if self._bubble is None else self._bubble
