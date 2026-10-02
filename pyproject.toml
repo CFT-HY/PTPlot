@@ -233,15 +233,8 @@ select = [
     "W"      # pycodestyle warnings
 ]
 ignore = [
-    # Docstrings are not required for methods that inherit one, for dunder methods,
-    # for nested classes such as the Django Meta classes, or for __init__.
-    "D102",     # Missing docstring in public method
-    "D105",     # Missing docstring in magic method
-    "D106",     # Missing docstring in public nested class
-    "D107",     # Missing docstring in __init__
+    # The docstrings of physics quantities begin with "$symbol$, name." instead of the imperative mood.
     "D401",     # non-imperative-mood
-    "N802",     # invalid-function-name
-    "N815",     # The names of the class attributes are not restricted.
     "PLR0913",  # too-many-arguments
     "PLR0917",  # too-many-positional-arguments
     "RUF012"    # The class attributes of Django models, forms and admins are mutable by design.
@@ -264,10 +257,16 @@ extend-ignore-names = [
     "beta_over_H_points",
     "beta_over_H_set",
     "C",
+    "d_ln_S_d_ln_f",
     "F_gw0",
+    "F_gw0_h2",
     "H0",
+    "H_star_eta_sh",
+    "H_star_eta_sw",
+    "H_star_eta_v",
     "J",
     "K",
+    "K_tilde",
     "log10_beta_over_H_grid",
     "log10_beta_over_H_set",
     "log10_R_star",
@@ -279,6 +278,8 @@ extend-ignore-names = [
     "Sh",
     "SI",
     "SII",
+    "S_gal_babak",
+    "S_gb_cornish",
     "S_turb",
     "T",
     "Tn",
@@ -293,17 +294,32 @@ extend-ignore-names = [
 "**/__init__.py" = [
     "F403"  # undefined-local-with-import-star
 ]
+"**/forms/**" = [
+    "D107"   # Missing docstring in __init__
+]
+"**/models/**" = [
+    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+    "N815"   # The names of the class attributes are not restricted.
+]
 # The Sphinx configuration variables shadow builtins and are not documented individually.
 "docs/conf.py" = [
-    "A001"  # builtin-variable-shadowing
+    "A001"   # builtin-variable-shadowing
 ]
 # The module docstring of a Sphinx-Gallery example has to start with an RST section title,
 # which cannot end with a period and has to be followed directly by its underline.
 "examples/**" = [
     "D205",  # missing-blank-line-after-summary
-    "D400"  # missing-trailing-period
+    "D400"   # missing-trailing-period
 ]
-"ptplot/tests/**" = ["D104", "N802"]
+"ptplot/management/commands/populate.py" = [
+    "D102"   # Missing docstring in public method
+]
+# The test names contain the names of the physics quantities that they test.
+"ptplot/tests/**" = [
+    "D104",  # undocumented-public-package
+    "N802"   # invalid-function-name
+]
 # The Django settings are extended with star imports.
 "ptplot_site/settings/*.py" = ["F403", "F405"]
 

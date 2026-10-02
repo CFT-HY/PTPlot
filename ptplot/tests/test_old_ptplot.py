@@ -165,6 +165,12 @@ class OldPTPlotAlphaBetaTest(TestCase):
 
     @classmethod
     def new_snr(cls, v_wall: float, legacy: bool) -> th.FloatArr2D:
+        r"""Compute the SNR with the new code on the $\alpha$ and $\beta/H_*$ axes of the old figure.
+
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param legacy: Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :return: SNR values
+        """
         alpha, beta_tilde = cls.old_axes(v_wall)
         return SNRGridAlphaBeta(
             T_star=T_STAR, g_star=G_STAR, v_wall=v_wall,
@@ -174,6 +180,11 @@ class OldPTPlotAlphaBetaTest(TestCase):
         ).snr
 
     def check(self, v_wall: float, legacy: bool) -> None:
+        r"""Compare the SNR of the new code with that of the old PTPlot.
+
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param legacy: Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        """
         _, snr_old, _, _ = old_grid(T_STAR, G_STAR, OLD_UBARF_MAX_ALPHA_BETA)
         np.testing.assert_allclose(
             self.new_snr(v_wall, legacy) / SNR_FACTOR, snr_old, rtol=RTOL_ALPHA_BETA,

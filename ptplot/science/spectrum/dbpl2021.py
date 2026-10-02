@@ -42,6 +42,11 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
             zb: float = 1.0,
             zp: float = DEFAULT_ZP,
         ):
+        """Create a DBPL power spectrum.
+
+        :param zb: $z_b$, angular frequency of the lower break in units of the mean bubble separation
+        :param zp: $z_p$, peak angular frequency in units of the mean bubble separation
+        """
         super().__init__(
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             alpha=alpha, beta_tilde=beta_tilde,
@@ -66,6 +71,12 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
         return tp.cast(T, (9 * self.rb**4 + b) / (self.rb**4 + 1))
 
     def mu(self) -> float:
+        r"""Prefactor $\mu(r_b)$ for the peak power of the GW power spectrum, computed exactly.
+
+        This has not been implemented yet. Please use :py:meth:`mu_approx` instead.
+
+        :raises NotImplementedError: Always
+        """
         # Todo: implement the full mu integration to get rid of the 10 % error in the approximation.
         raise NotImplementedError
 

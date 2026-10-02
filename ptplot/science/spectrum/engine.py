@@ -23,6 +23,13 @@ class Engine(StrEnum):
 
     @classmethod
     def engine(cls, name: str | None, default: "Engine | None" = None) -> "Engine":
+        """Get an engine by its name.
+
+        :param name: Name of the engine
+        :param default: Engine to return if the name is not given, defaults to ``DEFAULT``
+        :return: Engine
+        :raises ValueError: If there is no engine with the given name
+        """
         return (cls.DEFAULT if default is None else default) if name is None or not name else Engine(name)
 
     @classmethod
@@ -67,6 +74,7 @@ class Engine(StrEnum):
 
     @property
     def spectrum(self) -> type[PowerSpectrum]:
+        """Power spectrum class of this engine."""
         return ENGINE_SPECTRUM_CLASSES[self]
 
 

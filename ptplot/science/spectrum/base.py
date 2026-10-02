@@ -159,7 +159,7 @@ class PowerSpectrum(abc.ABC):
         })
         return df.to_csv(path_or_buf=path)
 
-    def F_gw0_h2(
+    def F_gw0_h2(  # noqa: D102
             self,
             g0: FloatOrArr = G0,
             gs0: FloatOrArr = GS0,
@@ -175,11 +175,11 @@ class PowerSpectrum(abc.ABC):
         return 16.5e-6 * (self.T_star / 100) * (self.g_star / 100) ** (1 / 6)
 
     @property
-    def H_star_eta_sh(self) -> float:
+    def H_star_eta_sh(self) -> float:  # noqa: D102
         return H_star_eta_sh(r_star=self.r_star, ubarf=self.ubarf)
 
     @property
-    def H_star_eta_v(self) -> float:
+    def H_star_eta_v(self) -> float:  # noqa: D102
         return H_star_eta_v(source_lifetime_factor=self.source_lifetime_factor(), nu=self.nu_gdh2024)
 
     def J(self, old: bool | None = None) -> float:
@@ -232,7 +232,8 @@ class PowerSpectrum(abc.ABC):
         )
         return snr
 
-    def source_lifetime_factor(self) -> float:
+    # The docstring is copied from PTtools with copy_docstrings() at the end of this file.
+    def source_lifetime_factor(self) -> float:  # noqa: D102
         return tp.cast(
             float,
             source_lifetime_factor(ubarf=self.ubarf, r_star=self.r_star, N_sh=self.N_sh, nu=self.nu_gdh2024)
@@ -247,6 +248,21 @@ class PowerSpectrum(abc.ABC):
             cs: float,
             v_cj: float | None = None,
             model: Model | None = None) -> tuple[float, float]:
+        r"""Validate $\alpha$ and $\bar{U}_\text{f}$, and compute the one that is not given.
+
+        Exactly two of $v_\text{wall}$, $\alpha$ and $\bar{U}_\text{f}$ must be given.
+
+        :param alpha: $\alpha$, phase transition strength
+        :param ubarf: $\bar{U}_f$, RMS fluid velocity
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param adiabatic_index: $\Gamma$, mean adiabatic index
+        :param cs: $c_s$, sound speed
+        :param v_cj: $v_\text{CJ}$, Chapman-Jouguet speed
+        :param model: Equation of state model of PTtools
+        :return: $\alpha$ and $\bar{U}_f$.
+            $\alpha$ is nan if it cannot be computed from $\bar{U}_f$.
+        :raises ValueError: If not exactly two of the parameters are given
+        """
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
             return alpha, tp.cast(float,
                 ubarf_approx(
@@ -358,5 +374,6 @@ class PowerSpectrum(abc.ABC):
 copy_docstrings({
     PowerSpectrum.F_gw0_h2: F_gw0_h2,
     PowerSpectrum.H_star_eta_sh: H_star_eta_sh,
+    PowerSpectrum.H_star_eta_v: H_star_eta_v,
     PowerSpectrum.source_lifetime_factor: source_lifetime_factor
 }, without_params=True)

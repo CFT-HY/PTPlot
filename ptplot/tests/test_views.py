@@ -79,6 +79,7 @@ class ViewTest(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        """Populate the database and create the form of the test parameters."""
         super().setUpClass()
         PopulateCommand().handle()
         cls.form = PTPlotForm(data={
@@ -95,6 +96,7 @@ class ViewTest(TestCase):
         cls.form.is_valid()
 
     def test_form(self) -> None:
+        """The form of the test parameters should be valid."""
         assert self.form.is_valid()
 
     # -----
@@ -102,21 +104,27 @@ class ViewTest(TestCase):
     # -----
 
     def test_csv(self) -> None:
+        """The CSV view should return a valid status code."""
         check_view(self, "csv", form=self.form)
 
     def test_index(self) -> None:
+        """The index view should return a valid status code."""
         check_view(self, "index")
 
     def test_snr_alpha_beta(self) -> None:
+        r"""The SNR view in the $(\alpha_n, \beta/H)$ plane should return a valid status code."""
         check_view(self, "snr_alpha_beta", form=self.form)
 
     def test_snr_ubarf_rstar(self) -> None:
+        r"""The SNR view in the $(\bar{U}_f, r_*)$ plane should return a valid status code."""
         check_view(self, "snr_ubarf_rstar", form=self.form)
 
     def test_ps(self) -> None:
+        """The power spectrum view should return a valid status code."""
         check_view(self, "ps", form=self.form)
 
     def test_single(self) -> None:
+        """The single point view should return a valid status code."""
         check_view(self, "single", form=self.form)
 
     def test_multiple(self) -> None:
@@ -139,45 +147,59 @@ class ViewTest(TestCase):
             f"The form was not accepted: {response.content[:500]!r}"
 
     def test_models(self) -> None:
+        """The model list view should return a valid status code."""
         check_view(self, "models")
 
     def test_model(self) -> None:
+        """The model detail view should return a valid status code."""
         check_view(self, "model_detail", view_kwargs=self.MODEL_KWARGS)
 
     def test_model_plot(self) -> None:
+        """The model plot view should return a valid status code."""
         check_view(self, "model_detail_plot", view_kwargs=self.MODEL_KWARGS)
 
     def test_model_snr_alphabeta(self) -> None:
+        r"""The model SNR view in the $(\alpha_n, \beta/H)$ plane should return a valid status code."""
         check_view(self, "model_snr_alpha_beta", view_kwargs=self.MODEL_KWARGS)
 
     def test_model_snr_comparison(self) -> None:
+        """The model SNR comparison view should return a valid status code."""
         check_view(self, "model_snr_comparison", view_kwargs=self.MODEL_KWARGS)
 
     def test_model_snr_histogram(self) -> None:
+        """The model SNR histogram view should return a valid status code."""
         check_view(self, "model_snr_histogram", view_kwargs=self.MODEL_KWARGS)
 
     def test_model_snr_ubarf_rstar(self) -> None:
+        r"""The model SNR view in the $(\bar{U}_f, r_*)$ plane should return a valid status code."""
         check_view(self, "model_snr_ubarf_rstar", view_kwargs=self.MODEL_KWARGS)
 
     def test_parameter_choice(self) -> None:
+        """The parameter choice view should return a valid status code."""
         check_view(self, "parameter_choice")
 
     def test_point(self) -> None:
+        """The point plot view should return a valid status code."""
         check_view(self, "model_point_plot", view_kwargs=self.POINT_KWARGS)
 
     def test_point_snr_alpha_beta(self) -> None:
+        r"""The point SNR view in the $(\alpha_n, \beta/H)$ plane should return a valid status code."""
         check_view(self, "model_point_snr_alpha_beta", view_kwargs=self.POINT_KWARGS)
 
     def test_point_snr_comparison(self) -> None:
+        """The point SNR comparison view should return a valid status code."""
         check_view(self, "model_point_snr_comparison", view_kwargs=self.POINT_KWARGS)
 
     def test_point_snr(self) -> None:
+        r"""The point SNR view in the $(\bar{U}_f, r_*)$ plane should return a valid status code."""
         check_view(self, "model_point_snr_ubarf_rstar", view_kwargs=self.POINT_KWARGS)
 
     def test_point_ps(self) -> None:
+        """The point power spectrum view should return a valid status code."""
         check_view(self, "model_point_ps", view_kwargs=self.POINT_KWARGS)
 
     def test_point_csv(self) -> None:
+        """The point CSV view should return a valid status code."""
         check_view(self, "model_point_csv", view_kwargs=self.POINT_KWARGS)
 
     def test_point_legacy_nucleation_cs_max(self) -> None:
@@ -186,10 +208,12 @@ class ViewTest(TestCase):
             check_view(self, view, view_kwargs=self.POINT_KWARGS, data={"legacy_nucleation_cs_max": True})
 
     def test_model_legacy_nucleation_cs_max(self) -> None:
+        r"""The legacy $\max(v_{\text{wall}}, c_s)$ option should be selectable in the model views."""
         for view in ("model_snr_alpha_beta", "model_snr_ubarf_rstar", "model_snr_histogram"):
             check_view(self, view, view_kwargs=self.MODEL_KWARGS, data={"legacy_nucleation_cs_max": True})
 
     def test_scenario_legacy_nucleation_cs_max(self) -> None:
+        r"""The legacy $\max(v_{\text{wall}}, c_s)$ option should be selectable in the scenario views."""
         for view in ("model_scenario_snr_alpha_beta", "model_scenario_snr_comparison"):
             check_view(self, view, view_kwargs=self.SCENARIO_KWARGS, data={"legacy_nucleation_cs_max": True})
 
@@ -198,6 +222,12 @@ class ViewTest(TestCase):
         return {key: value for key, value in {**self.form.cleaned_data, **kwargs}.items() if value is not None}
 
     def csv_content(self, url: str, data: dict[str, tp.Any]) -> bytes:
+        """Get the content of a CSV view.
+
+        :param url: URL of the view
+        :param data: Query parameters
+        :return: Content of the response
+        """
         response = self.client.get(url, data=data)
         check_status_code(response, url=url)
         return response.content
@@ -221,6 +251,7 @@ class ViewTest(TestCase):
         assert legacy != default
 
     def test_multiple_legacy_nucleation_cs_max(self) -> None:
+        """The multiple points form should accept the legacy option."""
         url = reverse("multiple")
         response = self.client.post(url, data={
             "v_wall": 0.3,
@@ -238,6 +269,7 @@ class ViewTest(TestCase):
             f"The form was not accepted: {response.content[:500]!r}"
 
     def test_single_legacy_nucleation_cs_max(self) -> None:
+        """The single point page should show that the legacy conversion is used."""
         response = self.client.get(reverse("single"), data=self.form_data(legacy_nucleation_cs_max=True))
         check_status_code(response)
         assert b"legacy, with" in response.content
@@ -250,18 +282,23 @@ class ViewTest(TestCase):
         )
 
     def test_scenario(self) -> None:
+        """The scenario plot view should return a valid status code."""
         check_view(self, "model_scenario_plot", view_kwargs=self.SCENARIO_KWARGS)
 
     def test_scenario_snr_alpha_beta(self) -> None:
+        r"""The scenario SNR view in the $(\alpha_n, \beta/H)$ plane should return a valid status code."""
         check_view(self, "model_scenario_snr_alpha_beta", view_kwargs=self.SCENARIO_KWARGS)
 
     def test_scenario_snr_comparison(self) -> None:
+        """The scenario SNR comparison view should return a valid status code."""
         check_view(self, "model_scenario_snr_comparison", view_kwargs=self.SCENARIO_KWARGS)
 
     def test_scenario_snr_histogram(self) -> None:
+        """The scenario SNR histogram view should return a valid status code."""
         check_view(self, "model_scenario_snr_histogram", view_kwargs=self.SCENARIO_KWARGS)
 
     def test_scenario_snr_ubarf_rstar(self) -> None:
+        r"""The scenario SNR view in the $(\bar{U}_f, r_*)$ plane should return a valid status code."""
         check_view(self, "model_scenario_snr_ubarf_rstar", view_kwargs=self.SCENARIO_KWARGS)
 
     # -----
@@ -269,15 +306,19 @@ class ViewTest(TestCase):
     # -----
 
     def test_old_snr_alpha_beta(self) -> None:
+        r"""The old URL of the point SNR figure in the $(\alpha_n, \beta/H)$ plane should redirect to the new one."""
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr_alphabeta.svg", allow_codes=(301,))
 
     def test_old_snr_alpha_beta2(self) -> None:
+        r"""The old URL of the point SNR view in the $(\alpha_n, \beta/H)$ plane should redirect to the new one."""
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr_alphabeta", allow_codes=(301,))
 
     def test_old_snr_ubarf_rstar(self) -> None:
+        r"""The old URL of the point SNR figure in the $(\bar{U}_f, r_*)$ plane should redirect to the new one."""
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr.svg", allow_codes=(301,))
 
     def test_old_snr_ubarf_rstar2(self) -> None:
+        r"""The old URL of the point SNR view in the $(\bar{U}_f, r_*)$ plane should redirect to the new one."""
         check_url(self, f"/ptplot/models/{self.MODEL_ID}/{self.POINT_ID}/snr", allow_codes=(301,))
 
 
@@ -306,12 +347,14 @@ class BenchmarkFormTest(TestCase):
 
     @staticmethod
     def test_legacy_nucleation_cs_max_default() -> None:
+        """The legacy option should have its default value when the form has no data."""
         form = BenchmarkForm()
         assert form.is_valid()
         assert form.cleaned_data["legacy_nucleation_cs_max"] == const.DEFAULT_LEGACY_NUCLEATION_CS_MAX
 
     @staticmethod
     def test_legacy_nucleation_cs_max_query_dict() -> None:
+        """The legacy option should be readable from a QueryDict."""
         form = BenchmarkForm(QueryDict("obs_years=3&legacy_nucleation_cs_max=True"))
         assert form.is_valid(), form.errors
         assert form.cleaned_data["legacy_nucleation_cs_max"]

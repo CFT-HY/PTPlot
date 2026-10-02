@@ -30,6 +30,12 @@ class FractionField(forms.CharField):
     """Field that accepts both floats and fractions."""
 
     def to_python(self, value: str) -> float | Fraction | None:  # type: ignore
+        """Convert the input to a float, or to a fraction if it contains a slash.
+
+        :param value: Input string
+        :return: Float or fraction, or None if the input is empty
+        :raises ValidationError: If the input is neither a float nor a fraction
+        """
         if not value:
             return None
         try:
@@ -51,6 +57,14 @@ class UnitInput(forms.NumberInput):
             value: tp.Any,
             attrs: dict[str, tp.Any] | None = None,
             renderer: BaseRenderer | None = None) -> SafeString:
+        """Render the widget with the units after it.
+
+        :param name: Name of the field
+        :param value: Value of the field
+        :param attrs: HTML attributes of the widget
+        :param renderer: Template renderer
+        :return: HTML of the widget
+        """
         ret = super().render(name, value, attrs, renderer)
         if self.units_string is None:
             return ret

@@ -52,6 +52,19 @@ class PowerSpectrumSSM(PowerSpectrum):
             parallel: bool = False,
             model: Model = BAG,
             bubble: Bubble | None = None):
+        r"""Create an SSM power spectrum.
+
+        :param model: Equation of state model of PTtools.
+            Defaults to that of the fluid shell if one is given, and otherwise to the bag model.
+        :param bubble: Precomputed fluid shell, e.g. for reusing it for multiple spectra.
+            It must have the same $v_\text{wall}$, $\alpha$ and model as this spectrum.
+            If not given, it is computed from these.
+        :raises ValueError: If the fluid shell does not match the parameters of this spectrum
+        """
+        if model is None:
+            model = BAG if bubble is None else bubble.model
+        elif bubble is not None and bubble.model is not model:
+            raise ValueError("The fluid shell must have the same model as the power spectrum.")
         self.model: Model = model
         # Compute the bubble early if possible so that it can be used for nucleation suppression.
         self._bubble: Bubble | None = Bubble(model=model, v_wall=v_wall, alpha_n=alpha) \
@@ -154,6 +167,11 @@ class PowerSpectrumSSM(PowerSpectrum):
             cs: float,
             v_cj: float | None = None,
             model: Model | None = None) -> tuple[float, float]:
+        r"""Validate $\alpha$ and $\bar{U}_\text{f}$ with the equation of state model of this spectrum.
+
+        The parameters are those of :py:meth:`PowerSpectrum.validate_alpha_ubarf_static`,
+        and the model defaults to that of this spectrum.
+        """
         return super().validate_alpha_ubarf(
             alpha=alpha,
             ubarf=ubarf,
@@ -173,6 +191,12 @@ class PowerSpectrumSSM(PowerSpectrum):
             T: FloatArr1D | None = None,
             sol_type: SolutionType | None = None,
             legacy_cs: float | None = None) -> tuple[float, float]:
+        r"""Validate $\tilde{\beta}$ and $r_*$ with the fluid shell, if it has already been computed.
+
+        The parameters are those of :py:meth:`PowerSpectrum.validate_beta_r_star`,
+        but $\xi$, $T$ and the solution type default to those of the fluid shell.
+        If the fluid shell has not been computed yet, the solution type defaults to a detonation.
+        """
         if sol_type is None:
             sol_type = SolutionType.DETON if self._bubble is None else self._bubble.sol_type
         return super().validate_beta_r_star(

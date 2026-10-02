@@ -102,6 +102,7 @@ class Model(models.Model):
         return self.name
 
     def get_absolute_url(self) -> str:
+        """Get the URL of the detail page of this model."""
         return reverse("model_detail", kwargs={"model_id": self.id})
 
     @staticmethod
@@ -111,12 +112,26 @@ class Model(models.Model):
             x_max: float | None,
             default: float | None = None,
             unit: str | None = None) -> str:
+        r"""Get a LaTeX label that shows the value or the range of values of a parameter.
+
+        :param label: LaTeX symbol of the parameter
+        :param x_min: Minimum value of the parameter
+        :param x_max: Maximum value of the parameter
+        :param default: Value to show if both the minimum and the maximum are None
+        :param unit: Unit of the parameter
+        :return: LaTeX label of the form ``label = value`` or ``label \in [x_min, x_max]``,
+            without the math delimiters
+        """
         unit_str = "" if unit is None else rf" \ \text{{{unit}}}"
         if x_min == x_max:
             return f"{label} = {default if x_min is None else as_latex(x_min)}{unit_str}"
         return rf"{label} \in [{as_latex(x_min)}, {as_latex(x_max)}]{unit_str}"
 
     def annotated_labels(self) -> str:
+        """Get the LaTeX labels of the parameter ranges of the points and scenarios of this model.
+
+        The model must have been fetched with the annotations of ``MODEL_ANNOTATIONS``.
+        """
         return "$" + r", \ ".join([
             self.annotated_label(r"\alpha_n", self.points__alpha__min, self.points__alpha__max),
             self.annotated_label(r"\beta/H_*", self.points__beta_tilde__min, self.points__beta_tilde__max),
@@ -212,6 +227,12 @@ class Model(models.Model):
             self,
             grid: SNRGridAlphaBeta | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this model in the $(\alpha_n, \beta/H)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_alpha_beta` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_alpha_beta(
             grid=self.snr_grid_alpha_beta() if grid is None else grid,
             huge_alpha=self.huge_alpha,
@@ -222,6 +243,12 @@ class Model(models.Model):
             self,
             grid: SNRGridUbarfRStar | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this model in the $(\bar{U}_f, r_*)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_ubarf_rstar` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_ubarf_rstar(
             grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
             huge_alpha=self.huge_alpha,
@@ -322,6 +349,14 @@ class Model(models.Model):
             noise: Noise | None = None,
             engines: list[Engine] | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+        r"""Plot a histogram of the SNR values of the points of this model.
+
+        :param noise: Which noise curve to use
+        :param engines: Which power spectrum engines to use, defaults to all engines
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :return: SNR histogram figure
+        """
         v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
         return snr_histogram(
             v_wall=v_wall, alpha_n=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,

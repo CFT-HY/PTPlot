@@ -48,6 +48,7 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
         return self.f_peak() * (-n1 / n2)**(-1 / self.SMOOTHNESS[0])
 
     def f_breaks(self) -> tuple[float, ...]:
+        """$f_b$, the only break frequency."""
         return (self.f_b(),)
 
     def f_peak(self) -> float:
@@ -59,6 +60,7 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
         return self.FP_COEFF * self.h_star() * self.beta_tilde
 
     def f_ref(self) -> float:
+        """$f_b$, the reference frequency is the break frequency."""
         return self.f_b()
 
     def omega_b_h2(self) -> float:
@@ -85,4 +87,5 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
         return float(self.F_gw0_h2()) * self.A_STR * self.K_tilde**2 / self.beta_tilde**2
 
     def omega_ref_h2(self) -> float:
+        r"""$h^2 \Omega_b$, the spectrum is normalized at the break frequency."""
         return self.omega_b_h2()

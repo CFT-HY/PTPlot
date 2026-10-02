@@ -30,6 +30,7 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
 
     @classmethod
     def setUpClass(cls) -> None:
+        """Create the power spectrum to be tested."""
         super().setUpClass()  # pyrefly: ignore[missing-attribute]
         cls.spectrum = cls.SPECTRUM_CLASS(
             T_star=cls.T_STAR, g_star=cls.G_STAR,
@@ -44,27 +45,35 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
         assert np.all(arr > 0), f"Got non-positive values: {value}"
 
     def test_csv(self) -> None:
+        """The power spectrum should be exportable as CSV."""
         assert self.spectrum.csv()
 
     def test_F_gw0_h2(self) -> None:
+        r"""$F_{\text{gw},0} h^2$ should be finite and positive."""
         self.assert_positive(self.spectrum.F_gw0_h2())
 
     def test_h_star(self) -> None:
+        """$h_*$ should be finite and positive."""
         self.assert_positive(self.spectrum.h_star())
 
     def test_H_star_eta_sh(self) -> None:
+        r"""$\mathcal{H}_* \eta_\text{sh}$ should be finite and positive."""
         self.assert_positive(self.spectrum.H_star_eta_sh)
 
     def test_H_star_eta_v(self) -> None:
+        r"""$\mathcal{H}_* \eta_\text{v}$ should be finite and positive."""
         self.assert_positive(self.spectrum.H_star_eta_v)
 
     def test_J(self) -> None:
+        """$J$ should be finite and positive."""
         self.assert_positive(self.spectrum.J())
 
     def test_kinetic_energy(self) -> None:
+        """The kinetic energy fraction $K$ should be finite and positive."""
         self.assert_positive(self.spectrum.kinetic_energy_fraction)
 
     def test_power_spectrum(self) -> None:
+        """The power spectrum should be positive at the frequencies of the noise curve, and the SNR non-negative."""
         f = noise_curve().f
         power_spectrum, snr = self.spectrum.power_spectrum(f=f)
         assert power_spectrum.shape == f.shape
@@ -72,7 +81,9 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
         assert snr >= 0
 
     def test_ps_image(self) -> None:
+        """The power spectrum figure should be created."""
         assert power_spectrum_figure(self.spectrum, sw_only=False) is not None
 
     def test_source_lifetime_factor(self) -> None:
+        r"""The source lifetime factor $\Upsilon_\ell$ should be finite and positive."""
         self.assert_positive(self.spectrum.source_lifetime_factor())

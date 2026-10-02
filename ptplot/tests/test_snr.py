@@ -19,6 +19,7 @@ class SNRTest(TestCase):
 
     @staticmethod
     def test_snr_alpha_beta() -> None:
+        r"""The SNR figure in the $(\alpha_n, \beta/H)$ plane should be created."""
         snr_figure_alpha_beta(
             grid=SNRGridAlphaBeta(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
@@ -29,6 +30,12 @@ class SNRTest(TestCase):
 
     @staticmethod
     def snr_alpha_beta_legacy(v_wall: float, legacy: bool) -> np.ndarray:
+        r"""Compute a small SNR grid in the $(\alpha_n, \beta/H)$ plane.
+
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param legacy: Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :return: SNR values
+        """
         return SNRGridAlphaBeta(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=v_wall,
             alpha_n=np.logspace(-2, 0, 5), beta_tilde=np.logspace(1, 4, 5),
@@ -69,6 +76,7 @@ class SNRTest(TestCase):
 
     @staticmethod
     def test_snr_ubarf_rstar() -> None:
+        r"""The SNR figure in the $(\bar{U}_f, r_*)$ plane should be created."""
         snr_figure_ubarf_rstar(
             grid=SNRGridUbarfRStar(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
@@ -99,6 +107,7 @@ class SNRTest(TestCase):
 
     @classmethod
     def test_snr_comparison_relative(cls) -> None:
+        """The relative difference should be shown on a linear scale chosen by Matplotlib."""
         grid1, grid2 = cls.snr_grids()
         comparison = SNRGridComparison(grid1=grid1, grid2=grid2)
 
@@ -116,6 +125,7 @@ class SNRTest(TestCase):
 
     @classmethod
     def test_snr_comparison_absolute(cls) -> None:
+        """The absolute difference should be shown on a symmetric logarithmic scale."""
         grid1, grid2 = cls.snr_grids()
         comparison = SNRGridComparison(
             grid1=grid1, grid2=grid2,

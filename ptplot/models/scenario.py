@@ -62,6 +62,7 @@ class Scenario(models.Model):
         return self.name
 
     def get_absolute_url(self) -> str:
+        """Get the URL of the page of this scenario."""
         return reverse("model_scenario_plot", kwargs={"model_id": self.model.id, "scenario_id": self.number})
 
     # -----
@@ -70,6 +71,7 @@ class Scenario(models.Model):
 
     @property
     def T_star_value(self) -> float:
+        """$T_*$, transition temperature of this scenario, or of the model if not set for the scenario."""
         return self.model.T_star if self.T_star is None else self.T_star
 
     # -----
@@ -77,6 +79,7 @@ class Scenario(models.Model):
     # -----
 
     def point_data(self) -> DataFrame:
+        """Get the data of the points of this scenario as a DataFrame."""
         return point_data(self.points.all())
 
     def snr_comparison(
@@ -102,6 +105,12 @@ class Scenario(models.Model):
             self,
             grid: SNRGridAlphaBeta | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this scenario in the $(\alpha_n, \beta/H)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_alpha_beta` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_alpha_beta(
             grid=self.snr_grid_alpha_beta() if grid is None else grid,
             huge_alpha=self.model.huge_alpha,
@@ -112,6 +121,12 @@ class Scenario(models.Model):
             self,
             grid: SNRGridUbarfRStar | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this scenario in the $(\bar{U}_f, r_*)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_ubarf_rstar` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_ubarf_rstar(
             grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
             huge_alpha=self.model.huge_alpha,
@@ -211,6 +226,13 @@ class Scenario(models.Model):
             self,
             noise: Noise | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+        r"""Plot a histogram of the SNR values of the points of this scenario.
+
+        :param noise: Which noise curve to use
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :return: SNR histogram figure
+        """
         data = self.point_data()
         return snr_histogram(
             v_wall=data["v_wall"].to_numpy(dtype=np.float64),

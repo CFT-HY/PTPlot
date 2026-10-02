@@ -78,9 +78,11 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
         return self.F2_COEFF * self.h_star() / (self.delta_w * self.r_star)
 
     def f_breaks(self) -> tuple[float, ...]:
+        """$f_1, f_2$, break frequencies."""
         return self.f1(), self.f2()
 
     def f_ref(self) -> float:
+        """$f_2$, the reference frequency is the second break frequency."""
         return self.f2()
 
     @property
@@ -133,4 +135,5 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
         return (np.sqrt(2) + 2 * r / (1 + r**2)) / np.pi * self.omega_int_h2()
 
     def omega_ref_h2(self) -> float:
+        r"""$h^2 \Omega_2$, the spectrum is normalized at the second break frequency."""
         return self.omega_2_h2()

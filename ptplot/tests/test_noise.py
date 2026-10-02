@@ -140,6 +140,7 @@ class NoiseTest(TestCase):
 
     @staticmethod
     def test_default() -> None:
+        """The default noise curve should include all noise sources and be positive."""
         noise = noise_curve()
         assert noise.obs_years == DEFAULT_OBS_YEARS
         assert noise.eb
@@ -162,10 +163,12 @@ class NoiseTest(TestCase):
 
     @staticmethod
     def test_obs_time() -> None:
+        """The mission duration should be converted from years to seconds."""
         assert Noise(obs_years=3).obs_time == 3 * YEAR_IN_SECONDS
 
     @staticmethod
     def test_invalid() -> None:
+        """Invalid parameters should raise an error."""
         with pytest.raises(ValueError, match="Invalid obs_years"):
             Noise(obs_years=0)
         with pytest.raises(ValueError, match="Invalid frequency range"):

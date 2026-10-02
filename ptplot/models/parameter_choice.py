@@ -78,9 +78,14 @@ class ParameterChoice(models.Model):
         return self.long_label
 
     def get_absolute_url(self) -> str:
+        """Get the URL of the page of this point."""
         return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
 
     def clean(self) -> None:
+        """Validate that the scenario is for the same model as the parameter choice.
+
+        :raises ValidationError: If the scenario is for a different model
+        """
         super().clean()
         errors = {}
         if self.scenario is not None and self.scenario.model != self.model:
@@ -94,14 +99,17 @@ class ParameterChoice(models.Model):
 
     @property
     def g_star_value(self) -> float:
+        """$g_*$, degrees of freedom of this point, or of the model if not set for the point."""
         return self.model.g_star if self.g_star is None else self.g_star
 
     @property
     def v_wall_value(self) -> float:
+        r"""$v_\text{wall}$, wall velocity of this point, or of the model if not set for the point."""
         return self.model.v_wall if self.v_wall is None else self.v_wall
 
     @property
     def T_star_value(self) -> float:
+        """$T_*$, transition temperature of this point, or of the scenario or the model if not set for the point."""
         return self.T_star \
             if self.T_star is not None \
             else self.scenario.T_star_value if self.scenario is not None \
@@ -116,6 +124,15 @@ class ParameterChoice(models.Model):
             noise: Noise | None = None,
             engine: Engine = Engine.DEFAULT,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> str:
+        r"""Export the power spectrum of this point as CSV.
+
+        :param noise: Which noise curve to use
+        :param engine: Which power spectrum engine to use
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :return: CSV data
+        :raises ValueError: If no CSV data was produced
+        """
         csv = power_spectrum(
             T_star=self.T_star_value,
             g_star=self.g_star_value,
@@ -196,6 +213,12 @@ class ParameterChoice(models.Model):
             self,
             grid: SNRGridAlphaBeta | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this point in the $(\alpha_n, \beta/H)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_alpha_beta` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_alpha_beta(
             grid=self.snr_grid_alpha_beta() if grid is None else grid,
             huge_alpha=self.model.huge_alpha,
@@ -206,6 +229,12 @@ class ParameterChoice(models.Model):
             self,
             grid: SNRGridUbarfRStar | None = None,
             filled: bool = False) -> Figure:
+        r"""Plot the SNR of this point in the $(\bar{U}_f, r_*)$ plane.
+
+        :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_ubarf_rstar` if not given
+        :param filled: Whether to fill the contour plot
+        :return: SNR figure
+        """
         return snr_figure_ubarf_rstar(
             grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
             huge_alpha=self.model.huge_alpha,

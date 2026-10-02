@@ -75,6 +75,7 @@ class Noise:
         self.noise: th.FloatArr1D = omega_noise_h2(f=self.f, eb=self.eb, gb=self.gb)
 
     def __str__(self) -> str:
+        """Describe the noise curve, including its mission duration and noise sources."""
         sources = ["instrument"]
         if self.eb:
             sources.append("extragalactic compact binaries")

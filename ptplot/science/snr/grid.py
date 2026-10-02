@@ -67,6 +67,29 @@ class SNRGrid(ABC):  # noqa: B024
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = False):
+        r"""Compute the SNR grid.
+
+        :param x: Values of the parameter on the x-axis, $\alpha$ or $\bar{U}_f$
+        :param y: Values of the parameter on the y-axis, $\tilde{\beta}$ or $r_*$
+        :param T_star: $T_*$, temperature at which the GWs were produced
+        :param g_star: $g_*$, degrees of freedom
+        :param v_wall: $v_\text{wall}$, wall velocity
+        :param noise: Which noise curve to use
+        :param x_points: x values of the points [scenario, point] to be drawn on the grid
+        :param y_points: y values of the points [scenario, point] to be drawn on the grid
+        :param labels_points: Labels of the points [scenario, point]
+        :param titles: Titles of the scenarios
+        :param adiabatic_index: $\Gamma$, mean adiabatic index
+        :param engine: Which power spectrum engine to use
+        :param name: Name of the grid in comparison figures, defaults to the name of the engine
+        :param ubarf_rstar: Whether $x$ and $y$ are $\bar{U}_f$ and $r_*$ instead of $\alpha$ and $\tilde{\beta}$
+        :param log_progress_percentage: Interval of the progress logging of the SSM engine in percent.
+            Set to None to disable the logging.
+        :param max_workers: Maximum number of worker processes
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :raises ValueError: If a parameter is invalid
+        """
         if engine is None or not engine:
             engine = Engine.DEFAULT
         if g_star is None or not np.isfinite(g_star):
