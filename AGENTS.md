@@ -25,6 +25,8 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 ## CI
 - The CI and deploy workflows use reusable workflows and composite actions from the `dev` branch of PTtools,
   and have the same job structure as those of PTtools.
+  The Docker image is published for every commit that passes the tests,
+  and the PyPI package and the Software Heritage archive only for version tags, after all the other jobs have passed.
   Changes to the shared parts have to be made in the PTtools repository (`../pttools/.github`).
 
 ## Code style

@@ -66,6 +66,11 @@ Update the PTPlot version number in:
 
 Then run ``uv lock`` to update the version number in ``uv.lock`` as well.
 
+Finally, create a release on GitHub with a new version tag of the form ``vX.Y.Z``.
+The push of the tag runs the CI workflow, which publishes the package to PyPI,
+the Docker image to Docker Hub and the GitHub Container registry,
+and the repository to the Software Heritage archive, once all the other CI jobs have passed.
+
 
 Updating Python version requirements
 ------------------------------------

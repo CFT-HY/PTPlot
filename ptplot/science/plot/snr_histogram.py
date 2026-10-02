@@ -74,9 +74,8 @@ def snr_histogram(
         log10_snr_max = int(log10_snr_max) + 1
         n_bins = log10_snr_max - log10_snr_min + 1
     else:
-        n_bins = max(n_bins_min, v_wall.size // 20)
+        n_bins = max(n_bins_min, v_wall.size // 10)
     bins = np.logspace(log10_snr_min, log10_snr_max, n_bins)
-    # print(bins)
 
     ax.hist(
         snr,
