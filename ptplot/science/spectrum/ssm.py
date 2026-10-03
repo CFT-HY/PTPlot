@@ -8,10 +8,9 @@ import numpy as np
 from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.models import BagModel, Model
 from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
-from pttools.omgw0 import z as z_func
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
-from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
+from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
@@ -112,6 +111,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             log_errors: bool = True,
             g0: float = G0,
             gs0: float = GS0,
+            om_gamma0_h2: float = OMEGA_PHOTON_H2,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) \
             -> tuple[FloatArr1D, float]:
@@ -128,17 +128,10 @@ class PowerSpectrumSSM(PowerSpectrum):
            whereas the SNR is integrated over the frequencies that PTtools assigns to the same $z$ values.
         """
         noise = resolve_noise(noise)
-        z = None
         try:
-            if np.isnan(f).any():
-                raise ValueError("f must not contain nan values.")
-            z = tp.cast(
-                FloatArr1D,
-                z_func(f=f, T_star=self.T_star, r_star=self.r_star, g_star=self.g_star)
-            )
             spectrum = Spectrum(
                 bubble=self.bubble,
-                y=z,
+                f=f,
                 beta_tilde=self.beta_tilde_given,
                 g_star=self.g_star,
                 r_star=self.r_star_given,
@@ -147,21 +140,21 @@ class PowerSpectrumSSM(PowerSpectrum):
                 suppression_method=suppression_method,
                 parallel=self.parallel
             )
-            snr, _f, _omgw0_h2, _f_noise, _noise = spectrum.snr(
-                obs_time=noise.obs_time, noise_eb=noise.eb, noise_gb=noise.gb
+            snr, _f, omgw0_h2, _f_noise, _noise = spectrum.snr(
+                noise=noise.noise,
+                f_noise=noise.f,
+                g0=g0,
+                gs0=gs0,
+                obs_time=noise.obs_time,
+                om_gamma0_h2=om_gamma0_h2
             )
-            return spectrum.omgw0_h2(g0=g0, gs0=gs0), snr
+            return omgw0_h2, snr
         except Exception as exc:
             if log_errors:
-                if z is None:
-                    z_min = z_max = None
-                else:
-                    z_min = z.min()
-                    z_max = z.max()
                 logger.exception(
                     "Could not create SSM power spectrum with r_star=%s, g_star=%s, Tn=%s, "
-                    "f = %.3e - %.3e, z = %.3e - %.3e (%s points)",
-                    self.r_star, self.g_star, self.T_star, f.min(), f.max(), z_min, z_max, f.size,
+                    "f = %.3e - %.3e (%s points)",
+                    self.r_star, self.g_star, self.T_star, f.min(), f.max(), f.size,
                     exc_info=exc
                 )
             raise exc

@@ -321,7 +321,10 @@ extend-ignore-names = [
     "N802"   # invalid-function-name
 ]
 # The Django settings are extended with star imports.
-"ptplot_site/settings/*.py" = ["F403", "F405"]
+"ptplot_site/settings/*.py" = [
+    "F403",  # undefined-local-with-import-star
+    "F405"   # undefined-local-with-import-star-usage
+]
 
 [tool.ruff.lint.pydocstyle]
 # This should be set to "sphinx" once it's supported.
@@ -352,4 +355,4 @@ wheel-exclude = [
 # To update to a different commit hash, update the "rev" below and run "./install_requirements.sh".
 # To update to the latest commit of the PTtools dev branch, run "./install_requirements.sh --update-pttools".
 # Remove this section to install the release from PyPI instead.
-pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "c2334a7eb63e01922cd95e47160b425d7c9ea998" }
+pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "f7bbe7769cdbbc73c6ddc03330054ca9ef8c10e4" }

@@ -29,7 +29,7 @@ r"""
 Default $\tilde{\Omega}_\text{gw}$.
 
 For details, please see
-:py:data.`pttools.ssm.const.DEFAULT_OMEGA_TILDE_GW`.
+:py:data:`pttools.ssm.const.DEFAULT_OMEGA_TILDE_GW`.
 """
 
 #: Log the progress of a parallel computation every $x$ %. Set to None to disable the logging.
@@ -64,6 +64,12 @@ CS0_2: tp.Final[float] = bubble_const.CS0_2
 H: float = omgw0_const.H
 #: $h^2$, dimensionless reduced Hubble constant squared
 H2: float = omgw0_const.H2
+OMEGA_PHOTON_H2 = omgw0_const.OMEGA_PHOTON_H2
+r"""
+$\Omega_{\gamma,0} h^2$, the photon density parameter today, scaled by $h^2$
+For details, please see
+:py:data:`pttools.omgw0.const.OMEGA_PHOTON_H2`.
+"""
 #: Number of seconds in a year
 YEAR_IN_SECONDS: float = omgw0_const.YEAR_IN_SECONDS
 
