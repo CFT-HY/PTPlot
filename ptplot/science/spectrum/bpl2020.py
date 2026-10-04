@@ -30,6 +30,7 @@ class PowerSpectrumBPL2020(PowerSpectrum2020):
 
     COLOR = "red"
     ENGINE = Engine.BPL2020
+    TABLE = f"spectra_{ENGINE}"
     NAME = "Broken power law (2020)"
     SHORT_NAME = "BPL2020"
 
@@ -126,7 +127,7 @@ class PowerSpectrumBPL2020(PowerSpectrum2020):
             log_errors: bool = False) -> tuple[th.FloatArr1D, float]:  # noqa: ARG002
         """Power spectrum from sound waves (conservative), and its SNR."""
         power_spectrum = tp.cast("th.FloatArr1D", self.power_spectrum_sw_conservative(f))
-        return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
+        return self.snr_and_store(f, power_spectrum, noise)
 
     def power_spectrum_full(self, f: th.FloatOrArr) -> th.FloatOrArr:
         """Total power spectrum from sound waves and turbulence."""

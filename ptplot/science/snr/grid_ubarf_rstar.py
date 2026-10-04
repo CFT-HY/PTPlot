@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 import numpy as np
+from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 if __name__ == "__main__" and __package__ is None:
@@ -54,7 +55,8 @@ class SNRGridUbarfRStar(SNRGrid):
             noise: Noise | None = None,
             log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = False):
+            legacy_nucleation_cs_max: bool = False,
+            exporter: Exporter | None = None):
         r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
 
         The points are converted from $(\alpha, \beta/H)$ to $(\bar{U}_f, r_*)$,
@@ -80,6 +82,8 @@ class SNRGridUbarfRStar(SNRGrid):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added,
+            see :py:class:`~ptplot.science.snr.grid.SNRGrid`
         """
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
@@ -117,7 +121,8 @@ class SNRGridUbarfRStar(SNRGrid):
             ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     @property

@@ -1,5 +1,6 @@
 r"""SNR grid for the $(\alpha_n, \beta/H)$ plane."""
 
+from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
@@ -36,7 +37,8 @@ class SNRGridAlphaBeta(SNRGrid):
             noise: Noise | None = None,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX):
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None):
         r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points.
 
         The grid ranges are deduced from the points, unless they are given explicitly.
@@ -60,6 +62,8 @@ class SNRGridAlphaBeta(SNRGrid):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added,
+            see :py:class:`~ptplot.science.snr.grid.SNRGrid`
         """
         if alpha_n is None:
             if alpha_points is None:
@@ -80,7 +84,8 @@ class SNRGridAlphaBeta(SNRGrid):
             noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     @property

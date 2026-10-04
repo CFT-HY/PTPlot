@@ -4,15 +4,30 @@ Benchmark SNR figures
 
 This scripts generates the SNR figures for all the benchmark models.
 Running this script can take several hours.
+
+The computed spectra are exported to the HDF5 file ``benchmark_spectra.h5`` in the figure directory
+with :py:class:`pttools.export.exporter.Exporter`.
+The spectra of the SNR grids are exported only for the engines of :py:data:`EXPORT_ENGINES`,
+and the spectra of the histograms for all the engines.
+The spectra have all been computed at the frequencies of the default noise curve.
+The spectra of the Sound Shell Model (SSM) are in the table :py:attr:`pttools.export.records.Table.SPECTRA_F`,
+and the spectra of the other engines in the tables of the engines,
+see :py:attr:`ptplot.science.spectrum.base.PowerSpectrum.TABLE`.
+The rows of the spectra of each model, figure and table are listed in ``benchmark_spectra.csv``.
+The file can be read with :py:class:`pttools.export.importer.Importer`.
 """
 
+from collections.abc import Iterator
+import contextlib
 from datetime import timedelta
 import logging
 import time
+import typing as tp
 
 from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
+from pttools.export import Exporter, Preset
 
 from examples.utils import FIG_DIR, save_model_fig
 from ptplot.methods import setup_django
@@ -28,9 +43,59 @@ from ptplot.science.spectrum import Engine
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+#: Path of the HDF5 file of the exported spectra
+SPECTRA_PATH = FIG_DIR / "benchmark_spectra.h5"
+#: Path of the CSV file that lists the rows of the exported spectra of each model, figure and table
+SPECTRA_INDEX_PATH = FIG_DIR / "benchmark_spectra.csv"
+#: The engines whose spectra of the SNR grids are exported.
+#: The spectra of the analytic engines can be recomputed in milliseconds,
+#: and exporting all of them would make the file several gigabytes.
+EXPORT_ENGINES: tuple[Engine, ...] = (Engine.SSM,)
+#: The fields of the exported spectra in addition to the minimal and the importable ones.
+#: The SNR is computed with the default noise curve of PTtools, which is the same as that of PTPlot.
+SPECTRUM_FIELDS: tuple[Preset | str, ...] = (
+    Preset.MINIMAL, "snr", "snr_ins", "H_star_eta_sh", "ubarf2", "omgw0_peak_f", "omgw0_peak"
+)
 
-def main() -> None:  # noqa: PLR0915
-    """Create the SNR figures for all the benchmark models."""
+
+@contextlib.contextmanager
+def spectra_rows(index: list[dict[str, tp.Any]], exporter: Exporter, **info: tp.Any) -> Iterator[None]:
+    """Record the rows of the spectra that are exported within the context.
+
+    The rows are recorded also if an exception is raised, as the spectra exported before it remain in the file.
+
+    :param index: List to which the row range of each table is appended, if any spectra were exported to it
+    :param exporter: Exporter of the spectra
+    :param info: Information about the spectra, e.g. the model and the figure
+    """
+    start = {table: exporter.n_rows(table) for table in exporter.tables}
+    try:
+        yield
+    finally:
+        for table in exporter.tables:
+            first_row = start.get(table, 0)
+            n_rows = exporter.n_rows(table) - first_row
+            if n_rows > 0:
+                index.append({**info, "table": table, "first_row": first_row, "n_rows": n_rows})
+
+
+def main() -> None:
+    """Create the SNR figures for all the benchmark models, and export the SSM spectra."""
+    spectra_index: list[dict[str, tp.Any]] = []
+    try:
+        with Exporter(SPECTRA_PATH, mode="w", spectrum_fields=SPECTRUM_FIELDS) as exporter:
+            create_figures(exporter, spectra_index)
+    finally:
+        # The index is written after the exporter has been closed, i.e. after the last rows have been written.
+        DataFrame(spectra_index).to_csv(SPECTRA_INDEX_PATH, index=False)
+
+
+def create_figures(exporter: Exporter, spectra_index: list[dict[str, tp.Any]]) -> None:  # noqa: PLR0915
+    """Create the SNR figures for all the benchmark models.
+
+    :param exporter: Exporter to which the computed spectra are added
+    :param spectra_index: List to which the rows of the exported spectra of each model and figure are appended
+    """
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
     n_models = len(models)
@@ -56,7 +121,11 @@ def main() -> None:  # noqa: PLR0915
             engine_start_time = time.perf_counter()
             try:
                 n_spectra_ab = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
-                snr_ab = model.snr_grid_alpha_beta(engine=engine, max_workers=max_workers)
+                with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_alpha_beta"):
+                    snr_ab = model.snr_grid_alpha_beta(
+                        engine=engine, max_workers=max_workers,
+                        exporter=exporter if engine in EXPORT_ENGINES else None
+                    )
                 snr_abs[engine] = snr_ab
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
                 snr_ab_fig = model.snr_figure_alpha_beta(grid=snr_ab)
@@ -68,7 +137,11 @@ def main() -> None:  # noqa: PLR0915
 
             try:
                 n_spectra_ur = const.DEFAULT_UBARF_RANGE.size * const.DEFAULT_UBARF_RANGE.size + model.n_points
-                snr_ur = model.snr_grid_ubarf_rstar(engine=engine, max_workers=max_workers)
+                with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_ubarf_rstar"):
+                    snr_ur = model.snr_grid_ubarf_rstar(
+                        engine=engine, max_workers=max_workers,
+                        exporter=exporter if engine in EXPORT_ENGINES else None
+                    )
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
                 snr_ur_fig = model.snr_figure_ubarf_rstar(grid=snr_ur)
                 save_model_fig(snr_ur_fig, model, f"snr_ubarf_rstar_{engine}")
@@ -90,7 +163,8 @@ def main() -> None:  # noqa: PLR0915
                 )
 
         try:
-            snr_hist = model.snr_histogram(engines=engines)
+            with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_histogram"):
+                snr_hist = model.snr_histogram(engines=engines, exporter=exporter)
             n_spectra_other[i_model, :] += model.n_points
             save_model_fig(snr_hist, model, "snr_histogram")
         except Exception as exc:

@@ -18,6 +18,7 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
 
     COLOR = "purple"
     ENGINE: Engine = Engine.BPL2024
+    TABLE = f"spectra_{ENGINE}"
     NAME: str = "Broken power law (2024)"
     SHORT_NAME: str = "BPL2024"
 

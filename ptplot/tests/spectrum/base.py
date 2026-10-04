@@ -7,9 +7,12 @@ as then its tests would also be run for the abstract base case.
 """
 
 from abc import ABC
+from pathlib import Path
+import tempfile
 import typing as tp
 
 import numpy as np
+from pttools.export import Exporter, Extractor, Importer, Preset
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.plot.ps import power_spectrum_figure
@@ -83,6 +86,33 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     def test_ps_image(self) -> None:
         """The power spectrum figure should be created."""
         assert power_spectrum_figure(self.spectrum, sw_only=False) is not None
+
+    def test_record(self) -> None:
+        """The spectrum should have a record only after computing it."""
+        spectrum = self.SPECTRUM_CLASS(
+            T_star=self.T_STAR, g_star=self.G_STAR,
+            v_wall=self.V_WALL, alpha=self.ALPHA, beta_tilde=self.BETA_TILDE
+        )
+        assert spectrum.record(Extractor()) is None
+        spectrum.power_spectrum(f=noise_curve().f)
+        assert spectrum.record(Extractor()) is not None
+
+    def test_export(self) -> None:
+        """The exported spectrum and its SNR should match the computed ones."""
+        noise = noise_curve()
+        power_spectrum, snr = self.spectrum.power_spectrum(f=noise.f, noise=noise)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = Path(tmp_dir) / "spectra.h5"
+            # The SNR is not in the minimal fields of the spectra of PTtools.
+            with Exporter(path, spectrum_fields=(Preset.MINIMAL, "snr")) as exporter:
+                record = self.spectrum.record(exporter.extractor)
+                assert record is not None
+                exporter.add(record)
+            with Importer(path, verify=True) as importer:
+                assert importer.n_rows(record.table) == 1
+                np.testing.assert_array_equal(importer.read(record.table, "f"), noise.f)
+                np.testing.assert_allclose(importer.read(record.table, "omgw0_h2", 0), power_spectrum, rtol=1e-12)
+                np.testing.assert_allclose(importer.read(record.table, "snr", 0), snr, rtol=1e-12)
 
     def test_source_lifetime_factor(self) -> None:
         r"""The source lifetime factor $\Upsilon_\ell$ should be finite and positive."""

@@ -15,15 +15,16 @@ import numpy as np
 from pttools.analysis import v_wall_alpha_n_grid
 from pttools.bubble import precompile
 from pttools.bubble.fluid_reference import ref
+from pttools.export import Exporter, Record
 from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.snr.point import snr_point
+from ptplot.science.snr.point import export_records, snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.ssm import BAG
 from ptplot.science.type_hints import (
-    FloatArr,
     FloatArr1D,
     FloatArr2D,
     FloatOrArrOrList1D2D,
@@ -66,7 +67,8 @@ class SNRGrid(ABC):  # noqa: B024
             ubarf_rstar: bool = False,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = False):
+            legacy_nucleation_cs_max: bool = False,
+            exporter: Exporter | None = None):
         r"""Compute the SNR grid.
 
         :param x: Values of the parameter on the x-axis, $\alpha$ or $\bar{U}_f$
@@ -88,6 +90,12 @@ class SNRGrid(ABC):  # noqa: B024
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file.
+            The fields are extracted in the worker processes with the extractor of the exporter.
+            Only the spectra of the engines that support exporting are added,
+            see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
+            The spectra whose computation failed are not added.
+            The errors in exporting are logged instead of raised, so that they do not discard the computed SNR values.
         :raises ValueError: If a parameter is invalid
         """
         if engine is None or not engine:
@@ -123,6 +131,7 @@ class SNRGrid(ABC):  # noqa: B024
 
         kwargs = {
             "adiabatic_index": adiabatic_index,
+            "extractor": None if exporter is None else exporter.extractor,
             "g_star": g_star,
             "legacy_nucleation_cs_max": legacy_nucleation_cs_max,
             "noise": self.noise,
@@ -131,43 +140,54 @@ class SNRGrid(ABC):  # noqa: B024
             "ubarf_rstar": ubarf_rstar,
             "v_wall": v_wall,
         }
+        records: list[Record | None]
         if engine == Engine.SSM:
-            ret: FloatArr = tp.cast(FloatArr, run_parallel(
+            columns: np.ndarray = tp.cast(np.ndarray, run_parallel(
                 func=snr_column_ssm,
                 params=x,
-                output_dtypes=(np.float64,),
-                return_arr_shape=(2, y.size),
+                output_dtypes=(object,),
                 max_workers=max_workers,
                 single_thread=False,
                 global_pool=True,
                 log_progress_percentage=log_progress_percentage,
                 kwargs={
                     "y": y,
+                    # The model is given explicitly, so that all the worker processes use the same model object.
+                    # Its identifier is preserved in pickling, and therefore the exported spectra share a model.
+                    "model": BAG,
                     **kwargs,
                 }
             ))
-            # The values are computed column by column, one column per x value,
-            # resulting in ret[x, quantity, y].
-            # Transpose to the [y, x] indexing used by the other engines and by Matplotlib contours.
-            self.snr: FloatArr2D = ret[:, 0, :].T
-            self.shock_times: FloatArr2D = ret[:, 1, :].T
+            # The values are computed column by column, one column per x value.
+            # Stack the columns along the second axis
+            # to get the [y, x] indexing used by the other engines and by Matplotlib contours.
+            self.snr: FloatArr2D = np.stack([column.snr for column in columns], axis=1)
+            self.shock_times: FloatArr2D = np.stack([column.shock_times for column in columns], axis=1)
+            records = [record for column in columns for record in column.records]
         else:
-            self.snr, self.shock_times = tp.cast(tuple[FloatArr2D, FloatArr2D], run_parallel(
-                func=snr_point,
-                params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),  # This works also for ubarf and r_star
-                multiple_params=True,
-                unpack_params=True,
-                output_dtypes=(np.float64, np.float64),
-                max_workers=max_workers,
-                single_thread=True,
-                # The BPL and DBPL engines are fast and run in a single thread,
-                # so there is no need to log their progress.
-                log_progress_percentage=None,
-                kwargs={
-                    **kwargs,
-                    "engine": engine
-                }
-            ))
+            self.snr, self.shock_times, records_arr = tp.cast(
+                tuple[FloatArr2D, FloatArr2D, np.ndarray],
+                run_parallel(
+                    func=snr_point,
+                    params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),  # This works also for ubarf and r_star
+                    multiple_params=True,
+                    unpack_params=True,
+                    # The third output is the record of the spectrum for exporting, or None.
+                    output_dtypes=(np.float64, np.float64, object),
+                    max_workers=max_workers,
+                    single_thread=True,
+                    # The BPL and DBPL engines are fast and run in a single thread,
+                    # so there is no need to log their progress.
+                    log_progress_percentage=None,
+                    kwargs={
+                        **kwargs,
+                        "engine": engine
+                    }
+                )
+            )
+            records = list(records_arr.flat)
+        if exporter is not None:
+            export_records(exporter, records)
 
     @property
     def has_points(self) -> bool:

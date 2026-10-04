@@ -3,7 +3,7 @@
 import typing as tp
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
-from ptplot.science.noise import Noise, resolve_noise
+from ptplot.science.noise import Noise
 from ptplot.science.spectrum.base2020 import DEFAULT_ZP, PowerSpectrum2020
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
@@ -19,6 +19,7 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
 
     COLOR = "green"
     ENGINE: Engine = Engine.DBPL2021
+    TABLE = f"spectra_{ENGINE}"
     NAME: str = "Double broken power law (2021)"
     SHORT_NAME: str = "DBPL2021"
 
@@ -127,4 +128,4 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
             th.FloatArr1D,
             self.power_spectrum_common() / self.mu_approx() * self.J() * self.M(s=self.s(f))
         )
-        return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
+        return self.snr_and_store(f, power_spectrum, noise)

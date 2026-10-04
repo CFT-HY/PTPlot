@@ -8,6 +8,7 @@ from django.urls import reverse
 from matplotlib.figure import Figure
 import numpy as np
 from pandas import DataFrame
+from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.methods.models import point_data
@@ -143,7 +144,8 @@ class Scenario(models.Model):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridAlphaBeta:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this scenario in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -156,6 +158,7 @@ class Scenario(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR grid
         """
         data = self.point_data()
@@ -173,7 +176,8 @@ class Scenario(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     def snr_grid_ubarf_rstar(
@@ -187,7 +191,8 @@ class Scenario(models.Model):
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridUbarfRStar:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this scenario in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -201,6 +206,7 @@ class Scenario(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR grid
         """
         data = self.point_data()
@@ -219,18 +225,21 @@ class Scenario(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     def snr_histogram(
             self,
             noise: Noise | None = None,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this scenario.
 
         :param noise: Which noise curve to use
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR histogram figure
         """
         data = self.point_data()
@@ -244,5 +253,6 @@ class Scenario(models.Model):
             titles=self.name,
             noise=noise,
             # engines=[form.cleaned_data["engine"]]
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )

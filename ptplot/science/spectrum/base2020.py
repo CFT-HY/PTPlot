@@ -5,9 +5,11 @@ import typing as tp
 
 from pttools.omgw0 import f as f_func
 from pttools.omgw0 import f_star0
+from pttools.utils.fields import Fields
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_OMEGA_TILDE_GW, DEFAULT_T_STAR
 from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.export import ANALYTIC_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatOrArr
 
 DEFAULT_ZP: int = 10
@@ -23,6 +25,8 @@ $\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
 
 class PowerSpectrum2020(PowerSpectrum, abc.ABC):
     r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ `."""
+
+    FIELDS: tp.ClassVar[Fields] = ANALYTIC_SPECTRUM_FIELDS
 
     def __init__(
             self,

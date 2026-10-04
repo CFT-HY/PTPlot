@@ -6,6 +6,7 @@ import typing as tp
 
 import numpy as np
 from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
+from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
 from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
@@ -95,6 +96,8 @@ class PowerSpectrumSSM(PowerSpectrum):
 
         self.bubble: Bubble = Bubble(model=self.model, v_wall=self.v_wall, alpha_n=self.alpha) \
             if self._bubble is None else self._bubble
+        #: The PTtools spectrum computed by the last successful call of :py:meth:`power_spectrum`
+        self.spectrum: Spectrum | None = None
 
     @property
     def kinetic_energy_fraction(self) -> float:
@@ -128,6 +131,7 @@ class PowerSpectrumSSM(PowerSpectrum):
            whereas the SNR is integrated over the frequencies that PTtools assigns to the same $z$ values.
         """
         noise = resolve_noise(noise)
+        self.spectrum = None
         try:
             spectrum = Spectrum(
                 bubble=self.bubble,
@@ -148,6 +152,7 @@ class PowerSpectrumSSM(PowerSpectrum):
                 obs_time=noise.obs_time,
                 om_gamma0_h2=om_gamma0_h2
             )
+            self.spectrum = spectrum
             return omgw0_h2, snr
         except Exception as exc:
             if log_errors:
@@ -158,6 +163,15 @@ class PowerSpectrumSSM(PowerSpectrum):
                     exc_info=exc
                 )
             raise exc
+
+    def record(self, extractor: Extractor) -> Record | None:
+        """Record of the PTtools spectrum computed by the last call of :py:meth:`power_spectrum`.
+
+        The spectrum has been given the frequencies $f$,
+        and is therefore stored in the table :py:attr:`pttools.export.records.Table.SPECTRA_F`.
+        The parameters are those of :py:meth:`PowerSpectrum.record`.
+        """
+        return None if self.spectrum is None else extractor.extract(self.spectrum)
 
     def validate_alpha_ubarf(
             self,

@@ -4,10 +4,12 @@ import abc
 import typing as tp
 
 import numpy as np
+from pttools.utils.fields import Fields
 from scipy.optimize import brentq
 
-from ptplot.science.noise import Noise, resolve_noise
+from ptplot.science.noise import Noise
 from ptplot.science.spectrum.base import PowerSpectrum
+from ptplot.science.spectrum.export import ANALYTIC_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 
@@ -20,6 +22,8 @@ class PowerSpectrum2024(PowerSpectrum, abc.ABC):
     It is normalized to its value at a reference frequency $f_{\text{ref}}$,
     which is $f_b$ for the broken power law (BPL) and $f_2$ for the double broken power law (DBPL).
     """
+
+    FIELDS: tp.ClassVar[Fields] = ANALYTIC_SPECTRUM_FIELDS
 
     #: $n_1, n_2, \ldots$, spectral slopes, :caprini_2024:`\ ` table 1
     SLOPES: tuple[float, ...]
@@ -104,4 +108,4 @@ class PowerSpectrum2024(PowerSpectrum, abc.ABC):
         :caprini_2024:`\ ` eq. 2.4 and 2.8
         """
         power_spectrum = tp.cast(FloatArr1D, self.omega_ref_h2() * self.shape(f))
-        return power_spectrum, self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
+        return self.snr_and_store(f, power_spectrum, noise)

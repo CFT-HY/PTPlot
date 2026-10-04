@@ -4,12 +4,13 @@
 
 from matplotlib.figure import Figure
 import numpy as np
+from pttools.export import Exporter
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, watermark
-from ptplot.science.snr import snr_point
+from ptplot.science.snr import export_records, snr_point
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_NAMES
 import ptplot.science.type_hints as th
@@ -32,7 +33,8 @@ def snr_histogram(
         noise: Noise | None = None,
         engines: list[Engine] | None = None,
         n_bins_min: int = 5,
-        legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+        legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+        exporter: Exporter | None = None) -> Figure:
     r"""Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
 
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html
@@ -41,6 +43,9 @@ def snr_histogram(
 
     :param legacy_nucleation_cs_max:
         Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+    :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file.
+        Only the spectra of the engines that support exporting are added,
+        see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
     """
     fig = Figure()
     ax = fig.add_subplot()
@@ -51,7 +56,7 @@ def snr_histogram(
     snr = np.empty((alpha_n.size, len(engines)))
     for i_engine, engine in enumerate(engines):
         for i_point in range(alpha_n.size):
-            snr[i_point, i_engine], _ = snr_point(
+            snr[i_point, i_engine], _, record = snr_point(
                 x=alpha_n[i_point],
                 y=beta_tilde[i_point],
                 T_star=T_star[i_point],
@@ -60,8 +65,11 @@ def snr_histogram(
                 adiabatic_index=adiabatic_index,
                 noise=noise,
                 engine=engine,
-                legacy_nucleation_cs_max=legacy_nucleation_cs_max
+                legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+                extractor=None if exporter is None else exporter.extractor
             )
+            if exporter is not None:
+                export_records(exporter, (record,))
 
     snr_finite = np.isfinite(snr)
     snr[~snr_finite] = np.nan

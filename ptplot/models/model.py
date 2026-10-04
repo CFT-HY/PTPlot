@@ -8,6 +8,7 @@ from django.urls import reverse
 from matplotlib.figure import Figure
 import numpy as np
 from pandas import DataFrame
+from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.utils import as_latex
 
@@ -265,7 +266,8 @@ class Model(models.Model):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridAlphaBeta:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -278,6 +280,7 @@ class Model(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -295,7 +298,8 @@ class Model(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     def snr_grid_ubarf_rstar(
@@ -309,7 +313,8 @@ class Model(models.Model):
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridUbarfRStar:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -323,6 +328,7 @@ class Model(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -341,20 +347,23 @@ class Model(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )
 
     def snr_histogram(
             self,
             noise: Noise | None = None,
             engines: list[Engine] | None = None,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this model.
 
         :param noise: Which noise curve to use
         :param engines: Which power spectrum engines to use, defaults to all engines
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :return: SNR histogram figure
         """
         v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
@@ -363,5 +372,6 @@ class Model(models.Model):
             labels=labels, titles=titles,
             noise=noise,
             engines=engines,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter
         )

@@ -3,11 +3,13 @@
 import abc
 import logging
 import typing as tp
+import uuid
 
 import numpy as np
 from pandas import DataFrame
 from pttools.bubble import DEFAULT_NU_GDH2024, SolutionType
 from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
+from pttools.export import Extractor, Record
 from pttools.models import Model
 from pttools.omgw0 import (
     G0,
@@ -27,9 +29,11 @@ from pttools.ssm import (
 from pttools.ssm import beta_tilde as beta_tilde_func
 from pttools.ssm import r_star as r_star_func
 from pttools.utils import copy_docstrings
+from pttools.utils.fields import Extractable, Fields
 
 from ptplot.science.const import CS0, DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.noise import Noise, resolve_noise
+from ptplot.science.spectrum.export import POWER_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 if tp.TYPE_CHECKING:
@@ -38,11 +42,19 @@ if tp.TYPE_CHECKING:
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-class PowerSpectrum(abc.ABC):
+class PowerSpectrum(Extractable, abc.ABC):
     """The base class for defining power spectra.
 
     When adding a new power spectrum class, please add it to the Engine enum.
+    The spectra can be exported with :py:class:`pttools.export.exporter.Exporter`,
+    if the class has a :py:attr:`TABLE`, see :py:meth:`record`.
     """
+
+    FIELDS: tp.ClassVar[Fields] = POWER_SPECTRUM_FIELDS
+    #: Name of the table of the spectra of this engine in the exported files.
+    #: Each engine has a table of its own, as all the objects of a table must be of the same class.
+    #: If None, the spectra are not exported as such, see :py:meth:`record`.
+    TABLE: tp.ClassVar[str | None] = None
 
     COLOR: str
     ENGINE: Engine
@@ -101,6 +113,15 @@ class PowerSpectrum(abc.ABC):
             raise ValueError(f"Invalid g_star={g_star}")
         if T_star is None or np.isnan(T_star):
             raise ValueError(f"Invalid T_star={T_star}")
+
+        #: Unique identifier of the spectrum for exporting
+        self.id: str = uuid.uuid4().hex
+        #: Frequencies $f$ of the last computed spectrum, see :py:meth:`power_spectrum`
+        self.last_f: FloatArr1D | None = None
+        #: $\Omega_{\text{gw},0} h^2$ of the last computed spectrum
+        self.last_omgw0_h2: FloatArr1D | None = None
+        #: SNR of the last computed spectrum
+        self.last_snr: float | None = None
 
         # Parameters that are guaranteed to be set
         #: $\Gamma$, mean adiabatic index
@@ -214,6 +235,22 @@ class PowerSpectrum(abc.ABC):
         """
         return self.K_EFFICIENCY * self.adiabatic_index * self.ubarf**2
 
+    def record(self, extractor: Extractor) -> Record | None:
+        """Record of the spectrum computed by the last call of :py:meth:`power_spectrum` for exporting it.
+
+        The record can be added to a :py:class:`pttools.export.exporter.Exporter`.
+        The spectrum is stored in the table :py:attr:`TABLE` with the fields
+        of :py:mod:`ptplot.science.spectrum.export`.
+
+        :param extractor: Extractor of the exporter, which defines the fields to be extracted,
+            see :py:attr:`pttools.export.exporter.Exporter.extractor`
+        :return: Record of the spectrum, or None if the engine does not support exporting
+            or if no spectrum has been computed
+        """
+        if self.TABLE is None or self.last_f is None:
+            return None
+        return extractor.extract(self)
+
     @staticmethod
     def snr(f: FloatArr1D, power_spectrum: FloatArr1D, noise: Noise) -> float:
         r"""Signal-to-noise ratio of a power spectrum against a noise curve.
@@ -231,6 +268,26 @@ class PowerSpectrum(abc.ABC):
             obs_time=noise.obs_time
         )
         return snr
+
+    def snr_and_store(
+            self,
+            f: FloatArr1D,
+            power_spectrum: FloatArr1D,
+            noise: Noise | None) -> tuple[FloatArr1D, float]:
+        r"""Compute the SNR of a computed power spectrum, and store both for exporting.
+
+        This should be called at the end of :py:meth:`power_spectrum`.
+
+        :param f: Frequencies $f$ of the power spectrum
+        :param power_spectrum: GW power spectrum $\Omega_\text{gw} h^2$
+        :param noise: Noise curve to compare against. The default noise curve is used, if one is not given.
+        :return: The power spectrum and its SNR
+        """
+        snr = self.snr(f=f, power_spectrum=power_spectrum, noise=resolve_noise(noise))
+        self.last_f = f
+        self.last_omgw0_h2 = power_spectrum
+        self.last_snr = snr
+        return power_spectrum, snr
 
     # The docstring is copied from PTtools with copy_docstrings() at the end of this file.
     def source_lifetime_factor(self) -> float:  # noqa: D102
