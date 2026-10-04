@@ -28,6 +28,9 @@ jobs:
       group: deploy-docker-${{ github.ref }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    # The lifetime of the Docker Hub OIDC token is set to the timeout of the job with the YAML anchor,
+    # as the action cannot read the timeout of the job.
+    timeout-minutes: &deploy-docker-timeout 30
     permissions:
       artifact-metadata: write
       attestations: write
@@ -42,6 +45,7 @@ jobs:
           dockerhub-image: cfthy/ptplot
           dockerhub-organization: ${{ vars.DOCKERHUB_ORGANIZATION }}
           dockerhub-oidc-connection-id: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
+          dockerhub-oidc-expire-in-minutes: *deploy-docker-timeout
   deploy-pypi:
     # The packages are published only for version tags, e.g. when a release is created,
     # and only if all the other jobs have passed, so that the published packages have been tested.
@@ -90,7 +94,7 @@ jobs:
     needs: [build, lint, typecheck]
     uses: CFT-HY/pttools/.github/workflows/docs.yml@dev
     with:
-      timeout-minutes: 35
+      timeout-minutes: 30
   graph:
     needs: [build, lint, typecheck]
     uses: CFT-HY/pttools/.github/workflows/graph.yml@dev
@@ -110,6 +114,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    timeout-minutes: 30
     env:
       DJANGO_SETTINGS_MODULE: ptplot_site.settings.dev
     steps:
