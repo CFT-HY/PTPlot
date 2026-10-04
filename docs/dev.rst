@@ -86,7 +86,7 @@ update the version numbers in:
 
 Nightly runs
 ------------
-The ``nightly.sh`` script runs the unit tests, builds the documentation
+The ``ptplot/nightly.py --run`` command runs the unit tests, builds the documentation
 (which also runs the examples) and archives the documentation from ``./docs/_build``
 and the figures from ``./examples/fig`` with 7-Zip to ``./docs/nightly/nightly_YYYY-MM-DD.7z``.
 If an archive of the same day already exists, a suffix ``_2``, ``_3`` etc. is added to the filename.
@@ -96,6 +96,22 @@ The run is skipped if the HEAD commit is older than 24 hours,
 so that unchanged code is not rebuilt every night.
 The maximum age of the commit can be adjusted with the ``MAX_COMMIT_AGE``
 environment variable, which is given in seconds.
+A new run is not started if the previous one is still going on.
+This is ensured with a lock on ``./nightly.lock``,
+to which the script also writes the process ID, the start time and the HEAD commit of the run.
+
+``ptplot/nightly.py --status``, or ``ptplot/nightly.py`` without arguments, prints the crontab entry of the nightly run,
+its schedule and the next run time, the current time,
+whether a nightly run is currently in progress and its processes, and the last lines of the latest log.
+A nightly run in progress can be stopped with ``ptplot/nightly.py --stop``.
+It sends SIGTERM to the nightly run and all its child processes,
+and SIGKILL to those that are still running after 10 seconds,
+which can be changed with the ``--timeout`` argument.
+The next nightly run can be skipped with ``ptplot/nightly.py --skip``,
+which creates the file ``./nightly.skip``.
+The next ``--run``, whether it is started by cron or manually,
+then deletes the file and exits without running anything.
+The skip can be cancelled by deleting the file.
 
 To run the script every night at 2 AM, open the crontab of your user
 
@@ -104,18 +120,16 @@ To run the script every night at 2 AM, open the crontab of your user
   crontab -e
 
 and add the following lines, where ``REPO_PATH`` is the path to the PTPlot repository.
-Cron runs commands with a minimal environment, so the paths and the shell are set explicitly.
-The ``flock`` prevents a new run from starting if the previous one is still going on,
-and the ``MAILTO`` sends the output of a failed run by email, if a mail transfer agent is configured.
+Cron runs commands with a minimal environment, so the path is set explicitly.
+The ``MAILTO`` sends an email if a run fails, if a mail transfer agent is configured.
 Remove the ``MAILTO`` line if you don't want these emails.
 
 .. code-block:: text
 
-  SHELL=/bin/bash
   PATH=/usr/local/bin:/usr/bin:/bin
   MAILTO=your.email@example.com
 
-  0 2 * * * flock -n /REPO_PATH/nightly.lock /REPO_PATH/nightly.sh
+  0 2 * * * /REPO_PATH/ptplot/nightly.py --run
 
 The cron daemon uses the local time zone of the system, which can be checked with ``timedatectl``.
 The scheduled jobs can be listed with ``crontab -l``.

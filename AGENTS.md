@@ -21,6 +21,18 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
   - This updates the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml` before installing.
   - To use a different commit, update the `rev` manually and run `./install_requirements.sh`.
 - Update the other dependencies: `uv lock --upgrade`, or `uv lock --upgrade-package NAME` for a single one.
+- Nightly run: `./ptplot/nightly.py --run` runs the unit tests, builds the documentation with examples and archives the results.
+  It is run by cron.
+  - Check the status of the nightly run with `./ptplot/nightly.py --status`, or `ptplot/nightly.py` without arguments.
+    It prints the crontab entry, the schedule and the next run time, the current time,
+    whether a nightly run is currently in progress, and the last lines of the latest log `./logs/nightly_YYYY-MM-DD.log`.
+  - A nightly run in progress and all its child processes can be stopped with `./ptplot/nightly.py --stop`,
+    and the next nightly run can be skipped with `./ptplot/nightly.py --skip`.
+    The skip is consumed by the next `--run`, and it can be cancelled by deleting `./nightly.skip`.
+  - If you're given an overnight task (e.g. "you have time until ..."),
+    run `./ptplot/nightly.py --status` before starting to work on it.
+    Skip the nightly run if needed. If you skip it, run it manually when you're done with your work.
+
 
 ## CI
 - The CI and deploy workflows use reusable workflows and composite actions from the `dev` branch of PTtools,

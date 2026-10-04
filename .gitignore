@@ -29,6 +29,7 @@ examples/fig_*
 htmlcov
 logs
 nightly.lock
+nightly.skip
 # This should be removed when the migrations are stable enough to be pushed to Git.
 ptplot/migrations/0*_*.py
 pyrefly.txt
