@@ -29,6 +29,8 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     BETA_TILDE: tp.ClassVar[float] = 10000
     T_STAR: tp.ClassVar[float] = 100
     G_STAR: tp.ClassVar[float] = 100
+    #: Exported field that should match the SNR computed with the default noise curve
+    SNR_FIELD: tp.ClassVar[str] = "snr"
 
     spectrum: S
 
@@ -105,7 +107,7 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = Path(tmp_dir) / "spectra.h5"
             # The SNR is not in the minimal fields of the spectra of PTtools.
-            with Exporter(path, spectrum_fields=(Preset.MINIMAL, "snr")) as exporter:
+            with Exporter(path, spectrum_fields=(Preset.MINIMAL, self.SNR_FIELD)) as exporter:
                 record = self.spectrum.record(exporter.extractor)
                 assert record is not None
                 exporter.add(record)
@@ -113,7 +115,7 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
                 assert importer.n_rows(record.table) == 1
                 np.testing.assert_array_equal(importer.read(record.table, "f"), noise.f)
                 np.testing.assert_allclose(importer.read(record.table, "omgw0_h2", 0), power_spectrum, rtol=1e-12)
-                np.testing.assert_allclose(importer.read(record.table, "snr", 0), snr, rtol=1e-12)
+                np.testing.assert_allclose(importer.read(record.table, self.SNR_FIELD, 0), snr, rtol=1e-12)
 
     def test_source_lifetime_factor(self) -> None:
         r"""The source lifetime factor $\Upsilon_\ell$ should be finite and positive."""

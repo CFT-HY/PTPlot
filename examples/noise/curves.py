@@ -42,7 +42,7 @@ R_STARS: tuple[float, ...] = (1e-3, 1e-2, 3e-2, 1e-1, 1.)
 def main() -> None:
     """Plot the noise curves and their ratios to the old sensitivity curve."""
     f_old, om_old = load_sensitivity(OLD_SENSITIVITY_FILE)
-    noise = Noise(obs_years=OLD_OBS_YEARS)
+    noise = Noise(obs_years=OLD_OBS_YEARS, eb=True, gb=True)
     f = noise.f
 
     fig1, ax = plt.subplots(figsize=(7, 4.5))
@@ -55,7 +55,7 @@ def main() -> None:
         f, omega_h2(f=f, S=S_gal_babak(f, t_obs=OLD_OBS_YEARS)), "-.",
         label=f"gb of Babak et al. (2021), {OLD_OBS_YEARS:g} yr"
     )
-    ax.loglog(f, noise.noise, "k", lw=1.5, label="ins + eb + gb (PTPlot default)")
+    ax.loglog(f, noise.noise, "k", lw=1.5, label="ins + eb + gb")
     for r_star in R_STARS:
         f_peak = 26e-6 / r_star * T_STAR / 100
         ax.axvline(f_peak, color="grey", lw=0.5)

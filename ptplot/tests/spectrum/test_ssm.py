@@ -26,7 +26,8 @@ G_STAR: float = 100.
 V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #: Reference values of $r_*$, SNR and $\mathcal{H}_* \eta_\text{sh}$ for each wall velocity,
 #: computed with PTPlot before the fix of the ``bubble`` argument of :class:`PowerSpectrumSSM` in October 2026,
-#: and therefore with the old $f_{\ast,0}$ of PTtools, see :py:data:`F_STAR0_FACTOR`
+#: and therefore with the old $f_{\ast,0}$ of PTtools, see :py:data:`F_STAR0_FACTOR`,
+#: and with the compact binary noises, which were included by default at the time
 REFERENCE: dict[float, tuple[float, float, float]] = {
     0.3: (0.018124666532740186, 0.05726717628625229, 0.19839872059716177),
     0.9: (0.026362653976107417, 0.11508301979789859, 0.2568295035856295),
@@ -47,10 +48,12 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     """Tests for the Sound Shell Model (SSM) power spectrum."""
 
     SPECTRUM_CLASS = PowerSpectrumSSM
+    # The default noise curve of PTPlot has only the instrument noise.
+    SNR_FIELD = "snr_ins"
 
     def test_reference(self) -> None:
         r"""$r_*$, the SNR and $\mathcal{H}_* \eta_\text{sh}$ should match the reference values."""
-        noise = noise_curve()
+        noise = noise_curve(eb=True, gb=True)
         for v_wall, (r_star, snr, shock_time) in REFERENCE.items():
             with self.subTest(v_wall=v_wall):
                 ssm = spectrum(v_wall, f_star0_factor=F_STAR0_FACTOR)
@@ -114,7 +117,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
 
         The spectra are exported with the frequencies of the noise curve as the grid,
         and should share the fluid shell and the model of the column.
-        The SNR of PTtools with its default noise curve should match that of PTPlot with its default noise curve,
+        The SNR of PTtools with only the instrument noise should match that of PTPlot with its default noise curve,
         and the spectra should be recreatable from the file.
         """
         noise = noise_curve()
@@ -122,7 +125,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         y = np.array([BETA_TILDE, 2 * BETA_TILDE])
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = Path(tmp_dir) / "spectra.h5"
-            with Exporter(path, spectrum_fields=(Preset.MINIMAL, "snr")) as exporter:
+            with Exporter(path, spectrum_fields=(Preset.MINIMAL, "snr_ins")) as exporter:
                 column = snr_column_ssm(
                     x=ALPHA, y=y, v_wall=v_wall, T_star=T_STAR, g_star=G_STAR, noise=noise,
                     extractor=exporter.extractor
@@ -135,7 +138,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 assert importer.n_models == 1
                 np.testing.assert_array_equal(importer.read(Table.SPECTRA_F, "f"), noise.f)
                 np.testing.assert_allclose(importer.read(Table.SPECTRA_F, "beta_tilde"), y, rtol=1e-15)
-                np.testing.assert_allclose(importer.read(Table.SPECTRA_F, "snr"), column.snr, rtol=1e-12)
+                np.testing.assert_allclose(importer.read(Table.SPECTRA_F, "snr_ins"), column.snr, rtol=1e-12)
                 omgw0_h2 = importer.read(Table.SPECTRA_F, "omgw0_h2")
                 loaded = importer.load_spectrum(0, table=Table.SPECTRA_F, parallel=False)
         assert isinstance(loaded, Spectrum)

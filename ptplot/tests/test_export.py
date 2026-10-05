@@ -19,7 +19,8 @@ BETA_TILDE: np.ndarray = np.array([10., 100., 1000.])
 UBARF: np.ndarray = np.array([0.05, 0.1])
 R_STAR: np.ndarray = np.array([0.01, 0.1, 0.5])
 #: The fields of the spectra in the tests. The SNR is used for matching the spectra to the grid.
-SPECTRUM_FIELDS: tuple[Preset | str, ...] = (Preset.MINIMAL, "snr")
+#: The default noise curve of PTPlot has only the instrument noise, and therefore it matches ``snr_ins`` of PTtools.
+SPECTRUM_FIELDS: tuple[Preset | str, ...] = (Preset.MINIMAL, "snr_ins")
 
 
 class ExportTest(unittest.TestCase):
@@ -48,7 +49,7 @@ class ExportTest(unittest.TestCase):
             assert importer.n_models == 1
             np.testing.assert_array_equal(importer.read(Table.SPECTRA_F, "f"), grid.noise.f)
             y = importer.read(Table.SPECTRA_F, y_name)
-            snr = importer.read(Table.SPECTRA_F, "snr")
+            snr = importer.read(Table.SPECTRA_F, "snr_ins")
         # Each column of the grid has all the y values.
         np.testing.assert_allclose(np.sort(y), np.repeat(grid.y, grid.x.size), rtol=1e-12)
         np.testing.assert_allclose(np.sort(snr), np.sort(grid.snr.ravel()), rtol=1e-12)

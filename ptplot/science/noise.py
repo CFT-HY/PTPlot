@@ -19,9 +19,9 @@ import ptplot.science.type_hints as th
 #: Default LISA mission duration $T_\text{obs}$ in years
 DEFAULT_OBS_YEARS: float = 3.
 #: Whether the extragalactic compact binary noise $\Omega_\text{eb}$ is included by default
-DEFAULT_NOISE_EB: bool = True
+DEFAULT_NOISE_EB: bool = False
 #: Whether the galactic compact binary noise $\Omega_\text{gb}$ is included by default
-DEFAULT_NOISE_GB: bool = True
+DEFAULT_NOISE_GB: bool = False
 #: Default number of frequency points of a noise curve
 DEFAULT_NOISE_SIZE: int = 2000
 #: Minimum number of frequency points of a noise curve

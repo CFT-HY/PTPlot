@@ -52,7 +52,8 @@ SPECTRA_INDEX_PATH = FIG_DIR / "benchmark_spectra.csv"
 #: and exporting all of them would make the file several gigabytes.
 EXPORT_ENGINES: tuple[Engine, ...] = (Engine.SSM,)
 #: The fields of the exported spectra in addition to the minimal and the importable ones.
-#: The SNR is computed with the default noise curve of PTtools, which is the same as that of PTPlot.
+#: ``snr`` is computed with the default noise curve of PTtools, which includes the compact binary noises,
+#: and ``snr_ins`` with only the instrument noise, which is the default noise curve of PTPlot.
 SPECTRUM_FIELDS: tuple[Preset | str, ...] = (
     Preset.MINIMAL, "snr", "snr_ins", "H_star_eta_sh", "ubarf2", "omgw0_peak_f", "omgw0_peak"
 )

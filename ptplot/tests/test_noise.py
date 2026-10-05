@@ -140,11 +140,11 @@ class NoiseTest(TestCase):
 
     @staticmethod
     def test_default() -> None:
-        """The default noise curve should include all noise sources and be positive."""
+        """The default noise curve should include only the instrument noise and be positive."""
         noise = noise_curve()
         assert noise.obs_years == DEFAULT_OBS_YEARS
-        assert noise.eb
-        assert noise.gb
+        assert not noise.eb
+        assert not noise.gb
         assert noise.f.size == noise.noise.size
         assert np.all(noise.noise > 0)
 
@@ -156,7 +156,7 @@ class NoiseTest(TestCase):
     @staticmethod
     def test_components() -> None:
         """Disabling a noise source should lower the total noise."""
-        full = Noise()
+        full = Noise(eb=True, gb=True)
         ins_only = Noise(eb=False, gb=False)
         assert np.all(ins_only.noise <= full.noise)
         assert np.any(ins_only.noise < full.noise)

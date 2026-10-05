@@ -112,8 +112,8 @@ def main() -> None:
     save_fig(fig, "old_vs_new_ubarf_rstar_ratio")
 
     comparisons = (
-        (snr_old, grids["ins + eb + gb"], old_label, "new code, ins + eb + gb (default)", "default"),
-        (snr_old, grids["ins"], old_label, "new code, ins", "ins"),
+        (snr_old, grids["ins + eb + gb"], old_label, "new code, ins + eb + gb", "default"),
+        (snr_old, grids["ins"], old_label, "new code, ins (default)", "ins"),
         (grids["ins"], grids["ins + eb + gb"], "new code, ins", "new code, ins + eb + gb", "ins_vs_full"),
         (grids["ins + eb"], grids["ins + eb + gb"], "new code, ins + eb", "new code, ins + eb + gb", "eb_vs_full"),
     )

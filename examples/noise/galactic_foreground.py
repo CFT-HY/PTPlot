@@ -9,7 +9,7 @@ using the variants of :py:mod:`examples.noise.foreground_utils`:
 the sign of $\beta$ of :schmitz_2020:`\ `, a scaling factor of $\sqrt{2}$, other observation times,
 the fit of :babak_2021:`\ ` and the extragalactic foreground divided by $\sqrt{2}$.
 
-The first figure shows the SNR of each variant relative to the current PTPlot default
+The first figure shows the SNR of each variant relative to the default noise curve of PTtools
 as a function of $r_*$, which is independent of $\bar{U}_f$.
 The second figure shows the contours without the galactic foreground, with the default one,
 and with the sign-corrected foreground scaled by $\sqrt{2}$.
@@ -77,7 +77,7 @@ def snr_grid(noise: Noise) -> th.FloatArr2D:
 def main() -> None:
     """Plot the SNR with the variants of the galactic foreground."""
     noises = noise_variants()
-    default = Noise(obs_years=OBS_YEARS)
+    default = Noise(obs_years=OBS_YEARS, eb=True, gb=True)
     np.testing.assert_allclose(noises[DEFAULT_NAME].noise, default.noise, rtol=1e-12)
     grids = {name: snr_grid(noise) for name, noise in noises.items()}
     snr_default = grids[DEFAULT_NAME]
