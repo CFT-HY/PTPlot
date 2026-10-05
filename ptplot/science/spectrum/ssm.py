@@ -29,9 +29,9 @@ class PowerSpectrumSSM(PowerSpectrum):
     """
 
     COLOR = "blue"
-    ENGINE: Engine = Engine.SSM
-    NAME: str = "Sound Shell Model"
-    SHORT_NAME: str = "SSM"
+    ENGINE: tp.ClassVar[Engine] = Engine.SSM
+    NAME: tp.ClassVar[str] = "Sound Shell Model"
+    SHORT_NAME: tp.ClassVar[str] = "SSM"
 
     REQUIRE_V_WALL = True
 

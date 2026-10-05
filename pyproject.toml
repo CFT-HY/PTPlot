@@ -233,7 +233,7 @@ select = [
     "W"      # pycodestyle warnings
 ]
 ignore = [
-    # The docstrings of physics quantities begin with "$symbol$, name." instead of the imperative mood.
+    # Many docstrings describe a physical quantity with a noun phrase instead of a verb.
     "D401",     # non-imperative-mood
     "PLR0913",  # too-many-arguments
     "PLR0917",  # too-many-positional-arguments

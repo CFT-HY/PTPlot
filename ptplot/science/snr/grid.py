@@ -44,10 +44,10 @@ class SNRGrid(ABC):  # noqa: B024
     since the grid ranges are derived from them.
     """
 
-    X_NAME: str = "x"
-    Y_NAME: str = "y"
-    X_LABEL: str = "$x$"
-    Y_LABEL: str = "$y$"
+    X_NAME: tp.ClassVar[str] = "x"
+    Y_NAME: tp.ClassVar[str] = "y"
+    X_LABEL: tp.ClassVar[str] = "$x$"
+    Y_LABEL: tp.ClassVar[str] = "$y$"
 
     def __init__(
             self,

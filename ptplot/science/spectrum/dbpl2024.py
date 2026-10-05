@@ -20,28 +20,28 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
     """
 
     COLOR = "orange"
-    ENGINE: Engine = Engine.DBPL2024
+    ENGINE: tp.ClassVar[Engine] = Engine.DBPL2024
     TABLE = f"spectra_{ENGINE}"
-    NAME: str = "Double broken power law (2024)"
-    SHORT_NAME: str = "DBPL2024"
+    NAME: tp.ClassVar[str] = "Double broken power law (2024)"
+    SHORT_NAME: tp.ClassVar[str] = "DBPL2024"
 
     REQUIRE_SOUND_SHELL_THICKNESS = True
     REQUIRE_V_WALL = True
 
     #: $A_{\text{sw}}$, amplitude constant, :caprini_2024:`\ ` p. 10
-    A_SW: float = 0.11
+    A_SW: tp.ClassVar[float] = 0.11
     #: Efficiency of producing bulk kinetic energy relative to a single bubble.
     #: "This accounts for the efficiency in producing kinetic energy in the bulk fluid motion
     #: with respect to the single bubble case" :caprini_2024:`\ ` p. 10.
     #: This was found in :jinno_2023:`\ `.
     #: See also the discussion in :caprini_2024_weak_strong:`\ `.
-    K_EFFICIENCY: float = 0.6
+    K_EFFICIENCY: tp.ClassVar[float] = 0.6
     #: $f_1 \frac{H_* R_*}{H_{\ast,0}}$, :caprini_2024:`\ ` eq. 2.9
-    F1_COEFF: float = 0.2
+    F1_COEFF: tp.ClassVar[float] = 0.2
     #: $f_2 \Delta_w \frac{H_* R_*}{H_{\ast,0}}$, :caprini_2024:`\ ` eq. 2.9
-    F2_COEFF: float = 0.5
-    SLOPES: tuple[float, ...] = (3., 1., -3.)
-    SMOOTHNESS: tuple[float, ...] = (2., 4.)
+    F2_COEFF: tp.ClassVar[float] = 0.5
+    SLOPES: tp.ClassVar[tuple[float, ...]] = (3., 1., -3.)
+    SMOOTHNESS: tp.ClassVar[tuple[float, ...]] = (2., 4.)
 
     @property
     def delta_w(self) -> float:

@@ -69,12 +69,12 @@ def check_view(
 class ViewTest(TestCase):
     """Tests for Django views."""
 
-    MODEL_ID = 1
-    POINT_ID = 1
-    SCENARIO_ID = 1
-    MODEL_KWARGS = {"model_id": MODEL_ID}
-    POINT_KWARGS = {"model_id": MODEL_ID, "point_id": POINT_ID}
-    SCENARIO_KWARGS = {"model_id": MODEL_ID, "scenario_id": SCENARIO_ID}
+    MODEL_ID: tp.ClassVar[int] = 1
+    POINT_ID: tp.ClassVar[int] = 1
+    SCENARIO_ID: tp.ClassVar[int] = 1
+    MODEL_KWARGS: tp.ClassVar[dict[str, int]] = {"model_id": MODEL_ID}
+    POINT_KWARGS: tp.ClassVar[dict[str, int]] = {"model_id": MODEL_ID, "point_id": POINT_ID}
+    SCENARIO_KWARGS: tp.ClassVar[dict[str, int]] = {"model_id": MODEL_ID, "scenario_id": SCENARIO_ID}
     form: PTPlotForm
 
     @classmethod

@@ -18,10 +18,10 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
     """
 
     COLOR = "green"
-    ENGINE: Engine = Engine.DBPL2021
+    ENGINE: tp.ClassVar[Engine] = Engine.DBPL2021
     TABLE = f"spectra_{ENGINE}"
-    NAME: str = "Double broken power law (2021)"
-    SHORT_NAME: str = "DBPL2021"
+    NAME: tp.ClassVar[str] = "Double broken power law (2021)"
+    SHORT_NAME: tp.ClassVar[str] = "DBPL2021"
 
     OLD_J = True
 

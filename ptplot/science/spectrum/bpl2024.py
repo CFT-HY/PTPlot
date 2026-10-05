@@ -1,5 +1,7 @@
 """Broken power law (BPL) power spectrum of Caprini et al. (2024)."""
 
+import typing as tp
+
 from ptplot.science.spectrum.base2024 import PowerSpectrum2024
 from ptplot.science.spectrum.engine import Engine
 
@@ -17,17 +19,17 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
     """
 
     COLOR = "purple"
-    ENGINE: Engine = Engine.BPL2024
+    ENGINE: tp.ClassVar[Engine] = Engine.BPL2024
     TABLE = f"spectra_{ENGINE}"
-    NAME: str = "Broken power law (2024)"
-    SHORT_NAME: str = "BPL2024"
+    NAME: tp.ClassVar[str] = "Broken power law (2024)"
+    SHORT_NAME: tp.ClassVar[str] = "BPL2024"
 
     #: $A_{\text{str}}$, amplitude constant, :caprini_2024:`\ ` p. 7
-    A_STR: float = 0.05
+    A_STR: tp.ClassVar[float] = 0.05
     #: $f_p (\beta / H_*)^{-1} / H_{\ast,0}$, :caprini_2024:`\ ` eq. 2.7
-    FP_COEFF: float = 0.11
-    SLOPES: tuple[float, ...] = (2.4, -2.4)
-    SMOOTHNESS: tuple[float, ...] = (1.2,)
+    FP_COEFF: tp.ClassVar[float] = 0.11
+    SLOPES: tp.ClassVar[tuple[float, ...]] = (2.4, -2.4)
+    SMOOTHNESS: tp.ClassVar[tuple[float, ...]] = (1.2,)
 
     @property
     def K_tilde(self) -> float:

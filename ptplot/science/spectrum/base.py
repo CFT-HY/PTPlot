@@ -56,18 +56,18 @@ class PowerSpectrum(Extractable, abc.ABC):
     #: If None, the spectra are not exported as such, see :py:meth:`record`.
     TABLE: tp.ClassVar[str | None] = None
 
-    COLOR: str
-    ENGINE: Engine
-    NAME: str
-    SHORT_NAME: str
+    COLOR: tp.ClassVar[str]
+    ENGINE: tp.ClassVar[Engine]
+    NAME: tp.ClassVar[str]
+    SHORT_NAME: tp.ClassVar[str]
 
-    OLD_J: bool = False
-    REQUIRE_V_WALL: bool = False
-    REQUIRE_SOUND_SHELL_THICKNESS: bool = False
+    OLD_J: tp.ClassVar[bool] = False
+    REQUIRE_V_WALL: tp.ClassVar[bool] = False
+    REQUIRE_SOUND_SHELL_THICKNESS: tp.ClassVar[bool] = False
 
     #: Efficiency of producing bulk kinetic energy relative to a single bubble.
     #: Used by :py:class:`ptplot.science.spectrum.PowerSpectrumDBPL2024`.
-    K_EFFICIENCY: float = 1.
+    K_EFFICIENCY: tp.ClassVar[float] = 1.
 
     def __init__(
             self,

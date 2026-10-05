@@ -23,11 +23,11 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     """Tests that are run for each power spectrum class."""
 
     SPECTRUM_CLASS: type[S]
-    V_WALL: float = 0.3
-    ALPHA: float = 0.1
-    BETA_TILDE: float = 10000
-    T_STAR: float = 100
-    G_STAR: float = 100
+    V_WALL: tp.ClassVar[float] = 0.3
+    ALPHA: tp.ClassVar[float] = 0.1
+    BETA_TILDE: tp.ClassVar[float] = 10000
+    T_STAR: tp.ClassVar[float] = 100
+    G_STAR: tp.ClassVar[float] = 100
 
     spectrum: S
 

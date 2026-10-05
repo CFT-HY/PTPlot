@@ -26,9 +26,9 @@ class PowerSpectrum2024(PowerSpectrum, abc.ABC):
     FIELDS: tp.ClassVar[Fields] = ANALYTIC_SPECTRUM_FIELDS
 
     #: $n_1, n_2, \ldots$, spectral slopes, :caprini_2024:`\ ` table 1
-    SLOPES: tuple[float, ...]
+    SLOPES: tp.ClassVar[tuple[float, ...]]
     #: $a_1, a_2, \ldots$, smoothness parameters of the breaks, :caprini_2024:`\ ` table 1
-    SMOOTHNESS: tuple[float, ...]
+    SMOOTHNESS: tp.ClassVar[tuple[float, ...]]
 
     @abc.abstractmethod
     def f_breaks(self) -> tuple[float, ...]:
