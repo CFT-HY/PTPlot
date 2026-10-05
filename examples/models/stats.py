@@ -45,7 +45,20 @@ def print_stats(title: str, stats: list[FieldStats]) -> None:
 
 
 def main() -> None:
-    """Print the statistics of the models, scenarios and points."""
+    """Print the statistics of the models, scenarios and points.
+
+    The querysets are converted to lists, so that each of them is fetched with exactly one query,
+    and the fetched objects can be iterated and indexed freely.
+    A queryset is evaluated lazily, and only some operations use its result cache:
+
+    - Indexing an unevaluated queryset, e.g. ``objects[0]`` in :py:func:`ptplot.methods.stats.window_stats`,
+      runs a separate ``LIMIT 1`` query.
+    - ``.all()`` and ``.filter()`` return a new queryset without the cache, which runs the query again.
+      An exception is the ``.all()`` of a prefetched relation, e.g. ``model.points.all()``
+      in :py:func:`ptplot.methods.stats.related_stats`, which returns the prefetched objects.
+
+    Loading all the objects into memory is not a problem, as they are all needed for the medians anyway.
+    """
     models = list(
         Model.objects
         .annotate(**Model.all_stats_annotations(), **Model.stats_annotations())

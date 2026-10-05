@@ -11,7 +11,9 @@ so that no additional database queries are needed.
   there would be a row for each combination of the related objects, which would multiply the counts.
   See :py:func:`related_stats_annotations` and :py:func:`related_stats`.
 
-Django doesn't provide a median aggregation, and SQLite doesn't support one,
+Django doesn't provide a median aggregation, and the
+`SQLite median aggregate function <https://www.sqlite.org/percentile.html>`_
+is available only when activated at compile-time,
 so the medians are computed in Python from the fetched objects.
 For the statistics of related objects, the related objects should therefore be prefetched.
 """
