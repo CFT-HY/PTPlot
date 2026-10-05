@@ -7,33 +7,35 @@ from django.shortcuts import render
 
 from ptplot.forms import BenchmarkForm
 from ptplot.methods import (
-    MODEL_STATS_FIELDS,
-    POINT_STATS_FIELDS,
-    SCENARIO_STATS_FIELDS,
-    bool_stats,
-    field_stats,
     fig_to_response,
     get_object_or_404_related,
+    related_stats,
+    window_bool_stats,
+    window_stats,
 )
-from ptplot.models import MODEL_ANNOTATIONS, Model
+from ptplot.models import Model
 from ptplot.science.spectrum import Engine
 
 
 def model_stats_context(model: Model) -> dict[str, tp.Any]:
-    """Get the template context for the statistics of the points and scenarios of a model."""
+    """Get the template context for the statistics of the points and scenarios of a model.
+
+    The model must have been fetched with the annotations of :py:meth:`ptplot.models.model.Model.stats_annotations`,
+    and with the points and scenarios prefetched.
+    """
     return {
-        "point_stats": field_stats(model.points.all(), POINT_STATS_FIELDS),
-        "scenario_stats": field_stats(model.scenarios.all(), SCENARIO_STATS_FIELDS) if model.has_scenarios else None
+        "point_stats": related_stats(model, "points"),
+        "scenario_stats": related_stats(model, "scenarios") if model.has_scenarios else None
     }
 
 
 def models(request: HttpRequest) -> HttpResponse:
     """Display a list of models from database."""
-    queryset = Model.objects.all()
+    models_list = list(Model.objects.annotate(**Model.all_stats_annotations()))
     return render(request, "models.html", {
-        "models": queryset,
-        "model_stats": field_stats(queryset, MODEL_STATS_FIELDS),
-        "huge_alpha_stats": bool_stats(queryset, "huge_alpha")
+        "models": models_list,
+        "model_stats": window_stats(Model, models_list),
+        "huge_alpha_stats": window_bool_stats(Model, models_list, "huge_alpha")
     })
 
 
@@ -41,7 +43,7 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
     """Display a list of benchmark points for a model."""
     model: Model = get_object_or_404_related(
         Model,
-        annotate=MODEL_ANNOTATIONS,
+        annotate=Model.stats_annotations(),
         prefetch=["points", "scenarios"],
         id=model_id
     )
@@ -55,7 +57,7 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
     """Display the benchmark points for a model on the SNR plots."""
     model: Model = get_object_or_404_related(
         Model,
-        annotate=MODEL_ANNOTATIONS,
+        annotate=Model.stats_annotations(),
         prefetch=["points", "scenarios"],
         id=model_id
     )

@@ -12,8 +12,10 @@ from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.utils import as_latex
 
-from ptplot.methods.models import min_max_avg, point_data
+from ptplot.methods.models import point_data
+from ptplot.methods.stats import related_stats_annotations, window_stats_annotations
 from ptplot.models.const import NAME_MAX_LENGTH
+from ptplot.models.fields import LatexFloatField
 from ptplot.science import const
 from ptplot.science.noise import Noise
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
@@ -28,6 +30,8 @@ from ptplot.science.spectrum import Engine
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
+    from django.db.models.expressions import BaseExpression
+
     # A stub-only class, as Django defines it inside a function.
     from django.db.models.fields.related_descriptors import RelatedManager
 
@@ -35,32 +39,32 @@ if tp.TYPE_CHECKING:
     from ptplot.models.scenario import Scenario
 
 
-MODEL_ANNOTATIONS: list[models.Avg | models.Max | models.Min] = min_max_avg(
-    "points__alpha", "points__beta_tilde", "points__v_wall", "points__T_star", "points__g_star",
-    "scenarios__T_star"
-)
-
-
 class Model(models.Model):
     """A particle physics model."""
+
+    #: Fields for which statistics are computed
+    STATS_FIELDS: tp.ClassVar[tuple[str, ...]] = ("T_star", "g_star", "v_wall")
 
     name = models.CharField(max_length=NAME_MAX_LENGTH, unique=True)
     slug = models.SlugField(max_length=NAME_MAX_LENGTH, unique=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    v_wall = models.FloatField(
+    v_wall = LatexFloatField(
         verbose_name="wall velocity",
+        verbose_name_latex=const.V_WALL_NAME_LATEX,
         validators=[
             validators.MinValueValidator(0),
             validators.MaxValueValidator(1)
         ],
     )
-    T_star = models.FloatField(
+    T_star = LatexFloatField(
         verbose_name=const.T_STAR_NAME,
+        verbose_name_latex=const.T_STAR_NAME_LATEX,
         validators=[validators.MinValueValidator(0)]
     )
-    g_star = models.FloatField(
+    g_star = LatexFloatField(
         verbose_name=const.G_STAR_NAME,
+        verbose_name_latex=const.G_STAR_NAME_LATEX,
         validators=[validators.MinValueValidator(0)]
     )
     huge_alpha = models.BooleanField(
@@ -75,7 +79,7 @@ class Model(models.Model):
         scenarios: "RelatedManager[Scenario]"
         # Added by Count("points") when the object is fetched with the annotation.
         n_points: int
-        # Added by MODEL_ANNOTATIONS when the object is fetched with annotations.
+        # Added by stats_annotations() when the object is fetched with the annotations.
         points__alpha__min: float | None
         points__alpha__max: float | None
         points__alpha__avg: float | None
@@ -106,6 +110,24 @@ class Model(models.Model):
         """Get the URL of the detail page of this model."""
         return reverse("model_detail", kwargs={"model_id": self.id})
 
+    @classmethod
+    def stats_annotations(cls) -> "dict[str, BaseExpression]":
+        """Annotations for the statistics of the points and scenarios of each model, e.g. ``points__alpha__min``.
+
+        See :py:func:`ptplot.methods.stats.related_stats_annotations`.
+        """
+        return {**related_stats_annotations(cls, "points"), **related_stats_annotations(cls, "scenarios")}
+
+    @classmethod
+    def all_stats_annotations(cls) -> "dict[str, BaseExpression]":
+        """Annotations for the statistics over all the models of a queryset.
+
+        E.g. ``all__T_star__min`` and ``all__huge_alpha__true``.
+
+        See :py:func:`ptplot.methods.stats.window_stats_annotations`.
+        """
+        return window_stats_annotations(cls, bool_fields=("huge_alpha", ))
+
     @staticmethod
     def annotated_label(
             label: str,
@@ -131,7 +153,7 @@ class Model(models.Model):
     def annotated_labels(self) -> str:
         """Get the LaTeX labels of the parameter ranges of the points and scenarios of this model.
 
-        The model must have been fetched with the annotations of ``MODEL_ANNOTATIONS``.
+        The model must have been fetched with the annotations of :py:meth:`stats_annotations`.
         """
         return "$" + r", \ ".join([
             self.annotated_label(r"\alpha_n", self.points__alpha__min, self.points__alpha__max),
@@ -144,8 +166,10 @@ class Model(models.Model):
             ),
             self.annotated_label(
                 "T_*",
-                min(x for x in (self.points__T_star__min, self.scenarios__T_star__min) if x is not None),
-                max(x for x in (self.points__T_star__max, self.scenarios__T_star__max) if x is not None),
+                min((x for x in (self.points__T_star__min, self.scenarios__T_star__min) if x is not None),
+                    default=None),
+                max((x for x in (self.points__T_star__max, self.scenarios__T_star__max) if x is not None),
+                    default=None),
                 default=self.T_star,
                 unit="GeV"
             ),

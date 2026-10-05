@@ -3,11 +3,17 @@ Model statistics
 ================
 
 Print statistics of the models, scenarios and points in the database.
-The minimum, maximum, mean and the number of values are computed with Django aggregations.
-The median is computed in Python, as there is no median aggregation for SQLite.
+
+The querysets are annotated with the statistics before they are fetched,
+so that the statistics are computed by the database in the same queries that fetch the objects.
+The minimum, maximum, mean and the number of values over all the objects of a queryset
+are computed with window aggregations, and those of the related objects with subqueries.
+The median is computed in Python from the fetched objects, as there is no median aggregation for SQLite.
 For the fields that can be left unset, the number of objects for which they are set is also shown.
+See :py:mod:`ptplot.methods.stats` for details.
 """
 
+from django.db.models import Prefetch
 from pandas import DataFrame
 
 from ptplot.methods import setup_django
@@ -15,15 +21,7 @@ from ptplot.methods import setup_django
 if __name__ == "__main__":
     setup_django()
 
-from ptplot.methods import (
-    MODEL_STATS_FIELDS,
-    POINT_STATS_FIELDS,
-    SCENARIO_STATS_FIELDS,
-    FieldStats,
-    bool_stats,
-    field_stats,
-    field_stats_by,
-)
+from ptplot.methods import FieldStats, related_stats, window_bool_stats, window_stats
 from ptplot.models import Model, ParameterChoice, Scenario
 
 
@@ -48,31 +46,36 @@ def print_stats(title: str, stats: list[FieldStats]) -> None:
 
 def main() -> None:
     """Print the statistics of the models, scenarios and points."""
-    models = Model.objects.all()
-    scenarios = Scenario.objects.all()
-    points = ParameterChoice.objects.all()
-    model_names: dict[int, str] = dict(models.values_list("id", "name"))
-    scenario_names: dict[int, str] = {
-        scenario.id: f"{model_names[scenario.model_id]}: {scenario.name}" for scenario in scenarios
-    }
+    models = list(
+        Model.objects
+        .annotate(**Model.all_stats_annotations(), **Model.stats_annotations())
+        .prefetch_related(
+            "points",
+            Prefetch("scenarios", queryset=Scenario.objects.annotate(**Scenario.stats_annotations())),
+            "scenarios__points"
+        )
+    )
+    scenarios = list(Scenario.objects.annotate(**Scenario.all_stats_annotations()))
+    points = list(ParameterChoice.objects.annotate(**ParameterChoice.all_stats_annotations()))
 
     # Models
-    print_stats("All models", field_stats(models, MODEL_STATS_FIELDS))
-    huge_alpha = bool_stats(models, "huge_alpha")
+    print_stats("All models", window_stats(Model, models))
+    huge_alpha = window_bool_stats(Model, models, "huge_alpha")
     print(f"Models with {huge_alpha.name}: {huge_alpha.n_true} / {huge_alpha.n}\n")
 
     # Scenarios
-    print_stats("Scenarios of all models", field_stats(scenarios, SCENARIO_STATS_FIELDS))
-    for model_id, stats in field_stats_by(scenarios, "model", SCENARIO_STATS_FIELDS).items():
-        print_stats(f"Scenarios of {model_names[model_id]}", stats)
+    print_stats("Scenarios of all models", window_stats(Scenario, scenarios))
+    for model in models:
+        if model.has_scenarios:
+            print_stats(f"Scenarios of {model.name}", related_stats(model, "scenarios"))
 
     # Points
-    print_stats("Points of all models", field_stats(points, POINT_STATS_FIELDS))
-    for model_id, stats in field_stats_by(points, "model", POINT_STATS_FIELDS).items():
-        print_stats(f"Points of {model_names[model_id]}", stats)
-    scenario_points = points.filter(scenario__isnull=False)
-    for scenario_id, stats in field_stats_by(scenario_points, "scenario", POINT_STATS_FIELDS).items():
-        print_stats(f"Points of {scenario_names[scenario_id]}", stats)
+    print_stats("Points of all models", window_stats(ParameterChoice, points))
+    for model in models:
+        print_stats(f"Points of {model.name}", related_stats(model, "points"))
+    for model in models:
+        for scenario in model.scenarios.all():
+            print_stats(f"Points of {model.name}: {scenario.name}", related_stats(scenario, "points"))
 
 
 if __name__ == "__main__":

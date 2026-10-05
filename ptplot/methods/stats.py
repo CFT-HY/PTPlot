@@ -1,21 +1,40 @@
-"""Statistics of the numerical fields of the database models."""
+"""Statistics of the numerical fields of the database models.
 
-from collections import defaultdict
+The statistics are computed by annotating the querysets before they are fetched from the database,
+so that no additional database queries are needed.
+
+- The statistics over all the objects of a queryset are computed with window aggregations,
+  which add the same values to every object.
+  See :py:func:`window_stats_annotations` and :py:func:`window_stats`.
+- The statistics of the related objects, e.g. the points of each model, are computed with correlated subqueries.
+  If several relations, e.g. points and scenarios, were joined instead,
+  there would be a row for each combination of the related objects, which would multiply the counts.
+  See :py:func:`related_stats_annotations` and :py:func:`related_stats`.
+
+Django doesn't provide a median aggregation, and SQLite doesn't support one,
+so the medians are computed in Python from the fetched objects.
+For the statistics of related objects, the related objects should therefore be prefetched.
+"""
+
 from dataclasses import dataclass
 import statistics
 import typing as tp
 
-from django.db.models import Avg, Count, Max, Min, Q
+from django.db.models import Avg, Count, Max, Min, OuterRef, Q, Subquery, Window
+from django.db.models.functions import Coalesce
 
 if tp.TYPE_CHECKING:
-    from django.db.models import Aggregate, Field, Model, QuerySet
+    from django.db.models import Aggregate, ForeignObjectRel, Model
+    from django.db.models.expressions import BaseExpression
 
-#: Fields of :py:class:`ptplot.models.model.Model` for which statistics are computed
-MODEL_STATS_FIELDS: tuple[str, ...] = ("T_star", "g_star", "v_wall")
-#: Fields of :py:class:`ptplot.models.scenario.Scenario` for which statistics are computed
-SCENARIO_STATS_FIELDS: tuple[str, ...] = ("T_star", )
-#: Fields of :py:class:`ptplot.models.parameter_choice.ParameterChoice` for which statistics are computed
-POINT_STATS_FIELDS: tuple[str, ...] = ("alpha", "beta_tilde", "v_wall", "T_star", "g_star")
+#: Aggregations that are computed by the database for each field
+AGGREGATIONS: dict[str, type[Avg | Count | Max | Min]] = {"count": Count, "min": Min, "max": Max, "avg": Avg}
+
+
+class StatsModel(tp.Protocol):
+    """A database model that defines the fields for which statistics are computed."""
+
+    STATS_FIELDS: tp.ClassVar[tuple[str, ...]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +45,8 @@ class FieldStats:
     field: str
     #: Human-readable name of the field
     name: str
+    #: Human-readable name of the field with LaTeX symbols
+    name_latex: str
     #: Whether the field can be left unset
     nullable: bool
     #: Number of objects
@@ -82,109 +103,153 @@ def format_value(value: float | None) -> str:
     return "-" if value is None else f"{value:.4g}"
 
 
-def _aggregations(fields: tp.Iterable[str]) -> "dict[str, Aggregate]":
-    """Get the aggregations that can be computed by the database.
-
-    Django doesn't provide a median aggregation, and SQLite doesn't support one,
-    so the median is computed separately in Python.
-    """
-    aggregations: dict[str, Aggregate] = {"n": Count("pk")}
-    for field in fields:
-        aggregations[f"{field}__count"] = Count(field)
-        aggregations[f"{field}__min"] = Min(field)
-        aggregations[f"{field}__max"] = Max(field)
-        aggregations[f"{field}__avg"] = Avg(field)
-    return aggregations
+def count_name(prefix: str) -> str:
+    """Get the name of the annotation for the number of objects."""
+    return f"{prefix}__n"
 
 
-def _medians(
-        queryset: "QuerySet[tp.Any]",
-        fields: tp.Sequence[str],
-        group_by: str | None = None) -> dict[tp.Any, dict[str, float | None]]:
-    """Compute the medians of the fields in Python, as they are not available as database aggregations.
-
-    All the values are fetched with a single query.
-    """
-    columns = fields if group_by is None else (group_by, *fields)
-    values: defaultdict[tp.Any, dict[str, list[float]]] = defaultdict(lambda: {field: [] for field in fields})
-    for row in queryset.order_by().values_list(*columns):
-        group = None if group_by is None else row[0]
-        group_values = values[group]
-        for field, value in zip(fields, row if group_by is None else row[1:], strict=True):
-            if value is not None:
-                group_values[field].append(value)
-    return {
-        group: {field: statistics.median(vals) if vals else None for field, vals in group_values.items()}
-        for group, group_values in values.items()
-    }
+def annotation_name(prefix: str, field: str, aggregation: str) -> str:
+    """Get the name of the annotation for an aggregation of a field, e.g. ``points__alpha__min``."""
+    return f"{prefix}__{field}__{aggregation}"
 
 
-def _field_stats(
+def stats_fields(model: "type[Model]") -> tuple[str, ...]:
+    """Get the fields of a model for which statistics are computed."""
+    return tp.cast("type[StatsModel]", model).STATS_FIELDS
+
+
+# -----
+# Annotations
+# -----
+
+def window_stats_annotations(
         model: "type[Model]",
-        fields: tp.Sequence[str],
-        aggregates: dict[str, tp.Any],
-        medians: dict[str, float | None]) -> list[FieldStats]:
-    """Create the statistics objects from the results of the aggregation."""
+        prefix: str = "all",
+        bool_fields: tp.Iterable[str] = ()) -> "dict[str, BaseExpression]":
+    """Get the annotations for the statistics over all the objects of a queryset.
+
+    The annotations are computed after the filters of the queryset have been applied.
+
+    :param model: Model whose ``STATS_FIELDS`` are aggregated
+    :param prefix: Prefix of the names of the annotations
+    :param bool_fields: Boolean fields for which the number of true values is counted
+    :return: Annotations for :py:meth:`django.db.models.query.QuerySet.annotate`
+    """
+    annotations: dict[str, BaseExpression] = {count_name(prefix): Window(Count("pk"))}
+    for field in stats_fields(model):
+        for aggregation, func in AGGREGATIONS.items():
+            annotations[annotation_name(prefix, field, aggregation)] = Window(func(field))
+    for field in bool_fields:
+        annotations[annotation_name(prefix, field, "true")] = Window(Count("pk", filter=Q(**{field: True})))
+    return annotations
+
+
+def related_stats_annotations(model: "type[Model]", relation: str) -> "dict[str, BaseExpression]":
+    """Get the annotations for the statistics of the related objects.
+
+    The names of the annotations are prefixed with the name of the relation, e.g. ``points__alpha__min``.
+
+    :param model: Model to be annotated
+    :param relation: Name of the reverse relation of a foreign key, e.g. ``points``.
+        The ``STATS_FIELDS`` of the related model are aggregated.
+    :return: Annotations for :py:meth:`django.db.models.query.QuerySet.annotate`
+    """
+    rel = tp.cast("ForeignObjectRel", model._meta.get_field(relation))  # noqa: SLF001
+    related_model = tp.cast("type[Model]", rel.related_model)
+    fk = rel.field.name
+    related = related_model._default_manager.filter(**{fk: OuterRef("pk")}).order_by().values(fk)  # noqa: SLF001
+
+    def subquery(aggregate: "Aggregate") -> "BaseExpression":
+        query = Subquery(related.annotate(value=aggregate).values("value"))
+        # There are no rows in the subquery if there are no related objects.
+        return Coalesce(query, 0) if isinstance(aggregate, Count) else query
+
+    annotations = {count_name(relation): subquery(Count("pk"))}
+    for field in stats_fields(related_model):
+        for aggregation, func in AGGREGATIONS.items():
+            annotations[annotation_name(relation, field, aggregation)] = subquery(func(field))
+    return annotations
+
+
+# -----
+# Statistics from the annotations
+# -----
+
+def annotated_stats(
+        obj: "Model | None",
+        prefix: str,
+        model: "type[Model]",
+        objects: "tp.Iterable[Model]") -> list[FieldStats]:
+    """Get the statistics from the annotations of an object.
+
+    :param obj: Object with the annotations, or None if there are no objects to compute the statistics of
+    :param prefix: Prefix of the names of the annotations
+    :param model: Model whose ``STATS_FIELDS`` were aggregated
+    :param objects: Objects from which the medians are computed
+    :return: Statistics of each field
+    """
+    objects = list(objects)
     stats = []
-    for field in fields:
-        # The statistics are computed for concrete fields, not for reverse relations.
-        model_field = tp.cast("Field", model._meta.get_field(field))  # noqa: SLF001
+    for field in stats_fields(model):
+        model_field = model._meta.get_field(field)  # noqa: SLF001
+        name = str(getattr(model_field, "verbose_name", field))
+        values = [value for value in (getattr(o, field) for o in objects) if value is not None]
         stats.append(FieldStats(
             field=field,
-            name=str(model_field.verbose_name),
+            name=name,
+            name_latex=getattr(model_field, "verbose_name_latex", name),
             nullable=model_field.null,
-            n=aggregates["n"],
-            n_set=aggregates[f"{field}__count"],
-            minimum=aggregates[f"{field}__min"],
-            maximum=aggregates[f"{field}__max"],
-            mean=aggregates[f"{field}__avg"],
-            median=medians.get(field)
+            n=0 if obj is None else getattr(obj, count_name(prefix)),
+            n_set=0 if obj is None else getattr(obj, annotation_name(prefix, field, "count")),
+            minimum=None if obj is None else getattr(obj, annotation_name(prefix, field, "min")),
+            maximum=None if obj is None else getattr(obj, annotation_name(prefix, field, "max")),
+            mean=None if obj is None else getattr(obj, annotation_name(prefix, field, "avg")),
+            median=statistics.median(values) if values else None
         ))
     return stats
 
 
-def field_stats(queryset: "QuerySet[tp.Any]", fields: tp.Sequence[str]) -> list[FieldStats]:
-    """Compute the statistics of numerical fields over the objects of a queryset.
+def window_stats(model: "type[Model]", objects: "tp.Sequence[Model]", prefix: str = "all") -> list[FieldStats]:
+    """Get the statistics over objects that were annotated with :py:func:`window_stats_annotations`.
 
-    :param queryset: Objects over which the statistics are computed
-    :param fields: Names of the numerical fields
+    :param model: Model of the objects
+    :param objects: Fetched objects of the annotated queryset
+    :param prefix: Prefix of the names of the annotations
     :return: Statistics of each field
     """
-    aggregates = queryset.aggregate(**_aggregations(fields))
-    medians = _medians(queryset, fields).get(None, {})
-    return _field_stats(queryset.model, fields, aggregates, medians)
+    return annotated_stats(objects[0] if objects else None, prefix, model, objects)
 
 
-def field_stats_by(
-        queryset: "QuerySet[tp.Any]",
-        group_by: str,
-        fields: tp.Sequence[str]) -> dict[tp.Any, list[FieldStats]]:
-    """Compute the statistics of numerical fields over the objects of a queryset for each group.
+def window_bool_stats(
+        model: "type[Model]",
+        objects: "tp.Sequence[Model]",
+        field: str,
+        prefix: str = "all") -> BoolStats:
+    """Get the statistics of a boolean field over objects annotated with :py:func:`window_stats_annotations`.
 
-    :param queryset: Objects over which the statistics are computed
-    :param group_by: Name of the field by which the objects are grouped, e.g. a foreign key
-    :param fields: Names of the numerical fields
-    :return: Statistics of each field by the value of the grouping field
-    """
-    rows = queryset.order_by(group_by).values(group_by).annotate(**_aggregations(fields))
-    medians = _medians(queryset, fields, group_by=group_by)
-    return {
-        row[group_by]: _field_stats(queryset.model, fields, row, medians.get(row[group_by], {}))
-        for row in rows
-    }
-
-
-def bool_stats(queryset: "QuerySet[tp.Any]", field: str) -> BoolStats:
-    """Count how many of the objects of a queryset have a boolean field set to true.
-
-    :param queryset: Objects to count
+    :param model: Model of the objects
+    :param objects: Fetched objects of the annotated queryset
     :param field: Name of the boolean field
+    :param prefix: Prefix of the names of the annotations
     :return: Statistics of the field
     """
-    aggregates = queryset.aggregate(n=Count("pk"), n_true=Count("pk", filter=Q(**{field: True})))
+    obj = objects[0] if objects else None
     return BoolStats(
         field=field,
-        name=str(tp.cast("Field", queryset.model._meta.get_field(field)).verbose_name),  # noqa: SLF001
-        n=aggregates["n"],
-        n_true=aggregates["n_true"]
+        name=str(getattr(model._meta.get_field(field), "verbose_name", field)),  # noqa: SLF001
+        n=0 if obj is None else getattr(obj, count_name(prefix)),
+        n_true=0 if obj is None else getattr(obj, annotation_name(prefix, field, "true"))
     )
+
+
+def related_stats(obj: "Model", relation: str) -> list[FieldStats]:
+    """Get the statistics of the related objects of an object annotated with :py:func:`related_stats_annotations`.
+
+    The related objects should be prefetched for the medians, as otherwise they are fetched with a separate query.
+
+    :param obj: Annotated object
+    :param relation: Name of the reverse relation, which must also be the prefix of the annotations
+    :return: Statistics of each field
+    """
+    manager = getattr(obj, relation)
+    return annotated_stats(obj, relation, manager.model, manager.all())

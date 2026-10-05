@@ -9,6 +9,8 @@ from django.urls import reverse
 from matplotlib.figure import Figure
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
+from ptplot.methods.stats import window_stats_annotations
+from ptplot.models.fields import LatexFloatField
 from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
 from ptplot.science import const
@@ -23,9 +25,15 @@ from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparis
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine, power_spectrum
 
+if tp.TYPE_CHECKING:
+    from django.db.models.expressions import BaseExpression
+
 
 class ParameterChoice(models.Model):
     """A parameter choice, aka. a point, for a particle physics model."""
+
+    #: Fields for which statistics are computed
+    STATS_FIELDS: tp.ClassVar[tuple[str, ...]] = ("alpha", "beta_tilde", "v_wall", "T_star", "g_star")
 
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="points")
     number = models.IntegerField()
@@ -33,34 +41,39 @@ class ParameterChoice(models.Model):
     long_label = models.CharField(max_length=100)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=True, related_name="points")
     # Numerical values that must be provided for the point
-    alpha = models.FloatField(
+    alpha = LatexFloatField(
         verbose_name=const.ALPHA_NAME,
+        verbose_name_latex=const.ALPHA_NAME_LATEX,
         validators=[
             validators.MinValueValidator(0)
         ]
     )
-    beta_tilde = models.FloatField(
+    beta_tilde = LatexFloatField(
         verbose_name=const.BETA_TILDE_NAME,
+        verbose_name_latex=const.BETA_TILDE_NAME_LATEX,
         validators=[
             validators.MinValueValidator(0)
         ]
     )
     # Optional numerical values that override the values from the model and scenario
-    v_wall = models.FloatField(
+    v_wall = LatexFloatField(
         verbose_name=const.V_WALL_NAME,
+        verbose_name_latex=const.V_WALL_NAME_LATEX,
         validators=[
             validators.MinValueValidator(0),
             validators.MaxValueValidator(1)
         ],
         null=True
     )
-    T_star = models.FloatField(
+    T_star = LatexFloatField(
         verbose_name=const.T_STAR_NAME,
+        verbose_name_latex=const.T_STAR_NAME_LATEX,
         validators=[validators.MinValueValidator(0)],
         null=True
     )
-    g_star = models.FloatField(
+    g_star = LatexFloatField(
         verbose_name=const.G_STAR_NAME,
+        verbose_name_latex=const.G_STAR_NAME_LATEX,
         validators=[validators.MinValueValidator(0)],
         null=True
     )
@@ -80,6 +93,14 @@ class ParameterChoice(models.Model):
     def get_absolute_url(self) -> str:
         """Get the URL of the page of this point."""
         return reverse("model_point_plot", kwargs={"model_id": self.model.id, "point_id": self.number})
+
+    @classmethod
+    def all_stats_annotations(cls) -> "dict[str, BaseExpression]":
+        """Annotations for the statistics over all the points of a queryset, e.g. ``all__alpha__min``.
+
+        See :py:func:`ptplot.methods.stats.window_stats_annotations`.
+        """
+        return window_stats_annotations(cls)
 
     def clean(self) -> None:
         """Validate that the scenario is for the same model as the parameter choice.

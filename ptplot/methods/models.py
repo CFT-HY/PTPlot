@@ -2,18 +2,12 @@
 
 import typing as tp
 
-from django.db.models import Avg, Max, Min
 from pandas import DataFrame
 
 if tp.TYPE_CHECKING:
     from django.db.models import QuerySet
 
     from ptplot.models.parameter_choice import ParameterChoice
-
-
-def min_max_avg(*names: str) -> list[Avg | Max | Min]:
-    """Get the minimum, maximum and average aggregations for the given fields."""
-    return [func(name) for func in (Min, Max, Avg) for name in names]
 
 
 def point_data(points: "QuerySet[ParameterChoice]") -> DataFrame:

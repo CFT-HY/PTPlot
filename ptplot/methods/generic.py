@@ -5,7 +5,7 @@ import typing as tp
 
 import django
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Model
+from django.db.models import Model, Prefetch
 from django.http import Http404, HttpResponse
 from matplotlib.figure import Figure
 from pttools.logging import setup_logging as pttools_logging
@@ -21,9 +21,9 @@ def fig_to_response(fig: Figure) -> HttpResponse:
 
 def get_object_or_404_related[T: Model](
         model: type[T],
-        annotate: list[tp.Any] | None = None,
+        annotate: dict[str, tp.Any] | None = None,
         related: list[str] | None = None,
-        prefetch: list[str] | None = None,
+        prefetch: list[str | Prefetch] | None = None,
         **kwargs: tp.Any) -> T:
     """Get an object with related objects, or a 404 error."""
     try:
@@ -33,7 +33,7 @@ def get_object_or_404_related[T: Model](
         if prefetch is not None:
             queryset = queryset.prefetch_related(*prefetch)
         if annotate is not None:
-            queryset = queryset.annotate(*annotate)
+            queryset = queryset.annotate(**annotate)
         obj = queryset.get(**kwargs)
     except ObjectDoesNotExist as err:
         raise Http404(f"No {model._meta.object_name} matches the given query.") from err  # noqa: SLF001

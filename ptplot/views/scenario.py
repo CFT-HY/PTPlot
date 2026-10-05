@@ -1,24 +1,33 @@
 """Views for scenarios."""
 
-from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.db.models import Prefetch
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 
 from ptplot.forms import BenchmarkForm
-from ptplot.methods import POINT_STATS_FIELDS, field_stats, fig_to_response, get_object_or_404_related
-from ptplot.models import Scenario
+from ptplot.methods import fig_to_response, get_object_or_404_related, related_stats
+from ptplot.models import Model, Scenario
 from ptplot.science.spectrum import Engine
 from ptplot.views.model import model_stats_context
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
     """Display a group of scenario points on the SNR plots."""
-    scenario: Scenario = get_object_or_404_related(
-        Scenario,
-        related=["model"],
-        prefetch=["model__points", "model__scenarios", "points"],
-        model__id=model_id,
-        number=scenario_id
+    # The model is fetched with its scenarios instead of fetching the scenario with its model,
+    # so that the statistics of the model, which are shown on the same page, can be annotated.
+    model: Model = get_object_or_404_related(
+        Model,
+        annotate=Model.stats_annotations(),
+        prefetch=[
+            "points",
+            Prefetch("scenarios", queryset=Scenario.objects.annotate(**Scenario.stats_annotations())),
+            "scenarios__points"
+        ],
+        id=model_id
     )
+    scenario = next((scenario for scenario in model.scenarios.all() if scenario.number == scenario_id), None)
+    if scenario is None:
+        raise Http404("No Scenario matches the given query.")
 
     form = BenchmarkForm(request.GET)
     if not form.is_valid():
@@ -28,11 +37,11 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
         request,
         "model_scenario_plot.html",
         {
-            "model": scenario.model,
+            "model": model,
             "scenario": scenario,
             "form": form,
-            "scenario_point_stats": field_stats(scenario.points.all(), POINT_STATS_FIELDS),
-            **model_stats_context(scenario.model)
+            "scenario_point_stats": related_stats(scenario, "points"),
+            **model_stats_context(model)
         }
     )
 

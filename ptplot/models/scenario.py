@@ -12,7 +12,9 @@ from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.methods.models import point_data
+from ptplot.methods.stats import related_stats_annotations, window_stats_annotations
 from ptplot.models.const import NAME_MAX_LENGTH
+from ptplot.models.fields import LatexFloatField
 from ptplot.models.model import Model
 from ptplot.science import const
 from ptplot.science.noise import Noise
@@ -27,6 +29,8 @@ from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 
 if tp.TYPE_CHECKING:
+    from django.db.models.expressions import BaseExpression
+
     # A stub-only class, as Django defines it inside a function.
     from django.db.models.fields.related_descriptors import RelatedManager
 
@@ -36,11 +40,15 @@ if tp.TYPE_CHECKING:
 class Scenario(models.Model):
     """A scenario with a particular $T_*$ for a particle physics model."""
 
+    #: Fields for which statistics are computed
+    STATS_FIELDS: tp.ClassVar[tuple[str, ...]] = ("T_star", )
+
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name="scenarios")
     number = models.IntegerField()
     name = models.CharField(max_length=NAME_MAX_LENGTH)
-    T_star = models.FloatField(
+    T_star = LatexFloatField(
         verbose_name=const.T_STAR_NAME,
+        verbose_name_latex=const.T_STAR_NAME_LATEX,
         validators=[validators.MinValueValidator(0)],
         null=True
     )
@@ -65,6 +73,22 @@ class Scenario(models.Model):
     def get_absolute_url(self) -> str:
         """Get the URL of the page of this scenario."""
         return reverse("model_scenario_plot", kwargs={"model_id": self.model.id, "scenario_id": self.number})
+
+    @classmethod
+    def stats_annotations(cls) -> "dict[str, BaseExpression]":
+        """Annotations for the statistics of the points of each scenario, e.g. ``points__alpha__min``.
+
+        See :py:func:`ptplot.methods.stats.related_stats_annotations`.
+        """
+        return related_stats_annotations(cls, "points")
+
+    @classmethod
+    def all_stats_annotations(cls) -> "dict[str, BaseExpression]":
+        """Annotations for the statistics over all the scenarios of a queryset, e.g. ``all__T_star__min``.
+
+        See :py:func:`ptplot.methods.stats.window_stats_annotations`.
+        """
+        return window_stats_annotations(cls)
 
     # -----
     # Properties
