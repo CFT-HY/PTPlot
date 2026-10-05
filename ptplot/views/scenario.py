@@ -4,9 +4,10 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 
 from ptplot.forms import BenchmarkForm
-from ptplot.methods import fig_to_response, get_object_or_404_related
+from ptplot.methods import POINT_STATS_FIELDS, field_stats, fig_to_response, get_object_or_404_related
 from ptplot.models import Scenario
 from ptplot.science.spectrum import Engine
+from ptplot.views.model import model_stats_context
 
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
@@ -26,7 +27,13 @@ def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -
     return render(
         request,
         "model_scenario_plot.html",
-        {"model": scenario.model, "scenario": scenario, "form": form}
+        {
+            "model": scenario.model,
+            "scenario": scenario,
+            "form": form,
+            "scenario_point_stats": field_stats(scenario.points.all(), POINT_STATS_FIELDS),
+            **model_stats_context(scenario.model)
+        }
     )
 
 

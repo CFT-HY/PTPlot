@@ -1,17 +1,40 @@
 """Views for models."""
 
+import typing as tp
+
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 
 from ptplot.forms import BenchmarkForm
-from ptplot.methods import fig_to_response, get_object_or_404_related
+from ptplot.methods import (
+    MODEL_STATS_FIELDS,
+    POINT_STATS_FIELDS,
+    SCENARIO_STATS_FIELDS,
+    bool_stats,
+    field_stats,
+    fig_to_response,
+    get_object_or_404_related,
+)
 from ptplot.models import MODEL_ANNOTATIONS, Model
 from ptplot.science.spectrum import Engine
 
 
+def model_stats_context(model: Model) -> dict[str, tp.Any]:
+    """Get the template context for the statistics of the points and scenarios of a model."""
+    return {
+        "point_stats": field_stats(model.points.all(), POINT_STATS_FIELDS),
+        "scenario_stats": field_stats(model.scenarios.all(), SCENARIO_STATS_FIELDS) if model.has_scenarios else None
+    }
+
+
 def models(request: HttpRequest) -> HttpResponse:
     """Display a list of models from database."""
-    return render(request, "models.html", {"models": Model.objects.all()})
+    queryset = Model.objects.all()
+    return render(request, "models.html", {
+        "models": queryset,
+        "model_stats": field_stats(queryset, MODEL_STATS_FIELDS),
+        "huge_alpha_stats": bool_stats(queryset, "huge_alpha")
+    })
 
 
 def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -25,7 +48,7 @@ def model_detail(request: HttpRequest, model_id: int) -> HttpResponse:
     form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
-    return render(request, "model_detail.html", {"model": model, "form": form})
+    return render(request, "model_detail.html", {"model": model, "form": form, **model_stats_context(model)})
 
 
 def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
@@ -39,7 +62,11 @@ def model_detail_plot(request: HttpRequest, model_id: int) -> HttpResponse:
     form = BenchmarkForm(request.GET)
     if not form.is_valid():
         return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
-    return render(request, "model_detail_plot.html", {"model": model, "form": form})
+    return render(
+        request,
+        "model_detail_plot.html",
+        {"model": model, "form": form, **model_stats_context(model)}
+    )
 
 
 def model_snr_alpha_beta(request: HttpRequest, model_id: int) -> HttpResponse:

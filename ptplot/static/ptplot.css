@@ -34,3 +34,11 @@ table label {
     border: 10px;
     padding: 15px;
 }
+
+.stats th, .stats td {
+    padding: 2px 10px;
+}
+
+.stats td:not(:first-child) {
+    text-align: right;
+}

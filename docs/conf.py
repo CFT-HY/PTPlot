@@ -230,6 +230,7 @@ sphinx_gallery_conf = {
         "../examples/ps",
         "../examples/snr",
         "../examples/noise",
+        "../examples/models",
         "../examples/old_vs_new",
         "../examples/docs",
     ]),

@@ -1,0 +1,20 @@
+<table class="stats">
+  <tr>
+    <th>Parameter</th>
+    <th>Values</th>
+    <th>Minimum</th>
+    <th>Maximum</th>
+    <th>Mean</th>
+    <th>Median</th>
+  </tr>
+  {% for field in stats %}
+    <tr>
+      <td>{{ field.name|capfirst }}</td>
+      <td>{{ field.values }}</td>
+      <td>{{ field.minimum_str }}</td>
+      <td>{{ field.maximum_str }}</td>
+      <td>{{ field.mean_str }}</td>
+      <td>{{ field.median_str }}</td>
+    </tr>
+  {% endfor %}
+</table>

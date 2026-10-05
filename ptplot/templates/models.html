@@ -14,4 +14,10 @@
   {% endfor %}
 </ul>
 
+<h4>Statistics of the models</h4>
+{% include "stats_table.html" with stats=model_stats %}
+<p>
+  {{ huge_alpha_stats.n_true }} / {{ huge_alpha_stats.n }} models have {{ huge_alpha_stats.name }}.
+</p>
+
 {% endblock content %}

@@ -29,7 +29,13 @@
       </li>
     {% endfor %}
   </ul>
+
+  <h4>Statistics of the scenarios</h4>
+  {% include "stats_table.html" with stats=scenario_stats %}
 {% endif %}
+
+<h4>Statistics of the points</h4>
+{% include "stats_table.html" with stats=point_stats %}
 
 <form action="{{ request.path }}" method="get">
   <div class="formbox">
