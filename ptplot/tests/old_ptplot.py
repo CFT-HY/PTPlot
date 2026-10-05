@@ -14,8 +14,16 @@ The SNR of the new code differs from the old one by constant factors:
 - $F_{\text{gw},0} h^2$: the old code has $0.678^2 \cdot 3.57 \cdot 10^{-5} (100/g_*)^{1/3}$,
   whereas :py:func:`pttools.omgw0.F_gw0_h2` computes it from $\Omega_{\gamma,0} h^2$, which gives 0.66 % more.
 
+The frequencies differ as well, as the old code has
+$f_{\ast,0} = 2.6 \cdot 10^{-6} \ \text{Hz} \left( \frac{T_*}{100 \ \text{GeV}} \right)
+\left( \frac{g_*}{100} \right)^{1/6}$,
+whereas :py:func:`pttools.omgw0.freq.f_star0` computes it from the Friedmann equation
+and the conservation of entropy, which gives about 1 % more.
+This is not a constant factor of the SNR, and therefore the new spectra are computed with the old $f_{\ast,0}$
+by giving them the ``f_star0_factor`` of :py:func:`f_star0_factor`.
+
 If the old PTPlot is not available, :py:func:`reconstructed_old_grid` reproduces its SNR grid
-with the new code, the old sensitivity curve and the old $F_{\text{gw},0} h^2$.
+with the new code, the old sensitivity curve, the old $F_{\text{gw},0} h^2$ and the old $f_{\ast,0}$.
 """
 
 import contextlib
@@ -33,7 +41,7 @@ import warnings
 
 import numpy as np
 from pttools.bubble.energy_budget import alpha_n_from_ubarf
-from pttools.omgw0 import F_gw0_h2
+from pttools.omgw0 import F_gw0_h2, f_star0
 from pttools.omgw0.noise import S_AE_approx, omega_h2
 from pttools.ssm import beta_tilde as beta_tilde_func
 import scipy.integrate
@@ -76,6 +84,9 @@ OLD_LOG10_R_STAR_RANGE: tuple[float, float] = (-4., 0.08)
 #: Smallest $\log_{10} \bar{U}_f$ of the old grids
 OLD_LOG10_UBARF_MIN: float = -2.
 
+#: $f_{\ast,0,\text{ref}}$ of the old code and of PTtools before the computation of $f_{\ast,0}$ from first principles
+OLD_F_STAR0_REF: float = 2.6e-6
+
 #: The old grid: shock times $H_* \tau_\text{sh}$, SNR, $\log_{10} r_*$ and $\log_{10} \bar{U}_f$
 type OldGrid = tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]
 
@@ -83,6 +94,30 @@ type OldGrid = tuple[th.FloatArr2D, th.FloatArr2D, th.FloatArr1D, th.FloatArr1D]
 def old_f_gw0_h2(g_star: float) -> float:
     r"""$F_{\text{gw},0} h^2$ of the old code."""
     return 0.678**2 * 3.57e-5 * (100 / g_star)**(1 / 3)
+
+
+def old_f_star0(T_star: float, g_star: float) -> float:
+    r"""$f_{\ast,0}$ of the old code and of PTtools before the computation of $f_{\ast,0}$ from first principles.
+
+    $$f_{\ast,0} = 2.6 \cdot 10^{-6} \ \text{Hz}
+    \left( \frac{T_*}{100 \ \text{GeV}} \right) \left( \frac{g_*}{100} \right)^{1/6}$$
+    :caprini_2020:`\ ` eq. 31
+
+    :param T_star: $T_*$ in GeV
+    :param g_star: $g_*$
+    :return: $f_{\ast,0}$ in Hz
+    """
+    return OLD_F_STAR0_REF * (T_star / 100) * (g_star / 100)**(1 / 6)
+
+
+def f_star0_factor(T_star: float, g_star: float) -> float:
+    r"""Ratio of the old and the new $f_{\ast,0}$, to be given as ``f_star0_factor`` to the new code.
+
+    :param T_star: $T_*$ in GeV
+    :param g_star: $g_*$
+    :return: $f_{\ast,0,\text{old}} / f_{\ast,0,\text{new}}$
+    """
+    return old_f_star0(T_star, g_star) / float(f_star0(T_star=T_star, ge_star=g_star))
 
 
 def f_gw0_ratio(g_star: float) -> float:
@@ -187,7 +222,7 @@ def reconstructed_old_grid(
         ubarf_max: float = OLD_UBARF_MAX_UBARF_RSTAR) -> OldGrid:
     r"""Reproduce the SNR grid of the old code with the new code.
 
-    This uses the old sensitivity curve and the old $F_{\text{gw},0} h^2$,
+    This uses the old sensitivity curve, the old $F_{\text{gw},0} h^2$ and the old $f_{\ast,0}$,
     and is therefore independent of the new noise curves.
     It can be used when the old PTPlot is not available.
     The BPL2020 spectrum does not depend on $v_\text{wall}$ on the $(\bar{U}_f, r_*)$ plane.
@@ -200,7 +235,8 @@ def reconstructed_old_grid(
     ubarf, r_star = old_grid_axes(ubarf_max)
     grid = SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_star, g_star=g_star, ubarf=ubarf, r_star=r_star,
-        noise=old_file_noise(), engine=Engine.BPL2020, log_progress_percentage=None
+        noise=old_file_noise(), engine=Engine.BPL2020, log_progress_percentage=None,
+        f_star0_factor=f_star0_factor(T_star, g_star)
     )
     return grid.shock_times, grid.snr / f_gw0_ratio(g_star), np.log10(r_star), np.log10(ubarf)
 

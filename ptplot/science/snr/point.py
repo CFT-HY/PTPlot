@@ -26,6 +26,7 @@ def snr_point(
         engine: Engine,
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         ubarf_rstar: bool = False,
+        f_star0_factor: float = 1.,
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False,
         extractor: Extractor | None = None) -> tuple[float, float, Record | None]:
@@ -40,6 +41,8 @@ def snr_point(
     :param engine: Which power spectrum engine to use
     :param adiabatic_index: $\Gamma$, mean adiabatic index
     :param ubarf_rstar: Whether $x$ and $y$ are $\bar{U}_f$ and $r_*$ instead of $\alpha$ and $\tilde{\beta}$
+    :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+        see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
     :param parallel: Enable parallel processing for the spectrum if the engine supports it
     :param legacy_nucleation_cs_max:
         Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
@@ -60,6 +63,7 @@ def snr_point(
             v_wall=v_wall,
             adiabatic_index=adiabatic_index,
             engine=engine,
+            f_star0_factor=f_star0_factor,
             parallel=parallel,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             **kwargs

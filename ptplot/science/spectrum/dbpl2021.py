@@ -37,6 +37,7 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
             g_star: float = DEFAULT_G_STAR,
             # Additional parameters
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             # Switches
             legacy_nucleation_cs_max: bool = False,
             # Model-specific parameters
@@ -53,6 +54,7 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
             alpha=alpha, beta_tilde=beta_tilde,
             ubarf=ubarf, r_star=r_star,
             adiabatic_index=adiabatic_index,
+            f_star0_factor=f_star0_factor,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             zp=zp,
         )

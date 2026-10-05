@@ -62,6 +62,7 @@ class SNRGrid(ABC):  # noqa: B024
             labels_points: StrOrListOrNestedList | None = None,
             titles: StrOrList | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             engine: Engine = Engine.DEFAULT,
             name: str | None = None,
             ubarf_rstar: bool = False,
@@ -82,6 +83,8 @@ class SNRGrid(ABC):  # noqa: B024
         :param labels_points: Labels of the points [scenario, point]
         :param titles: Titles of the scenarios
         :param adiabatic_index: $\Gamma$, mean adiabatic index
+        :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+            see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
         :param engine: Which power spectrum engine to use
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param ubarf_rstar: Whether $x$ and $y$ are $\bar{U}_f$ and $r_*$ instead of $\alpha$ and $\tilde{\beta}$
@@ -132,6 +135,7 @@ class SNRGrid(ABC):  # noqa: B024
         kwargs = {
             "adiabatic_index": adiabatic_index,
             "extractor": None if exporter is None else exporter.extractor,
+            "f_star0_factor": f_star0_factor,
             "g_star": g_star,
             "legacy_nucleation_cs_max": legacy_nucleation_cs_max,
             "noise": self.noise,

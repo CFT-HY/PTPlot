@@ -13,6 +13,7 @@ import typing as tp
 
 import numpy as np
 from pttools.export import Exporter, Extractor, Importer, Preset
+import pytest
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.plot.ps import power_spectrum_figure
@@ -117,3 +118,14 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     def test_source_lifetime_factor(self) -> None:
         r"""The source lifetime factor $\Upsilon_\ell$ should be finite and positive."""
         self.assert_positive(self.spectrum.source_lifetime_factor())
+
+    def test_f_star0_factor_unsupported(self) -> None:
+        r"""The engines that do not use $f_{\ast,0}$ should reject ``f_star0_factor``."""
+        if self.SPECTRUM_CLASS.SUPPORTS_F_STAR0_FACTOR:
+            return
+        with pytest.raises(ValueError, match="f_star0_factor"):
+            self.SPECTRUM_CLASS(
+                T_star=self.T_STAR, g_star=self.G_STAR,
+                v_wall=self.V_WALL, alpha=self.ALPHA, beta_tilde=self.BETA_TILDE,
+                f_star0_factor=2.
+            )

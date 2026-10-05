@@ -15,6 +15,7 @@ import pytest
 from ptplot.science.noise import noise_curve
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+from ptplot.tests.old_ptplot import f_star0_factor
 from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
 ALPHA: float = 0.1
@@ -24,11 +25,15 @@ G_STAR: float = 100.
 #: Subsonic deflagration and detonation
 V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #: Reference values of $r_*$, SNR and $\mathcal{H}_* \eta_\text{sh}$ for each wall velocity,
-#: computed with PTPlot before the fix of the ``bubble`` argument of :class:`PowerSpectrumSSM` in October 2026
+#: computed with PTPlot before the fix of the ``bubble`` argument of :class:`PowerSpectrumSSM` in October 2026,
+#: and therefore with the old $f_{\ast,0}$ of PTtools, see :py:data:`F_STAR0_FACTOR`
 REFERENCE: dict[float, tuple[float, float, float]] = {
     0.3: (0.018124666532740186, 0.05726717628625229, 0.19839872059716177),
     0.9: (0.026362653976107417, 0.11508301979789859, 0.2568295035856295),
 }
+
+#: Ratio of the old and the new $f_{\ast,0}$ of PTtools, see :py:func:`ptplot.tests.old_ptplot.f_star0_factor`
+F_STAR0_FACTOR: float = f_star0_factor(T_STAR, G_STAR)
 
 
 def spectrum(v_wall: float, **kwargs: tp.Any) -> PowerSpectrumSSM:
@@ -48,11 +53,20 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         noise = noise_curve()
         for v_wall, (r_star, snr, shock_time) in REFERENCE.items():
             with self.subTest(v_wall=v_wall):
-                ssm = spectrum(v_wall)
+                ssm = spectrum(v_wall, f_star0_factor=F_STAR0_FACTOR)
                 _, snr_new = ssm.power_spectrum(noise.f, noise=noise)
                 np.testing.assert_allclose(ssm.r_star, r_star, rtol=1e-12)
                 np.testing.assert_allclose(snr_new, snr, rtol=1e-6)
                 np.testing.assert_allclose(ssm.H_star_eta_sh, shock_time, rtol=1e-12)
+
+    @staticmethod
+    def test_f_star0_factor() -> None:
+        r"""Scaling $f_{\ast,0}$ and $f$ by the same factor should give the same $\Omega_{\text{gw},0} h^2$."""
+        noise = noise_curve()
+        factor = 1.5
+        ps, _ = spectrum(V_WALLS[0]).power_spectrum(noise.f, noise=noise)
+        ps_scaled, _ = spectrum(V_WALLS[0], f_star0_factor=factor).power_spectrum(factor * noise.f, noise=noise)
+        np.testing.assert_allclose(ps_scaled, ps, rtol=1e-12)
 
     def test_bubble(self) -> None:
         """A precomputed fluid shell should be used and give the same results as computing it."""

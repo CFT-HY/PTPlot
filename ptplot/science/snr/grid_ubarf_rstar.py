@@ -49,6 +49,7 @@ class SNRGridUbarfRStar(SNRGrid):
             ubarf: th.FloatArr1D | None = None,
             r_star: th.FloatArr1D | None = None,
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
             name: str | None = None,
@@ -74,6 +75,8 @@ class SNRGridUbarfRStar(SNRGrid):
         :param ubarf: Range of $\bar{U}_f$ values
         :param r_star: Range of $r_*$ values
         :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+            see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
@@ -117,7 +120,7 @@ class SNRGridUbarfRStar(SNRGrid):
             y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
-            noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
+            noise=noise, adiabatic_index=adiabatic_index, f_star0_factor=f_star0_factor, engine=engine, name=name,
             ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,

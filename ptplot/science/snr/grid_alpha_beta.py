@@ -32,6 +32,7 @@ class SNRGridAlphaBeta(SNRGrid):
             alpha_n: th.FloatArr1D | None = None,
             beta_tilde: th.FloatArr1D | None = None,
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             engine: Engine = Engine.DEFAULT,
             name: str | None = None,
             noise: Noise | None = None,
@@ -55,6 +56,8 @@ class SNRGridAlphaBeta(SNRGrid):
         :param alpha_n: Range of $\alpha_n$ values
         :param beta_tilde: Range of $\beta/H$ values
         :param adiabatic_index: Mean adiabatic index $\Gamma$
+        :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+            see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
         :param engine: Which power spectrum engine to use
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param noise: Which noise curve to use
@@ -81,7 +84,7 @@ class SNRGridAlphaBeta(SNRGrid):
             y=beta_tilde,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=alpha_points, y_points=beta_tilde_points, labels_points=labels_points, titles=titles,
-            noise=noise, adiabatic_index=adiabatic_index, engine=engine, name=name,
+            noise=noise, adiabatic_index=adiabatic_index, f_star0_factor=f_star0_factor, engine=engine, name=name,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,

@@ -43,6 +43,7 @@ def snr_column_ssm(
         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
         model: Model = BAG,
         noise: Noise | None = None,
+        f_star0_factor: float = 1.,
         parallel: bool = False,
         legacy_nucleation_cs_max: bool = False,
         extractor: Extractor | None = None) -> SNRColumn:
@@ -62,6 +63,8 @@ def snr_column_ssm(
     :param adiabatic_index: $\Gamma$, mean adiabatic index
     :param model: Equation of state model of PTtools
     :param noise: Which noise curve to use
+    :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+        see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
     :param parallel: Enable parallel processing for the spectra
     :param legacy_nucleation_cs_max:
         Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
@@ -115,6 +118,7 @@ def snr_column_ssm(
                 adiabatic_index=adiabatic_index,
                 model=model,
                 bubble=bubble,
+                f_star0_factor=f_star0_factor,
                 parallel=parallel,
                 legacy_nucleation_cs_max=legacy_nucleation_cs_max
             )

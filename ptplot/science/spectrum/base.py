@@ -12,7 +12,7 @@ from pttools.bubble.energy_budget import alpha_n_from_ubarf, ubarf_approx
 from pttools.export import Extractor, Record
 from pttools.models import Model
 from pttools.omgw0 import (
-    G0,
+    GE0_PHOTON,
     GS0,
     OMEGA_PHOTON_H2,
     F_gw0_h2,
@@ -64,6 +64,8 @@ class PowerSpectrum(Extractable, abc.ABC):
     OLD_J: tp.ClassVar[bool] = False
     REQUIRE_V_WALL: tp.ClassVar[bool] = False
     REQUIRE_SOUND_SHELL_THICKNESS: tp.ClassVar[bool] = False
+    #: Whether the engine computes the frequencies with $f_{\ast,0}$ and therefore supports ``f_star0_factor``
+    SUPPORTS_F_STAR0_FACTOR: tp.ClassVar[bool] = False
 
     #: Efficiency of producing bulk kinetic energy relative to a single bubble.
     #: Used by :py:class:`ptplot.science.spectrum.PowerSpectrumDBPL2024`.
@@ -83,6 +85,7 @@ class PowerSpectrum(Extractable, abc.ABC):
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
             cs: float = CS0,
             nu_gdh2024: float = DEFAULT_NU_GDH2024,
+            f_star0_factor: float = 1.,
             # Switches
             legacy_nucleation_cs_max: bool = False,
             parallel: bool = False):
@@ -104,11 +107,18 @@ class PowerSpectrum(Extractable, abc.ABC):
             where it's used to determine the solution type and Chapman-Jouguet speed.
             3) $\tilde{\beta} \leftrightarrow r_*$ conversion if ``legacy_nucleation_cs_max`` is enabled
         :param nu_gdh2024: $\nu_\text{gdh2024}$ of :giombi_2024_cs:`\ ` eq. 2.11
+        :param f_star0_factor: Correction factor for $f_{\ast,0}$ of :py:func:`pttools.omgw0.freq.f_star0`,
+            which converts the frequencies at the time of GW production to frequencies today.
+            This is for comparisons with reference values that were computed with a different $f_{\ast,0}$,
+            and is supported only by the engines that use $f_{\ast,0}$, see :py:attr:`SUPPORTS_F_STAR0_FACTOR`.
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param parallel: Enable parallel processing for this spectrum if the engine supports it.
             This should be disabled when generating multiple spectra in parallel.
+        :raises ValueError: If a parameter is invalid
         """
+        if f_star0_factor != 1 and not self.SUPPORTS_F_STAR0_FACTOR:
+            raise ValueError(f"The engine {self.ENGINE} does not support f_star0_factor. Got {f_star0_factor}.")
         if g_star is None or np.isnan(g_star):
             raise ValueError(f"Invalid g_star={g_star}")
         if T_star is None or np.isnan(T_star):
@@ -128,6 +138,8 @@ class PowerSpectrum(Extractable, abc.ABC):
         self.adiabatic_index: float = adiabatic_index
         #: $c_s$, speed of sound
         self.cs: float = cs
+        #: Correction factor for $f_{\ast,0}$
+        self.f_star0_factor: float = f_star0_factor
         #: $g_*$, degrees of freedom
         self.g_star: float = g_star
         #: $N_\text{sh}$, number of shock formation times
@@ -182,11 +194,11 @@ class PowerSpectrum(Extractable, abc.ABC):
 
     def F_gw0_h2(  # noqa: D102
             self,
-            g0: FloatOrArr = G0,
+            ge0_photon: FloatOrArr = GE0_PHOTON,
             gs0: FloatOrArr = GS0,
             gs_star: FloatOrArr | None = None,
             om_gamma0_h2: FloatOrArr = OMEGA_PHOTON_H2) -> FloatOrArr:
-        return F_gw0_h2(g_star=self.g_star, g0=g0, gs0=gs0, gs_star=gs_star, om_gamma0_h2=om_gamma0_h2)
+        return F_gw0_h2(ge_star=self.g_star, ge0_photon=ge0_photon, gs0=gs0, gs_star=gs_star, om_gamma0_h2=om_gamma0_h2)
 
     def h_star(self) -> float:
         r"""$h_*$, inverse Hubble time at GW production, redshifted to today.

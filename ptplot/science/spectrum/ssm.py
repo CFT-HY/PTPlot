@@ -8,7 +8,7 @@ import numpy as np
 from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
-from pttools.omgw0 import G0, GS0, Spectrum, Suppression, SuppressionMethod
+from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
@@ -34,6 +34,7 @@ class PowerSpectrumSSM(PowerSpectrum):
     SHORT_NAME: tp.ClassVar[str] = "SSM"
 
     REQUIRE_V_WALL = True
+    SUPPORTS_F_STAR0_FACTOR = True
 
     def __init__(
             self,
@@ -47,6 +48,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             g_star: float = DEFAULT_G_STAR,
             # Additional parameters
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             # Switches
             legacy_nucleation_cs_max: bool = False,
             parallel: bool = False,
@@ -78,6 +80,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             # cs=TODO
             adiabatic_index=adiabatic_index,
             alpha=alpha,
+            f_star0_factor=f_star0_factor,
             nu_gdh2024=DEFAULT_NU_GDH2024 if self._bubble is None else self._bubble.nu_gdh2024,
             r_star=r_star,
             ubarf=ubarf,
@@ -112,7 +115,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             f: FloatArr1D,
             noise: Noise | None = None,
             log_errors: bool = True,
-            g0: float = G0,
+            ge0_photon: float = GE0_PHOTON,
             gs0: float = GS0,
             om_gamma0_h2: float = OMEGA_PHOTON_H2,
             suppression: Suppression = DEFAULT_SUPPRESSION,
@@ -120,8 +123,14 @@ class PowerSpectrumSSM(PowerSpectrum):
             -> tuple[FloatArr1D, float]:
         r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model, and its SNR.
 
-        The SNR is computed by :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`,
-        which generates the noise curve on the frequencies of the spectrum.
+        The SNR is computed by :py:meth:`PowerSpectrum.snr` on the frequencies ``f``,
+        in the same way as :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`.
+
+        The $f \to z$ conversion of PTtools uses $f_{\ast,0}$ of :py:func:`pttools.omgw0.freq.f_star0`.
+        To apply :py:attr:`f_star0_factor`, the PTtools spectrum is given the frequencies ``f / f_star0_factor``,
+        which correspond to the same $z$ values as ``f`` with the corrected $f_{\ast,0}$.
+        Therefore, if ``f_star0_factor`` is not 1,
+        the frequencies of :py:attr:`spectrum` differ from ``f`` by this factor.
 
         .. note::
            When $\frac{\beta}{H_*}$ is given instead of $r_*$,
@@ -135,7 +144,7 @@ class PowerSpectrumSSM(PowerSpectrum):
         try:
             spectrum = Spectrum(
                 bubble=self.bubble,
-                f=f,
+                f=f / self.f_star0_factor,
                 beta_tilde=self.beta_tilde_given,
                 g_star=self.g_star,
                 r_star=self.r_star_given,
@@ -144,14 +153,8 @@ class PowerSpectrumSSM(PowerSpectrum):
                 suppression_method=suppression_method,
                 parallel=self.parallel
             )
-            snr, _f, omgw0_h2, _f_noise, _noise = spectrum.snr(
-                noise=noise.noise,
-                f_noise=noise.f,
-                g0=g0,
-                gs0=gs0,
-                obs_time=noise.obs_time,
-                om_gamma0_h2=om_gamma0_h2
-            )
+            omgw0_h2 = spectrum.omgw0_h2(ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
+            snr = self.snr(f=f, power_spectrum=omgw0_h2, noise=noise)
             self.spectrum = spectrum
             return omgw0_h2, snr
         except Exception as exc:

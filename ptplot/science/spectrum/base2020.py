@@ -27,6 +27,7 @@ class PowerSpectrum2020(PowerSpectrum, abc.ABC):
     r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ `."""
 
     FIELDS: tp.ClassVar[Fields] = ANALYTIC_SPECTRUM_FIELDS
+    SUPPORTS_F_STAR0_FACTOR = True
 
     def __init__(
             self,
@@ -40,6 +41,7 @@ class PowerSpectrum2020(PowerSpectrum, abc.ABC):
             g_star: float = DEFAULT_G_STAR,
             # Additional parameters
             adiabatic_index: float = DEFAULT_ADIABATIC_INDEX,
+            f_star0_factor: float = 1.,
             # Switches
             legacy_nucleation_cs_max: bool = False,
             parallel: bool = True,
@@ -59,6 +61,7 @@ class PowerSpectrum2020(PowerSpectrum, abc.ABC):
             T_star=T_star,
             g_star=g_star,
             adiabatic_index=adiabatic_index,
+            f_star0_factor=f_star0_factor,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             parallel=parallel
         )
@@ -77,13 +80,12 @@ class PowerSpectrum2020(PowerSpectrum, abc.ABC):
         :hindmarsh_2017:`\ ` eq. 43
         :caprini_2020:`\ ` eq. 31
         These equations are equivalent to :gowling_2021:`\ ` eq. 2.12, 2.13.
+        The $f_{\ast,0}$ of :py:func:`pttools.omgw0.freq.f_star0` is multiplied by :py:attr:`f_star0_factor`.
 
         :return: Peak frequency $f_\text{peak}$ in Hz
         """
-        return tp.cast(
-            float,
-            f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0(T_star=self.T_star, g_star=self.g_star))
-        )
+        f_star0_value = self.f_star0_factor * f_star0(T_star=self.T_star, ge_star=self.g_star)
+        return tp.cast(float, f_func(z=self.zp, r_star=self.r_star, f_star0=f_star0_value))
 
     def power_spectrum_common(self, omega_tilde_gw: float = DEFAULT_OMEGA_TILDE_GW) -> float:
         r"""Compute the common prefactor of the power spectrum for BPL2020 and DBPL2021.

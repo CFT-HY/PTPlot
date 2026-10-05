@@ -22,9 +22,14 @@ def power_spectrum(
         css2: float = CS0_2,
         csb2: float = CS0_2,
         model: Model = BAG,
+        f_star0_factor: float = 1.,
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False) -> PowerSpectrum:
-    """Create a power spectrum object from the given parameters."""
+    r"""Create a power spectrum object from the given parameters.
+
+    :param f_star0_factor: Correction factor for $f_{\ast,0}$,
+        see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
+    """
     if engine is None or not engine:
         engine = Engine.DEFAULT
     if engine not in ENGINE_SPECTRUM_CLASSES:
@@ -39,11 +44,13 @@ def power_spectrum(
             beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
             v_wall=v_wall, adiabatic_index=adiabatic_index,
             alpha=alpha, r_star=r_star, ubarf=ubarf,
+            f_star0_factor=f_star0_factor,
             parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max, model=model
         )
     return ENGINE_SPECTRUM_CLASSES[engine](
         beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
         v_wall=v_wall, adiabatic_index=adiabatic_index,
         alpha=alpha, r_star=r_star, ubarf=ubarf,
+        f_star0_factor=f_star0_factor,
         legacy_nucleation_cs_max=legacy_nucleation_cs_max
     )

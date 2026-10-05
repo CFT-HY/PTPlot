@@ -1,7 +1,8 @@
 r"""Comparison of the SNR grids with the last version of PTPlot before the restructuring.
 
 The tests use :py:mod:`ptplot.tests.old_ptplot` to find the old PTPlot, and are skipped if it is not found.
-The constant factors between the old and the new SNR are removed before the comparison
+The constant factors between the old and the new SNR are removed before the comparison,
+and the new spectra are computed with the old $f_{\ast,0}$
 (please see :py:mod:`ptplot.tests.old_ptplot`).
 
 The old noise curves use the low-frequency approximation of the LISA response.
@@ -30,6 +31,7 @@ from ptplot.tests.old_ptplot import (
     OLD_UBARF_MAX_ALPHA_BETA,
     approx_noise,
     exact_noise,
+    f_star0_factor,
     old_grid,
     old_modules,
     reconstructed_old_grid,
@@ -41,6 +43,8 @@ T_STAR: float = 100.
 G_STAR: float = 100.
 #: Ratio of the new and the old SNR, when the only differences are the constant factors
 SNR_FACTOR: float = snr_factor(G_STAR)
+#: Ratio of the old and the new $f_{\ast,0}$
+F_STAR0_FACTOR: float = f_star0_factor(T_STAR, G_STAR)
 #: Relative tolerance of :py:func:`ptplot.tests.old_ptplot.reconstructed_old_grid`
 RTOL_RECONSTRUCTED: float = 1e-3
 
@@ -63,7 +67,7 @@ def new_grid_ubarf_rstar(noise: Noise) -> SNRGridUbarfRStar:
     return SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_STAR, g_star=G_STAR,
         ubarf=const.DEFAULT_UBARF_RANGE, r_star=const.DEFAULT_R_STAR_RANGE,
-        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None
+        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None, f_star0_factor=F_STAR0_FACTOR
     )
 
 
@@ -176,7 +180,7 @@ class OldPTPlotAlphaBetaTest(TestCase):
             T_star=T_STAR, g_star=G_STAR, v_wall=v_wall,
             alpha_n=alpha, beta_tilde=beta_tilde,
             noise=approx_noise(), engine=Engine.BPL2020, log_progress_percentage=None,
-            legacy_nucleation_cs_max=legacy
+            legacy_nucleation_cs_max=legacy, f_star0_factor=F_STAR0_FACTOR
         ).snr
 
     def check(self, v_wall: float, legacy: bool) -> None:
