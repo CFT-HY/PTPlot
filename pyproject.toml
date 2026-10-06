@@ -159,7 +159,8 @@ project-includes = [
 ]
 project-excludes = [
     "**/_build*",
-    "**/auto_examples*"
+    "**/auto_examples*",
+    "docs/lint"
 ]
 ignore-missing-imports = [
     "debug_toolbar.*",
@@ -199,7 +200,8 @@ testpaths = [
 [tool.ruff]
 extend-exclude = [
     "docs/_build",
-    "docs/auto_examples"
+    "docs/auto_examples",
+    "docs/lint"
 ]
 line-length = 120
 
@@ -355,4 +357,4 @@ wheel-exclude = [
 # To update to a different commit hash, update the "rev" below and run "./install_requirements.sh".
 # To update to the latest commit of the PTtools dev branch, run "./install_requirements.sh --update-pttools".
 # Remove this section to install the release from PyPI instead.
-pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "ed5b185dbeb09717f14b36885c181eac582d2c49" }
+pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "faa25476490fcaf331b82a0454b428e52c6f7a6e" }

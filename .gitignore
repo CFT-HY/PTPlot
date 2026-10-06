@@ -19,6 +19,7 @@ docs/_build
 docs/_static
 docs/auto_examples
 docs/gen_modules
+docs/lint
 docs/nightly
 docs/sg_api_usage.rst
 docs/sg_execution_times.rst
