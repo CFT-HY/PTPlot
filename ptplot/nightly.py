@@ -36,10 +36,17 @@ LOG_DIR: Path = REPO_DIR / "logs"
 LOCK_FILE: Path = REPO_DIR / "nightly.lock"
 #: The marker file, whose existence makes the next run to be skipped. It contains the time of the request.
 SKIP_FILE: Path = REPO_DIR / "nightly.skip"
-FIG_DIR: Path = REPO_DIR / "examples" / "fig"
 DOCS_DIR: Path = REPO_DIR / "docs"
-DOCS_BUILD_DIR: Path = DOCS_DIR / "_build"
 ARCHIVE_DIR: Path = DOCS_DIR / "nightly"
+#: The Sphinx build directory of the nightly run, which is separate from the default ``./docs/_build``
+DOCS_BUILD_DIR: Path = ARCHIVE_DIR / "_build"
+#: The parent directory of the figure directories ``fig_YYYY-MM-DD`` of the nightly runs
+FIG_PARENT_DIR: Path = ARCHIVE_DIR / "fig"
+#: The environment variable with which the figure directory of the examples is set, see ``examples/utils.py``
+FIG_DIR_ENV: str = "PTPLOT_FIG_DIR"
+#: The 7-Zip wildcards of the files that are left out of the archive.
+#: The checksum files ``*.h5.sha256`` of the HDF5 files are still included.
+ARCHIVE_EXCLUDE: tuple[str, ...] = ("*.h5",)
 #: The command with which the nightly run is run
 RUN_COMMAND: str = f"{SCRIPT_PATH} --run"
 #: The string by which the crontab entry of the nightly run is found
@@ -584,14 +591,15 @@ def find_uv() -> str | None:
     return shutil.which("uv")
 
 
-def archive(archive_path: Path, *dirs: Path) -> None:
+def archive(archive_path: Path, dirs: dict[Path, str], exclude: collections.abc.Iterable[str] = ()) -> None:
     """Compress directories to a 7-Zip archive.
 
     7-Zip appends to an existing archive instead of replacing it,
     so if there is already an archive with the same name, a suffix _2, _3 etc. is added to the filename.
 
     :param archive_path: the path of the archive
-    :param dirs: the directories to compress
+    :param dirs: the directories to compress, and their names in the archive
+    :param exclude: the wildcards of the filenames to leave out of the archive, e.g. ``*.h5``
     :raises FileNotFoundError: if a directory does not exist
     """
     for directory in dirs:
@@ -603,8 +611,14 @@ def archive(archive_path: Path, *dirs: Path) -> None:
         path = archive_path.with_name(f"{archive_path.stem}_{i}{archive_path.suffix}")
         i += 1
     path.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["7z", "a", "-mx=9", str(path), *map(str, dirs)], check=True)
-    log(f"{' '.join(map(str, dirs))} archived to {path}.")
+    exclude_args = [f"-xr!{pattern}" for pattern in exclude]
+    subprocess.run(["7z", "a", "-mx=9", *exclude_args, str(path), *map(str, dirs)], check=True)
+    # 7-Zip stores the directories with their own names, so they are renamed afterwards.
+    # Renaming a directory renames also its contents.
+    renames = [arg for directory, name in dirs.items() if directory.name != name for arg in (directory.name, name)]
+    if renames:
+        subprocess.run(["7z", "rn", str(path), *renames], check=True)
+    log(f"{', '.join(f'{directory} as {name}' for directory, name in dirs.items())} archived to {path}.")
 
 
 def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int:
@@ -635,6 +649,16 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
 
     log(f"Starting the nightly run at HEAD {head}.")
 
+    # The build directory is cleaned also by "make all",
+    # but cleaning it already here ensures that no output of a previous run is left there if the run fails.
+    if DOCS_BUILD_DIR.exists():
+        shutil.rmtree(DOCS_BUILD_DIR)
+        log(f"Cleaned {DOCS_BUILD_DIR}.")
+    fig_dir = FIG_PARENT_DIR / f"fig_{started:%Y-%m-%d}"
+    # The examples save their figures in this directory.
+    os.environ[FIG_DIR_ENV] = str(fig_dir)
+    log(f"Saving the figures to {fig_dir}.")
+
     uv = find_uv()
     if uv is None:
         log(f"uv was not found in PATH: {os.environ['PATH']}")
@@ -649,10 +673,18 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
     subprocess.run([*uv_run, "pytest"], cwd=REPO_DIR, check=True)
     log("Unit tests finished.")
 
-    subprocess.run([*uv_run, "make", "-C", str(DOCS_DIR), "all"], cwd=REPO_DIR, check=True)
+    # A variable given on the command line of make overrides the one in the Makefile,
+    # and it is passed on to the recursive make calls.
+    subprocess.run(
+        [*uv_run, "make", "-C", str(DOCS_DIR), "all", f"BUILDDIR={DOCS_BUILD_DIR}"], cwd=REPO_DIR, check=True
+    )
     log("Documentation build finished.")
 
-    archive(ARCHIVE_DIR / f"nightly_{started:%Y-%m-%d}.7z", DOCS_BUILD_DIR, FIG_DIR)
+    archive(
+        ARCHIVE_DIR / f"nightly_{started:%Y-%m-%d}.7z",
+        {DOCS_BUILD_DIR: DOCS_BUILD_DIR.name, fig_dir: "fig"},
+        exclude=ARCHIVE_EXCLUDE,
+    )
 
     log("Nightly run finished.")
     return 0

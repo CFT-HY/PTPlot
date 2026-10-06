@@ -75,6 +75,8 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = [
     '_build', 'Thumbs.db', '.DS_Store',
+    # The build directory and the figures of the nightly runs
+    'nightly',
     # Apidoc generates a table of contents file for each package,
     # but the packages are included in the main toctree directly.
     'gen_modules/*/modules.rst',
