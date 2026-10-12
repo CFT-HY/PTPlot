@@ -22,7 +22,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the BPL 2024 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.BPL2024
+            engine=Engine.CosWG24bpl
         )
 
     @staticmethod
@@ -30,7 +30,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the DBPL 2021 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.DBPL2021
+            engine=Engine.GH21dbpl
         )
 
     @staticmethod
@@ -38,7 +38,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the DBPL 2024 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.DBPL2024
+            engine=Engine.CosWG24dbpl
         )
 
     @staticmethod

@@ -4,11 +4,11 @@ import typing as tp
 
 import numpy as np
 
-from ptplot.science.spectrum.base2024 import PowerSpectrum2024
+from ptplot.science.spectrum.coswg24 import CosWG24
 from ptplot.science.spectrum.engine import Engine
 
 
-class PowerSpectrumDBPL2024(PowerSpectrum2024):
+class CosWG24dbpl(CosWG24):
     r"""Double broken power law (DBPL) power spectrum of Caprini et al. (2024).
 
     Template II of :caprini_2024:`\ ` sec. 2.2 with the sound wave parameters of sec. 2.2.1,
@@ -20,10 +20,10 @@ class PowerSpectrumDBPL2024(PowerSpectrum2024):
     """
 
     COLOR = "orange"
-    ENGINE: tp.ClassVar[Engine] = Engine.DBPL2024
+    ENGINE: tp.ClassVar[Engine] = Engine.CosWG24dbpl
     TABLE = f"spectra_{ENGINE}"
-    NAME: tp.ClassVar[str] = "Double broken power law (2024)"
-    SHORT_NAME: tp.ClassVar[str] = "DBPL2024"
+    NAME: tp.ClassVar[str] = "LISA Cosmology Working Group 2024 DBPL"
+    SHORT_NAME: tp.ClassVar[str] = Engine.CosWG24dbpl.value
 
     REQUIRE_SOUND_SHELL_THICKNESS = True
     REQUIRE_V_WALL = True

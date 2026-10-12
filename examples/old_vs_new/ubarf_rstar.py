@@ -50,7 +50,7 @@ def new_grid(noise: Noise, ubarf: th.FloatArr1D, r_star: th.FloatArr1D) -> th.Fl
     r"""Compute the BPL2020 SNR grid with the current code."""
     return SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_STAR, g_star=G_STAR, ubarf=ubarf, r_star=r_star,
-        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None
+        noise=noise, engine=Engine.CosWG20bpl, log_progress_percentage=None
     ).snr
 
 

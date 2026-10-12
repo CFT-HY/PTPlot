@@ -7,7 +7,7 @@ from pandas import DataFrame
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_OMEGA_TILDE_GW, DEFAULT_T_STAR
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.spectrum.base2020 import PowerSpectrum2020
+from ptplot.science.spectrum.coswg20 import CosWG20
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
@@ -15,7 +15,7 @@ import ptplot.science.type_hints as th
 DEFAULT_K_TURB: float = 1.97 / 65.0
 
 
-class PowerSpectrumBPL2020(PowerSpectrum2020):
+class CosWG20bpl(CosWG20):
     r"""Broken power law (BPL) power spectrum of Hindmarsh et al. (2017) and Caprini et al. (2020).
 
     Based on :hindmarsh_2017:`\ `, :hindmarsh_2017_erratum:`\ ` and :caprini_2020:`\ `.
@@ -29,10 +29,10 @@ class PowerSpectrumBPL2020(PowerSpectrum2020):
     """
 
     COLOR = "red"
-    ENGINE = Engine.BPL2020
+    ENGINE = Engine.CosWG20bpl
     TABLE = f"spectra_{ENGINE}"
-    NAME = "Broken power law (2020)"
-    SHORT_NAME = "BPL2020"
+    NAME = "LISA Cosmology Working Group 2020 BPL"
+    SHORT_NAME = Engine.CosWG20bpl.value
 
     def __init__(
             self,

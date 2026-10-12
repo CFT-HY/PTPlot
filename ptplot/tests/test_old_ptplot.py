@@ -67,7 +67,7 @@ def new_grid_ubarf_rstar(noise: Noise) -> SNRGridUbarfRStar:
     return SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_STAR, g_star=G_STAR,
         ubarf=const.DEFAULT_UBARF_RANGE, r_star=const.DEFAULT_R_STAR_RANGE,
-        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None, f_star0_factor=F_STAR0_FACTOR
+        noise=noise, engine=Engine.CosWG20bpl, log_progress_percentage=None, f_star0_factor=F_STAR0_FACTOR
     )
 
 
@@ -137,7 +137,7 @@ class OldPTPlotUbarfRStarTest(TestCase):
                 v_wall=v_wall, T_star=T_STAR, g_star=G_STAR,
                 alpha_points=alpha, beta_tilde_points=beta_tilde, v_wall_points=np.full_like(alpha, v_wall),
                 ubarf=const.DEFAULT_UBARF_RANGE, r_star=const.DEFAULT_R_STAR_RANGE,
-                noise=exact_noise(), engine=Engine.BPL2020, log_progress_percentage=None,
+                noise=exact_noise(), engine=Engine.CosWG20bpl, log_progress_percentage=None,
                 legacy_nucleation_cs_max=legacy
             )
             ubarf_points, r_star_points = grid.points()
@@ -179,7 +179,7 @@ class OldPTPlotAlphaBetaTest(TestCase):
         return SNRGridAlphaBeta(
             T_star=T_STAR, g_star=G_STAR, v_wall=v_wall,
             alpha_n=alpha, beta_tilde=beta_tilde,
-            noise=approx_noise(), engine=Engine.BPL2020, log_progress_percentage=None,
+            noise=approx_noise(), engine=Engine.CosWG20bpl, log_progress_percentage=None,
             legacy_nucleation_cs_max=legacy, f_star0_factor=F_STAR0_FACTOR
         ).snr
 

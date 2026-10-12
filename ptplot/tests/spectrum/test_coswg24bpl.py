@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pytest
 
-from ptplot.science.spectrum.bpl2024 import PowerSpectrumBPL2024
+from ptplot.science.spectrum.coswg24bpl import CosWG24bpl
 import ptplot.science.type_hints as th
 from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
@@ -17,13 +17,13 @@ from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 REFERENCE: th.FloatArr1D = np.array([6.826356098972105e-11, 0.00018150000000000002, 3.4042341173288775e-12])
 
 
-class BPL2024Test(PowerSpectrumBaseCase[PowerSpectrumBPL2024], unittest.TestCase):
+class BPL2024Test(PowerSpectrumBaseCase[CosWG24bpl], unittest.TestCase):
     """Tests for the broken power law (BPL) power spectrum of 2024."""
 
-    SPECTRUM_CLASS = PowerSpectrumBPL2024
+    SPECTRUM_CLASS = CosWG24bpl
 
 
-class AsymmetricBPL2024(PowerSpectrumBPL2024):
+class AsymmetricBPL2024(CosWG24bpl):
     r"""BPL2024 with $n_1 \neq -n_2$, for which $f_b \neq f_p$ and $\Omega_b \neq \Omega_p$."""
 
     SLOPES = (3., -1.)
@@ -32,7 +32,7 @@ class AsymmetricBPL2024(PowerSpectrumBPL2024):
 
 def spectrum(
         alpha: float = 10., beta_tilde: float = 100.,
-        cls: type[PowerSpectrumBPL2024] = PowerSpectrumBPL2024) -> PowerSpectrumBPL2024:
+        cls: type[CosWG24bpl] = CosWG24bpl) -> CosWG24bpl:
     """Create a BPL2024 spectrum with $T_* = 100$ GeV and $g_* = 100$."""
     return cls(T_star=100, g_star=100, v_wall=0.95, alpha=alpha, beta_tilde=beta_tilde)
 
@@ -57,8 +57,8 @@ def test_symmetric_slopes() -> None:
     assert spec.omega_b_h2() == pytest.approx(spec.omega_p_h2())
 
 
-@pytest.mark.parametrize("cls", [PowerSpectrumBPL2024, AsymmetricBPL2024])
-def test_peak_consistency(cls: type[PowerSpectrumBPL2024]) -> None:
+@pytest.mark.parametrize("cls", [CosWG24bpl, AsymmetricBPL2024])
+def test_peak_consistency(cls: type[CosWG24bpl]) -> None:
     r"""The spectrum should have its maximum $\Omega_p$ at $f_p$, eq. 2.4-2.6."""
     spec = spectrum(cls=cls)
     f_peak = spec.f_peak()
@@ -77,8 +77,8 @@ def test_asymmetric_break() -> None:
     assert ps[0] == pytest.approx(spec.omega_b_h2())
 
 
-@pytest.mark.parametrize("cls", [PowerSpectrumBPL2024, AsymmetricBPL2024])
-def test_alternative_form(cls: type[PowerSpectrumBPL2024]) -> None:
+@pytest.mark.parametrize("cls", [CosWG24bpl, AsymmetricBPL2024])
+def test_alternative_form(cls: type[CosWG24bpl]) -> None:
     """The spectrum should equal the alternative form in terms of the peak, eq. 2.6."""
     spec = spectrum(cls=cls)
     (n1, n2), (a1,) = spec.SLOPES, spec.SMOOTHNESS

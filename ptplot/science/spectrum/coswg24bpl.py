@@ -2,11 +2,11 @@
 
 import typing as tp
 
-from ptplot.science.spectrum.base2024 import PowerSpectrum2024
+from ptplot.science.spectrum.coswg24 import CosWG24
 from ptplot.science.spectrum.engine import Engine
 
 
-class PowerSpectrumBPL2024(PowerSpectrum2024):
+class CosWG24bpl(CosWG24):
     r"""Broken power law (BPL) power spectrum of Caprini et al. (2024).
 
     Template I of :caprini_2024:`\ ` sec. 2.1 for bubble collisions and highly relativistic fluid shells
@@ -19,10 +19,10 @@ class PowerSpectrumBPL2024(PowerSpectrum2024):
     """
 
     COLOR = "purple"
-    ENGINE: tp.ClassVar[Engine] = Engine.BPL2024
+    ENGINE: tp.ClassVar[Engine] = Engine.CosWG24bpl
     TABLE = f"spectra_{ENGINE}"
-    NAME: tp.ClassVar[str] = "Broken power law (2024)"
-    SHORT_NAME: tp.ClassVar[str] = "BPL2024"
+    NAME: tp.ClassVar[str] = "LISA Cosmology Working Group 2024 BPL"
+    SHORT_NAME: tp.ClassVar[str] = Engine.CosWG24bpl.value
 
     #: $A_{\text{str}}$, amplitude constant, :caprini_2024:`\ ` p. 7
     A_STR: tp.ClassVar[float] = 0.05

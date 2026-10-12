@@ -13,7 +13,7 @@ from ptplot.science.spectrum.export import ANALYTIC_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
 
-class PowerSpectrum2024(PowerSpectrum, abc.ABC):
+class CosWG24(PowerSpectrum, abc.ABC):
     r"""Base class for the broken power law templates of :caprini_2024:`\ `.
 
     Equation and page numbers refer to arXiv:2403.03723v2.

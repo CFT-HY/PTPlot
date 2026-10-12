@@ -23,7 +23,7 @@ $\Delta R_* = R_* \frac{\lvert v_{\text{wall}} - c_s \rvert}{c_s}$.
 """
 
 
-class PowerSpectrum2020(PowerSpectrum, abc.ABC):
+class CosWG20(PowerSpectrum, abc.ABC):
     r"""Base class for the power law templates of :caprini_2020:`\ ` and :gowling_2021:`\ `."""
 
     FIELDS: tp.ClassVar[Fields] = ANALYTIC_SPECTRUM_FIELDS

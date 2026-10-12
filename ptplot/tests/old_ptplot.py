@@ -235,7 +235,7 @@ def reconstructed_old_grid(
     ubarf, r_star = old_grid_axes(ubarf_max)
     grid = SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_star, g_star=g_star, ubarf=ubarf, r_star=r_star,
-        noise=old_file_noise(), engine=Engine.BPL2020, log_progress_percentage=None,
+        noise=old_file_noise(), engine=Engine.CosWG20bpl, log_progress_percentage=None,
         f_star0_factor=f_star0_factor(T_star, g_star)
     )
     return grid.shock_times, grid.snr / f_gw0_ratio(g_star), np.log10(r_star), np.log10(ubarf)

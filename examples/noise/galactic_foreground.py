@@ -70,7 +70,7 @@ def snr_grid(noise: Noise) -> th.FloatArr2D:
     return SNRGridUbarfRStar(
         v_wall=const.DEFAULT_V_WALL, T_star=T_STAR, g_star=G_STAR,
         ubarf=const.DEFAULT_UBARF_RANGE, r_star=const.DEFAULT_R_STAR_RANGE,
-        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None
+        noise=noise, engine=Engine.CosWG20bpl, log_progress_percentage=None
     ).snr
 
 

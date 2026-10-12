@@ -57,7 +57,7 @@ def new_grid(v_wall: float, noise: Noise, legacy: bool = False) -> th.FloatArr2D
     return SNRGridAlphaBeta(
         T_star=T_STAR, g_star=G_STAR, v_wall=v_wall,
         alpha_n=const.DEFAULT_ALPHA_N_RANGE, beta_tilde=const.DEFAULT_beta_tilde_RANGE,
-        noise=noise, engine=Engine.BPL2020, log_progress_percentage=None,
+        noise=noise, engine=Engine.CosWG20bpl, log_progress_percentage=None,
         legacy_nucleation_cs_max=legacy
     ).snr
 

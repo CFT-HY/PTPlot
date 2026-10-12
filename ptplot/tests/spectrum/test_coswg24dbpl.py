@@ -10,7 +10,7 @@ import pytest
 from scipy.integrate import quad
 
 from ptplot.science import const
-from ptplot.science.spectrum.dbpl2024 import PowerSpectrumDBPL2024
+from ptplot.science.spectrum.coswg24dbpl import CosWG24dbpl
 import ptplot.science.type_hints as th
 from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
@@ -19,15 +19,15 @@ from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 REFERENCE: th.FloatArr1D = np.array([1.2910820190499549e-11, 6.966806570012265e-12, 1.0191520402793716e-12])
 
 
-class DBPL2024Test(PowerSpectrumBaseCase[PowerSpectrumDBPL2024], unittest.TestCase):
+class DBPL2024Test(PowerSpectrumBaseCase[CosWG24dbpl], unittest.TestCase):
     """Tests for the double broken power law (DBPL) power spectrum of 2024."""
 
-    SPECTRUM_CLASS = PowerSpectrumDBPL2024
+    SPECTRUM_CLASS = CosWG24dbpl
 
 
-def spectrum(v_wall: float = 0.9, alpha: float = 0.1, r_star: float = 0.1) -> PowerSpectrumDBPL2024:
+def spectrum(v_wall: float = 0.9, alpha: float = 0.1, r_star: float = 0.1) -> CosWG24dbpl:
     """Create a DBPL2024 spectrum with $T_* = 100$ GeV and $g_* = 100$."""
-    return PowerSpectrumDBPL2024(T_star=100, g_star=100, v_wall=v_wall, alpha=alpha, r_star=r_star)
+    return CosWG24dbpl(T_star=100, g_star=100, v_wall=v_wall, alpha=alpha, r_star=r_star)
 
 
 def test_break_frequencies() -> None:

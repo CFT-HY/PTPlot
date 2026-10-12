@@ -7,7 +7,7 @@ from ptplot.science.spectrum import Engine
 from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
-ENGINES: tuple[Engine, ...] = (Engine.BPL2020, Engine.BPL2024, Engine.DBPL2021, Engine.DBPL2024)
+ENGINES: tuple[Engine, ...] = (Engine.CosWG20bpl, Engine.CosWG24bpl, Engine.GH21dbpl, Engine.CosWG24dbpl)
 
 
 def point() -> ParameterChoice:
@@ -26,14 +26,14 @@ class PowerSpectrumFigureTest(TestCase):
     @staticmethod
     def test_single_engine() -> None:
         """A single engine should result in a single curve."""
-        fig = point().power_spectrum_figure(engine=Engine.BPL2020)
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.BPL2020.spectrum.SHORT_NAME})"]
+        fig = point().power_spectrum_figure(engine=Engine.CosWG20bpl)
+        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG20bpl.spectrum.SHORT_NAME})"]
 
     @staticmethod
     def test_engine_as_str() -> None:
         """The engine should also be accepted as a string, as that's what the forms provide."""
-        fig = point().power_spectrum_figure(engine="bpl-2020")
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.BPL2020.spectrum.SHORT_NAME})"]
+        fig = point().power_spectrum_figure(engine="CosWG20bpl")
+        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG20bpl.spectrum.SHORT_NAME})"]
 
     @staticmethod
     def test_default_engines() -> None:

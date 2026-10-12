@@ -8,16 +8,16 @@ import pytest
 from ptplot.science import const
 from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.spectrum import (
+    CosWG20bpl,
+    CosWG24bpl,
+    CosWG24dbpl,
+    GH21dbpl,
     PowerSpectrum,
-    PowerSpectrumBPL2020,
-    PowerSpectrumBPL2024,
-    PowerSpectrumDBPL2021,
-    PowerSpectrumDBPL2024,
 )
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
 SPECTRUM_CLASSES: tuple[type[PowerSpectrum], ...] = (
-    PowerSpectrumBPL2020, PowerSpectrumBPL2024, PowerSpectrumDBPL2021, PowerSpectrumDBPL2024
+    CosWG20bpl, CosWG24bpl, GH21dbpl, CosWG24dbpl
 )
 
 
@@ -76,8 +76,8 @@ class PowerSpectrumFigureTest(TestCase):
         for spectrum in spectra_list:
             assert rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})" in labels(fig)
         # Only the BPL has turbulence curves.
-        assert rf"$\Omega_\mathrm{{turb}}$ ({PowerSpectrumBPL2020.SHORT_NAME})" in labels(fig)
-        assert f"Total ({PowerSpectrumBPL2020.SHORT_NAME})" in labels(fig)
+        assert rf"$\Omega_\mathrm{{turb}}$ ({CosWG20bpl.SHORT_NAME})" in labels(fig)
+        assert f"Total ({CosWG20bpl.SHORT_NAME})" in labels(fig)
 
     @staticmethod
     def test_no_spectra() -> None:

@@ -76,7 +76,7 @@ class ExportTest(unittest.TestCase):
 
     def test_grid_analytic(self) -> None:
         """The spectra of an analytic engine should be exported to the table of the engine."""
-        for engine in (Engine.BPL2020, Engine.BPL2024, Engine.DBPL2021, Engine.DBPL2024):
+        for engine in (Engine.CosWG20bpl, Engine.CosWG24bpl, Engine.GH21dbpl, Engine.CosWG24dbpl):
             with self.subTest(engine=engine):
                 path = Path(self.tmp_dir.name) / f"{engine}.h5"
                 with Exporter(path) as exporter:

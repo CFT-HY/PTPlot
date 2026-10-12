@@ -4,13 +4,13 @@ import typing as tp
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.noise import Noise
-from ptplot.science.spectrum.base2020 import DEFAULT_ZP, PowerSpectrum2020
+from ptplot.science.spectrum.coswg20 import DEFAULT_ZP, CosWG20
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 
 
-class PowerSpectrumDBPL2021(PowerSpectrum2020):
+class GH21dbpl(CosWG20):
     r"""
     Double broken power law (DBPL) power spectrum of Gowling & Hindmarsh (2021).
 
@@ -18,10 +18,10 @@ class PowerSpectrumDBPL2021(PowerSpectrum2020):
     """
 
     COLOR = "green"
-    ENGINE: tp.ClassVar[Engine] = Engine.DBPL2021
+    ENGINE: tp.ClassVar[Engine] = Engine.GH21dbpl
     TABLE = f"spectra_{ENGINE}"
-    NAME: tp.ClassVar[str] = "Double broken power law (2021)"
-    SHORT_NAME: tp.ClassVar[str] = "DBPL2021"
+    NAME: tp.ClassVar[str] = "Gowling & Hindmarsh 2021 DBPL"
+    SHORT_NAME: tp.ClassVar[str] = Engine.GH21dbpl.value
 
     OLD_J = True
 

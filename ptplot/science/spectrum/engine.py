@@ -15,10 +15,10 @@ logger: logging.Logger = logging.getLogger(__name__)
 class Engine(StrEnum):
     """Enumeration of power spectrum engines."""
 
-    BPL2020 = DEFAULT = "bpl-2020"
-    BPL2024 = "bpl-2024"
-    DBPL2021 = "dbpl-2021"
-    DBPL2024 = "dbpl-2024"
+    CosWG20bpl = DEFAULT = "CosWG20bpl"
+    CosWG24bpl = "CosWG24bpl"
+    GH21dbpl = "GH21dbpl"
+    CosWG24dbpl = "CosWG24dbpl"
     SSM = "ssm"
 
     @classmethod

@@ -66,11 +66,11 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
     return fig_to_response(
         point.snr_comparison(
             grid1=point.snr_grid_alpha_beta(
-                engine=Engine.BPL2020, noise=form.noise,
+                engine=Engine.CosWG20bpl, noise=form.noise,
                 legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
             ),
             grid2=point.snr_grid_alpha_beta(
-                engine=Engine.DBPL2021 if engine == Engine.BPL2020 else engine,
+                engine=Engine.GH21dbpl if engine == Engine.CosWG20bpl else engine,
                 noise=form.noise,
                 legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
             )

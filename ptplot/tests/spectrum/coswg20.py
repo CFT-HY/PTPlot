@@ -5,11 +5,11 @@ import abc
 import pytest
 
 from ptplot.science.noise import noise_curve
-from ptplot.science.spectrum.base2020 import PowerSpectrum2020
+from ptplot.science.spectrum.coswg20 import CosWG20
 from ptplot.tests.spectrum.base import PowerSpectrumBaseCase
 
 
-class PowerSpectrumBaseCase2020[S: PowerSpectrum2020](PowerSpectrumBaseCase[S], abc.ABC):
+class PowerSpectrumBaseCase2020[S: CosWG20](PowerSpectrumBaseCase[S], abc.ABC):
     """Tests that are run for BPL 2020 and DBPL 2021."""
 
     def test_f_peak(self) -> None:
