@@ -29,6 +29,7 @@ class PowerSpectrumSSM(PowerSpectrum):
     """
 
     COLOR = "blue"
+    LINESTYLE: tp.ClassVar[str] = "--"
     ENGINE: tp.ClassVar[Engine] = Engine.SSM
     NAME: tp.ClassVar[str] = "Sound Shell Model"
     SHORT_NAME: tp.ClassVar[str] = "SSM"

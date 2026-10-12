@@ -8,6 +8,7 @@ from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.utils import as_latex
 
 from ptplot.methods.stats import window_stats_annotations
 from ptplot.models.fields import LatexFloatField
@@ -129,6 +130,17 @@ class ParameterChoice(models.Model):
         return self.model.v_wall if self.v_wall is None else self.v_wall
 
     @property
+    def title(self) -> str:
+        r"""Title of the figures of this point, containing $\alpha$, $\beta/H_*$, $v_\text{wall}$, $T_*$ and $g_*$."""
+        return ", ".join([
+            rf"$\alpha = {as_latex(self.alpha)}$",
+            rf"$\beta/H_* = {as_latex(self.beta_tilde)}$",
+            rf"$v_\mathrm{{w}} = {as_latex(self.v_wall_value)}$",
+            rf"$T_* = {as_latex(self.T_star_value)}$ GeV",
+            rf"$g_* = {as_latex(self.g_star_value)}$",
+        ])
+
+    @property
     def T_star_value(self) -> float:
         """$T_*$, transition temperature of this point, or of the scenario or the model if not set for the point."""
         return self.T_star \
@@ -180,7 +192,7 @@ class ParameterChoice(models.Model):
             A single engine can also be given as a string, as that's what the forms provide.
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
-        :return: Power spectrum figure
+        :return: Power spectrum figure, titled with the parameters of this point
         """
         return power_spectrum_figure(
             spectra=[
@@ -195,7 +207,8 @@ class ParameterChoice(models.Model):
                 )
                 for spectrum_engine in Engine.engines(engine)
             ],
-            noise=noise
+            noise=noise,
+            title=self.title
         )
 
     # def snr(

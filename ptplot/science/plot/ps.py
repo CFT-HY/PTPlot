@@ -17,7 +17,7 @@ from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.utils import add_text, fig_to_svg, watermark
+from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, fig_to_svg, watermark
 from ptplot.science.spectrum import CosWG20bpl, PowerSpectrum, power_spectrum
 
 #: Line style of the turbulence curves, when multiple spectra are drawn in the same figure.
@@ -30,16 +30,19 @@ TOTAL_LINESTYLE: str = ":"
 def power_spectrum_figure(
         spectra: PowerSpectrum | tp.Iterable[PowerSpectrum],
         noise: Noise | None = None,
-        sw_only: bool = True) -> Figure:
+        sw_only: bool = True,
+        title: str | None = None) -> Figure:
     r"""Produce the power spectrum plot.
 
-    The engine of each spectrum is printed in the legend.
+    The engine and the SNR of each spectrum are printed in the legend.
     When multiple spectra are drawn, each of them is drawn with the color of its engine,
     and the components of a spectrum are distinguished from each other by their line styles.
+    The sound wave curve of each spectrum is drawn with the line style of its engine.
 
     :param spectra: power spectrum, or multiple power spectra to be drawn in the same figure
     :param noise: Which noise curve to use
     :param sw_only: Whether to ignore turbulence
+    :param title: Title of the figure, which is drawn above the watermark
     :return: Power spectrum figure
     :raises ValueError: If no spectra were given
     """
@@ -61,18 +64,15 @@ def power_spectrum_figure(
 
         ax.fill_between(noise.f, noise.noise, 1, alpha=0.3, label=r"LISA noise")
 
-        snr_texts: list[str] = []
         for spectrum in spectra_list:
             pow_spec, snr_value = spectrum.power_spectrum(noise.f, noise=noise)
-            snr_latex = as_latex(snr_value, math_mode=True)
-            snr_texts.append(f"SNR({spectrum.SHORT_NAME})={snr_latex}" if multiple else f"SNR={snr_latex}")
             # The engine is printed in the legend to tell the spectra apart.
             label_suffix = f" ({spectrum.SHORT_NAME})"
             color = spectrum.COLOR if multiple else ("k" if sw_only else "r")
 
             ax.plot(
-                noise.f, pow_spec, color=color,
-                label=r"$\Omega_\mathrm{sw}$" + label_suffix
+                noise.f, pow_spec, color=color, linestyle=spectrum.LINESTYLE,
+                label=r"$\Omega_\mathrm{sw}$" + label_suffix + f", SNR={as_latex(snr_value, math_mode=True)}"
             )
             if not sw_only and isinstance(spectrum, CosWG20bpl):
                 ax.plot(
@@ -102,10 +102,13 @@ def power_spectrum_figure(
         #          fontsize=50, color="gray",
         #          ha="right", va="bottom", alpha=0.4)
 
-        # With several spectra the SNR values are put on their own line, so that they fit in the figure.
-        text = f"{watermark()}, {snr_texts[0]}" if not multiple \
-            else "\n".join([watermark(), ", ".join(snr_texts)])
-        add_text(fig, text)
+        txt = add_text(fig, watermark())
+        if title is not None:
+            # The title is put above the text, which is excluded from the layout,
+            # and the figure is laid out again to make room for the title.
+            text_height = txt.get_window_extent().height * POINTS_PER_INCH / fig.dpi
+            ax.set_title(title, pad=text_height + 2 * TEXT_PAD)
+            fig.tight_layout()
     return fig
 
 

@@ -15,6 +15,7 @@ def point() -> ParameterChoice:
     return ParameterChoice(
         model=Model(name="Test model", slug="test_model", T_star=100, g_star=100, v_wall=0.9),
         number=1,
+        long_label="Test point",
         alpha=0.1,
         beta_tilde=100
     )

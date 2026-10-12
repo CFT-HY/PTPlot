@@ -57,6 +57,8 @@ class PowerSpectrum(Extractable, abc.ABC):
     TABLE: tp.ClassVar[str | None] = None
 
     COLOR: tp.ClassVar[str]
+    #: Line style of the sound wave curve of this engine in power spectrum figures
+    LINESTYLE: tp.ClassVar[str] = "-"
     ENGINE: tp.ClassVar[Engine]
     NAME: tp.ClassVar[str]
     SHORT_NAME: tp.ClassVar[str]

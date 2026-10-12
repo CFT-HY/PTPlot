@@ -1,6 +1,7 @@
 """Tests for the power spectrum figure."""
 
 from django.test import TestCase
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 import pytest
@@ -31,10 +32,15 @@ def spectra() -> list[PowerSpectrum]:
     ]
 
 
-def labels(fig: Figure) -> list[str]:
-    """Get the legend labels of the curves of a figure."""
+def labels(fig: Figure, strip_snr: bool = True) -> list[str]:
+    """Get the legend labels of the curves of a figure.
+
+    :param fig: Figure
+    :param strip_snr: Remove the SNR values from the labels, as they depend on the spectra
+    :return: Legend labels
+    """
     return [
-        label
+        label.split(", SNR=")[0] if strip_snr else label
         for label in (
             str(line.get_label())
             for line in fig.get_axes()[0].get_children()
@@ -67,6 +73,24 @@ class PowerSpectrumFigureTest(TestCase):
         assert [line.get_color() for line in ax.get_lines()] == [
             spectrum.COLOR for spectrum in spectra_list
         ]
+
+    @staticmethod
+    def test_title() -> None:
+        """The title should be drawn above the axes and the text, and fit in the figure."""
+        title = "Test title"
+        fig = power_spectrum_figure(spectra(), title=title)
+        ax = fig.get_axes()[0]
+        assert ax.get_title() == title
+        renderer = FigureCanvasAgg(fig).get_renderer()
+        title_extent = ax.title.get_window_extent(renderer)
+        text_extent = ax.texts[0].get_window_extent(renderer)
+        assert title_extent.y0 >= text_extent.y1
+        assert title_extent.y1 <= fig.bbox.y1
+
+    @staticmethod
+    def test_no_title() -> None:
+        """There should be no title by default."""
+        assert power_spectrum_figure(spectra()).get_axes()[0].get_title() == ""
 
     @staticmethod
     def test_multiple_with_turbulence() -> None:
