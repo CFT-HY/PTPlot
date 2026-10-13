@@ -27,10 +27,15 @@ V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #: Reference values of $r_*$, SNR and $\mathcal{H}_* \eta_\text{sh}$ for each wall velocity,
 #: computed with PTPlot before the fix of the ``bubble`` argument of :class:`PowerSpectrumSSM` in October 2026,
 #: and therefore with the old $f_{\ast,0}$ of PTtools, see :py:data:`F_STAR0_FACTOR`,
-#: and with the compact binary noises, which were included by default at the time
+#: and with the compact binary noises, which were included by default at the time.
+#: The SNR values have since been updated for the following changes in PTtools:
+#:
+#: - 3d5798f: the point at the wall of detonations is in the broken phase (v_wall = 0.9: 0.11508 -> 0.11346)
+#: - 137b476: the suppression datasets are recomputed with SSMSpectrum
+#:   (v_wall = 0.3: 0.05727 -> 0.06623, v_wall = 0.9: 0.11346 -> 0.10879)
 REFERENCE: dict[float, tuple[float, float, float]] = {
-    0.3: (0.018124666532740186, 0.05726717628625229, 0.19839872059716177),
-    0.9: (0.026362653976107417, 0.11508301979789859, 0.2568295035856295),
+    0.3: (0.018124666532740186, 0.06622525560700972, 0.19839872059716177),
+    0.9: (0.026362653976107417, 0.10878839586399065, 0.2568295035856295),
 }
 
 #: Ratio of the old and the new $f_{\ast,0}$ of PTtools, see :py:func:`ptplot.tests.old_ptplot.f_star0_factor`

@@ -19,6 +19,7 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Build documentation without examples: `uv run make -C docs all-noplot`
 - Update PTtools to the latest commit of its `dev` branch: `./install_requirements.sh --update-pttools`
   - This updates the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml` before installing.
+    It also cleans the Numba cache of PTtools to ensure that cached functions from the previous version are removed.
   - To use a different commit, update the `rev` manually and run `./install_requirements.sh`.
 - Update the other dependencies: `uv lock --upgrade`, or `uv lock --upgrade-package NAME` for a single one.
 - Nightly run: `./ptplot/nightly.py --run` runs the unit tests, builds the documentation with examples and archives the results.
