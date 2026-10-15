@@ -335,6 +335,8 @@ extend-ignore-names = [
 # This should be set to "sphinx" once it's supported.
 # https://github.com/astral-sh/ruff/issues/6606
 convention = "pep257"
+# The docstrings of the methods decorated with these are copied from other functions at import time.
+ignore-decorators = ["pttools.utils.docstrings.copy_docstring_dec"]
 
 [tool.uv]
 # Install the development and documentation dependencies by default,
