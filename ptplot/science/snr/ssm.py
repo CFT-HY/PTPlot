@@ -7,6 +7,7 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Extractor, Record
 from pttools.models import Model
+from pttools.ssm.const import DEFAULT_N_Z_LOOKUP
 
 from ptplot.science import const
 from ptplot.science import type_hints as th
@@ -50,6 +51,19 @@ def snr_column_ssm(
     r"""Compute a column of an SNR grid with the Sound Shell Model.
 
     The fluid shell is computed only once for the column, as $x$ is the same for all its points.
+    Unless the spectra are extracted for exporting, the PTtools spectrum is also computed only once,
+    for a $z$ array that covers the frequencies of the noise curve for all the $y$ values of the column
+    (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.z_covering`),
+    with as dense lookup arrays as for the frequencies
+    (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.n_z_lookup_covering`),
+    and the spectra of the points are created from it with
+    :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.with_params`.
+    The SNR values are then computed on the points of the $z$ array, see
+    :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.power_spectrum`.
+    When exporting, each spectrum is computed separately for the frequencies of the noise curve,
+    as the exported spectra share the frequencies,
+    whereas the $z$ arrays of the columns can differ from each other.
+    If the shared spectrum cannot be computed, the spectra are computed separately as well.
     If the computation of a point fails, its values are NaN, as in :py:func:`ptplot.science.snr.point.snr_point`,
     and if the fluid shell cannot be created, all the values of the column are NaN.
     The errors are logged.
@@ -105,22 +119,57 @@ def snr_column_ssm(
         )
         return column
 
-    for i, y_i in enumerate(y):
+    def create_spectrum(
+            y_i: float,
+            z: th.FloatArr1D | None = None,
+            n_z_lookup: int = DEFAULT_N_Z_LOOKUP) -> PowerSpectrumSSM:
+        return PowerSpectrumSSM(
+            alpha=None if ubarf_rstar else x_value,
+            ubarf=x_value if ubarf_rstar else None,
+            beta_tilde=None if ubarf_rstar else y_i,
+            r_star=y_i if ubarf_rstar else None,
+            T_star=T_star,
+            g_star=g_star,
+            v_wall=v_wall,
+            adiabatic_index=adiabatic_index,
+            model=model,
+            bubble=bubble,
+            f_star0_factor=f_star0_factor,
+            parallel=parallel,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            z=z,
+            n_z_lookup=n_z_lookup
+        )
+
+    shared_spectrum: PowerSpectrumSSM | None = None
+    if extractor is None:
         try:
-            spectrum = PowerSpectrumSSM(
-                alpha=None if ubarf_rstar else x_value,
-                ubarf=x_value if ubarf_rstar else None,
-                beta_tilde=None if ubarf_rstar else y_i,
-                r_star=y_i if ubarf_rstar else None,
+            z = PowerSpectrumSSM.z_covering(
+                f=noise.f,
+                bubble=bubble,
                 T_star=T_star,
                 g_star=g_star,
-                v_wall=v_wall,
-                adiabatic_index=adiabatic_index,
-                model=model,
-                bubble=bubble,
-                f_star0_factor=f_star0_factor,
-                parallel=parallel,
-                legacy_nucleation_cs_max=legacy_nucleation_cs_max
+                beta_tilde=None if ubarf_rstar else y,
+                r_star=y if ubarf_rstar else None,
+                f_star0_factor=f_star0_factor
+            )
+            # Any valid y value can be used for the shared spectrum, as with_params() changes it.
+            y_valid = y[np.isfinite(y) & (y > 0)]
+            shared_spectrum = create_spectrum(
+                y_i=y_valid[0], z=z, n_z_lookup=PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f))
+        except Exception as exc:
+            logger.exception(
+                "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "
+                "Computing the spectra separately.",
+                x_name, x_value, v_wall,
+                exc_info=exc
+            )
+
+    for i, y_i in enumerate(y):
+        try:
+            spectrum = create_spectrum(y_i) if shared_spectrum is None else shared_spectrum.with_params(
+                beta_tilde=None if ubarf_rstar else y_i,
+                r_star=y_i if ubarf_rstar else None
             )
             # Error logging is handled in this function
             _power_spectrum, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)

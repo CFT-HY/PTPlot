@@ -9,7 +9,8 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Exporter, Extractor, Importer, Preset, Table
 from pttools.models import BagModel
-from pttools.omgw0 import Spectrum
+from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.ssm.const import DEFAULT_N_Z_LOOKUP
 import pytest
 
 from ptplot.science.noise import noise_curve
@@ -38,14 +39,31 @@ REFERENCE: dict[float, tuple[float, float, float]] = {
     0.9: (0.026362653976107417, 0.10878839586399065, 0.2568295035856295),
 }
 
+#: $\tilde{\beta}$ values of the columns for testing the precomputed spectra, covering 4 orders of magnitude
+BETA_TILDES: tuple[float, ...] = (10., 100., 1000., 1e5)
+#: Relative tolerance for the SNR computed on the points of a precomputed spectrum.
+#: The SNR differs from that of a separately computed spectrum due to the different points.
+SNR_RTOL_PRECOMPUTED: float = 1e-3
+#: Relative tolerance for the power spectrum interpolated from a precomputed spectrum
+#: at the frequencies where it is above :py:data:`PS_REL_MIN_PRECOMPUTED` times its peak,
+#: see :py:meth:`SSMTest.test_precomputed`.
+PS_RTOL_PRECOMPUTED: float = 2e-2
+PS_REL_MIN_PRECOMPUTED: float = 1e-2
+
 #: Ratio of the old and the new $f_{\ast,0}$ of PTtools, see :py:func:`ptplot.tests.old_ptplot.f_star0_factor`
 F_STAR0_FACTOR: float = f_star0_factor(T_STAR, G_STAR)
 
 
-def spectrum(v_wall: float, **kwargs: tp.Any) -> PowerSpectrumSSM:
-    """Create an SSM power spectrum with the test parameters."""
+def spectrum(
+        v_wall: float,
+        alpha: float | None = ALPHA,
+        beta_tilde: float | None = BETA_TILDE,
+        T_star: float = T_STAR,
+        g_star: float = G_STAR,
+        **kwargs: tp.Any) -> PowerSpectrumSSM:
+    """Create an SSM power spectrum with the test parameters, which can be overridden."""
     return PowerSpectrumSSM(
-        v_wall=v_wall, alpha=ALPHA, beta_tilde=BETA_TILDE, T_star=T_STAR, g_star=G_STAR, **kwargs
+        v_wall=v_wall, alpha=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star, **kwargs
     )
 
 
@@ -103,6 +121,148 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         with pytest.raises(ValueError, match="same model"):
             spectrum(0.3, bubble=bubble, model=BagModel(alpha_n_min=0.0001))
 
+    def test_precomputed(self) -> None:
+        r"""A precomputed spectrum should give the same results as computing the spectrum for the frequencies.
+
+        The SNR is computed on different points, and the power spectrum is interpolated.
+        The lookup arrays are as dense as for the frequencies, see :py:meth:`PowerSpectrumSSM.n_z_lookup_covering`.
+        Even then, the power spectrum of PTtools depends on the range of the $z$ array,
+        as the lookup array of $qT$ for ${\lvert A \rvert}^2$ begins from the smallest $z$
+        and has the same spacing as the $z$ array.
+        With the spacing of the default noise curve, this discretization error is up to 2 % near the peak,
+        and the same as the difference of a spectrum computed separately for the frequencies
+        and one computed for a 4 times denser $z$ array.
+        In the tail of the spectrum, the error is larger, and the tail does not converge with ``n_z_lookup``.
+        Therefore, the power spectrum is compared only near the peak.
+        """
+        noise = noise_curve()
+        beta_tildes = np.array(BETA_TILDES)
+        for v_wall in V_WALLS:
+            bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+            z = PowerSpectrumSSM.z_covering(
+                f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=beta_tildes)
+            n_z_lookup = PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f)
+            assert n_z_lookup > DEFAULT_N_Z_LOOKUP
+            for beta_tilde in BETA_TILDES:
+                with self.subTest(v_wall=v_wall, beta_tilde=beta_tilde):
+                    precomputed = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde, z=z, n_z_lookup=n_z_lookup)
+                    assert precomputed.precomputed is not None
+                    assert precomputed.covers(noise.f)
+                    ps, snr = precomputed.power_spectrum(noise.f, noise=noise)
+                    assert precomputed.spectrum is precomputed.precomputed
+                    computed = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde)
+                    ps_ref, snr_ref = computed.power_spectrum(noise.f, noise=noise)
+                    np.testing.assert_allclose(snr, snr_ref, rtol=SNR_RTOL_PRECOMPUTED)
+                    significant = ps_ref > PS_REL_MIN_PRECOMPUTED * ps_ref.max()
+                    np.testing.assert_allclose(ps[significant], ps_ref[significant], rtol=PS_RTOL_PRECOMPUTED)
+
+    @staticmethod
+    def test_precomputed_fallback() -> None:
+        """The spectrum should be computed for the frequencies if the precomputed spectrum cannot be used."""
+        noise = noise_curve()
+        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        z = PowerSpectrumSSM.z_covering(
+            f=noise.f[:noise.f.size // 2], bubble=bubble, T_star=T_STAR, g_star=G_STAR,
+            beta_tilde=np.array([BETA_TILDE]))
+        ssm = spectrum(V_WALLS[0], bubble=bubble, z=z)
+        computed = spectrum(V_WALLS[0], bubble=bubble)
+        ps_ref, snr_ref = computed.power_spectrum(noise.f, noise=noise)
+
+        # The frequencies are outside the precomputed range.
+        assert not ssm.covers(noise.f)
+        ps, snr = ssm.power_spectrum(noise.f, noise=noise)
+        assert ssm.spectrum is not None
+        assert ssm.spectrum is not ssm.precomputed
+        np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
+        np.testing.assert_allclose(snr, snr_ref, rtol=1e-12)
+
+        # The suppression method differs from that of the precomputed spectrum.
+        f = noise.f[:noise.f.size // 4]
+        assert ssm.covers(f)
+        ps, _ = ssm.power_spectrum(f, noise=noise, suppression_method=SuppressionMethod.NONE)
+        assert ssm.spectrum is not ssm.precomputed
+        ps_ref, _ = computed.power_spectrum(f, noise=noise, suppression_method=SuppressionMethod.NONE)
+        np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
+
+    def test_with_params(self) -> None:
+        """A spectrum created with with_params() should match one created with the same parameters."""
+        noise = noise_curve()
+        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        z = PowerSpectrumSSM.z_covering(
+            f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array(BETA_TILDES))
+        cases: list[tuple[dict[str, tp.Any], dict[str, tp.Any]]] = [
+            ({"beta_tilde": 1000.}, {"beta_tilde": 1000.}),
+            ({"r_star": 0.01}, {"beta_tilde": None, "r_star": 0.01}),
+            ({"T_star": 200., "g_star": 50.}, {"T_star": 200., "g_star": 50.}),
+            ({"f_star0_factor": 1.1}, {"f_star0_factor": 1.1}),
+        ]
+        for z_i in (None, z):
+            base = spectrum(V_WALLS[0], bubble=bubble, z=z_i)
+            for params, kwargs in cases:
+                with self.subTest(z=z_i is not None, **params):
+                    new = base.with_params(**params)
+                    ref = spectrum(V_WALLS[0], bubble=bubble, **kwargs)
+                    assert new.bubble is bubble
+                    assert (new.precomputed is None) == (z_i is None)
+                    np.testing.assert_allclose(new.r_star, ref.r_star, rtol=1e-12)
+                    np.testing.assert_allclose(new.beta_tilde, ref.beta_tilde, rtol=1e-12)
+                    np.testing.assert_allclose(new.H_star_eta_sh, ref.H_star_eta_sh, rtol=1e-12)
+                    if z_i is not None:
+                        ref = spectrum(V_WALLS[0], bubble=bubble, z=z_i, **kwargs)
+                        assert new.precomputed is not None
+                        assert ref.precomputed is not None
+                        np.testing.assert_array_equal(new.precomputed.y, z_i)
+                        np.testing.assert_allclose(
+                            new.precomputed.omgw0_h2(), ref.precomputed.omgw0_h2(), rtol=1e-12)
+                    f = noise.f[noise.f.size // 4:]
+                    ps, snr = new.power_spectrum(f, noise=noise)
+                    ps_ref, snr_ref = ref.power_spectrum(f, noise=noise)
+                    np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
+                    np.testing.assert_allclose(snr, snr_ref, rtol=1e-12)
+
+        # The parameters given as alpha or ubarf should be preserved.
+        ubarf = spectrum(V_WALLS[0], bubble=bubble).ubarf
+        given_ubarf = spectrum(V_WALLS[0], alpha=None, ubarf=ubarf)
+        assert given_ubarf.with_params(beta_tilde=1000.).ubarf == ubarf
+
+    @staticmethod
+    def test_z_covering() -> None:
+        """The z array should cover the frequencies for all the given values, ignoring the invalid ones."""
+        noise = noise_curve()
+        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        for name, values in (("beta_tilde", BETA_TILDES), ("r_star", (1e-3, 0.01, 0.1))):
+            # The invalid values should be ignored.
+            arr = np.array([*values, np.nan, -1.])
+            z = PowerSpectrumSSM.z_covering(
+                f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, f_star0_factor=1.1,
+                beta_tilde=arr if name == "beta_tilde" else None,
+                r_star=arr if name == "r_star" else None
+            )
+            assert np.all(np.diff(z) > 0)
+            # The default density is that of the frequencies.
+            points_per_decade = (z.size - 1) / np.log10(z[-1] / z[0])
+            np.testing.assert_allclose(
+                points_per_decade, (noise.f.size - 1) / np.log10(noise.f[-1] / noise.f[0]), rtol=1e-3)
+            spectra = [
+                spectrum(
+                    V_WALLS[0], bubble=bubble, z=z, f_star0_factor=1.1,
+                    beta_tilde=value if name == "beta_tilde" else None,
+                    r_star=value if name == "r_star" else None
+                )
+                for value in values
+            ]
+            for ssm in spectra:
+                assert ssm.covers(noise.f)
+            # The smallest and largest r_star determine the endpoints.
+            spectra.sort(key=lambda ssm: tp.cast(Spectrum, ssm.precomputed).r_star)
+            assert not spectra[0].covers(noise.f / 1.01)
+            assert not spectra[-1].covers(noise.f * 1.01)
+        with pytest.raises(ValueError, match="Exactly one"):
+            PowerSpectrumSSM.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR)
+        with pytest.raises(ValueError, match="None of"):
+            PowerSpectrumSSM.z_covering(
+                f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array([np.nan]))
+
     def test_snr_column(self) -> None:
         """The SNR grid column should match the individual spectra with the same parameters."""
         noise = noise_curve()
@@ -116,6 +276,21 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 np.testing.assert_allclose(column.snr[0], snr, rtol=1e-6)
                 np.testing.assert_allclose(column.shock_times[0], ssm.H_star_eta_sh, rtol=1e-12)
                 assert not column.records
+
+    def test_snr_column_multiple(self) -> None:
+        """The SNR grid column with a shared spectrum should match the separately computed spectra."""
+        noise = noise_curve()
+        for v_wall in V_WALLS:
+            with self.subTest(v_wall=v_wall):
+                column = snr_column_ssm(
+                    x=ALPHA, y=np.array(BETA_TILDES), v_wall=v_wall, T_star=T_STAR, g_star=G_STAR, noise=noise
+                )
+                bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+                for i, beta_tilde in enumerate(BETA_TILDES):
+                    ssm = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde)
+                    _, snr = ssm.power_spectrum(noise.f, noise=noise)
+                    np.testing.assert_allclose(column.snr[i], snr, rtol=SNR_RTOL_PRECOMPUTED)
+                    np.testing.assert_allclose(column.shock_times[i], ssm.H_star_eta_sh, rtol=1e-12)
 
     def test_export_column(self) -> None:
         """The exported spectra of an SNR grid column should match the spectra computed by PTPlot.

@@ -103,6 +103,14 @@ class Noise:
         r"""Mission duration $T_\text{obs}$ in seconds."""
         return self.obs_years * YEAR_IN_SECONDS
 
+    def noise_at(self, f: th.FloatArr1D) -> th.FloatArr1D:
+        r"""Noise $\Omega_\text{noise} h^2$ with the noise sources of this curve at the given frequencies.
+
+        :param f: Frequencies $f$ (Hz)
+        :return: $\Omega_\text{noise} h^2$ at ``f``
+        """
+        return omega_noise_h2(f=f, eb=self.eb, gb=self.gb)
+
 
 @functools.lru_cache(maxsize=16)
 def _noise_curve(obs_years: float, eb: bool, gb: bool, f_min: float, f_max: float, size: int) -> Noise:
