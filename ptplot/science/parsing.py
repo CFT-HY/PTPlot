@@ -90,7 +90,7 @@ class PTPlotParser(argparse.ArgumentParser):
                 "-engine", "--engine", "-ps", "--ps",
                 type=engine_arg,
                 choices=list(Engine),
-                default=Engine.engines() if engines else Engine.DEFAULT,
+                default=Engine.engines(strong=False) if engines else Engine.DEFAULT,
                 nargs="+" if engines else None,
                 help="Method(s) for computing the power spectrum" if engines
                 else "Method for computing the power spectrum"

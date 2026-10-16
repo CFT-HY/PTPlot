@@ -183,15 +183,19 @@ class ParameterChoice(models.Model):
             self,
             noise: Noise | None = None,
             engine: Engine | str | tp.Iterable[Engine] | None = None,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> Figure:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            strong: bool | None = None) -> Figure:
         r"""Plot the power spectrum of this parameter choice.
 
         :param noise: Which noise curve to use
         :param engine: Engine, or multiple engines, whose spectra are drawn in the same figure.
-            Defaults to all engines.
+            Defaults to all engines, except those for strong transitions only, see ``strong``.
             A single engine can also be given as a string, as that's what the forms provide.
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param strong: Include the engines for strong transitions only,
+            see :py:meth:`ptplot.science.spectrum.engine.Engine.engines`.
+            Defaults to including them if the engines are given, and excluding them otherwise.
         :return: Power spectrum figure, titled with the parameters of this point
         """
         return power_spectrum_figure(
@@ -205,7 +209,7 @@ class ParameterChoice(models.Model):
                     engine=spectrum_engine,
                     legacy_nucleation_cs_max=legacy_nucleation_cs_max
                 )
-                for spectrum_engine in Engine.engines(engine)
+                for spectrum_engine in Engine.engines(engine, strong=bool(engine) if strong is None else strong)
             ],
             noise=noise,
             title=self.title

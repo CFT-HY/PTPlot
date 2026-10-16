@@ -37,22 +37,27 @@ class Engine(StrEnum):
             cls,
             engines: "Engine | str | tp.Iterable[Engine] | None" = None,
             fast: bool = False,
-            log: bool = False) -> "list[Engine]":
+            log: bool = False,
+            strong: bool = True) -> "list[Engine]":
         """Get the engines.
 
         :param engines: Engine or engines to be filtered. Using all engines if not given.
         :param fast: Return only engines that are fast
         :param log: Enable logging
+        :param strong: Include the engines that are for strong transitions only, i.e. ``CosWG24bpl``
         :return: Engines (list instead of set to preserve order)
         """
         engines2 = ([Engine(engines)] if isinstance(engines, str) else list(engines)) \
             if engines is not None and engines else cls
         get_all = not (fast and IS_GITHUB_ACTIONS)
-        engines = [engine for engine in engines2 if get_all or (engine != cls.SSM)]
+        engines = [
+            engine for engine in engines2
+            if (get_all or engine != cls.SSM) and (strong or engine not in STRONG_ENGINES)
+        ]
         if log:
             logger.info(
-                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, fast, IS_GITHUB_ACTIONS
+                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s, strong=%s)",
+                engines, fast, IS_GITHUB_ACTIONS, strong
             )
         return engines
 
@@ -79,3 +84,5 @@ class Engine(StrEnum):
 
 
 ENGINE_SPECTRUM_CLASSES: dict[Engine, type[PowerSpectrum]] = {}
+#: Engines that are for strong transitions only, see :py:meth:`ptplot.science.spectrum.engine.Engine.engines`
+STRONG_ENGINES: frozenset[Engine] = frozenset({Engine.CosWG24bpl})

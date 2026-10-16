@@ -42,7 +42,7 @@ def main() -> None:
     """Plot spectra of the selected points"""
     slug = "singlet_jonathan"
     numbers = [61, 121]
-    engines = Engine.engines(log=True)
+    engines = Engine.engines(log=True, strong=False)
     save_and_show_figs(
         {f"{slug}_point_{number}_ps": plot_spectra(slug=slug, number=number, engine=engines) for number in numbers}
     )
