@@ -1,6 +1,7 @@
 """Generic utility methods."""
 
 import os
+from threading import Lock
 import typing as tp
 
 import django
@@ -12,6 +13,9 @@ from pttools.logging import setup_logging as pttools_logging
 
 from ptplot import PTPLOT_DIR
 from ptplot.science.plot.utils import fig_to_svg
+
+#: Lock for setting up Django only once.
+DJANGO_SETUP_LOCK: Lock = Lock()
 
 
 def fig_to_response(fig: Figure) -> HttpResponse:
@@ -42,11 +46,20 @@ def get_object_or_404_related[T: Model](
 
 def setup_django(log_dir: str | os.PathLike[str] | None = None, settings: str = "ptplot_site.settings.dev") -> None:
     """Configure Django for use in a script."""
+    if not DJANGO_SETUP_LOCK.acquire(blocking=False):
+        return
+
     if log_dir is None:
         repo_dir = PTPLOT_DIR.parent
         if not (repo_dir / "examples").is_dir():
             raise ValueError("log_dir must be specified when PTPlot is not installed with \"git clone\".")
         log_dir = repo_dir / "logs"
-    pttools_logging(name="ptplot", log_dir=log_dir)
+    setup_logging(log_dir=log_dir)
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings)
     django.setup()
+
+
+def setup_logging(name: str = "ptplot", log_dir: str | os.PathLike[str] | None = None) -> None:
+    """Configure logging."""
+    pttools_logging(name=name, log_dir=log_dir)
