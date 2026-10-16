@@ -12,7 +12,7 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
     All checks are run even if some of them fail. The exit code is 0 if all checks pass,
     the exit code of the failed check if exactly one check fails, and 100 if multiple checks fail.
   - Fast lint: `./lint.sh --fast` skips the significantly slower `python -m pttools.docs.lint`.
-  - After changes that create or modify docstrings, or files in `./docs/`, run the full lint `./lint.sh` (~2 min).
+  - After changes that create or modify any reST or math markup in docstrings or `.rst` files, or files in `./docs/`, run the full lint `./lint.sh` (~2 min).
     After other changes, run the fast lint `./lint.sh --fast`.
 - Build documentation with examples: `uv run make -C docs all`
   - This will run the examples and can therefore take 1-3 h.
