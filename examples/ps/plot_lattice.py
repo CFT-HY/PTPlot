@@ -5,12 +5,23 @@ Lattice simulations and the engines
 Compare the GW power spectra of the $4096^3$ hydrodynamic lattice simulations of :correia_2025:`\ `
 with the spectra of the engines at the parameter values of the simulations.
 
-The simulated GW power spectra are converted to the GW power spectrum today by PTtools,
-see :py:class:`pttools.lattice.spectrum.LatticeSpectrum`.
-The simulations end before the GW power has stopped growing.
-Therefore, the simulated spectra are scaled to the asymptotic GW power,
-which is extrapolated with :correia_2025:`\ ` eq. 47,
-see :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.omega_gw_asymptote_ratio`.
+The simulated GW power spectra are converted to the GW power spectrum today in two ways:
+
+- From the GW power spectrum $\mathcal{P}_\text{gw}$ that has accumulated by the time step,
+  as in PTtools, see :py:class:`pttools.lattice.spectrum.LatticeSpectrum`.
+  The simulations end before the GW power has stopped growing.
+  Therefore, the spectrum is scaled to the asymptotic GW power,
+  which is extrapolated with :correia_2025:`\ ` eq. 47,
+  see :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.omega_gw_asymptote_ratio`.
+  This conversion neglects the expansion of the universe.
+- From the GW power growth rate $\dot{\mathcal{P}}_\text{gw}$ at the time step,
+  with the source lifetime and the expansion of the universe of the Sound Shell Model,
+  see :py:func:`lattice_omgw0_h2_rate`.
+  This is how PTtools compares the simulations with the SSM,
+  e.g. in the example ``lattice_spectra`` of PTtools.
+
+The accumulated GW power includes the earlier times, when the flow was at smaller scales,
+and therefore it peaks at higher frequencies than the growth rate.
 The simulations are scale-free, as $H_n$ only enters through the Friedmann equation.
 Therefore, $r_*$ is not taken from the simulations,
 and the simulated spectra and the engines are evaluated at the same chosen value of $r_*$.
@@ -31,7 +42,7 @@ import typing as tp
 from matplotlib import rc_context
 from matplotlib.figure import Figure
 from pttools.bubble import Bubble
-from pttools.lattice import CORREIA_2025_RUNS, CorreiaRun, data_dir, load_correia_2025_run
+from pttools.lattice import CORREIA_2025_RUNS, CorreiaRun, LatticeSpectrum, data_dir, load_correia_2025_run
 from pttools.omgw0 import Spectrum, SuppressionMethod
 from pttools.ssm.nucleation import NucType
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
@@ -52,6 +63,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 R_STAR: float = 0.1
 #: Color of the simulated spectra
 LATTICE_COLOR: str = "black"
+#: Color of the simulated spectra converted from the GW power growth rate
+LATTICE_RATE_COLOR: str = "grey"
 #: Line style of the simulated spectra
 LATTICE_LINESTYLE: str = ":"
 #: Line style of the SSM spectra with simultaneous nucleation
@@ -83,6 +96,32 @@ def ssm_simultaneous(
     )
 
 
+def lattice_omgw0_h2_rate(spectrum: LatticeSpectrum, bubble: Bubble) -> FloatArr1D:
+    r"""$\Omega_{\text{gw},0} h^2(f)$, GW power spectrum today from the simulated GW power growth rate.
+
+    The simulated growth rate is scaled with the same factors as the Sound Shell Model of PTtools,
+    :py:func:`pttools.ssm.spec_den_gw.spec_den_gw_scaling`,
+    $$\Omega_{\text{gw},0} h^2(f) = F_{\text{gw},0} h^2 \, r_* \, \mathcal{H}_* \eta_\text{v}
+    \left( \frac{a_*}{a_r} \right)^\frac{2\nu}{1 + \nu}
+    \frac{1}{H_n R_*} \frac{d\mathcal{P}_\text{gw}}{d(H_n t)},$$
+    :giombi_2026:`\ ` eq. 3.9a,
+    where $\mathcal{H}_* \eta_\text{v} = \mathcal{H}_* \eta_* \Upsilon_\ell$ is the effective source lifetime,
+    which is computed from the RMS fluid velocity $\bar{U}_f$ of the single-bubble fluid shell,
+    see :py:func:`pttools.ssm.scaling.H_star_eta_v`.
+    The frequencies are those of the spectrum, :py:meth:`pttools.omgw0.base.Omgw0Base.f`.
+
+    :param spectrum: simulated spectrum, which gives $r_*$, $T_*$ and $g_*$
+    :param bubble: fluid shell with the parameters of the simulation
+    :return: $\Omega_{\text{gw},0} h^2$
+    """
+    # The SSM spectrum is used only for the conversion factors, and therefore it's not computed.
+    ssm = Spectrum(
+        bubble=bubble, r_star=spectrum.r_star, y=spectrum.y, T_star=spectrum.T_star, g_star=spectrum.g_star,
+        gs_star=spectrum.gs_star, compute=False)
+    factor = ssm.r_star * ssm.H_star_eta_v * ssm.dilution_of_e
+    return spectrum.F_gw0_h2(om_gamma0_h2=const.OMEGA_PHOTON_H2) * factor * spectrum.pow_gw_rate
+
+
 def plot_lattice(
         meta: CorreiaRun,
         path: Path,
@@ -100,6 +139,7 @@ def plot_lattice(
     If the SSM engine is enabled, the SSM spectrum with simultaneous nucleation is also drawn,
     see :py:func:`ssm_simultaneous`.
 
+    The simulated spectrum is drawn with both conversions, see the description of this example.
     If ``asymptote`` is enabled, the simulated spectrum at the time step of ``meta`` is scaled by
     $\Omega_\text{gw}^\infty / \Omega_\text{gw}(t)$,
     see :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.omega_gw_asymptote_ratio`.
@@ -113,7 +153,7 @@ def plot_lattice(
     :param T_star: $T_*$, temperature at the time of GW production
     :param g_star: $g_*$, degrees of freedom
     :param noise: which noise curve to use
-    :param asymptote: whether to extrapolate the simulated GW power to late times
+    :param asymptote: whether to extrapolate the accumulated simulated GW power to late times
     :return: power spectrum figure
     """
     noise = resolve_noise(noise)
@@ -142,9 +182,11 @@ def plot_lattice(
         time_label = r"t \to \infty"
     else:
         time_label = rf"t={spectrum.t / run.t_sh:.2f} \, t_\mathrm{{sh}}"
-    i_artifact = lattice_artifact_start(spectrum.y, spectrum.pow_gw)
-    valid = slice(None, i_artifact)
+    valid = slice(None, lattice_artifact_start(spectrum.y, spectrum.pow_gw))
     snr = PowerSpectrum.snr(f=f[valid], power_spectrum=omgw0_h2[valid], noise=noise)
+    omgw0_h2_rate = lattice_omgw0_h2_rate(spectrum, bubble)
+    valid_rate = slice(None, lattice_artifact_start(spectrum.y, spectrum.pow_gw_rate))
+    snr_rate = PowerSpectrum.snr(f=f[valid_rate], power_spectrum=omgw0_h2_rate[valid_rate], noise=noise)
 
     ax = fig.axes[0]
     # The SSM engine uses exponential nucleation, which is marked to distinguish it from simultaneous nucleation.
@@ -162,7 +204,13 @@ def plot_lattice(
             )
         ax.plot(
             f[valid], omgw0_h2[valid], color=LATTICE_COLOR, linestyle=LATTICE_LINESTYLE,
-            label=rf"$\Omega_\mathrm{{sw}}$ (CHRW25sim, ${time_label}$), SNR={as_latex(snr, math_mode=True)}"
+            label=rf"$\Omega_\mathrm{{sw}}$ (CHRW25sim, $\mathcal{{P}}_\mathrm{{gw}}$, ${time_label}$), "
+                  f"SNR={as_latex(snr, math_mode=True)}"
+        )
+        ax.plot(
+            f[valid_rate], omgw0_h2_rate[valid_rate], color=LATTICE_RATE_COLOR, linestyle=LATTICE_LINESTYLE,
+            label=rf"$\Omega_\mathrm{{sw}}$ (CHRW25sim, $\dot{{\mathcal{{P}}}}_\mathrm{{gw}}$), "
+                  f"SNR={as_latex(snr_rate, math_mode=True)}"
         )
         # The labels are longer than in the other power spectrum figures, so a smaller font is used.
         ax.legend(loc="lower left", fontsize="small")
