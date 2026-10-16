@@ -362,4 +362,4 @@ wheel-exclude = [
 # To update to a different commit hash, update the "rev" below and run "./install_requirements.sh".
 # To update to the latest commit of the PTtools dev branch, run "./install_requirements.sh --update-pttools".
 # Remove this section to install the release from PyPI instead.
-pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "0c54ca3851fad599b0220960a901b8128efdd7db" }
+pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "91df54f5a69112f8b5abfe470d6194bc4b574cc2" }
