@@ -54,6 +54,23 @@ pttools_commit() {
   done
 }
 
+# Find the date and time of a PTtools commit.
+# The commit is searched for in the Git repositories of the uv cache,
+# which contain the commits that uv has installed, and in the local PTtools repository ../pttools.
+pttools_commit_date() {
+  local commit="$1"
+  local repo
+  if [ -z "${commit}" ]; then
+    return
+  fi
+  for repo in "$(uv cache dir)"/git-v0/db/* "${SCRIPT_DIR}/../pttools"; do
+    if [ -d "${repo}" ] && git -C "${repo}" show -s --format="%ci" "${commit}" 2> /dev/null; then
+      return
+    fi
+  done
+  echo "unknown date"
+}
+
 # Numba stores its cache in the __pycache__ directories next to the source files,
 # or in NUMBA_CACHE_DIR, if it's set.
 # These files are not tracked by uv, and are therefore not removed when the package is updated.
@@ -110,5 +127,11 @@ uv sync --project "${SCRIPT_DIR}" ${UV_ARGS[@]+"${UV_ARGS[@]}"}
 COMMIT_AFTER="$(pttools_commit)"
 if [ "${COMMIT_BEFORE}" != "${COMMIT_AFTER}" ]; then
   echo "PTtools was updated from \"${COMMIT_BEFORE:-none}\" to \"${COMMIT_AFTER:-none}\"."
+  if [ -n "${COMMIT_BEFORE}" ]; then
+    echo "  Old commit: $(pttools_commit_date "${COMMIT_BEFORE}")"
+  fi
+  if [ -n "${COMMIT_AFTER}" ]; then
+    echo "  New commit: $(pttools_commit_date "${COMMIT_AFTER}")"
+  fi
   clear_numba_cache pttools
 fi
