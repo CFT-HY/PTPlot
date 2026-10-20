@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nightly run: unit tests, documentation build (which runs the examples) and archiving of the results.
+"""Nightly run: unit tests, documentation build (which runs the examples), wheel build and archiving of the results.
 
 Usage:
 
@@ -26,6 +26,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import types
 from typing import Self, TypedDict
@@ -40,6 +41,8 @@ DOCS_DIR: Path = REPO_DIR / "docs"
 ARCHIVE_DIR: Path = DOCS_DIR / "nightly"
 #: The Sphinx build directory of the nightly run, which is separate from the default ``./docs/_build``
 DOCS_BUILD_DIR: Path = ARCHIVE_DIR / "_build"
+#: The output directory of the wheel of the nightly run
+DIST_DIR: Path = ARCHIVE_DIR / "dist"
 #: The parent directory of the figure directories ``fig_YYYY-MM-DD`` of the nightly runs
 FIG_PARENT_DIR: Path = ARCHIVE_DIR / "fig"
 #: The environment variable with which the figure directory of the examples is set, see ``examples/utils.py``
@@ -591,20 +594,22 @@ def find_uv() -> str | None:
     return shutil.which("uv")
 
 
-def archive(archive_path: Path, dirs: dict[Path, str], exclude: collections.abc.Iterable[str] = ()) -> None:
-    """Compress directories to a 7-Zip archive.
+def archive(archive_path: Path, paths: dict[Path, str], exclude: collections.abc.Iterable[str] = ()) -> Path:
+    """Compress directories and files to a 7-Zip archive.
 
     7-Zip appends to an existing archive instead of replacing it,
     so if there is already an archive with the same name, a suffix _2, _3 etc. is added to the filename.
+    A message is logged after the archive has been created.
 
     :param archive_path: the path of the archive
-    :param dirs: the directories to compress, and their names in the archive
+    :param paths: the directories and files to compress, and their names at the root of the archive
     :param exclude: the wildcards of the filenames to leave out of the archive, e.g. ``*.h5``
-    :raises FileNotFoundError: if a directory does not exist
+    :return: the path of the created archive
+    :raises FileNotFoundError: if a directory or a file does not exist
     """
-    for directory in dirs:
-        if not directory.is_dir():
-            raise FileNotFoundError(f"The directory {directory} does not exist.")
+    for item in paths:
+        if not item.exists():
+            raise FileNotFoundError(f"{item} does not exist.")
     path = archive_path
     i = 2
     while path.exists():
@@ -612,17 +617,21 @@ def archive(archive_path: Path, dirs: dict[Path, str], exclude: collections.abc.
         i += 1
     path.parent.mkdir(parents=True, exist_ok=True)
     exclude_args = [f"-xr!{pattern}" for pattern in exclude]
-    subprocess.run(["7z", "a", "-mx=9", *exclude_args, str(path), *map(str, dirs)], check=True)
-    # 7-Zip stores the directories with their own names, so they are renamed afterwards.
+    subprocess.run(["7z", "a", "-mx=9", *exclude_args, str(path), *map(str, paths)], check=True)
+    # 7-Zip stores the directories and files with their own names, so they are renamed afterwards.
     # Renaming a directory renames also its contents.
-    renames = [arg for directory, name in dirs.items() if directory.name != name for arg in (directory.name, name)]
+    renames = [arg for item, name in paths.items() if item.name != name for arg in (item.name, name)]
     if renames:
         subprocess.run(["7z", "rn", str(path), *renames], check=True)
-    log(f"{', '.join(f'{directory} as {name}' for directory, name in dirs.items())} archived to {path}.")
+    log(f"Created the archive {path} of {', '.join(f'{item} as {name}' for item, name in paths.items())}.")
+    return path
 
 
 def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int:
-    """Run the unit tests, build the documentation and archive the results.
+    """Run the unit tests, build the documentation and the wheel, and archive the results.
+
+    The completion of the run is logged before archiving, so that the archived log includes it.
+    The creation of the archive is then logged only to the log file.
 
     :param lock_fd: the file descriptor of the lock file
     :param log_file: the path of the log file
@@ -651,9 +660,10 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
 
     # The build directory is cleaned also by "make all",
     # but cleaning it already here ensures that no output of a previous run is left there if the run fails.
-    if DOCS_BUILD_DIR.exists():
-        shutil.rmtree(DOCS_BUILD_DIR)
-        log(f"Cleaned {DOCS_BUILD_DIR}.")
+    for directory in (DOCS_BUILD_DIR, DIST_DIR):
+        if directory.exists():
+            shutil.rmtree(directory)
+            log(f"Cleaned {directory}.")
     fig_dir = FIG_PARENT_DIR / f"fig_{started:%Y-%m-%d}"
     # The examples save their figures in this directory.
     os.environ[FIG_DIR_ENV] = str(fig_dir)
@@ -680,13 +690,20 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
     )
     log("Documentation build finished.")
 
-    archive(
-        ARCHIVE_DIR / f"nightly_{started:%Y-%m-%d}.7z",
-        {DOCS_BUILD_DIR: DOCS_BUILD_DIR.name, fig_dir: "fig"},
-        exclude=ARCHIVE_EXCLUDE,
-    )
+    subprocess.run([uv, "build", "--wheel", "--out-dir", str(DIST_DIR), str(REPO_DIR)], cwd=REPO_DIR, check=True)
+    log(f"Wheel build finished: {', '.join(wheel.name for wheel in sorted(DIST_DIR.glob('*.whl')))}.")
 
-    log("Nightly run finished.")
+    # This is logged before archiving, so that the archived log includes it.
+    log("Nightly run finished. Archiving the results.")
+    # A copy of the log is archived, as the output of 7-Zip is written to the log while it's being archived.
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        log_copy = Path(tmp_dir) / log_file.name
+        shutil.copy2(log_file, log_copy)
+        archive(
+            ARCHIVE_DIR / f"nightly_{started:%Y-%m-%d}.7z",
+            {DOCS_BUILD_DIR: DOCS_BUILD_DIR.name, fig_dir: "fig", DIST_DIR: DIST_DIR.name, log_copy: log_file.name},
+            exclude=ARCHIVE_EXCLUDE,
+        )
     return 0
 
 

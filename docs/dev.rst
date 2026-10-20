@@ -87,13 +87,17 @@ update the version numbers in:
 Nightly runs
 ------------
 The ``ptplot/nightly.py --run`` command runs the unit tests, builds the documentation
-(which also runs the examples) and archives the results with 7-Zip to ``./docs/nightly/nightly_YYYY-MM-DD.7z``.
+(which also runs the examples) and the wheel,
+and archives the results with 7-Zip to ``./docs/nightly/nightly_YYYY-MM-DD.7z``.
 The documentation is built to ``./docs/nightly/_build`` instead of the default ``./docs/_build``,
-and the build directory is cleaned at the start of the run.
+and the wheel to ``./docs/nightly/dist``. These directories are cleaned at the start of the run.
 The examples save their figures to ``./docs/nightly/fig/fig_YYYY-MM-DD`` instead of the default ``./examples/fig``.
 The figure directory is set with the ``PTPLOT_FIG_DIR`` environment variable,
 which can also be used to change the figure directory when running the examples or building the documentation manually.
-The archive contains the build directory as ``_build`` and the figure directory as ``fig``.
+The archive contains the build directory as ``_build``, the figure directory as ``fig``,
+the wheel directory as ``dist`` and a copy of the log of the run.
+The completion of the run is logged before archiving, so that the archived log includes it,
+and the creation of the archive is logged afterwards only to the log file.
 The HDF5 files ``*.h5`` are left out of the archive to save space, but their checksum files ``*.h5.sha256`` are included.
 If an archive of the same day already exists, a suffix ``_2``, ``_3`` etc. is added to the filename.
 

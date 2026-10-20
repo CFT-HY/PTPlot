@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import time
@@ -157,6 +158,63 @@ def create_repo(tmp_path: Path, fake_uv: str) -> tuple[Path, Path, dict[str, str
     (fake_bin / "uv").chmod(0o755)
     # The directory in $UV_INSTALL_DIR is put first in the PATH of the nightly run.
     return repo, script, {**os.environ, "UV_INSTALL_DIR": str(fake_bin)}
+
+
+#: A fake uv that creates the outputs of the documentation and wheel builds, and succeeds for the other commands
+FAKE_UV_OUTPUTS = """#!/bin/sh
+if [ "$1" = "build" ]; then
+  while [ "$#" -gt 0 ]; do
+    if [ "$1" = "--out-dir" ]; then
+      mkdir -p "$2"
+      echo "wheel" > "$2/ptplot_gw-0.0.0-py3-none-any.whl"
+    fi
+    shift
+  done
+  exit 0
+fi
+for arg in "$@"; do
+  case "$arg" in
+    BUILDDIR=*)
+      mkdir -p "${arg#BUILDDIR=}/html"
+      echo "docs" > "${arg#BUILDDIR=}/html/index.html"
+      mkdir -p "$PTPLOT_FIG_DIR"
+      echo "fig" > "$PTPLOT_FIG_DIR/fig.png"
+      ;;
+  esac
+done
+"""
+
+
+@pytest.mark.skipif(shutil.which("7z") is None, reason="7-Zip is not installed")
+def test_run(tmp_path: Path) -> None:
+    """A successful run should archive the documentation, the figures, the wheel and the log.
+
+    The archived log should include the completion of the run but not the creation of the archive,
+    which is logged only to the log file.
+    """
+    repo, script, env = create_repo(tmp_path, FAKE_UV_OUTPUTS)
+    result = subprocess.run([sys.executable, script, "--run"], env=env, capture_output=True, text=True, check=False)
+    assert (result.returncode, result.stderr) == (0, "")
+    archives = list((repo / "docs" / "nightly").glob("nightly_*.7z"))
+    assert len(archives) == 1
+    log_file = next((repo / "logs").glob("nightly_*.log"))
+    listing = subprocess.run(
+        ["7z", "l", "-ba", "-slt", str(archives[0])], capture_output=True, text=True, check=True).stdout
+    names = {line.removeprefix("Path = ") for line in listing.splitlines() if line.startswith("Path = ")}
+    assert {
+        "_build/html/index.html", "fig/fig.png", "dist/ptplot_gw-0.0.0-py3-none-any.whl", log_file.name
+    } <= names
+
+    archived_log = subprocess.run(
+        ["7z", "e", "-so", str(archives[0]), log_file.name], capture_output=True, text=True, check=True).stdout
+    assert "Wheel build finished: ptplot_gw-0.0.0-py3-none-any.whl." in archived_log
+    assert "Nightly run finished." in archived_log
+    assert "Created the archive" not in archived_log
+    # The archived log is a copy of the log until the completion of the run.
+    assert archived_log.rstrip("\n").endswith("Nightly run finished. Archiving the results.")
+    log_text = log_file.read_text()
+    assert log_text.startswith(archived_log)
+    assert f"Created the archive {archives[0]}" in log_text.removeprefix(archived_log)
 
 
 def test_skip(tmp_path: Path) -> None:
