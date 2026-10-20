@@ -161,11 +161,26 @@ class PowerSpectrumSSM(PowerSpectrum):
         :param rtol: Relative tolerance for the endpoints of the range
         :return: True if the spectrum has been precomputed and ``f`` is within its range
         """
-        z_range = self.z_range
-        if z_range is None or f.size == 0:
+        if self.precomputed is None:
             return False
-        z = tp.cast(Spectrum, self.precomputed).z_from_f(f / self.f_star0_factor)
-        return bool(z.min() >= z_range[0] * (1 - rtol) and z.max() <= z_range[1] * (1 + rtol))
+        return self.precomputed.covers(self.precomputed.z_from_f(f / self.f_star0_factor), rtol=rtol)
+
+    def interpolated_spectrum(self, f: FloatArr1D) -> Spectrum:
+        r"""The precomputed spectrum interpolated to the frequencies ``f``.
+
+        The result is a PTtools spectrum that has been given the frequencies ``f``,
+        and can therefore be exported in the same way as a spectrum computed for them,
+        to the table :py:attr:`pttools.export.records.Table.SPECTRA_F`.
+        It is created with :py:meth:`pttools.omgw0.spectrum.Spectrum.with_params`,
+        which interpolates the precomputed spectrum to $z(f)$.
+
+        :param f: Frequencies $f$, which must be within the range of the precomputed spectrum, see :py:meth:`covers`
+        :return: The interpolated spectrum
+        :raises ValueError: If the spectrum has not been precomputed, or if ``f`` is not within its range
+        """
+        if self.precomputed is None:
+            raise ValueError("The spectrum has not been precomputed.")
+        return self.precomputed.with_params(f=f / self.f_star0_factor)
 
     @property
     def z_range(self) -> tuple[float, float] | None:
@@ -214,10 +229,11 @@ class PowerSpectrumSSM(PowerSpectrum):
         If the spectrum has been precomputed with the same suppression settings (see :py:attr:`precomputed`),
         and ``f`` is within its $z$ range (see :py:meth:`covers`),
         the precomputed spectrum is used instead of computing a new one.
-        Then the returned power spectrum is interpolated linearly in log-log scale for ``f``,
+        Then the returned power spectrum is that of :py:meth:`interpolated_spectrum`,
+        i.e. the precomputed spectrum is interpolated to ``f`` by PTtools,
         whereas the SNR is computed on the non-interpolated points of the precomputed spectrum
         within the range of ``f``, with the noise evaluated at these points.
-        :py:attr:`spectrum` is then set to the precomputed spectrum, which has the $z$ array instead of ``f``.
+        :py:attr:`spectrum` is then set to the interpolated spectrum.
         """
         noise = resolve_noise(noise)
         self.spectrum = None
@@ -252,14 +268,11 @@ class PowerSpectrumSSM(PowerSpectrum):
             gs0: float,
             om_gamma0_h2: float) -> tuple[FloatArr1D, float]:
         """Power spectrum interpolated from the precomputed spectrum, and the SNR of its points within ``f``."""
-        spectrum = tp.cast(Spectrum, self.precomputed)
-        # pre = precomputed
-        f_pre = spectrum.f() * self.f_star0_factor
-        omgw0_h2_pre = spectrum.omgw0_h2(ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
-        log_f = np.log10(f)
-        log_f_pre = np.log10(f_pre)
-        omgw0_h2: FloatArr1D = 10**np.interp(log_f, log_f_pre, np.log10(omgw0_h2_pre)) \
-            if np.all(omgw0_h2_pre > 0) else np.interp(log_f, log_f_pre, omgw0_h2_pre)
+        pre = tp.cast(Spectrum, self.precomputed)
+        f_pre = pre.f() * self.f_star0_factor
+        omgw0_h2_pre = pre.omgw0_h2(ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
+        spectrum = self.interpolated_spectrum(f)
+        omgw0_h2 = spectrum.omgw0_h2(ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
 
         in_range = (f_pre >= f.min()) & (f_pre <= f.max())
         if np.count_nonzero(in_range) < 2:  # noqa: PLR2004
@@ -417,11 +430,9 @@ class PowerSpectrumSSM(PowerSpectrum):
     def record(self, extractor: Extractor) -> Record | None:
         """Record of the PTtools spectrum computed by the last call of :py:meth:`power_spectrum`.
 
-        If the spectrum was computed for the frequencies $f$, it is stored in the table
+        The spectrum has been given the frequencies $f$, or interpolated to them from the precomputed spectrum
+        (see :py:meth:`interpolated_spectrum`), and is therefore stored in the table
         :py:attr:`pttools.export.records.Table.SPECTRA_F`.
-        If the precomputed spectrum was used, it has the $z$ array instead,
-        and is stored in the table :py:attr:`pttools.export.records.Table.SPECTRA_Y`,
-        where all the spectra of a file must have the same $z$ array.
         The parameters are those of :py:meth:`PowerSpectrum.record`.
         """
         return None if self.spectrum is None else extractor.extract(self.spectrum)

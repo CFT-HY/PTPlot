@@ -51,7 +51,7 @@ def snr_column_ssm(
     r"""Compute a column of an SNR grid with the Sound Shell Model.
 
     The fluid shell is computed only once for the column, as $x$ is the same for all its points.
-    Unless the spectra are extracted for exporting, the PTtools spectrum is also computed only once,
+    The PTtools spectrum is also computed only once,
     for a $z$ array that covers the frequencies of the noise curve for all the $y$ values of the column
     (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.z_covering`),
     with as dense lookup arrays as for the frequencies
@@ -60,10 +60,11 @@ def snr_column_ssm(
     :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.with_params`.
     The SNR values are then computed on the points of the $z$ array, see
     :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.power_spectrum`.
-    When exporting, each spectrum is computed separately for the frequencies of the noise curve,
+    When exporting, the extracted spectra are interpolated to the frequencies of the noise curve
+    (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.interpolated_spectrum`),
     as the exported spectra share the frequencies,
     whereas the $z$ arrays of the columns can differ from each other.
-    If the shared spectrum cannot be computed, the spectra are computed separately as well.
+    If the shared spectrum cannot be computed, the spectra are computed separately for the frequencies.
     If the computation of a point fails, its values are NaN, as in :py:func:`ptplot.science.snr.point.snr_point`,
     and if the fluid shell cannot be created, all the values of the column are NaN.
     The errors are logged.
@@ -142,28 +143,27 @@ def snr_column_ssm(
         )
 
     shared_spectrum: PowerSpectrumSSM | None = None
-    if extractor is None:
-        try:
-            z = PowerSpectrumSSM.z_covering(
-                f=noise.f,
-                bubble=bubble,
-                T_star=T_star,
-                g_star=g_star,
-                beta_tilde=None if ubarf_rstar else y,
-                r_star=y if ubarf_rstar else None,
-                f_star0_factor=f_star0_factor
-            )
-            # Any valid y value can be used for the shared spectrum, as with_params() changes it.
-            y_valid = y[np.isfinite(y) & (y > 0)]
-            shared_spectrum = create_spectrum(
-                y_i=y_valid[0], z=z, n_z_lookup=PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f))
-        except Exception as exc:
-            logger.exception(
-                "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "
-                "Computing the spectra separately.",
-                x_name, x_value, v_wall,
-                exc_info=exc
-            )
+    try:
+        z = PowerSpectrumSSM.z_covering(
+            f=noise.f,
+            bubble=bubble,
+            T_star=T_star,
+            g_star=g_star,
+            beta_tilde=None if ubarf_rstar else y,
+            r_star=y if ubarf_rstar else None,
+            f_star0_factor=f_star0_factor
+        )
+        # Any valid y value can be used for the shared spectrum, as with_params() changes it.
+        y_valid = y[np.isfinite(y) & (y > 0)]
+        shared_spectrum = create_spectrum(
+            y_i=y_valid[0], z=z, n_z_lookup=PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f))
+    except Exception as exc:
+        logger.exception(
+            "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "
+            "Computing the spectra separately.",
+            x_name, x_value, v_wall,
+            exc_info=exc
+        )
 
     for i, y_i in enumerate(y):
         try:

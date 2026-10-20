@@ -151,7 +151,13 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                     assert precomputed.precomputed is not None
                     assert precomputed.covers(noise.f)
                     ps, snr = precomputed.power_spectrum(noise.f, noise=noise)
-                    assert precomputed.spectrum is precomputed.precomputed
+                    # The stored spectrum is interpolated from the precomputed spectrum for exporting.
+                    interpolated = precomputed.spectrum
+                    assert interpolated is not None
+                    assert interpolated.f_given
+                    assert interpolated.a2 is precomputed.precomputed.a2
+                    np.testing.assert_array_equal(interpolated.f(), noise.f)
+                    np.testing.assert_array_equal(interpolated.omgw0_h2(), ps)
                     computed = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde)
                     ps_ref, snr_ref = computed.power_spectrum(noise.f, noise=noise)
                     np.testing.assert_allclose(snr, snr_ref, rtol=SNR_RTOL_PRECOMPUTED)
@@ -174,7 +180,8 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         assert not ssm.covers(noise.f)
         ps, snr = ssm.power_spectrum(noise.f, noise=noise)
         assert ssm.spectrum is not None
-        assert ssm.spectrum is not ssm.precomputed
+        assert ssm.precomputed is not None
+        assert ssm.spectrum.a2 is not ssm.precomputed.a2
         np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
         np.testing.assert_allclose(snr, snr_ref, rtol=1e-12)
 
@@ -182,7 +189,8 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         f = noise.f[:noise.f.size // 4]
         assert ssm.covers(f)
         ps, _ = ssm.power_spectrum(f, noise=noise, suppression_method=SuppressionMethod.NONE)
-        assert ssm.spectrum is not ssm.precomputed
+        assert ssm.spectrum is not None
+        assert ssm.spectrum.a2 is not ssm.precomputed.a2
         ps_ref, _ = computed.power_spectrum(f, noise=noise, suppression_method=SuppressionMethod.NONE)
         np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
 
@@ -297,17 +305,22 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     def test_export_column(self) -> None:
         """The exported spectra of an SNR grid column should match the spectra computed by PTPlot.
 
-        The spectra are exported with the frequencies of the noise curve as the grid,
-        and should share the fluid shell and the model of the column.
-        The SNR of PTtools with only the instrument noise should match that of PTPlot with its default noise curve,
-        and the spectra should be recreatable from the file.
+        The spectra are interpolated from the shared spectrum of the column,
+        and exported with the frequencies of the noise curve as the grid.
+        They should share the fluid shell and the model of the column.
+        The SNR of PTtools with only the instrument noise is computed on the frequencies of the noise curve,
+        and should match that of PTPlot with its default noise curve,
+        which is computed on the points of the shared spectrum.
+        The spectra should be recreatable from the file.
+        As they are then computed for the frequencies, they match the exported spectra
+        within the accuracy of the shared spectrum, see :py:meth:`test_precomputed`.
         """
         noise = noise_curve()
         v_wall = V_WALLS[0]
         y = np.array([BETA_TILDE, 2 * BETA_TILDE])
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = Path(tmp_dir) / "spectra.h5"
-            with Exporter(path, spectrum_fields=(Preset.MINIMAL, "snr_ins")) as exporter:
+            with Exporter(path, spectrum_fields=(Preset.MINIMAL, Preset.FULL)) as exporter:
                 column = snr_column_ssm(
                     x=ALPHA, y=y, v_wall=v_wall, T_star=T_STAR, g_star=G_STAR, noise=noise,
                     extractor=exporter.extractor
@@ -320,18 +333,25 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 assert importer.n_models == 1
                 np.testing.assert_array_equal(importer.read(Table.SPECTRA_F, "f"), noise.f)
                 np.testing.assert_allclose(importer.read(Table.SPECTRA_F, "beta_tilde"), y, rtol=1e-15)
-                np.testing.assert_allclose(importer.read(Table.SPECTRA_F, "snr_ins"), column.snr, rtol=1e-12)
+                np.testing.assert_allclose(
+                    importer.read(Table.SPECTRA_F, "snr_ins"), column.snr, rtol=SNR_RTOL_PRECOMPUTED)
                 omgw0_h2 = importer.read(Table.SPECTRA_F, "omgw0_h2")
                 loaded = importer.load_spectrum(0, table=Table.SPECTRA_F, parallel=False)
         assert isinstance(loaded, Spectrum)
-        np.testing.assert_allclose(loaded.omgw0_h2(), omgw0_h2[0], rtol=1e-12)
+        significant = omgw0_h2[0] > PS_REL_MIN_PRECOMPUTED * omgw0_h2[0].max()
+        np.testing.assert_allclose(
+            loaded.omgw0_h2()[significant], omgw0_h2[0][significant], rtol=PS_RTOL_PRECOMPUTED)
+
         bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+        z = PowerSpectrumSSM.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=y)
+        n_z_lookup = PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f)
+        shared = spectrum(v_wall, bubble=bubble, beta_tilde=y[0], z=z, n_z_lookup=n_z_lookup)
         for i, beta_tilde in enumerate(y):
-            ssm = PowerSpectrumSSM(
-                v_wall=v_wall, alpha=ALPHA, beta_tilde=beta_tilde, T_star=T_STAR, g_star=G_STAR, bubble=bubble
-            )
-            power_spectrum, _ = ssm.power_spectrum(noise.f, noise=noise)
-            np.testing.assert_allclose(omgw0_h2[i], power_spectrum, rtol=1e-12)
+            ps_shared, _ = shared.with_params(beta_tilde=beta_tilde).power_spectrum(noise.f, noise=noise)
+            np.testing.assert_allclose(omgw0_h2[i], ps_shared, rtol=1e-12)
+            ps_ref, _ = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde).power_spectrum(noise.f, noise=noise)
+            significant = ps_ref > PS_REL_MIN_PRECOMPUTED * ps_ref.max()
+            np.testing.assert_allclose(omgw0_h2[i][significant], ps_ref[significant], rtol=PS_RTOL_PRECOMPUTED)
 
     @staticmethod
     def test_snr_column_failures() -> None:

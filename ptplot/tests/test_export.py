@@ -21,6 +21,12 @@ R_STAR: np.ndarray = np.array([0.01, 0.1, 0.5])
 #: The fields of the spectra in the tests. The SNR is used for matching the spectra to the grid.
 #: The default noise curve of PTPlot has only the instrument noise, and therefore it matches ``snr_ins`` of PTtools.
 SPECTRUM_FIELDS: tuple[Preset | str, ...] = (Preset.MINIMAL, "snr_ins")
+#: Relative tolerance of the exported SNR of the SSM spectra.
+#: The exported spectra are interpolated to the frequencies of the noise curve from the shared spectrum of the column,
+#: and their SNR is computed by PTtools on these frequencies,
+#: whereas the SNR of the grid is computed on the points of the shared spectrum,
+#: see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.power_spectrum`.
+SNR_RTOL_SSM: float = 1e-4
 
 
 class ExportTest(unittest.TestCase):
@@ -52,7 +58,7 @@ class ExportTest(unittest.TestCase):
             snr = importer.read(Table.SPECTRA_F, "snr_ins")
         # Each column of the grid has all the y values.
         np.testing.assert_allclose(np.sort(y), np.repeat(grid.y, grid.x.size), rtol=1e-12)
-        np.testing.assert_allclose(np.sort(snr), np.sort(grid.snr.ravel()), rtol=1e-12)
+        np.testing.assert_allclose(np.sort(snr), np.sort(grid.snr.ravel()), rtol=SNR_RTOL_SSM)
 
     def test_grid_alpha_beta_ssm(self) -> None:
         r"""The spectra of an SSM grid in the $(\alpha_n, \beta/H)$ plane should be exported."""
