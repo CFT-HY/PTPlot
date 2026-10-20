@@ -9,8 +9,8 @@ from matplotlib.figure import Figure
 import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter
+from pttools.math import as_latex
 from pttools.speedup import MAX_WORKERS_DEFAULT
-from pttools.utils import as_latex
 
 from ptplot.methods.models import point_data
 from ptplot.methods.stats import related_stats_annotations, window_stats_annotations

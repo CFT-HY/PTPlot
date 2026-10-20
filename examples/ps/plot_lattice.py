@@ -18,7 +18,7 @@ The simulated GW power spectra are converted to the GW power spectrum today in t
   with the source lifetime and the expansion of the universe of the Sound Shell Model,
   see :py:func:`lattice_omgw0_h2_rate`.
   This is how PTtools compares the simulations with the SSM,
-  e.g. in the example ``lattice_spectra`` of PTtools.
+  e.g. in the example ``lattice_growth`` of PTtools.
 
 The accumulated GW power includes the earlier times, when the flow was at smaller scales,
 and therefore it peaks at higher frequencies than the growth rate.
@@ -42,12 +42,12 @@ import typing as tp
 from matplotlib import rc_context
 from matplotlib.figure import Figure
 from pttools.bubble import Bubble
-from pttools.lattice import CORREIA_2025_RUNS, CorreiaRun, LatticeSpectrum, data_dir, load_correia_2025_run
+from pttools.lattice import CHRW25_RUNS, LatticeRunParams, LatticeSpectrum, data_dir, load_chrw25_run
+from pttools.math.formatting import as_latex
 from pttools.omgw0 import Spectrum, SuppressionMethod
 from pttools.ssm.nucleation import NucType
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 from pttools.ssm.suppression.fit import lattice_artifact_start
-from pttools.utils.formatting import as_latex
 
 from examples.utils import save_and_show_figs
 from ptplot.methods.generic import setup_logging
@@ -123,7 +123,7 @@ def lattice_omgw0_h2_rate(spectrum: LatticeSpectrum, bubble: Bubble) -> FloatArr
 
 
 def plot_lattice(
-        meta: CorreiaRun,
+        meta: LatticeRunParams,
         path: Path,
         engine: Engine | str | tp.Iterable[Engine] | None = None,
         r_star: float = R_STAR,
@@ -157,7 +157,7 @@ def plot_lattice(
     :return: power spectrum figure
     """
     noise = resolve_noise(noise)
-    run = load_correia_2025_run(meta.name, path=path)
+    run = load_chrw25_run(meta.name, path=path)
     bubble = Bubble(model=BAG, v_wall=run.v_wall, alpha_n=run.alpha_n)
     logger.info("Plotting the power spectra of the %s run with r_star=%s.", run.name, r_star)
     engines = Engine.engines(engine, strong=bool(engine))
@@ -172,7 +172,7 @@ def plot_lattice(
     fig = power_spectrum_figure(
         spectra, noise=noise, title=rf"{meta.label_latex}, $r_*={r_star}$")
 
-    spectrum = run.spectrum(meta.step, meta.step_prev, r_star=r_star, T_star=T_star, g_star=g_star)
+    spectrum = run.spectrum(meta.fig_step, meta.fig_step_prev, r_star=r_star, T_star=T_star, g_star=g_star)
     f = spectrum.f()
     omgw0_h2 = spectrum.omgw0_h2(om_gamma0_h2=const.OMEGA_PHOTON_H2)
     if asymptote:
@@ -227,7 +227,7 @@ def main() -> None:
     engines = Engine.engines(log=True, strong=False)
     save_and_show_figs({
         f"lattice_{name}_ps": plot_lattice(meta, path=path, engine=engines)
-        for name, meta in CORREIA_2025_RUNS.items()
+        for name, meta in CHRW25_RUNS.items()
     })
 
 

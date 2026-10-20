@@ -7,8 +7,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
+from pttools.math import as_latex
 from pttools.speedup import MAX_WORKERS_DEFAULT
-from pttools.utils import as_latex
 
 from ptplot.methods.stats import window_stats_annotations
 from ptplot.models.fields import LatexFloatField

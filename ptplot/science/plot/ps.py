@@ -8,7 +8,7 @@ import typing as tp
 
 from matplotlib import rc_context
 from matplotlib.figure import Figure
-from pttools.utils.formatting import as_latex
+from pttools.math.formatting import as_latex
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[3]))
