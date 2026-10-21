@@ -4,7 +4,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpR
 
 from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
-from ptplot.science.plot.bubble import bubble_v_figure
+from ptplot.science.plot.bubble import bubble_v_figure, bubble_w_figure
 from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
@@ -23,6 +23,23 @@ def bubble_v(request: HttpRequest) -> HttpResponse:
         return HttpResponseBadRequest()
 
     return fig_to_response(bubble_v_figure(
+        v_wall=form.cleaned_data["v_wall"],
+        alpha_n=form.cleaned_data["alpha"],
+        css2=form.cleaned_data["css2"],
+        csb2=form.cleaned_data["csb2"]
+    ))
+
+
+def bubble_w(request: HttpRequest) -> HttpResponse:
+    """Enthalpy profile of the Sound Shell Model bubble."""
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+
+    form = PTPlotForm(request.GET)
+    if not form.is_valid():
+        return HttpResponseBadRequest()
+
+    return fig_to_response(bubble_w_figure(
         v_wall=form.cleaned_data["v_wall"],
         alpha_n=form.cleaned_data["alpha"],
         css2=form.cleaned_data["css2"],

@@ -150,3 +150,15 @@ def model_point_bubble_v(request: HttpRequest, model_id: int, point_id: int) -> 
         number=point_id
     )
     return fig_to_response(point.bubble_v_figure())
+
+
+
+def model_point_bubble_w(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:  # noqa: ARG001
+    """Display the enthalpy profile of the SSM bubble of an individual model point."""
+    point: ParameterChoice = get_object_or_404_related(
+        ParameterChoice,
+        related=["model", "scenario", "scenario__model"],
+        model__id=model_id,
+        number=point_id
+    )
+    return fig_to_response(point.bubble_w_figure())

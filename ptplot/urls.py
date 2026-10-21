@@ -10,6 +10,7 @@ urlpatterns: list[URLPattern] = [
     # Plots and CSV from query parameters
     # -----
     path("bubble_v.svg", views.bubble_v, name="bubble_v"),
+    path("bubble_w.svg", views.bubble_w, name="bubble_w"),
     path("curvedata.csv", views.csv, name="csv"),
     path("ps.svg", views.ps_image, name="ps"),
     path("snr_alpha_beta.svg", views.snr_alpha_beta, name="snr_alpha_beta"),
@@ -45,6 +46,11 @@ urlpatterns: list[URLPattern] = [
         "models/<int:model_id>/<int:point_id>/bubble_v.svg",
         views.model_point_bubble_v,
         name="model_point_bubble_v"
+    ),
+    path(
+        "models/<int:model_id>/<int:point_id>/bubble_w.svg",
+        views.model_point_bubble_w,
+        name="model_point_bubble_w"
     ),
     # Download CSV data for an individual model point
     path(

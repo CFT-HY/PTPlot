@@ -79,5 +79,10 @@
   class="plot"
   src="{% url "model_point_bubble_v" model_id=point.model.id point_id=point.number %}"
 />
+<img
+  alt="Enthalpy profile of the Sound Shell Model bubble"
+  class="plot"
+  src="{% url "model_point_bubble_w" model_id=point.model.id point_id=point.number %}"
+/>
 
 {% endblock results %}

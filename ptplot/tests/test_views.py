@@ -128,16 +128,22 @@ class ViewTest(TestCase):
         check_view(self, "single", form=self.form)
 
     def test_single_bubble_v(self) -> None:
-        """The single point page should show the fluid velocity profile only for the SSM."""
+        """The single point page should show the fluid velocity and enthalpy profiles only for the SSM."""
         for engine, shown in ((Engine.SSM, True), (Engine.DEFAULT, False)):
             response = self.client.get(reverse("single"), data=self.form_data(engine=engine))
             check_status_code(response)
-            assert (reverse("bubble_v").encode() in response.content) == shown, engine
+            for view in ("bubble_v", "bubble_w"):
+                assert (reverse(view).encode() in response.content) == shown, (engine, view)
 
     def test_bubble_v(self) -> None:
         """The fluid velocity profile view should return a valid status code, also with the sound speeds."""
         check_view(self, "bubble_v", form=self.form)
         check_view(self, "bubble_v", form=self.form, data={"alpha": 0.2, "css2": 0.25, "csb2": 0.3})
+
+    def test_bubble_w(self) -> None:
+        """The enthalpy profile view should return a valid status code, also with the sound speeds."""
+        check_view(self, "bubble_w", form=self.form)
+        check_view(self, "bubble_w", form=self.form, data={"alpha": 0.2, "css2": 0.25, "csb2": 0.3})
 
     def test_multiple(self) -> None:
         """The multiple points form is submitted with POST."""
@@ -213,6 +219,10 @@ class ViewTest(TestCase):
     def test_point_bubble_v(self) -> None:
         """The point fluid velocity profile view should return a valid status code."""
         check_view(self, "model_point_bubble_v", view_kwargs=self.POINT_KWARGS)
+
+    def test_point_bubble_w(self) -> None:
+        """The point enthalpy profile view should return a valid status code."""
+        check_view(self, "model_point_bubble_w", view_kwargs=self.POINT_KWARGS)
 
     def test_point_csv(self) -> None:
         """The point CSV view should return a valid status code."""
