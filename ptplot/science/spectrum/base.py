@@ -329,12 +329,17 @@ class PowerSpectrum(Extractable, abc.ABC):
         :param adiabatic_index: $\Gamma$, mean adiabatic index
         :param cs: $c_s$, sound speed
         :param v_cj: $v_\text{CJ}$, Chapman-Jouguet speed
-        :param model: Equation of state model of PTtools
+        :param model: Equation of state model of PTtools.
+            If given, $\alpha$ is limited to its valid range,
+            see :py:meth:`pttools.models.model.Model.alpha_n_from_ubarf`.
         :return: $\alpha$ and $\bar{U}_f$.
-            $\alpha$ is nan if it cannot be computed from $\bar{U}_f$.
+            $\alpha$ is nan if it cannot be computed from $\bar{U}_f$,
+            and $\bar{U}_f$ is nan if $\alpha$ is outside the valid range of the model.
         :raises ValueError: If not exactly two of the parameters are given
         """
         if (v_wall is not None) and (alpha is not None) and (ubarf is None):
+            if model is not None and not model.alpha_n_min <= alpha <= model.alpha_n_max:
+                return alpha, np.nan
             return alpha, tp.cast(float,
                 ubarf_approx(
                     v_wall=v_wall,
@@ -347,13 +352,13 @@ class PowerSpectrum(Extractable, abc.ABC):
             )
         if (v_wall is not None) and (alpha is None) and (ubarf is not None):
             try:
-                alpha = alpha_n_from_ubarf(
-                    v_wall=v_wall,
-                    ubarf=ubarf,
-                    model=model,
-                    cs=cs,
-                    adiabatic_index=adiabatic_index
-                ).item()
+                # The method of the model searches alpha_n only within the valid range of the model.
+                # The functions return 0-dimensional arrays, as they are vectorized.
+                alpha = float(
+                    alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_index=adiabatic_index)
+                    if model is None else
+                    model.alpha_n_from_ubarf(v_wall=v_wall, ubarf=ubarf, cs=cs, adiabatic_index=adiabatic_index)
+                )
             except ValueError:
                 alpha = np.nan
             return alpha, ubarf

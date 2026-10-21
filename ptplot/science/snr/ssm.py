@@ -67,6 +67,8 @@ def snr_column_ssm(
     If the shared spectrum cannot be computed, the spectra are computed separately for the frequencies.
     If the computation of a point fails, its values are NaN, as in :py:func:`ptplot.science.snr.point.snr_point`,
     and if the fluid shell cannot be created, all the values of the column are NaN.
+    This is the case also when $\alpha_n$ is outside the valid range of the model, or cannot be solved from
+    $\bar{U}_f$ within it, see :py:meth:`pttools.models.model.Model.alpha_n_from_ubarf`.
     The errors are logged.
 
     :param x: $\alpha$ or $\bar{U}_f$, a scalar
@@ -111,6 +113,14 @@ def snr_column_ssm(
             cs=const.CS0,
             model=model
         )
+        # This is a common case at the edges of the grids, so it's logged without the traceback.
+        if not (np.isfinite(alpha_n) and model.alpha_n_min <= alpha_n <= model.alpha_n_max):
+            logger.warning(
+                "The SNR column with %s=%s, v_wall=%s is outside the valid range of the model: "
+                "alpha_n=%s, %s <= alpha_n <= %s",
+                x_name, x_value, v_wall, alpha_n, model.alpha_n_min, model.alpha_n_max
+            )
+            return column
         bubble = Bubble(model=model, v_wall=v_wall, alpha_n=alpha_n)
     except Exception as exc:
         logger.exception(

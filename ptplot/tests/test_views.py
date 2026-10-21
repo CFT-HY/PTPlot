@@ -145,7 +145,7 @@ class ViewTest(TestCase):
     def test_sound_speeds(self) -> None:
         """The plots of the single point page should accept the sound speeds of the SSM."""
         data = {"engine": Engine.SSM, "alpha": 0.2, "css2": "1/4", "csb2": 0.3}
-        for view in ("csv", "ps", "snr_alpha_beta"):
+        for view in ("csv", "ps", "snr_alpha_beta", "snr_ubarf_rstar"):
             check_view(self, view, form=self.form, data=data)
 
     def test_csv_sound_speeds(self) -> None:
@@ -442,6 +442,12 @@ class PTPlotFormTest(TestCase):
         form = self.form(engine=Engine.DEFAULT, css2="0.3", csb2="0.25")
         assert form.is_valid(), form.errors
         assert form.model is BAG
+
+    def test_alpha_outside_model(self) -> None:
+        r"""$\alpha$ outside the valid range of the model of the SSM should be a validation error."""
+        form = self.form(engine=Engine.SSM, alpha="0.1", css2="1/4", csb2="0.3")
+        assert not form.is_valid()
+        assert "Invalid alpha" in str(form.non_field_errors())
 
     def test_model_invalid(self) -> None:
         """Sound speeds with which the model cannot be created should be a validation error for the SSM."""

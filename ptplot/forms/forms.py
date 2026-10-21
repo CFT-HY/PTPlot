@@ -112,10 +112,13 @@ class PTPlotForm(NoiseFormMixin, NucleationFormMixin):
         return self._model
 
     def clean(self) -> dict[str, tp.Any]:
-        """Validate that the equation of state model of the SSM can be created with the sound speeds.
+        r"""Validate that the equation of state model of the SSM can be created with the sound speeds.
+
+        Also validate that $\alpha$ is within the valid range of the model.
 
         :return: Cleaned data
-        :raises ValidationError: If the engine is the SSM and the model cannot be created with the sound speeds
+        :raises ValidationError: If the engine is the SSM and the model cannot be created with the sound speeds,
+            or $\alpha$ is outside the valid range of the model
         """
         cleaned_data = tp.cast(dict[str, tp.Any], super().clean())
         self._model = BAG
@@ -124,6 +127,12 @@ class PTPlotForm(NoiseFormMixin, NucleationFormMixin):
                 self._model = ssm_model(css2=cleaned_data.get("css2"), csb2=cleaned_data.get("csb2"))
             except ValueError as exc:
                 raise ValidationError(f"Invalid sound speeds for the Sound Shell Model: {exc}") from exc
+            alpha = cleaned_data.get("alpha")
+            if alpha is not None and not self._model.alpha_n_min <= alpha <= self._model.alpha_n_max:
+                raise ValidationError(
+                    f"Invalid alpha={alpha} for the Sound Shell Model with these sound speeds. "
+                    f"Valid range: {self._model.alpha_n_min:.4g} <= alpha <= {self._model.alpha_n_max:.4g}"
+                )
         return cleaned_data
 
 

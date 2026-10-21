@@ -85,10 +85,10 @@ class SNRGridUbarfRStar(SNRGrid):
         :param model: Equation of state model of PTtools for the SSM engine,
             see :py:class:`~ptplot.science.snr.grid.SNRGrid`.
             It's also used for $\delta_n$ in the conversion of the points to $\bar{U}_f$,
-            in the same way as in the conversion of the grid of the SSM engine from $\bar{U}_f$ to $\alpha_n$.
-            The latter supports only the bag model for now,
-            as :py:func:`pttools.bubble.energy_budget.alpha_n_from_ubarf` searches $\alpha_n$ outside the range
-            in which the other models can compute $w_n$.
+            in the same way as in the conversion of the grid of the SSM engine from $\bar{U}_f$ to $\alpha_n$,
+            which is done with :py:meth:`pttools.models.model.Model.alpha_n_from_ubarf`.
+            The SNR is NaN for the $\bar{U}_f$ values that correspond to $\alpha_n$
+            outside the valid range of the model.
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param noise: Which noise curve to use
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.

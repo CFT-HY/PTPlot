@@ -53,9 +53,11 @@ class SNRTest(TestCase):
 
         The SNR values should equal those of the spectra created with the model,
         and differ from those of the bag model.
+        For $\alpha_n$ below the minimum of the model, the SNR values should be NaN.
         """
         model = ConstCSModel(css2=0.25, csb2=0.3)
-        alpha_n = np.array([0.15, 0.3])
+        alpha_n = np.array([0.05, 0.15, 0.3])
+        assert alpha_n[0] < model.alpha_n_min < alpha_n[1]
         beta_tilde = np.array([10., 1000.])
         kwargs = {
             "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": 0.5,
@@ -63,15 +65,36 @@ class SNRTest(TestCase):
         }
         snr = SNRGridAlphaBeta(model=model, **kwargs).snr
         snr_bag = SNRGridAlphaBeta(**kwargs).snr
-        assert np.all(np.isfinite(snr))
-        assert not np.allclose(snr, snr_bag, rtol=0.01)
+        assert np.all(np.isnan(snr[:, 0]))
+        assert np.all(np.isfinite(snr[:, 1:]))
+        assert not np.allclose(snr[:, 1:], snr_bag[:, 1:], rtol=0.01)
         np.testing.assert_array_equal(snr_bag, SNRGridAlphaBeta(model=BAG, **kwargs).snr)
         spectrum = power_spectrum(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
-            alpha=alpha_n[1], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model
+            alpha=alpha_n[2], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model
         )
         _, snr_spectrum = spectrum.power_spectrum(noise_curve().f)
-        assert snr[0, 1] == pytest.approx(snr_spectrum, rel=0.01)
+        assert snr[0, 2] == pytest.approx(snr_spectrum, rel=0.01)
+
+    @staticmethod
+    def test_snr_ubarf_rstar_ssm_model() -> None:
+        r"""The SSM grid in the $(\bar{U}_f, r_*)$ plane should use the given equation of state model.
+
+        The SNR values should be NaN for the $\bar{U}_f$ that correspond to $\alpha_n$
+        outside the valid range of the model, and finite otherwise.
+        """
+        model = ConstCSModel(css2=0.25, csb2=0.3)
+        grid = SNRGridUbarfRStar(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
+            alpha_points=0.2, beta_tilde_points=100.,
+            ubarf=np.array([0.05, 0.3, 0.5, 1.]), r_star=np.array([0.01, 0.1]),
+            engine=Engine.SSM, model=model, log_progress_percentage=None
+        )
+        # Ubarf = 0.05 corresponds to alpha_n below the minimum of the model,
+        # and Ubarf = 1 is above the maximum of the approximation of Ubarf.
+        assert np.all(np.isnan(grid.snr[:, [0, 3]]))
+        assert np.all(np.isfinite(grid.snr[:, 1:3]))
+        snr_figure_ubarf_rstar(grid)
 
     @classmethod
     def test_snr_alpha_beta_legacy_detonation(cls) -> None:
