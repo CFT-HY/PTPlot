@@ -2,11 +2,9 @@
 
 import typing as tp
 
-from django.forms import Form
-from django.http import HttpResponseBase, QueryDict
+from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
-from pttools.models import ConstCSModel
 
 from ptplot.forms import BenchmarkForm, PTPlotForm
 from ptplot.management.commands.populate import Command as PopulateCommand
@@ -14,58 +12,7 @@ from ptplot.models import ParameterChoice
 from ptplot.science import const
 from ptplot.science.noise import noise_curve
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG
-
-ALLOW_CODES: tp.Iterable[int] = (200, 302)
-
-
-def check_status_code(
-        response: HttpResponseBase,
-        allow_codes: tp.Iterable[int] | None = None,
-        url: str | None = None) -> int:
-    """Check the status code of a HttpResponse."""
-    allow_codes2 = ALLOW_CODES if allow_codes is None else (*ALLOW_CODES, *allow_codes)
-    if response.status_code not in allow_codes2:
-        raise AssertionError(
-            f"Invalid status code {response.status_code}, expected one of {allow_codes2}" +
-            ("." if url is None else f' for url "{url}".')
-        )
-    return response.status_code
-
-
-def check_url(
-        test: TestCase,
-        url: str,
-        form: Form | None = None,
-        data: dict[str, tp.Any] | None = None,
-        allow_codes: tp.Iterable[int] | None = None) -> int:
-    """Test whether the given url returns a valid status code."""
-    data2 = {
-        key: value for key, value in (
-            ({} if data is None else data) if form is None
-            else form.cleaned_data if data is None
-            else {**form.cleaned_data, **data}
-        ).items()
-        # Remove None values, as they cannot be encoded in the query string
-        if value is not None
-    }
-    return check_status_code(test.client.get(url, data=data2), allow_codes=allow_codes, url=url)
-
-
-def check_view(
-        test: TestCase,
-        view: str,
-        view_args: tp.Sequence[tp.Any] | None = None,
-        view_kwargs: dict[str, tp.Any] | None = None,
-        form: Form | None = None,
-        data: dict[str, tp.Any] | None = None,
-        allow_codes: tp.Iterable[int] | None = None) -> int:
-    """Test whether the given view returns a valid status code."""
-    return check_url(
-        test=test,
-        url=reverse(view, args=view_args, kwargs=view_kwargs),
-        form=form, data=data, allow_codes=allow_codes
-    )
+from ptplot.tests.check import check_status_code, check_url, check_view
 
 
 class ViewTest(TestCase):
@@ -405,52 +352,3 @@ class BenchmarkFormTest(TestCase):
         form = BenchmarkForm(QueryDict("obs_years=3&legacy_nucleation_cs_max=True"))
         assert form.is_valid(), form.errors
         assert form.cleaned_data["legacy_nucleation_cs_max"]
-
-
-class PTPlotFormTest(TestCase):
-    """Tests for the equation of state model of the single point form."""
-
-    DATA: tp.ClassVar[dict[str, tp.Any]] = {
-        "v_wall": "0.5", "alpha": "0.2", "beta_tilde": "100", "T_star": "100", "g_star": "100",
-        "obs_years": "3", "noise_eb": True, "noise_gb": True
-    }
-
-    def form(self, **kwargs: tp.Any) -> PTPlotForm:
-        """Create a form of the test data with the given changes."""
-        return PTPlotForm(data={**self.DATA, **kwargs})
-
-    def test_model_bag(self) -> None:
-        """Without the sound speeds, or with those of the bag model, the bag model should be used."""
-        for kwargs in ({}, {"css2": "1/3", "csb2": "1/3"}):
-            form = self.form(engine=Engine.SSM, **kwargs)
-            assert form.is_valid(), form.errors
-            assert form.model is BAG
-
-    def test_model_const_cs(self) -> None:
-        """With the sound speeds, the SSM should use the constant sound speed model."""
-        css2 = 0.25
-        csb2 = 0.3
-        # The fraction should also be accepted.
-        form = self.form(engine=Engine.SSM, css2="1/4", csb2=str(csb2))
-        assert form.is_valid(), form.errors
-        assert isinstance(form.model, ConstCSModel)
-        assert form.model.css2 == css2
-        assert form.model.csb2 == csb2
-
-    def test_model_other_engines(self) -> None:
-        """The sound speeds should be ignored by the other engines."""
-        form = self.form(engine=Engine.DEFAULT, css2="0.3", csb2="0.25")
-        assert form.is_valid(), form.errors
-        assert form.model is BAG
-
-    def test_alpha_outside_model(self) -> None:
-        r"""$\alpha$ outside the valid range of the model of the SSM should be a validation error."""
-        form = self.form(engine=Engine.SSM, alpha="0.1", css2="1/4", csb2="0.3")
-        assert not form.is_valid()
-        assert "Invalid alpha" in str(form.non_field_errors())
-
-    def test_model_invalid(self) -> None:
-        """Sound speeds with which the model cannot be created should be a validation error for the SSM."""
-        form = self.form(engine=Engine.SSM, css2="0.3", csb2="0.25")
-        assert not form.is_valid()
-        assert "Invalid sound speeds" in str(form.non_field_errors())
