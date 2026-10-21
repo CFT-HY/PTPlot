@@ -14,6 +14,7 @@ import tomllib
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
 from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, arxiv_link, convert_extlinks
 from pttools.docs.setup import pre_setup, setup_sphinx, setup_sphinx_logging
+from pttools.speedup.options import MAX_WORKERS_DEFAULT
 from sphinx_gallery.sorting import ExplicitOrder
 
 DOCS_DIR: Path = Path(__file__).resolve().parent
@@ -212,7 +213,9 @@ sphinx_gallery_conf = {
     # Parallelism cannot be enabled simultaneously with "show_memory".
     # It may also produce errors with some IDEs:
     # https://stackoverflow.com/questions/31080829/python-error-io-unsupportedoperation-fileno
-    "parallel": not show_memory,
+    # The examples are run with all the available cores, although the number of parallel Sphinx processes
+    # is limited in the Makefile, which Sphinx-Gallery would otherwise use.
+    "parallel": False if show_memory else MAX_WORKERS_DEFAULT,
     # This has to be set in order to avoid a warning when disabling it with a command line option.
     # https://sphinx-gallery.github.io/stable/configuration.html#building-without-executing-examples
     "plot_gallery": "True",
