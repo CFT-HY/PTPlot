@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 r"""$(\alpha_n, \beta/H)$ plotting.
 
 Inspired by Antoine Petiteau's ExampleUseSNR1.py v0.3 (May 2015).

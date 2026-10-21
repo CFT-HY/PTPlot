@@ -39,4 +39,3 @@ mH, tanb, mA, Tc,      xi_c,      Tn,      xi_n,    alpha_n,   beta_H_n
 #
 # I hope everything is going well. I am sending you the data points we produced for the LISA WG report in the 2HDM. I hope they are useful! The relevant columns are Tn, alpha_n and beta_H_n (I think the points are self-explanatory, but let me know in case they are not).
 # Email dated 26.10.2018
-

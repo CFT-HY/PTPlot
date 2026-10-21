@@ -32,10 +32,10 @@ Either make `download_LISA_figures.sh` executable and run it:
 
     chmod +x download_LISA_figures.sh
     ./download_LISA_figures.sh
-	
+
 Or run with bash:
 
     bash ./download_LISA_figures.sh
-	
+
 It will create a new directory `files-<today's date>` write all the
 files in there.
