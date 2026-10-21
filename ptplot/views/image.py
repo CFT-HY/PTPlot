@@ -11,6 +11,7 @@ from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.create import power_spectrum
+from ptplot.views.validation import validate_forms
 
 
 def bubble_v(request: HttpRequest) -> HttpResponse:
@@ -18,9 +19,10 @@ def bubble_v(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(bubble_v_figure(
         v_wall=form.cleaned_data["v_wall"],
@@ -35,9 +37,10 @@ def bubble_w(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(bubble_w_figure(
         v_wall=form.cleaned_data["v_wall"],
@@ -52,9 +55,10 @@ def ps_image(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     spectrum = power_spectrum(
         T_star=form.cleaned_data["T_star"],
@@ -64,7 +68,8 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"],
         model=form.model,
-        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+        ssm_settings=validated.ssm_settings
     )
     fig = power_spectrum_figure(
         spectra=spectrum,
@@ -78,9 +83,10 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(fig=snr_figure_alpha_beta(
         grid=SNRGridAlphaBeta(
@@ -93,7 +99,9 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             noise=form.noise,
             engine=form.cleaned_data["engine"],
             model=form.model,
-            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+            ssm_settings=validated.ssm_settings,
+            axes=validated.axes
         )
     ))
 
@@ -103,9 +111,10 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(fig=snr_figure_ubarf_rstar(
         grid=SNRGridUbarfRStar(
@@ -118,6 +127,8 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             noise=form.noise,
             engine=form.cleaned_data["engine"],
             model=form.model,
-            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+            ssm_settings=validated.ssm_settings,
+            axes=validated.axes
         )
     ))

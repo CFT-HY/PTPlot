@@ -8,6 +8,7 @@ from django.shortcuts import render
 from ptplot.forms import PTPlotForm
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.utils import GIT_DESCRIPTION, HAVE_GITVER
+from ptplot.views.validation import validate_forms
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -17,9 +18,10 @@ def csv(request: HttpRequest) -> HttpResponse:
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
-    form = PTPlotForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest()
+    validated = validate_forms(request, PTPlotForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     spectrum = power_spectrum(
         T_star=form.cleaned_data["T_star"],
@@ -29,7 +31,8 @@ def csv(request: HttpRequest) -> HttpResponse:
         beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"],
         model=form.model,
-        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+        legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+        ssm_settings=validated.ssm_settings
     )
     csv_data = spectrum.csv(noise=form.noise)
     return HttpResponse(csv_data, content_type="text/csv")

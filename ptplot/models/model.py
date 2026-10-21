@@ -22,11 +22,12 @@ from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
-from ptplot.science.snr.grid import SNRGrid
+from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
+from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
@@ -291,7 +292,9 @@ class Model(models.Model):
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-            exporter: Exporter | None = None) -> SNRGridAlphaBeta:
+            exporter: Exporter | None = None,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -305,6 +308,8 @@ class Model(models.Model):
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param axes: Size and limits of the axes of the grid
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -323,7 +328,9 @@ class Model(models.Model):
             name=name,
             max_workers=max_workers,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            exporter=exporter
+            ssm_settings=ssm_settings,
+            exporter=exporter,
+            axes=axes
         )
 
     def snr_grid_ubarf_rstar(
@@ -338,7 +345,9 @@ class Model(models.Model):
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-            exporter: Exporter | None = None) -> SNRGridUbarfRStar:
+            exporter: Exporter | None = None,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -353,6 +362,8 @@ class Model(models.Model):
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param axes: Size and limits of the axes of the grid
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: SNR grid
         """
         v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
@@ -372,7 +383,9 @@ class Model(models.Model):
             name=name,
             max_workers=max_workers,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            exporter=exporter
+            ssm_settings=ssm_settings,
+            exporter=exporter,
+            axes=axes
         )
 
     def snr_histogram(
@@ -380,7 +393,8 @@ class Model(models.Model):
             noise: Noise | None = None,
             engines: list[Engine] | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-            exporter: Exporter | None = None) -> Figure:
+            exporter: Exporter | None = None,
+            ssm_settings: SSMSettings | None = None) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this model.
 
         :param noise: Which noise curve to use
@@ -388,6 +402,7 @@ class Model(models.Model):
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: SNR histogram figure
         """
         v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
@@ -397,5 +412,6 @@ class Model(models.Model):
             noise=noise,
             engines=engines,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
             exporter=exporter
         )

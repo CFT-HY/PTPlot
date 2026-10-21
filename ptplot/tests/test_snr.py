@@ -11,12 +11,14 @@ from ptplot.science.noise import noise_curve
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.ssm import BAG
+from ptplot.tests.const import TEST_SSM_SETTINGS
 
 
 class SNRTest(TestCase):
@@ -32,6 +34,24 @@ class SNRTest(TestCase):
                 v_wall_points=const.DEFAULT_V_WALL
             )
         )
+
+    @staticmethod
+    def test_grid_axes() -> None:
+        """The grids should use the given size and limits of the axes, and deduce the other limits."""
+        axes = GridAxes(size=4, alpha_n_min=0.05, beta_tilde_max=1000., ubarf_max=0.5, r_star_min=1e-3)
+        kwargs = {
+            "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": const.DEFAULT_V_WALL,
+            "alpha_points": const.DEFAULT_ALPHA, "beta_tilde_points": const.DEFAULT_BETA_TILDE,
+            "axes": axes, "log_progress_percentage": None
+        }
+        grid = SNRGridAlphaBeta(**kwargs)
+        assert grid.snr.shape == (axes.size, axes.size)
+        np.testing.assert_allclose(grid.alpha_n[[0, -1]], [0.05, const.DEFAULT_ALPHA_N_RANGE[-1]], rtol=1e-12)
+        np.testing.assert_allclose(grid.beta_tilde[[0, -1]], [const.DEFAULT_beta_tilde_RANGE[0], 1000.], rtol=1e-12)
+        grid_ubarf = SNRGridUbarfRStar(**kwargs)
+        assert grid_ubarf.snr.shape == (axes.size, axes.size)
+        np.testing.assert_allclose(grid_ubarf.ubarf[[0, -1]], [const.DEFAULT_UBARF_RANGE[0], 0.5], rtol=1e-12)
+        np.testing.assert_allclose(grid_ubarf.r_star[[0, -1]], [1e-3, const.DEFAULT_R_STAR_RANGE[-1]], rtol=1e-12)
 
     @staticmethod
     def snr_alpha_beta_legacy(v_wall: float, legacy: bool) -> np.ndarray:
@@ -88,7 +108,7 @@ class SNRTest(TestCase):
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
             alpha_points=0.2, beta_tilde_points=100.,
             ubarf=np.array([0.05, 0.3, 0.5, 1.]), r_star=np.array([0.01, 0.1]),
-            engine=Engine.SSM, model=model, log_progress_percentage=None
+            engine=Engine.SSM, model=model, log_progress_percentage=None, ssm_settings=TEST_SSM_SETTINGS
         )
         # Ubarf = 0.05 corresponds to alpha_n below the minimum of the model,
         # and Ubarf = 1 is above the maximum of the approximation of Ubarf.

@@ -7,6 +7,7 @@ from ptplot.science import const
 from ptplot.science.spectrum import Engine, PowerSpectrumSSM
 from ptplot.science.spectrum.create import power_spectrum, ssm_model
 from ptplot.science.spectrum.ssm import BAG
+from ptplot.tests.const import TEST_SSM_SETTINGS
 
 
 def test_ssm_model_default() -> None:
@@ -39,3 +40,13 @@ def test_power_spectrum_ssm_without_sound_speeds() -> None:
     )
     assert isinstance(spectrum, PowerSpectrumSSM)
     assert spectrum.model is BAG
+
+
+def test_power_spectrum_ssm_settings() -> None:
+    """The accuracy settings should be given to the SSM spectrum."""
+    spectrum = power_spectrum(
+        v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
+        engine=Engine.SSM, ssm_settings=TEST_SSM_SETTINGS
+    )
+    assert isinstance(spectrum, PowerSpectrumSSM)
+    assert spectrum.settings is TEST_SSM_SETTINGS

@@ -5,6 +5,7 @@ import io
 import typing as tp
 
 from matplotlib.axes import Axes
+from matplotlib.contour import ContourSet
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation
 import numpy as np
@@ -96,6 +97,11 @@ def find_label_place(
     nearest_x = (np.abs(snr[nearest_y, :] - wanted_contour)).argmin()
     return x[nearest_x].item(), wanted_y
 
+
+
+def has_lines(contour: ContourSet) -> bool:
+    """Whether the contour set has any lines, which is required for placing its labels manually."""
+    return any(np.asarray(path.vertices).size for path in contour.get_paths())
 
 def watermark() -> str:
     """Get the watermark string."""

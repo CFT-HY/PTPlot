@@ -21,11 +21,12 @@ from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
-from ptplot.science.snr.grid import SNRGrid
+from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine, power_spectrum
+from ptplot.science.spectrum.ssm import SSMSettings
 
 if tp.TYPE_CHECKING:
     from django.db.models.expressions import BaseExpression
@@ -175,13 +176,15 @@ class ParameterChoice(models.Model):
             self,
             noise: Noise | None = None,
             engine: Engine = Engine.DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> str:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            ssm_settings: SSMSettings | None = None) -> str:
         r"""Export the power spectrum of this point as CSV.
 
         :param noise: Which noise curve to use
         :param engine: Which power spectrum engine to use
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: CSV data
         :raises ValueError: If no CSV data was produced
         """
@@ -192,7 +195,8 @@ class ParameterChoice(models.Model):
             alpha=self.alpha,
             beta_tilde=self.beta_tilde,
             engine=engine,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings
         ).csv(noise=noise)
         if csv is None:
             raise ValueError("Got no CSV data.")
@@ -203,7 +207,8 @@ class ParameterChoice(models.Model):
             noise: Noise | None = None,
             engine: Engine | str | tp.Iterable[Engine] | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-            strong: bool | None = None) -> Figure:
+            strong: bool | None = None,
+            ssm_settings: SSMSettings | None = None) -> Figure:
         r"""Plot the power spectrum of this parameter choice.
 
         :param noise: Which noise curve to use
@@ -215,6 +220,7 @@ class ParameterChoice(models.Model):
         :param strong: Include the engines for strong transitions only,
             see :py:meth:`ptplot.science.spectrum.engine.Engine.engines`.
             Defaults to including them if the engines are given, and excluding them otherwise.
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: Power spectrum figure, titled with the parameters of this point
         """
         return power_spectrum_figure(
@@ -226,7 +232,8 @@ class ParameterChoice(models.Model):
                     alpha=self.alpha,
                     beta_tilde=self.beta_tilde,
                     engine=spectrum_engine,
-                    legacy_nucleation_cs_max=legacy_nucleation_cs_max
+                    legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+                    ssm_settings=ssm_settings
                 )
                 for spectrum_engine in Engine.engines(engine, strong=bool(engine) if strong is None else strong)
             ],
@@ -308,7 +315,9 @@ class ParameterChoice(models.Model):
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridAlphaBeta:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this point in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -321,6 +330,8 @@ class ParameterChoice(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param axes: Size and limits of the axes of the grid
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: SNR grid
         """
         return SNRGridAlphaBeta(
@@ -336,7 +347,9 @@ class ParameterChoice(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
+            axes=axes
         )
 
     def snr_grid_ubarf_rstar(
@@ -350,7 +363,9 @@ class ParameterChoice(models.Model):
             cs: float = const.CS0,
             noise: Noise | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT,
-            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX) -> SNRGridUbarfRStar:
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this point in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -364,6 +379,8 @@ class ParameterChoice(models.Model):
         :param max_workers: Maximum number of worker processes
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param axes: Size and limits of the axes of the grid
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :return: SNR grid
         """
         return SNRGridUbarfRStar(
@@ -380,5 +397,7 @@ class ParameterChoice(models.Model):
             engine=engine,
             name=name,
             max_workers=max_workers,
-            legacy_nucleation_cs_max=legacy_nucleation_cs_max
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
+            axes=axes
         )

@@ -6,9 +6,9 @@ from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.snr.grid import SNRGrid
+from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG
+from ptplot.science.spectrum.ssm import BAG, SSMSettings
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range
 
@@ -42,7 +42,9 @@ class SNRGridAlphaBeta(SNRGrid):
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-            exporter: Exporter | None = None):
+            exporter: Exporter | None = None,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None):
         r"""Calculate SNR for a grid of $(\alpha_n, \beta/H)$ points.
 
         The grid ranges are deduced from the points, unless they are given explicitly.
@@ -72,15 +74,25 @@ class SNRGridAlphaBeta(SNRGrid):
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added,
             see :py:class:`~ptplot.science.snr.grid.SNRGrid`
+        :param axes: Size and limits of the axes, used for the ranges that are not given explicitly
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         """
+        if axes is None:
+            axes = GridAxes()
         if alpha_n is None:
             if alpha_points is None:
                 raise ValueError("Provide either alpha_n or alpha_points.")
-            alpha_n = log_range(alpha_points, const.DEFAULT_ALPHA_N_RANGE)
+            alpha_n = log_range(
+                alpha_points, const.DEFAULT_ALPHA_N_RANGE,
+                size=axes.size, range_min=axes.alpha_n_min, range_max=axes.alpha_n_max
+            )
         if beta_tilde is None:
             if beta_tilde_points is None:
                 raise ValueError("Provide either beta_tilde or beta_tilde_points.")
-            beta_tilde = log_range(beta_tilde_points, const.DEFAULT_beta_tilde_RANGE)
+            beta_tilde = log_range(
+                beta_tilde_points, const.DEFAULT_beta_tilde_RANGE,
+                size=axes.size, range_min=axes.beta_tilde_min, range_max=axes.beta_tilde_max
+            )
 
         self.v_wall_points: th.FloatOrArrOrList1D2D | None = v_wall_points
 
@@ -94,7 +106,8 @@ class SNRGridAlphaBeta(SNRGrid):
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            exporter=exporter
+            exporter=exporter,
+            ssm_settings=ssm_settings
         )
 
     @property

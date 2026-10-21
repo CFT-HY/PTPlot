@@ -7,13 +7,12 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Extractor, Record
 from pttools.models import Model
-from pttools.ssm.const import DEFAULT_N_Z_LOOKUP
 
 from ptplot.science import const
 from ptplot.science import type_hints as th
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import extract_record
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM, SSMSettings
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -47,7 +46,8 @@ def snr_column_ssm(
         f_star0_factor: float = 1.,
         parallel: bool = False,
         legacy_nucleation_cs_max: bool = False,
-        extractor: Extractor | None = None) -> SNRColumn:
+        extractor: Extractor | None = None,
+        ssm_settings: SSMSettings | None = None) -> SNRColumn:
     r"""Compute a column of an SNR grid with the Sound Shell Model.
 
     The fluid shell is computed only once for the column, as $x$ is the same for all its points.
@@ -89,6 +89,10 @@ def snr_column_ssm(
         If given, the fields of the spectra are extracted for exporting.
         The extraction is done here, so that only the extracted fields have to be sent between the processes
         when the columns are computed in parallel.
+    :param ssm_settings: Accuracy settings of the PTtools spectra, defaults to
+        :py:class:`~ptplot.science.spectrum.ssm.SSMSettings`.
+        The ``n_z_lookup`` of the shared spectrum is scaled from it, see
+        :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.settings_covering`.
     :return: SNR values, $\mathcal{H}_* \eta_\text{sh}$ values and the records of the spectra
     :raises ValueError: If $x$ is not a scalar
     """
@@ -133,7 +137,7 @@ def snr_column_ssm(
     def create_spectrum(
             y_i: float,
             z: th.FloatArr1D | None = None,
-            n_z_lookup: int = DEFAULT_N_Z_LOOKUP) -> PowerSpectrumSSM:
+            settings: SSMSettings | None = ssm_settings) -> PowerSpectrumSSM:
         return PowerSpectrumSSM(
             alpha=None if ubarf_rstar else x_value,
             ubarf=x_value if ubarf_rstar else None,
@@ -149,7 +153,7 @@ def snr_column_ssm(
             parallel=parallel,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             z=z,
-            n_z_lookup=n_z_lookup
+            settings=settings
         )
 
     shared_spectrum: PowerSpectrumSSM | None = None
@@ -166,7 +170,7 @@ def snr_column_ssm(
         # Any valid y value can be used for the shared spectrum, as with_params() changes it.
         y_valid = y[np.isfinite(y) & (y > 0)]
         shared_spectrum = create_spectrum(
-            y_i=y_valid[0], z=z, n_z_lookup=PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f))
+            y_i=y_valid[0], z=z, settings=PowerSpectrumSSM.settings_covering(z=z, f=noise.f, settings=ssm_settings))
     except Exception as exc:
         logger.exception(
             "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "

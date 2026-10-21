@@ -6,7 +6,7 @@ from pttools.models import ConstCSModel, Model
 from ptplot.science.const import CS0_2, DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES, Engine
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM, SSMSettings
 
 
 def power_spectrum(
@@ -25,7 +25,8 @@ def power_spectrum(
         f_star0_factor: float = 1.,
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False,
-        cache: bool = False) -> PowerSpectrum:
+        cache: bool = False,
+        ssm_settings: SSMSettings | None = None) -> PowerSpectrum:
     r"""Create a power spectrum object from the given parameters.
 
     :param css2: $c_{s,s}^2$, sound speed squared in the symmetric phase, for the SSM, see :py:func:`ssm_model`
@@ -40,6 +41,7 @@ def power_spectrum(
         :py:meth:`~ptplot.science.spectrum.base.PowerSpectrum.power_spectrum`,
         which may therefore have been made elsewhere, e.g. for
         :py:meth:`~ptplot.science.spectrum.base.PowerSpectrum.record`.
+    :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
     """
     if engine is None or not engine:
         engine = Engine.DEFAULT
@@ -54,7 +56,8 @@ def power_spectrum(
             v_wall=v_wall, adiabatic_index=adiabatic_index,
             alpha=alpha, r_star=r_star, ubarf=ubarf,
             f_star0_factor=f_star0_factor,
-            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max, model=model
+            parallel=parallel, legacy_nucleation_cs_max=legacy_nucleation_cs_max, model=model,
+            settings=ssm_settings
         )
     spectrum_class = ENGINE_SPECTRUM_CLASSES[engine]
     return (spectrum_class.cached if cache else spectrum_class)(

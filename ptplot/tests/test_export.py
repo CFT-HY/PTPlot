@@ -13,6 +13,7 @@ from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.engine import Engine
+from ptplot.tests.const import TEST_SSM_SETTINGS
 
 ALPHA_N: np.ndarray = np.array([0.05, 0.1])
 BETA_TILDE: np.ndarray = np.array([10., 100., 1000.])
@@ -66,7 +67,8 @@ class ExportTest(unittest.TestCase):
             grid = SNRGridAlphaBeta(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
                 alpha_n=ALPHA_N, beta_tilde=BETA_TILDE, engine=Engine.SSM,
-                log_progress_percentage=None, max_workers=2, exporter=exporter
+                log_progress_percentage=None, max_workers=2, exporter=exporter,
+                ssm_settings=TEST_SSM_SETTINGS
             )
         self.assert_grid_exported(grid, "beta_tilde")
 
@@ -76,7 +78,8 @@ class ExportTest(unittest.TestCase):
             grid = SNRGridUbarfRStar(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
                 ubarf=UBARF, r_star=R_STAR, engine=Engine.SSM,
-                log_progress_percentage=None, max_workers=2, exporter=exporter
+                log_progress_percentage=None, max_workers=2, exporter=exporter,
+                ssm_settings=TEST_SSM_SETTINGS
             )
         self.assert_grid_exported(grid, "r_star")
 
@@ -124,7 +127,8 @@ class ExportTest(unittest.TestCase):
             snr_histogram(
                 v_wall=v_wall, alpha_n=alpha_n, beta_tilde=beta_tilde,
                 T_star=np.full_like(v_wall, const.DEFAULT_T_STAR), g_star=np.full_like(v_wall, const.DEFAULT_G_STAR),
-                engines=[Engine.DEFAULT, Engine.SSM], exporter=exporter
+                engines=[Engine.DEFAULT, Engine.SSM], exporter=exporter,
+                ssm_settings=TEST_SSM_SETTINGS
             )
         with Importer(self.path, verify=True) as importer:
             assert importer.n_spectra_f == v_wall.size

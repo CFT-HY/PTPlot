@@ -23,9 +23,9 @@ from ptplot.science.const import (
 )
 from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.snr.grid import SNRGrid
+from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG
+from ptplot.science.spectrum.ssm import BAG, SSMSettings
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 
@@ -60,7 +60,9 @@ class SNRGridUbarfRStar(SNRGrid):
             log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = False,
-            exporter: Exporter | None = None):
+            exporter: Exporter | None = None,
+            axes: GridAxes | None = None,
+            ssm_settings: SSMSettings | None = None):
         r"""Calculate SNR for a grid of $(\bar{U}_f, r_*)$ points.
 
         The points are converted from $(\alpha, \beta/H)$ to $(\bar{U}_f, r_*)$,
@@ -97,7 +99,11 @@ class SNRGridUbarfRStar(SNRGrid):
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added,
             see :py:class:`~ptplot.science.snr.grid.SNRGrid`
+        :param axes: Size and limits of the axes, used for the ranges that are not given explicitly
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         """
+        if axes is None:
+            axes = GridAxes()
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
         r_star_points: th.FloatOrArrOrList1D2D | None
@@ -113,9 +119,15 @@ class SNRGridUbarfRStar(SNRGrid):
                 legacy_nucleation_cs_max=legacy_nucleation_cs_max
             )
             if ubarf is None:
-                ubarf = log_range(ubarf_points, DEFAULT_UBARF_RANGE)
+                ubarf = log_range(
+                    ubarf_points, DEFAULT_UBARF_RANGE,
+                    size=axes.size, range_min=axes.ubarf_min, range_max=axes.ubarf_max
+                )
             if r_star is None:
-                r_star = log_range(r_star_points, DEFAULT_R_STAR_RANGE)
+                r_star = log_range(
+                    r_star_points, DEFAULT_R_STAR_RANGE,
+                    size=axes.size, range_min=axes.r_star_min, range_max=axes.r_star_max
+                )
         else:
             if ubarf is None:
                 raise ValueError("Provide either ubarf or alpha_points.")
@@ -137,7 +149,8 @@ class SNRGridUbarfRStar(SNRGrid):
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            exporter=exporter
+            exporter=exporter,
+            ssm_settings=ssm_settings
         )
 
     @property

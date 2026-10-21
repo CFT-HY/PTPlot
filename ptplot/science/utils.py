@@ -70,8 +70,29 @@ def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:  #
     return [np.array(sub_values) for sub_values in nested]
 
 
-def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr1D:
-    """Get a logarithmic range that covers the values in x, but is not smaller than the default range."""
+def log_range(
+        x: th.FloatOrArrOrList1D2D,
+        default: th.FloatArr1D,
+        size: int | None = None,
+        range_min: float | None = None,
+        range_max: float | None = None) -> th.FloatArr1D:
+    """Get a logarithmic range that covers the values in x, but is not smaller than the default range.
+
+    :param x: Values to be covered
+    :param default: Default range
+    :param size: Number of points in the range, defaults to the size of the default range
+    :param range_min: Minimum of the range. If given, it's used instead of the minimum of x and the default range,
+        and the values of x below it are not covered.
+    :param range_max: Maximum of the range. If given, it's used instead of the maximum of x and the default range,
+        and the values of x above it are not covered.
+    :return: Logarithmically spaced range
+    :raises ValueError: If the size is smaller than 2, or the range is not positive and increasing
+    """
+    if size is None:
+        size = default.size
+    elif size < 2:  # noqa: PLR2004
+        raise ValueError(f"The size of the range must be at least 2. Got: {size}")
+
     x_min: float
     x_max: float
     if np.isscalar(x):
@@ -83,12 +104,13 @@ def log_range(x: th.FloatOrArrOrList1D2D, default: th.FloatArr1D) -> th.FloatArr
         x_min = tp.cast("float", np.nanmin(x))
         x_max = tp.cast("float", np.nanmax(x))
 
-    return np.logspace(
-            np.log10(min(x_min, default[0])),
-            np.log10(max(x_max, default[-1])),
-            default.size) \
-        if x_min < default[0] or x_max > default[-1] \
-        else default
+    start = min(x_min, default[0]) if range_min is None else range_min
+    stop = max(x_max, default[-1]) if range_max is None else range_max
+    if not 0 < start < stop:
+        raise ValueError(f"The range must be positive and increasing. Got: {start} - {stop}")
+    if start == default[0] and stop == default[-1] and size == default.size:
+        return default
+    return np.logspace(np.log10(start), np.log10(stop), size)
 
 
 def ubarf_rstar_from_alpha_beta(

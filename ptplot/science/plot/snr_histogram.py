@@ -13,6 +13,7 @@ from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr import export_records, snr_point
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_NAMES
+from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
 # if tp.TYPE_CHECKING:
@@ -34,7 +35,8 @@ def snr_histogram(
         engines: list[Engine] | None = None,
         n_bins_min: int = 5,
         legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
-        exporter: Exporter | None = None) -> Figure:
+        exporter: Exporter | None = None,
+        ssm_settings: SSMSettings | None = None) -> Figure:
     r"""Histogram of signal-to-noise ratios (SNR) for a set of points in the parameter space.
 
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html
@@ -46,6 +48,7 @@ def snr_histogram(
     :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file.
         Only the spectra of the engines that support exporting are added,
         see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
+    :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
     """
     fig = Figure()
     ax = fig.add_subplot()
@@ -66,7 +69,8 @@ def snr_histogram(
                 noise=noise,
                 engine=engine,
                 legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-                extractor=None if exporter is None else exporter.extractor
+                extractor=None if exporter is None else exporter.extractor,
+                ssm_settings=ssm_settings
             )
             if exporter is not None:
                 export_records(exporter, (record,))

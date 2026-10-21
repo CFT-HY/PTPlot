@@ -47,7 +47,14 @@ def add_ticks(
 
 
 def make_minor_ticks(min_int: int, max_int: int) -> np.ndarray:
-    """Create minor ticks in the given range."""
+    r"""Create minor ticks for the full decades in the given range.
+
+    :param min_int: $\log_{10}$ of the beginning of the first decade
+    :param max_int: $\log_{10}$ of the end of the last decade
+    :return: $\log_{10}$ of the positions of the minor ticks, empty if the range has no full decades
+    """
+    if max_int <= min_int:
+        return np.array([])
     # Todo: This may be possible with one call of np.logspace
     return np.concatenate([
         np.log10(np.linspace(10 ** i, 10 ** (i + 1), 9, endpoint=False))

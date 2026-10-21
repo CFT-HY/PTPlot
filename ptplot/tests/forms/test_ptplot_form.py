@@ -1,4 +1,4 @@
-"""Tests for forms."""
+"""Tests for the form of a single point."""
 
 import typing as tp
 

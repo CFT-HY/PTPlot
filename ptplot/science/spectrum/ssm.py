@@ -1,5 +1,7 @@
 """Sound Shell Model (SSM) power spectrum."""
 
+from dataclasses import dataclass, replace
+
 # from functools import lru_cache
 import logging
 import typing as tp
@@ -9,7 +11,7 @@ from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
 from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod, freq, signal_to_noise_ratio
-from pttools.ssm.const import DEFAULT_N_Z_LOOKUP
+from pttools.ssm.const import DEFAULT_N_T, DEFAULT_N_Z_LOOKUP
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
@@ -21,6 +23,26 @@ from ptplot.science.type_hints import FloatArr1D
 BAG: BagModel = BagModel(alpha_n_min=0.0001)
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class SSMSettings:
+    """Accuracy settings of the PTtools spectra, i.e. the sizes of their internal arrays.
+
+    See :py:class:`pttools.omgw0.spectrum.Spectrum` and the example ``examples/props/n_points.py`` of PTtools,
+    according to which the accuracy and the computation time are determined mostly by ``n_z_lookup``.
+    """
+
+    #: Number of points in the lookup arrays
+    n_z_lookup: int = DEFAULT_N_Z_LOOKUP
+    #: Number of points in the integration of the bubble lifetime distribution
+    n_t: int = DEFAULT_N_T
+    #: Number of points in the integration of $\tilde{P}_\text{gw}$, or None for the same as ``n_z_lookup``
+    nx_p_tilde_gw: int | None = None
+
+    def spectrum_kwargs(self) -> dict[str, tp.Any]:
+        """The settings as the arguments of :py:class:`pttools.omgw0.spectrum.Spectrum`."""
+        return {"n_z_lookup": self.n_z_lookup, "nT": self.n_t, "nx_P_tilde_gw": self.nx_p_tilde_gw}
 
 
 class PowerSpectrumSSM(PowerSpectrum):
@@ -58,7 +80,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             bubble: Bubble | None = None,
             # Precomputation
             z: FloatArr1D | None = None,
-            n_z_lookup: int = DEFAULT_N_Z_LOOKUP,
+            settings: SSMSettings | None = None,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT):
         r"""Create an SSM power spectrum.
@@ -72,11 +94,10 @@ class PowerSpectrumSSM(PowerSpectrum):
             and stored as :py:attr:`precomputed`. :py:meth:`power_spectrum` then interpolates it
             for the frequencies that are within its range, and :py:meth:`with_params` reuses it.
             See :py:meth:`z_covering` for creating a $z$ array that covers the given frequencies.
-        :param n_z_lookup: Number of points in the lookup arrays of the PTtools spectra,
-            see :py:class:`pttools.omgw0.spectrum.Spectrum`.
+        :param settings: Accuracy settings of the PTtools spectra, defaults to :py:class:`SSMSettings`.
             The lookup arrays span the range of the $z$ array.
             Therefore, for a $z$ array that spans a wider range than the frequencies,
-            this should be increased with :py:meth:`n_z_lookup_covering` to retain the accuracy.
+            ``n_z_lookup`` should be increased with :py:meth:`n_z_lookup_covering` to retain the accuracy.
         :param suppression: Suppression data of the precomputed spectrum
         :param suppression_method: Suppression method of the precomputed spectrum
         :raises ValueError: If the fluid shell does not match the parameters of this spectrum
@@ -123,8 +144,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             if self._bubble is None else self._bubble
         #: The PTtools spectrum computed by the last successful call of :py:meth:`power_spectrum`
         self.spectrum: Spectrum | None = None
-        #: Number of points in the lookup arrays of the PTtools spectra
-        self.n_z_lookup: int = n_z_lookup
+        #: Accuracy settings of the PTtools spectra
+        self.settings: SSMSettings = SSMSettings() if settings is None else settings
         #: Suppression data of :py:attr:`precomputed`
         self.suppression: Suppression = suppression
         #: Suppression method of :py:attr:`precomputed`
@@ -150,8 +171,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             T_star=self.T_star,
             suppression=suppression,
             suppression_method=suppression_method,
-            n_z_lookup=self.n_z_lookup,
-            parallel=self.parallel
+            parallel=self.parallel,
+            **self.settings.spectrum_kwargs()
         )
 
     def covers(self, f: FloatArr1D, rtol: float = 1e-9) -> bool:
@@ -335,7 +356,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             parallel=self.parallel if parallel is None else parallel,
             model=self.model,
             bubble=self.bubble,
-            n_z_lookup=self.n_z_lookup,
+            settings=self.settings,
             suppression=self.suppression,
             suppression_method=self.suppression_method
         )
@@ -426,6 +447,19 @@ class PowerSpectrumSSM(PowerSpectrum):
         """
         ratio = np.log10(z.max() / z.min()) / np.log10(f.max() / f.min())
         return max(n_z_lookup, int(np.ceil(n_z_lookup * ratio)))
+
+    @classmethod
+    def settings_covering(cls, z: FloatArr1D, f: FloatArr1D, settings: SSMSettings | None = None) -> SSMSettings:
+        """Accuracy settings for a $z$ array, with ``n_z_lookup`` scaled by :py:meth:`n_z_lookup_covering`.
+
+        :param z: $z$ array, e.g. from :py:meth:`z_covering`
+        :param f: Frequencies $f$ for which the spectra would otherwise be computed
+        :param settings: Accuracy settings for the frequencies, defaults to :py:class:`SSMSettings`
+        :return: Accuracy settings for ``z``
+        """
+        if settings is None:
+            settings = SSMSettings()
+        return replace(settings, n_z_lookup=cls.n_z_lookup_covering(z=z, f=f, n_z_lookup=settings.n_z_lookup))
 
     def record(self, extractor: Extractor) -> Record | None:
         """Record of the PTtools spectrum computed by the last call of :py:meth:`power_spectrum`.

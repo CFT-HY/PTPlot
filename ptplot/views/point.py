@@ -7,6 +7,7 @@ from ptplot.forms import BenchmarkForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import ParameterChoice
 from ptplot.science.spectrum import Engine
+from ptplot.views.validation import validate_forms
 
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
@@ -18,9 +19,10 @@ def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> Http
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
     return render(
         request,
         "model_point_plot.html",
@@ -36,15 +38,18 @@ def model_point_snr_alpha_beta(request: HttpRequest, model_id: int, point_id: in
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(
         point.snr_figure_alpha_beta(
             grid=point.snr_grid_alpha_beta(
                 engine=form.cleaned_data["engine"], noise=form.noise,
-                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+                ssm_settings=validated.ssm_settings,
+                axes=validated.axes
             )
         )
     )
@@ -58,21 +63,26 @@ def model_point_snr_comparison(request: HttpRequest, model_id: int, point_id: in
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     engine = Engine.engine(form.cleaned_data["engine"])
     return fig_to_response(
         point.snr_comparison(
             grid1=point.snr_grid_alpha_beta(
                 engine=Engine.CosWG20bpl, noise=form.noise,
-                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+                ssm_settings=validated.ssm_settings,
+                axes=validated.axes
             ),
             grid2=point.snr_grid_alpha_beta(
                 engine=Engine.GH21dbpl if engine == Engine.CosWG20bpl else engine,
                 noise=form.noise,
-                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+                ssm_settings=validated.ssm_settings,
+                axes=validated.axes
             )
         )
     )
@@ -86,15 +96,18 @@ def model_point_snr_ubarf_rstar(request: HttpRequest, model_id: int, point_id: i
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(
         point.snr_figure_ubarf_rstar(
             grid=point.snr_grid_ubarf_rstar(
                 engine=form.cleaned_data["engine"], noise=form.noise,
-                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+                legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+                ssm_settings=validated.ssm_settings,
+                axes=validated.axes
             )
         )
     )
@@ -108,14 +121,16 @@ def model_point_csv(request: HttpRequest, model_id: int, point_id: int) -> HttpR
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return HttpResponse(
         point.csv(
             noise=form.noise, engine=form.cleaned_data["engine"],
-            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+            ssm_settings=validated.ssm_settings
         ),
         content_type="text/csv"
     )
@@ -129,14 +144,16 @@ def model_point_ps(request: HttpRequest, model_id: int, point_id: int) -> HttpRe
         model__id=model_id,
         number=point_id
     )
-    form = BenchmarkForm(request.GET)
-    if not form.is_valid():
-        return HttpResponseBadRequest(f"Invalid form data: {request.GET}")
+    validated = validate_forms(request, BenchmarkForm)
+    if isinstance(validated, HttpResponseBadRequest):
+        return validated
+    form = validated.form
 
     return fig_to_response(
         point.power_spectrum_figure(
             noise=form.noise, engine=form.cleaned_data["engine"],
-            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
+            legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"],
+            ssm_settings=validated.ssm_settings
         )
     )
 

@@ -12,6 +12,7 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.ssm import SSMSettings
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -29,7 +30,8 @@ def snr_point(
         f_star0_factor: float = 1.,
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False,
-        extractor: Extractor | None = None) -> tuple[float, float, Record | None]:
+        extractor: Extractor | None = None,
+        ssm_settings: SSMSettings | None = None) -> tuple[float, float, Record | None]:
     r"""Compute the SNR value of a single point in the parameter space.
 
     :param x: $\alpha$ or $\bar{U}_f$
@@ -49,6 +51,7 @@ def snr_point(
     :param extractor: Extractor of a :py:class:`pttools.export.exporter.Exporter`.
         If given, the fields of the spectrum are extracted for exporting,
         see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
+    :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
     :return: SNR, $\mathcal{H}_* \eta_\text{sh}$ and the record of the spectrum.
         The record is None if the extractor is not given, if the engine does not support exporting,
         or if the computation or the extraction failed.
@@ -66,6 +69,7 @@ def snr_point(
             f_star0_factor=f_star0_factor,
             parallel=parallel,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
             **kwargs
         )
         # Error logging is handled in this function

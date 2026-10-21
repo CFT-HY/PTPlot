@@ -9,7 +9,7 @@ import numpy as np
 from ptplot.science import const
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import log_figure
-from ptplot.science.plot.utils import add_text, find_label_place, watermark
+from ptplot.science.plot.utils import add_text, find_label_place, has_lines, watermark
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 
@@ -96,9 +96,11 @@ def snr_figure(
         if shock_label_locs is None:
             locs_tsh_x = (x_log10[-1] + x_log10[0]) / 2
             shock_label_locs = [(locs_tsh_x, float(y)) for y in range(int(y_log10[0]), int(y_log10[-1]) + 1)]
-        if not filled:
+        # Placing the labels manually fails if there are no contour lines, e.g. for a coarse grid.
+        if not filled and has_lines(contour):
             ax.clabel(contour, inline=1, fontsize=contour_label_fontsize, fmt="%.0f", manual=snr_label_locs)
-        ax.clabel(contour_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
+        if has_lines(contour_shock):
+            ax.clabel(contour_shock, inline=1, fontsize=contour_label_fontsize, fmt="%g", manual=shock_label_locs)
         # ax.set_title(r"SNR (solid), $\tau_{\rm sh} H_{\rm n}$ (dashed) from Acoustic GWs")
         # ax.set_xlabel(r"$\log_{10}(H_{\rm n} R_*) / (T_{\rm n}/100\, {\rm Gev}) $",fontsize=16)
 

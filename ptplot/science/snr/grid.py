@@ -8,6 +8,7 @@ ExampleUseSNR1.py v0.3 (May 2015)
 """
 
 from abc import ABC
+from dataclasses import dataclass
 from multiprocessing import set_forkserver_preload
 import typing as tp
 
@@ -24,7 +25,7 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import export_records, snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG
+from ptplot.science.spectrum.ssm import BAG, SSMSettings
 from ptplot.science.type_hints import (
     FloatArr1D,
     FloatArr2D,
@@ -34,6 +35,29 @@ from ptplot.science.type_hints import (
 )
 
 set_forkserver_preload([*DEFAULT_FORKSERVER_PRELOAD, "ptplot", "ptplot.science"])
+
+
+@dataclass(frozen=True, slots=True)
+class GridAxes:
+    r"""Size and limits of the axes of the SNR grids.
+
+    The limits that are not given are deduced from the points to be drawn on the grid and the default ranges,
+    see :py:func:`ptplot.science.utils.log_range`.
+    The limits of $\alpha_n$ and $\tilde{\beta}$ are used by
+    :py:class:`~ptplot.science.snr.grid_alpha_beta.SNRGridAlphaBeta`,
+    and those of $\bar{U}_f$ and $r_*$ by :py:class:`~ptplot.science.snr.grid_ubarf_rstar.SNRGridUbarfRStar`.
+    """
+
+    #: Number of points on each axis
+    size: int = const.DEFAULT_GRID_SIZE
+    alpha_n_min: float | None = None
+    alpha_n_max: float | None = None
+    beta_tilde_min: float | None = None
+    beta_tilde_max: float | None = None
+    ubarf_min: float | None = None
+    ubarf_max: float | None = None
+    r_star_min: float | None = None
+    r_star_max: float | None = None
 
 
 class SNRGrid(ABC):  # noqa: B024
@@ -71,7 +95,8 @@ class SNRGrid(ABC):  # noqa: B024
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
             max_workers: int = MAX_WORKERS_DEFAULT,
             legacy_nucleation_cs_max: bool = False,
-            exporter: Exporter | None = None):
+            exporter: Exporter | None = None,
+            ssm_settings: SSMSettings | None = None):
         r"""Compute the SNR grid.
 
         :param x: Values of the parameter on the x-axis, $\alpha$ or $\bar{U}_f$
@@ -103,6 +128,7 @@ class SNRGrid(ABC):  # noqa: B024
             see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
             The spectra whose computation failed are not added.
             The errors in exporting are logged instead of raised, so that they do not discard the computed SNR values.
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
         :raises ValueError: If a parameter is invalid
         """
         if engine is None or not engine:
@@ -142,6 +168,7 @@ class SNRGrid(ABC):  # noqa: B024
             "f_star0_factor": f_star0_factor,
             "g_star": g_star,
             "legacy_nucleation_cs_max": legacy_nucleation_cs_max,
+            "ssm_settings": ssm_settings,
             "noise": self.noise,
             "parallel": False,
             "T_star": T_star,

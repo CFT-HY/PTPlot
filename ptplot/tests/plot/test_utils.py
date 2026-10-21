@@ -5,9 +5,10 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.transforms import Bbox
+import numpy as np
 import pytest
 
-from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text
+from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, has_lines
 
 #: Tick label formats that result in plot areas of different sizes
 TICK_LABEL_FORMATS: tuple[str, ...] = ("{:.0f}", "{:.10f}", "{:.30f}")
@@ -83,3 +84,12 @@ class AddTextTest(TestCase):
         """Adding text to a figure without axes should fail with a clear error."""
         with pytest.raises(ValueError, match="no axes"):
             add_text(Figure(), TEXT)
+
+
+def test_has_lines() -> None:
+    """Contour sets with lines should be distinguished from those without lines."""
+    fig = Figure()
+    ax = fig.add_subplot()
+    z = np.outer(np.arange(3), np.ones(3))
+    assert has_lines(ax.contour(z, levels=[1.5]))
+    assert not has_lines(ax.contour(z, levels=[10.]))
