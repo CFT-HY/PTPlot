@@ -36,9 +36,13 @@ V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #:   (v_wall = 0.3: 0.05727 -> 0.06623, v_wall = 0.9: 0.11346 -> 0.10879)
 #: - 0c54ca3: the default suppression dataset is WITH_HYBRIDS_EXT instead of NO_HYBRIDS_EXT
 #:   (v_wall = 0.9: 0.10879 -> 0.11086)
+#: - 1ba25c7: the thin shells of hybrids are preserved in the sine transforms
+#:   (v_wall = 0.3: 0.06623 -> 0.06630, v_wall = 0.9: 0.11086 -> 0.11071)
+#: - 589a166: the sine transforms of the fluid profiles are exact for large z
+#:   (v_wall = 0.3: 0.06630 -> 0.06625, v_wall = 0.9: 0.11071 -> 0.11079)
 REFERENCE: dict[float, tuple[float, float, float]] = {
-    0.3: (0.018124666532740186, 0.06622525560700972, 0.19839872059716177),
-    0.9: (0.026362653976107417, 0.11086086932383199, 0.2568295035856295),
+    0.3: (0.018124666532740186, 0.06625335726849783, 0.19839872059716177),
+    0.9: (0.026362653976107417, 0.11078728571331999, 0.2568295035856295),
 }
 
 #: $\tilde{\beta}$ values of the columns for testing the precomputed spectra, covering 4 orders of magnitude
