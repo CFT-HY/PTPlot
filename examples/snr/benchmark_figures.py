@@ -4,6 +4,10 @@ Benchmark SNR figures
 
 This scripts generates the SNR figures for all the benchmark models.
 Running this script can take several hours.
+The figures can be generated for only some of the models by giving their slugs as command-line arguments,
+e.g. ``python -m examples.snr.benchmark_figures susy composite``, or to :py:func:`main`.
+The output files of the spectra and the statistics then have the slugs as a suffix in their names,
+so that they don't overwrite those of the full run.
 
 The computed spectra are exported to the HDF5 file ``benchmark_spectra.h5`` in the figure directory
 with :py:class:`pttools.export.exporter.Exporter`.
@@ -17,7 +21,8 @@ The rows of the spectra of each model, figure and table are listed in ``benchmar
 The file can be read with :py:class:`pttools.export.importer.Importer`.
 """
 
-from collections.abc import Iterator
+import argparse
+from collections.abc import Iterable, Iterator
 import contextlib
 from datetime import timedelta
 import logging
@@ -80,25 +85,22 @@ def spectra_rows(index: list[dict[str, tp.Any]], exporter: Exporter, **info: tp.
                 index.append({**info, "table": table, "first_row": first_row, "n_rows": n_rows})
 
 
-def main() -> None:
-    """Create the SNR figures for all the benchmark models, and export the SSM spectra."""
-    spectra_index: list[dict[str, tp.Any]] = []
-    try:
-        with Exporter(SPECTRA_PATH, mode="w", spectrum_fields=SPECTRUM_FIELDS) as exporter:
-            create_figures(exporter, spectra_index)
-    finally:
-        # The index is written after the exporter has been closed, i.e. after the last rows have been written.
-        DataFrame(spectra_index).to_csv(SPECTRA_INDEX_PATH, index=False)
-
-
-def create_figures(exporter: Exporter, spectra_index: list[dict[str, tp.Any]]) -> None:  # noqa: PLR0915
-    """Create the SNR figures for all the benchmark models.
+def create_figures(  # noqa: PLR0915
+        exporter: Exporter,
+        spectra_index: list[dict[str, tp.Any]],
+        slugs: list[str] | None = None,
+        suffix: str = "") -> None:
+    """Create the SNR figures for the benchmark models.
 
     :param exporter: Exporter to which the computed spectra are added
     :param spectra_index: List to which the rows of the exported spectra of each model and figure are appended
+    :param slugs: Slugs of the models for which the figures are created, or ``None`` for all the models
+    :param suffix: Suffix of the name of the CSV file of the statistics
     """
     start_time = time.perf_counter()
     models = Model.objects.prefetch_related("scenarios", "scenarios__points").annotate(n_points=Count("points"))
+    if slugs is not None:
+        models = models.filter(slug__in=slugs)
     n_models = len(models)
     engines = Engine.engines(fast=True, log=True)
     engines_non_default = Engine.non_default(fast=True)
@@ -203,8 +205,52 @@ def create_figures(exporter: Exporter, spectra_index: list[dict[str, tp.Any]]) -
             ssm_dict,
         index=[model.name for model in models]
     )
-    df.to_csv(FIG_DIR / "benchmark_figures.csv")
+    df.to_csv(FIG_DIR / f"benchmark_figures{suffix}.csv")
+
+
+def get_slugs(slugs: str | Iterable[str] | None) -> list[str] | None:
+    """Validate the slugs of the models.
+
+    :param slugs: Slug of a model, an iterable of slugs, or ``None`` for all the models
+    :return: List of the slugs, or ``None`` for all the models
+    :raises ValueError: If there are no models with some of the slugs
+    """
+    if slugs is None:
+        return None
+    slugs = [slugs] if isinstance(slugs, str) else list(dict.fromkeys(slugs))
+    unknown = set(slugs) - set(Model.objects.filter(slug__in=slugs).values_list("slug", flat=True))
+    if unknown:
+        raise ValueError(
+            f"No models with the slugs: {', '.join(sorted(unknown))}. "
+            f"Available slugs: {', '.join(Model.objects.order_by('slug').values_list('slug', flat=True))}"
+        )
+    return slugs
+
+
+def main(slugs: str | Iterable[str] | None = None) -> None:
+    """Create the SNR figures for the benchmark models, and export the SSM spectra.
+
+    :param slugs: Slug of a model, or an iterable of slugs, to create the figures only for those models.
+        If ``None``, the figures are created for all the models.
+    """
+    slugs = get_slugs(slugs)
+    suffix = "" if slugs is None else "_" + "_".join(slugs)
+    spectra_path = SPECTRA_PATH.with_stem(SPECTRA_PATH.stem + suffix)
+    spectra_index_path = SPECTRA_INDEX_PATH.with_stem(SPECTRA_INDEX_PATH.stem + suffix)
+    spectra_index: list[dict[str, tp.Any]] = []
+    try:
+        with Exporter(spectra_path, mode="w", spectrum_fields=SPECTRUM_FIELDS) as exporter:
+            create_figures(exporter, spectra_index, slugs=slugs, suffix=suffix)
+    finally:
+        # The index is written after the exporter has been closed, i.e. after the last rows have been written.
+        DataFrame(spectra_index).to_csv(spectra_index_path, index=False)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Create the SNR figures for the benchmark models.")
+    parser.add_argument(
+        "slugs", nargs="*",
+        help="slugs of the models for which the figures are created (default: all the models)"
+    )
+    args = parser.parse_args()
+    main(args.slugs or None)
