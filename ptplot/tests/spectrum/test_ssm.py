@@ -40,9 +40,11 @@ V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #:   (v_wall = 0.3: 0.06623 -> 0.06630, v_wall = 0.9: 0.11086 -> 0.11071)
 #: - 589a166: the sine transforms of the fluid profiles are exact for large z
 #:   (v_wall = 0.3: 0.06630 -> 0.06625, v_wall = 0.9: 0.11071 -> 0.11079)
+#: - d61dd9b: the suppression datasets are recomputed with the exact sine transforms
+#:   (v_wall = 0.3: 0.06625 -> 0.06630, v_wall = 0.9: 0.11079 -> 0.11089)
 REFERENCE: dict[float, tuple[float, float, float]] = {
-    0.3: (0.018124666532740186, 0.06625335726849783, 0.19839872059716177),
-    0.9: (0.026362653976107417, 0.11078728571331999, 0.2568295035856295),
+    0.3: (0.018124666532740186, 0.06630315099614825, 0.19839872059716177),
+    0.9: (0.026362653976107417, 0.1108899128817558, 0.2568295035856295),
 }
 
 #: $\tilde{\beta}$ values of the columns for testing the precomputed spectra, covering 4 orders of magnitude
