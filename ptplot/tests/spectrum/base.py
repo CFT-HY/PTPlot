@@ -38,7 +38,7 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
     def setUpClass(cls) -> None:
         """Create the power spectrum to be tested."""
         super().setUpClass()  # pyrefly: ignore[missing-attribute]
-        cls.spectrum = cls.SPECTRUM_CLASS(
+        cls.spectrum = cls.SPECTRUM_CLASS.cached(
             T_star=cls.T_STAR, g_star=cls.G_STAR,
             v_wall=cls.V_WALL, alpha=cls.ALPHA, beta_tilde=cls.BETA_TILDE
         )
@@ -92,6 +92,7 @@ class PowerSpectrumBaseCase[S: PowerSpectrum](ABC):
 
     def test_record(self) -> None:
         """The spectrum should have a record only after computing it."""
+        # A cached spectrum may already have been computed.
         spectrum = self.SPECTRUM_CLASS(
             T_star=self.T_STAR, g_star=self.G_STAR,
             v_wall=self.V_WALL, alpha=self.ALPHA, beta_tilde=self.BETA_TILDE

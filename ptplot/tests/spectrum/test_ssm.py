@@ -70,7 +70,7 @@ def spectrum(
         g_star: float = G_STAR,
         **kwargs: tp.Any) -> PowerSpectrumSSM:
     """Create an SSM power spectrum with the test parameters, which can be overridden."""
-    return PowerSpectrumSSM(
+    return PowerSpectrumSSM.cached(
         v_wall=v_wall, alpha=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star, **kwargs
     )
 
@@ -107,7 +107,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         noise = noise_curve()
         for v_wall in V_WALLS:
             with self.subTest(v_wall=v_wall):
-                bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+                bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
                 given = spectrum(v_wall, bubble=bubble)
                 computed = spectrum(v_wall)
                 assert given.bubble is bubble
@@ -123,7 +123,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     @staticmethod
     def test_bubble_mismatch() -> None:
         """A fluid shell that does not match the parameters of the spectrum should be rejected."""
-        bubble = Bubble(model=BAG, v_wall=0.3, alpha_n=ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=0.3, alpha_n=ALPHA)
         with pytest.raises(ValueError, match="same v_wall and alpha"):
             spectrum(0.9, bubble=bubble)
         with pytest.raises(ValueError, match="same model"):
@@ -146,7 +146,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         noise = noise_curve()
         beta_tildes = np.array(BETA_TILDES)
         for v_wall in V_WALLS:
-            bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+            bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
             z = PowerSpectrumSSM.z_covering(
                 f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=beta_tildes)
             n_z_lookup = PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f)
@@ -174,7 +174,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     def test_precomputed_fallback() -> None:
         """The spectrum should be computed for the frequencies if the precomputed spectrum cannot be used."""
         noise = noise_curve()
-        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
         z = PowerSpectrumSSM.z_covering(
             f=noise.f[:noise.f.size // 2], bubble=bubble, T_star=T_STAR, g_star=G_STAR,
             beta_tilde=np.array([BETA_TILDE]))
@@ -203,7 +203,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     def test_with_params(self) -> None:
         """A spectrum created with with_params() should match one created with the same parameters."""
         noise = noise_curve()
-        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
         z = PowerSpectrumSSM.z_covering(
             f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array(BETA_TILDES))
         cases: list[tuple[dict[str, tp.Any], dict[str, tp.Any]]] = [
@@ -245,7 +245,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
     def test_z_covering() -> None:
         """The z array should cover the frequencies for all the given values, ignoring the invalid ones."""
         noise = noise_curve()
-        bubble = Bubble(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
         for name, values in (("beta_tilde", BETA_TILDES), ("r_star", (1e-3, 0.01, 0.1))):
             # The invalid values should be ignored.
             arr = np.array([*values, np.nan, -1.])
@@ -301,7 +301,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 column = snr_column_ssm(
                     x=ALPHA, y=np.array(BETA_TILDES), v_wall=v_wall, T_star=T_STAR, g_star=G_STAR, noise=noise
                 )
-                bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+                bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
                 for i, beta_tilde in enumerate(BETA_TILDES):
                     ssm = spectrum(v_wall, bubble=bubble, beta_tilde=beta_tilde)
                     _, snr = ssm.power_spectrum(noise.f, noise=noise)
@@ -348,7 +348,7 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
         np.testing.assert_allclose(
             loaded.omgw0_h2()[significant], omgw0_h2[0][significant], rtol=PS_RTOL_PRECOMPUTED)
 
-        bubble = Bubble(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
         z = PowerSpectrumSSM.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=y)
         n_z_lookup = PowerSpectrumSSM.n_z_lookup_covering(z=z, f=noise.f)
         shared = spectrum(v_wall, bubble=bubble, beta_tilde=y[0], z=z, n_z_lookup=n_z_lookup)

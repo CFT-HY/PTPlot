@@ -27,7 +27,7 @@ class DBPL2024Test(PowerSpectrumBaseCase[CosWG24dbpl], unittest.TestCase):
 
 def spectrum(v_wall: float = 0.9, alpha: float = 0.1, r_star: float = 0.1) -> CosWG24dbpl:
     """Create a DBPL2024 spectrum with $T_* = 100$ GeV and $g_* = 100$."""
-    return CosWG24dbpl(T_star=100, g_star=100, v_wall=v_wall, alpha=alpha, r_star=r_star)
+    return CosWG24dbpl.cached(T_star=100, g_star=100, v_wall=v_wall, alpha=alpha, r_star=r_star)
 
 
 def test_break_frequencies() -> None:

@@ -29,6 +29,7 @@ from pttools.ssm import (
 from pttools.ssm import beta_tilde as beta_tilde_func
 from pttools.ssm import r_star as r_star_func
 from pttools.utils import copy_docstrings
+from pttools.utils.cache import Cacheable
 from pttools.utils.fields import Extractable, Fields
 
 from ptplot.science.const import CS0, DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
@@ -42,12 +43,15 @@ if tp.TYPE_CHECKING:
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-class PowerSpectrum(Extractable, abc.ABC):
+class PowerSpectrum(Cacheable, Extractable, abc.ABC):
     """The base class for defining power spectra.
 
     When adding a new power spectrum class, please add it to the Engine enum.
     The spectra can be exported with :py:class:`pttools.export.exporter.Exporter`,
     if the class has a :py:attr:`TABLE`, see :py:meth:`record`.
+    The spectra can be cached with :py:meth:`pttools.utils.cache.Cacheable.cached`.
+    As :py:meth:`power_spectrum` stores the last computed spectrum in the object,
+    e.g. for :py:meth:`record`, the cached spectra should be used only where this does not matter.
     """
 
     FIELDS: tp.ClassVar[Fields] = POWER_SPECTRUM_FIELDS

@@ -19,7 +19,7 @@ class PowerSpectrumBaseCase2020[S: CosWG20](PowerSpectrumBaseCase[S], abc.ABC):
     def test_f_star0_factor(self) -> None:
         r"""$f_p$ should be proportional to the correction factor of $f_{\ast,0}$."""
         factor = 1.5
-        spectrum = self.SPECTRUM_CLASS(
+        spectrum = self.SPECTRUM_CLASS.cached(
             T_star=self.T_STAR, g_star=self.G_STAR,
             v_wall=self.V_WALL, alpha=self.ALPHA, beta_tilde=self.BETA_TILDE,
             f_star0_factor=factor

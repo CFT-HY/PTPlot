@@ -25,7 +25,7 @@ SPECTRUM_CLASSES: tuple[type[PowerSpectrum], ...] = (
 def spectra() -> list[PowerSpectrum]:
     """Create one power spectrum of each engine that is tested."""
     return [
-        spectrum_class(
+        spectrum_class.cached(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE
         )
         for spectrum_class in SPECTRUM_CLASSES

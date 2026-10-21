@@ -34,7 +34,7 @@ def spectrum(
         alpha: float = 10., beta_tilde: float = 100.,
         cls: type[CosWG24bpl] = CosWG24bpl) -> CosWG24bpl:
     """Create a BPL2024 spectrum with $T_* = 100$ GeV and $g_* = 100$."""
-    return cls(T_star=100, g_star=100, v_wall=0.95, alpha=alpha, beta_tilde=beta_tilde)
+    return cls.cached(T_star=100, g_star=100, v_wall=0.95, alpha=alpha, beta_tilde=beta_tilde)
 
 
 def test_peak() -> None:

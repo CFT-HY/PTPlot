@@ -14,7 +14,8 @@ class PowerSpectrumTest(TestCase):
     def test_power_spectrum() -> None:
         """The power spectrum should be created with the default engine."""
         power_spectrum(
-            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE
+            v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
+            cache=True
         )
 
     @staticmethod
@@ -22,7 +23,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the BPL 2024 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.CosWG24bpl
+            engine=Engine.CosWG24bpl, cache=True
         )
 
     @staticmethod
@@ -30,7 +31,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the DBPL 2021 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.GH21dbpl
+            engine=Engine.GH21dbpl, cache=True
         )
 
     @staticmethod
@@ -38,7 +39,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the DBPL 2024 engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.CosWG24dbpl
+            engine=Engine.CosWG24dbpl, cache=True
         )
 
     @staticmethod
@@ -46,7 +47,7 @@ class PowerSpectrumTest(TestCase):
         """The power spectrum should be created with the SSM engine."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.SSM
+            engine=Engine.SSM, cache=True
         )
 
     @staticmethod
@@ -54,5 +55,5 @@ class PowerSpectrumTest(TestCase):
         """The SSM power spectrum should be created with the constant sound speed model."""
         power_spectrum(
             v_wall=const.DEFAULT_V_WALL, alpha=const.DEFAULT_ALPHA, beta_tilde=const.DEFAULT_BETA_TILDE,
-            engine=Engine.SSM, css2=1 / 4, csb2=1 / 4
+            engine=Engine.SSM, css2=1 / 4, csb2=1 / 4, cache=True
         )

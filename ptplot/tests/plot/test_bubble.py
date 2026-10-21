@@ -25,7 +25,7 @@ class BubbleFigureTest(TestCase):
     def test_profile(self) -> None:
         """The figures should contain the profiles of the bubble and the title."""
         title = "Test title"
-        bubble = Bubble(model=BAG, v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA)
         for figure, profile in FIGURES:
             with self.subTest(figure=figure.__name__):
                 fig = figure(v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA, title=title)
@@ -40,7 +40,7 @@ class BubbleFigureTest(TestCase):
 
     def test_w_outside(self) -> None:
         r"""The normalised enthalpy should be 1 outside the bubble, where $w = w_n$."""
-        bubble = Bubble(model=BAG, v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA)
+        bubble = Bubble.cached(model=BAG, v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA)
         fig = bubble_w_figure(v_wall=const.DEFAULT_V_WALL, alpha_n=const.DEFAULT_ALPHA)
         line = fig.get_axes()[0].get_lines()[0]
         xi = np.asarray(line.get_xdata())

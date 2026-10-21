@@ -55,7 +55,7 @@ class SNRTest(TestCase):
         and differ from those of the bag model.
         For $\alpha_n$ below the minimum of the model, the SNR values should be NaN.
         """
-        model = ConstCSModel(css2=0.25, csb2=0.3)
+        model = ConstCSModel.cached(css2=0.25, csb2=0.3)
         alpha_n = np.array([0.05, 0.15, 0.3])
         assert alpha_n[0] < model.alpha_n_min < alpha_n[1]
         beta_tilde = np.array([10., 1000.])
@@ -71,7 +71,7 @@ class SNRTest(TestCase):
         np.testing.assert_array_equal(snr_bag, SNRGridAlphaBeta(model=BAG, **kwargs).snr)
         spectrum = power_spectrum(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
-            alpha=alpha_n[2], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model
+            alpha=alpha_n[2], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model, cache=True
         )
         _, snr_spectrum = spectrum.power_spectrum(noise_curve().f)
         assert snr[0, 2] == pytest.approx(snr_spectrum, rel=0.01)
@@ -83,7 +83,7 @@ class SNRTest(TestCase):
         The SNR values should be NaN for the $\bar{U}_f$ that correspond to $\alpha_n$
         outside the valid range of the model, and finite otherwise.
         """
-        model = ConstCSModel(css2=0.25, csb2=0.3)
+        model = ConstCSModel.cached(css2=0.25, csb2=0.3)
         grid = SNRGridUbarfRStar(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
             alpha_points=0.2, beta_tilde_points=100.,
