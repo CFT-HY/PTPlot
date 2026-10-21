@@ -60,5 +60,14 @@
     src="{% url "snr_alpha_beta" %}?{{ querystring }}"
   />
 </p>
+{% if is_ssm %}
+<p>
+  <img
+    alt="Fluid velocity profile of the Sound Shell Model bubble"
+    class="plot"
+    src="{% url "bubble_v" %}?{{ querystring }}"
+  />
+</p>
+{% endif %}
 
 {% endblock results %}

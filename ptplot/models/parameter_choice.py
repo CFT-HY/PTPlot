@@ -16,6 +16,7 @@ from ptplot.models.model import Model
 from ptplot.models.scenario import Scenario
 from ptplot.science import const
 from ptplot.science.noise import Noise
+from ptplot.science.plot.bubble import bubble_v_figure
 from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
@@ -151,6 +152,15 @@ class ParameterChoice(models.Model):
     # -----
     # Methods
     # -----
+
+    def bubble_v_figure(self) -> Figure:
+        r"""Plot the fluid velocity profile $v(\xi)$ of the SSM bubble of this point.
+
+        See :py:func:`ptplot.science.plot.bubble.bubble_v_figure`.
+
+        :return: Fluid velocity profile figure, titled with the parameters of this point
+        """
+        return bubble_v_figure(v_wall=self.v_wall_value, alpha_n=self.alpha, title=self.title)
 
     def csv(
             self,

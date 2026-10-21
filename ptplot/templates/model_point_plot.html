@@ -34,7 +34,7 @@
   {% endif %}$
   {% if not point.T_star %}
     $T_* = {{ point.model.T_star }} \, \mathrm{GeV}$;
-  {% endif %} 
+  {% endif %}
   {% if not point.g_star %}
     $g_* = {{ point.model.g_star }};
   {% endif %}$
@@ -73,6 +73,11 @@
   alt="embedded"
   class="plot"
   src="{% url "model_point_snr_comparison" model_id=point.model.id point_id=point.number %}{% querystring %}"
+/>
+<img
+  alt="Fluid velocity profile of the Sound Shell Model bubble"
+  class="plot"
+  src="{% url "model_point_bubble_v" model_id=point.model.id point_id=point.number %}"
 />
 
 {% endblock results %}

@@ -10,6 +10,7 @@ from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_NAMES
 
 
@@ -99,6 +100,7 @@ def single(request: HttpRequest) -> HttpResponse:
         "noise": form.noise,
         "legacy_nucleation_cs_max": form.cleaned_data["legacy_nucleation_cs_max"],
         "engine_name": ENGINE_NAMES[form.cleaned_data["engine"]],
+        "is_ssm": form.cleaned_data["engine"] == Engine.SSM,
         "css2": form.cleaned_data["css2"],
         "csb2": form.cleaned_data["csb2"]
     }
