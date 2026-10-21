@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 from pttools.export import Exporter
+from pttools.models import Model
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 if __name__ == "__main__" and __package__ is None:
@@ -24,6 +25,7 @@ from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.ssm import BAG
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 
@@ -52,6 +54,7 @@ class SNRGridUbarfRStar(SNRGrid):
             f_star0_factor: float = 1.,
             cs: float = CS0,
             engine: Engine = Engine.DEFAULT,
+            model: Model = BAG,
             name: str | None = None,
             noise: Noise | None = None,
             log_progress_percentage: float | None = DEFAULT_LOG_PROGRESS_PERCENTAGE,
@@ -79,6 +82,13 @@ class SNRGridUbarfRStar(SNRGrid):
             see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
         :param cs: Sound speed $c_s$
         :param engine: Which power spectrum engine to use
+        :param model: Equation of state model of PTtools for the SSM engine,
+            see :py:class:`~ptplot.science.snr.grid.SNRGrid`.
+            It's also used for $\delta_n$ in the conversion of the points to $\bar{U}_f$,
+            in the same way as in the conversion of the grid of the SSM engine from $\bar{U}_f$ to $\alpha_n$.
+            The latter supports only the bag model for now,
+            as :py:func:`pttools.bubble.energy_budget.alpha_n_from_ubarf` searches $\alpha_n$ outside the range
+            in which the other models can compute $w_n$.
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param noise: Which noise curve to use
         :param log_progress_percentage: Log the progress every $x$ %. Set to None to disable the logging.
@@ -97,6 +107,7 @@ class SNRGridUbarfRStar(SNRGrid):
                 alpha=alpha_points,
                 beta_tilde=beta_tilde_points,
                 labels=labels_points,
+                model=model,
                 cs=cs,
                 adiabatic_index=adiabatic_index,
                 legacy_nucleation_cs_max=legacy_nucleation_cs_max
@@ -120,7 +131,8 @@ class SNRGridUbarfRStar(SNRGrid):
             y=r_star,
             T_star=T_star, g_star=g_star, v_wall=v_wall,
             x_points=ubarf_points, y_points=r_star_points, labels_points=labels_points, titles=titles,
-            noise=noise, adiabatic_index=adiabatic_index, f_star0_factor=f_star0_factor, engine=engine, name=name,
+            noise=noise, adiabatic_index=adiabatic_index, f_star0_factor=f_star0_factor, engine=engine, model=model,
+            name=name,
             ubarf_rstar=True,
             log_progress_percentage=log_progress_percentage,
             max_workers=max_workers,

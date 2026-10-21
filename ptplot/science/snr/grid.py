@@ -16,6 +16,7 @@ from pttools.analysis import v_wall_alpha_n_grid
 from pttools.bubble import precompile
 from pttools.bubble.fluid_reference import ref
 from pttools.export import Exporter, Record
+from pttools.models import Model
 from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
 
 from ptplot.science import const
@@ -64,6 +65,7 @@ class SNRGrid(ABC):  # noqa: B024
             adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
             f_star0_factor: float = 1.,
             engine: Engine = Engine.DEFAULT,
+            model: Model = BAG,
             name: str | None = None,
             ubarf_rstar: bool = False,
             log_progress_percentage: float | None = const.DEFAULT_LOG_PROGRESS_PERCENTAGE,
@@ -86,6 +88,8 @@ class SNRGrid(ABC):  # noqa: B024
         :param f_star0_factor: Correction factor for $f_{\ast,0}$,
             see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`
         :param engine: Which power spectrum engine to use
+        :param model: Equation of state model of PTtools for the SSM engine, see
+            :py:func:`ptplot.science.spectrum.create.ssm_model`
         :param name: Name of the grid in comparison figures, defaults to the name of the engine
         :param ubarf_rstar: Whether $x$ and $y$ are $\bar{U}_f$ and $r_*$ instead of $\alpha$ and $\tilde{\beta}$
         :param log_progress_percentage: Interval of the progress logging of the SSM engine in percent.
@@ -158,7 +162,7 @@ class SNRGrid(ABC):  # noqa: B024
                     "y": y,
                     # The model is given explicitly, so that all the worker processes use the same model object.
                     # Its identifier is preserved in pickling, and therefore the exported spectra share a model.
-                    "model": BAG,
+                    "model": model,
                     **kwargs,
                 }
             ))

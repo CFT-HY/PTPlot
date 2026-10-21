@@ -3,8 +3,10 @@
 import logging
 import typing as tp
 
+from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.forms import CharField, Form, Textarea
+from pttools.models import Model as EoSModel
 
 from ptplot.forms.fields import (
     AlphaField,
@@ -24,6 +26,9 @@ from ptplot.forms.fields import (
 from ptplot.models import Model
 from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
+from ptplot.science.spectrum.create import ssm_model
+from ptplot.science.spectrum.engine import Engine
+from ptplot.science.spectrum.ssm import BAG
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -90,11 +95,36 @@ class PTPlotForm(NoiseFormMixin, NucleationFormMixin):
         "v_wall", "alpha", "beta_tilde", "T_star", "g_star", "css2", "csb2", "engine",
         "obs_years", "noise_eb", "noise_gb", "legacy_nucleation_cs_max"
     ]
+    #: Equation of state model, set by :py:meth:`clean`
+    _model: EoSModel = BAG
     # usetex = forms.BooleanField(
     #     label="Use TeX for labels (slow)?",
     #      initial=False,
     #      required=False
     # )
+
+    @property
+    def model(self) -> EoSModel:
+        """Equation of state model of the SSM engine, or the bag model for the other engines.
+
+        See :py:func:`ptplot.science.spectrum.create.ssm_model`.
+        """
+        return self._model
+
+    def clean(self) -> dict[str, tp.Any]:
+        """Validate that the equation of state model of the SSM can be created with the sound speeds.
+
+        :return: Cleaned data
+        :raises ValidationError: If the engine is the SSM and the model cannot be created with the sound speeds
+        """
+        cleaned_data = tp.cast(dict[str, tp.Any], super().clean())
+        self._model = BAG
+        if cleaned_data.get("engine") == Engine.SSM:
+            try:
+                self._model = ssm_model(css2=cleaned_data.get("css2"), csb2=cleaned_data.get("csb2"))
+            except ValueError as exc:
+                raise ValidationError(f"Invalid sound speeds for the Sound Shell Model: {exc}") from exc
+        return cleaned_data
 
 
 class MultipleForm(NoiseFormMixin, NucleationFormMixin):

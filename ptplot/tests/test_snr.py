@@ -3,15 +3,20 @@
 from django.test import TestCase
 from matplotlib.colors import SymLogNorm
 import numpy as np
+from pttools.models import ConstCSModel
 import pytest
 
 from ptplot.science import const
+from ptplot.science.noise import noise_curve
 from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.spectrum import Engine
+from ptplot.science.spectrum.create import power_spectrum
+from ptplot.science.spectrum.ssm import BAG
 
 
 class SNRTest(TestCase):
@@ -41,6 +46,32 @@ class SNRTest(TestCase):
             alpha_n=np.logspace(-2, 0, 5), beta_tilde=np.logspace(1, 4, 5),
             legacy_nucleation_cs_max=legacy, log_progress_percentage=None
         ).snr
+
+    @staticmethod
+    def test_snr_alpha_beta_ssm_model() -> None:
+        r"""The SSM grid should use the given equation of state model.
+
+        The SNR values should equal those of the spectra created with the model,
+        and differ from those of the bag model.
+        """
+        model = ConstCSModel(css2=0.25, csb2=0.3)
+        alpha_n = np.array([0.15, 0.3])
+        beta_tilde = np.array([10., 1000.])
+        kwargs = {
+            "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": 0.5,
+            "alpha_n": alpha_n, "beta_tilde": beta_tilde, "engine": Engine.SSM, "log_progress_percentage": None
+        }
+        snr = SNRGridAlphaBeta(model=model, **kwargs).snr
+        snr_bag = SNRGridAlphaBeta(**kwargs).snr
+        assert np.all(np.isfinite(snr))
+        assert not np.allclose(snr, snr_bag, rtol=0.01)
+        np.testing.assert_array_equal(snr_bag, SNRGridAlphaBeta(model=BAG, **kwargs).snr)
+        spectrum = power_spectrum(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
+            alpha=alpha_n[1], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model
+        )
+        _, snr_spectrum = spectrum.power_spectrum(noise_curve().f)
+        assert snr[0, 1] == pytest.approx(snr_spectrum, rel=0.01)
 
     @classmethod
     def test_snr_alpha_beta_legacy_detonation(cls) -> None:

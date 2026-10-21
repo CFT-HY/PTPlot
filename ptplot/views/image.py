@@ -63,6 +63,7 @@ def ps_image(request: HttpRequest) -> HttpResponse:
         alpha=form.cleaned_data["alpha"],
         beta_tilde=form.cleaned_data["beta_tilde"],
         engine=form.cleaned_data["engine"],
+        model=form.model,
         legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
     )
     fig = power_spectrum_figure(
@@ -91,6 +92,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
             engine=form.cleaned_data["engine"],
+            model=form.model,
             legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
         )
     ))
@@ -115,6 +117,8 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             v_wall_points=form.cleaned_data["v_wall"],
             noise=form.noise,
             engine=form.cleaned_data["engine"],
+            # The model is not given, since pttools.bubble.energy_budget.alpha_n_from_ubarf()
+            # cannot yet convert Ubarf to alpha_n for the other models than the bag model.
             legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
         )
     ))
