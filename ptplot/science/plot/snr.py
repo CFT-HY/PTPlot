@@ -7,6 +7,7 @@ In the interactive figures, clicking on the SNR plot shows the power spectrum at
 
 import base64
 import json
+from pathlib import Path
 import typing as tp
 
 from matplotlib import cm, rc_context
@@ -28,56 +29,26 @@ COLOR_TUPLE: th.FloatArr2D = cm.plasma_r(np.linspace(0.1, 1, 6))
 LEVELS: th.FloatArr1D = np.array([1, 5, 10, 20, 50, 100])
 LEVELS_TSH: th.FloatArr1D = np.array([0.001, 0.01, 0.1, 1, 10, 100])
 LEVELS_TSH_HUGE_ALPHA: th.FloatArr1D = np.array([1e-7, 1e-6, 1e-5, 1e-4])
+#: Labels of the parameters of the spectra as HTML,
+#: see :py:func:`ptplot.science.snr.point.spectrum_params`
+PARAM_LABELS_HTML: dict[str, str] = {
+    "alpha": "α",
+    "beta_tilde": "β/H<sub>*</sub>",
+    "ubarf": "Ū<sub>f</sub>",
+    "r_star": "r<sub>*</sub>",
+    "ubarf_bubble": "Ū<sub>f</sub> (Bubble)",
+    "ubarf_spectrum": "Ū<sub>f</sub> (Spectrum)",
+}
 #: Default number of frequencies of the power spectra in the interactive figures.
 #: The spectra are subsampled from the frequencies of the noise curve to reduce the size of the figures.
 PLOTLY_N_F: int = 100
-#: Range of $\mathcal{H}_* \eta_\text{sh}$ of the shaded region, where turbulence may be significant
-TURBULENCE_RANGE: tuple[float, float] = (1e-4, 1)
-#: JavaScript that shows the power spectrum at the clicked point of the SNR plot.
+#: JavaScript that shows the power spectrum and the parameters of the clicked point of the SNR plot,
+#: read from ``snr_plotly.js``.
 #: ``{plot_id}`` is replaced by Plotly with the id of the figure, and ``__DATA__`` with the data of the grid,
 #: see :py:meth:`SNRFigure.plotly_data`.
-PLOTLY_SCRIPT: str = """
-(function () {
-    const gd = document.getElementById("{plot_id}");
-    const data = __DATA__;
-    const bytes = Uint8Array.from(atob(data.spectra), c => c.charCodeAt(0));
-    const spectra = new Float32Array(bytes.buffer);
-    const nF = data.f.length;
-    const iSpectrum = gd.data.findIndex(trace => trace.uid === "spectrum");
-    const iSelected = gd.data.findIndex(trace => trace.uid === "selected");
-
-    function nearest(values, value) {
-        let best = 0;
-        for (let i = 1; i < values.length; i++) {
-            if (Math.abs(values[i] - value) < Math.abs(values[best] - value)) {
-                best = i;
-            }
-        }
-        return best;
-    }
-
-    function format(value) {
-        return Number.isFinite(value) ? value.toPrecision(3) : "NaN";
-    }
-
-    function select(iy, ix) {
-        const start = (iy * data.x.length + ix) * nF;
-        const omega = Array.from(spectra.subarray(start, start + nF), v => (Number.isFinite(v) && v > 0) ? v : null);
-        const name = data.x_label + " = " + format(data.x[ix]) + ", " + data.y_label + " = " + format(data.y[iy])
-            + ", SNR = " + format(data.snr[iy][ix]);
-        Plotly.restyle(gd, {y: [omega], name: [name]}, [iSpectrum]);
-        Plotly.restyle(gd, {x: [[data.x_log10[ix]]], y: [[data.y_log10[iy]]]}, [iSelected]);
-    }
-
-    gd.on("plotly_click", event => {
-        const point = event.points[0];
-        if (point.xaxis._id !== "x") {
-            return;
-        }
-        select(nearest(data.y_log10, point.y), nearest(data.x_log10, point.x));
-    });
-})();
-"""
+PLOTLY_SCRIPT: str = (Path(__file__).parent / "snr_plotly.js").read_text(encoding="utf-8")
+#: Range of $\mathcal{H}_* \eta_\text{sh}$ of the shaded region, where turbulence may be significant
+TURBULENCE_RANGE: tuple[float, float] = (1e-4, 1)
 
 
 class SNRFigure:
@@ -193,7 +164,7 @@ class SNRFigure:
         with rc_context(const.DEFAULT_RC_CONTEXT):
             fig, ax, extent = log_figure(
                 x=x_log10, y=y_log10,
-                xlabel=grid.X_LABEL, ylabel=grid.Y_LABEL,
+                xlabel=grid.X_LABEL_LATEX, ylabel=grid.Y_LABEL_LATEX,
                 xtickpos=self.xtickpos, ytickpos=self.ytickpos,
                 xticklabels=self.xticklabels, yticklabels=self.yticklabels,
                 label_fontsize=self.label_fontsize
@@ -394,7 +365,7 @@ class SNRFigure:
             x=f, y=np.where(spectrum > 0, spectrum, np.nan),
             mode="lines",
             line={"color": "black"},
-            name=self._spectrum_name(iy, ix),
+            name="Power spectrum",
             legend="legend2",
             uid="spectrum"
         ), row=1, col=2)
@@ -416,6 +387,12 @@ class SNRFigure:
             legend2={"x": 1, "y": 1, "xanchor": "right", "yanchor": "bottom"},
             hovermode="closest",
             margin={"t": 80},
+        )
+        fig.add_annotation(
+            text=self._info(iy, ix),
+            name="selected",
+            xref="x2 domain", yref="y2 domain", x=0.02, y=0.02, xanchor="left", yanchor="bottom",
+            align="left", showarrow=False, bgcolor="rgba(255, 255, 255, 0.9)"
         )
         fig.add_annotation(
             text=watermark(),
@@ -441,11 +418,13 @@ class SNRFigure:
             "y": grid.y.tolist(),
             "x_log10": self.x_log10.tolist(),
             "y_log10": self.y_log10.tolist(),
-            "x_label": grid.X_LABEL_HTML,
-            "y_label": grid.Y_LABEL_HTML,
+            "params": [
+                {"label": PARAM_LABELS_HTML.get(name, name), "values": self._json_values(values)}
+                for name, values in grid.spectrum_params.items()
+            ],
             "f": grid.f[f_indices].tolist(),
             # JSON does not support NaN, so the invalid values are converted to null.
-            "snr": [[float(value) if np.isfinite(value) else None for value in row] for row in grid.snr],
+            "snr": self._json_values(grid.snr),
             "spectra": base64.b64encode(spectra.tobytes()).decode("ascii"),
         }
 
@@ -492,13 +471,20 @@ class SNRFigure:
                 hoverinfo="skip"
             ), row=1, col=1)
 
-    def _spectrum_name(self, iy: int, ix: int) -> str:
-        """Legend entry of the spectrum of a grid point, as created also by :py:data:`PLOTLY_SCRIPT`."""
+    def _info(self, iy: int, ix: int) -> str:
+        """Parameters and SNR of a grid point as HTML, as created also by :py:data:`PLOTLY_SCRIPT`."""
         grid = self.grid
-        return (
-            f"{grid.X_LABEL_HTML} = {grid.x[ix]:.3g}, {grid.Y_LABEL_HTML} = {grid.y[iy]:.3g}, "
-            f"SNR = {grid.snr[iy, ix]:.3g}"
-        )
+        lines = [
+            f"{PARAM_LABELS_HTML.get(name, name)} = {values[iy, ix]:.3g}"
+            for name, values in grid.spectrum_params.items()
+        ]
+        lines.append(f"SNR = {grid.snr[iy, ix]:.3g}")
+        return "<br>".join(lines)
+
+    @staticmethod
+    def _json_values(values: th.FloatArr2D) -> list[list[float | None]]:
+        """Convert a 2D array to nested lists for JSON, which does not support NaN, so it is converted to null."""
+        return [[float(value) if np.isfinite(value) else None for value in row] for row in values]
 
     @staticmethod
     def _decade_ticks(values_log10: th.FloatArr1D) -> dict[str, tp.Any]:

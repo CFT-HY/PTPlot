@@ -11,18 +11,20 @@ from pttools.models import Model
 from ptplot.science import const
 from ptplot.science import type_hints as th
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.snr.point import extract_record
+from ptplot.science.snr.point import extract_record, param_names, spectrum_params
+from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM, SSMSettings
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class SNRColumn:
     r"""A column of an SNR grid computed with the Sound Shell Model.
 
     This is a class instead of a tuple,
     so that :py:func:`pttools.speedup.parallel.run_parallel` can store it in an object array as is.
+    The fields cannot be reassigned, but the values of the arrays are filled in when the column is computed.
     """
 
     #: SNR values for each $y$
@@ -31,6 +33,9 @@ class SNRColumn:
     shock_times: th.FloatArr1D
     #: Power spectra $h^2 \Omega_\text{gw,0}$ [y, f] at the frequencies of the noise curve
     spectra: th.FloatArr2D
+    #: Parameters of the spectra for each $y$ by the names of :py:func:`ptplot.science.snr.point.param_names`,
+    #: see :py:func:`ptplot.science.snr.point.spectrum_params`
+    params: dict[str, th.FloatArr1D]
     #: Records of the computed spectra for exporting, if an extractor was given
     records: list[Record] = dataclasses.field(default_factory=list)
 
@@ -96,7 +101,7 @@ def snr_column_ssm(
         The ``n_z_lookup`` of the shared spectrum is scaled from it, see
         :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.settings_covering`.
     :return: SNR values, $\mathcal{H}_* \eta_\text{sh}$ values,
-        power spectra at the frequencies of the noise curve, and the records of the spectra
+        power spectra at the frequencies of the noise curve, their parameters, and the records of the spectra
     :raises ValueError: If $x$ is not a scalar
     """
     noise = resolve_noise(noise)
@@ -113,7 +118,8 @@ def snr_column_ssm(
     column = SNRColumn(
         snr=np.full(y.size, np.nan),
         shock_times=np.full(y.size, np.nan),
-        spectra=np.full((y.size, noise.f.size), np.nan)
+        spectra=np.full((y.size, noise.f.size), np.nan),
+        params={name: np.full(y.size, np.nan) for name in param_names(Engine.SSM)}
     )
     try:
         alpha_n, _ubarf = PowerSpectrumSSM.validate_alpha_ubarf_static(
@@ -205,6 +211,8 @@ def snr_column_ssm(
         column.snr[i] = snr
         column.shock_times[i] = shock_time
         column.spectra[i] = omgw0_h2
+        for name, value in spectrum_params(spectrum).items():
+            column.params[name][i] = value
         if extractor is not None:
             record = extract_record(spectrum, extractor)
             if record is not None:

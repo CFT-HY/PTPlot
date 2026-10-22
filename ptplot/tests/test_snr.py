@@ -17,7 +17,7 @@ from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparis
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.create import power_spectrum
-from ptplot.science.spectrum.ssm import BAG
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 from ptplot.tests.const import TEST_SSM_SETTINGS
 
 #: Relative tolerance of the spectra of the SSM grids, which are created from the shared spectra of their columns.
@@ -106,6 +106,21 @@ class SNRTest(TestCase):
         assert np.all(np.isnan(grid.spectra[:, 0]))
         assert np.all(np.isfinite(grid.spectra[:, 1:]))
         np.testing.assert_allclose(grid.spectra[0, 2], omgw0_h2, rtol=SPECTRUM_RTOL_SSM)
+        # The parameters of the spectra are those of the spectrum created for the same point.
+        assert list(grid.spectrum_params) == [
+            "alpha", "beta_tilde", "ubarf", "r_star", "ubarf_bubble", "ubarf_spectrum"
+        ]
+        assert isinstance(spectrum, PowerSpectrumSSM)
+        for name in ("alpha", "beta_tilde", "ubarf", "r_star"):
+            assert grid.spectrum_params[name][0, 2] == pytest.approx(getattr(spectrum, name), rel=1e-12)
+        assert grid.spectrum_params["ubarf_bubble"][0, 2] == pytest.approx(spectrum.bubble.ubarf, rel=1e-12)
+        assert spectrum.spectrum is not None
+        assert grid.spectrum_params["ubarf_spectrum"][0, 2] == pytest.approx(
+            np.sqrt(spectrum.spectrum.ubarf2), rel=SPECTRUM_RTOL_SSM
+        )
+        for values in grid.spectrum_params.values():
+            assert np.all(np.isnan(values[:, 0]))
+            assert np.all(np.isfinite(values[:, 1:]))
 
     @staticmethod
     def test_snr_ubarf_rstar_ssm_model() -> None:
@@ -161,6 +176,9 @@ class SNRTest(TestCase):
                     omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise)
                     np.testing.assert_array_equal(grid.spectra[i_y, i_x], omgw0_h2)
                     assert grid.snr[i_y, i_x] == snr
+                    assert list(grid.spectrum_params) == ["alpha", "beta_tilde", "ubarf", "r_star"]
+                    for name, values in grid.spectrum_params.items():
+                        assert values[i_y, i_x] == getattr(spectrum, name)
 
     @classmethod
     def test_snr_alpha_beta_legacy_detonation(cls) -> None:
@@ -275,8 +293,8 @@ class SNRTest(TestCase):
         np.testing.assert_allclose(comparison.y, grid1.y)
         assert comparison.X_NAME == grid1.X_NAME
         assert comparison.Y_NAME == grid1.Y_NAME
-        assert comparison.X_LABEL == grid1.X_LABEL
-        assert comparison.Y_LABEL == grid1.Y_LABEL
+        assert comparison.X_LABEL_LATEX == grid1.X_LABEL_LATEX
+        assert comparison.Y_LABEL_LATEX == grid1.Y_LABEL_LATEX
 
     @classmethod
     def test_snr_comparison_label(cls) -> None:

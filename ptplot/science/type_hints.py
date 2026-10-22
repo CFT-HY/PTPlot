@@ -1,7 +1,12 @@
 """Type hints for PTPlot science module."""
 
-import numpy as np
-from numpy.typing import NDArray
+from pttools.type_hints import TYPE_CHECKING_OR_DOCS
+
+# The type aliases are evaluated lazily, so the imports are needed only for type checking,
+# and for the documentation, as Sphinx evaluates the type aliases when documenting them.
+if TYPE_CHECKING_OR_DOCS:
+    import numpy as np
+    from numpy.typing import NDArray
 
 type ArrOrListOfArrs = NDArray | list[NDArray]
 type FloatArr = NDArray[np.float64]

@@ -22,7 +22,7 @@ from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
-from ptplot.science.snr.point import export_records, snr_point
+from ptplot.science.snr.point import export_records, param_names, snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG, SSMSettings
@@ -69,15 +69,18 @@ class SNRGrid(ABC):  # noqa: B024
     The power spectra $h^2 \Omega_\text{gw,0}$ of the grid points are stored in :py:attr:`spectra` [y, x, f]
     at the frequencies :py:attr:`f` of the noise curve,
     so that they can be shown in the interactive figures without recomputing them.
-    The spectra whose computation failed are NaN.
+    The parameters of the spectra, as computed when creating them, are stored in :py:attr:`spectrum_params`.
+    The spectra and the parameters whose computation failed are NaN.
     The points to be drawn on top of the grid are also stored here,
     since the grid ranges are derived from them.
     """
 
     X_NAME: tp.ClassVar[str] = "x"
     Y_NAME: tp.ClassVar[str] = "y"
-    X_LABEL: tp.ClassVar[str] = "$x$"
-    Y_LABEL: tp.ClassVar[str] = "$y$"
+    #: Label of the x-axis as LaTeX, e.g. for Matplotlib
+    X_LABEL_LATEX: tp.ClassVar[str] = "$x$"
+    #: Label of the y-axis as LaTeX, e.g. for Matplotlib
+    Y_LABEL_LATEX: tp.ClassVar[str] = "$y$"
     #: Label of the x-axis as HTML, e.g. for Plotly
     X_LABEL_HTML: tp.ClassVar[str] = "x"
     #: Label of the y-axis as HTML, e.g. for Plotly
@@ -209,6 +212,12 @@ class SNRGrid(ABC):  # noqa: B024
             self.shock_times: FloatArr2D = np.stack([column.shock_times for column in columns], axis=1)
             #: Power spectra $h^2 \Omega_\text{gw,0}$ [y, x, f] of the grid points at the frequencies :py:attr:`f`
             self.spectra: FloatArr3D = np.stack([column.spectra for column in columns], axis=1)
+            #: Parameters [y, x] of the spectra of the grid points by the names of
+            #: :py:func:`~ptplot.science.snr.point.param_names`,
+            #: see :py:func:`~ptplot.science.snr.point.spectrum_params`
+            self.spectrum_params: dict[str, FloatArr2D] = {
+                name: np.stack([column.params[name] for column in columns], axis=1) for name in param_names(engine)
+            }
             records = [record for column in columns for record in column.records]
         else:
             self.snr, self.shock_times, point_spectra = tp.cast(
@@ -234,6 +243,12 @@ class SNRGrid(ABC):  # noqa: B024
             self.spectra = np.stack([point.omgw0_h2 for point in point_spectra.flat]).reshape(
                 *point_spectra.shape, self.noise.f.size
             )
+            self.spectrum_params = {
+                name: np.array([point.params.get(name, np.nan) for point in point_spectra.flat]).reshape(
+                    point_spectra.shape
+                )
+                for name in param_names(engine)
+            }
             records = [point.record for point in point_spectra.flat]
         if exporter is not None:
             export_records(exporter, records)

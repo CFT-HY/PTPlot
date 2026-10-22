@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 import dataclasses
 import logging
+import math
 import typing as tp
 
 import numpy as np
@@ -13,15 +14,20 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import SSMSettings
+from ptplot.science.spectrum.ssm import PowerSpectrumSSM, SSMSettings
 from ptplot.science.type_hints import FloatArr1D
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+#: Parameters of the power spectra that are stored for each point of an SNR grid, see :py:func:`spectrum_params`
+SPECTRUM_PARAMS: tuple[str, ...] = ("alpha", "beta_tilde", "ubarf", "r_star")
+#: Additional parameters of the power spectra of the Sound Shell Model, see :py:func:`spectrum_params`
+SPECTRUM_PARAMS_SSM: tuple[str, ...] = ("ubarf_bubble", "ubarf_spectrum")
 
-@dataclasses.dataclass(slots=True)
+
+@dataclasses.dataclass(frozen=True, slots=True)
 class SNRPointSpectrum:
-    """The power spectrum of a single point of an SNR grid, and its record for exporting.
+    """The power spectrum of a single point of an SNR grid, its parameters, and its record for exporting.
 
     This is a class instead of a tuple,
     so that :py:func:`pttools.speedup.parallel.run_parallel` can store it in an object array as is.
@@ -29,6 +35,8 @@ class SNRPointSpectrum:
 
     #: Power spectrum $h^2 \Omega_\text{gw,0}$ at the frequencies of the noise curve, NaN if the computation failed
     omgw0_h2: FloatArr1D
+    #: Parameters of the spectrum, see :py:func:`spectrum_params`. Empty if the computation failed.
+    params: dict[str, float] = dataclasses.field(default_factory=dict)
     #: Record of the spectrum for exporting, if an extractor was given and the extraction succeeded
     record: Record | None = None
 
@@ -105,6 +113,7 @@ def snr_point(
         return np.nan, np.nan, SNRPointSpectrum(omgw0_h2=np.full(noise.f.size, np.nan))
     return snr, shock_time, SNRPointSpectrum(
         omgw0_h2=omgw0_h2,
+        params=spectrum_params(spectrum),
         record=None if extractor is None else extract_record(spectrum, extractor)
     )
 
@@ -129,6 +138,42 @@ def extract_record(spectrum: PowerSpectrum, extractor: Extractor) -> Record | No
             exc_info=exc
         )
         return None
+
+
+def param_names(engine: Engine) -> tuple[str, ...]:
+    """Names of the parameters that :py:func:`spectrum_params` returns for the spectra of an engine.
+
+    :param engine: Power spectrum engine
+    :return: :py:data:`SPECTRUM_PARAMS`, and for the SSM engine also :py:data:`SPECTRUM_PARAMS_SSM`
+    """
+    return SPECTRUM_PARAMS + SPECTRUM_PARAMS_SSM if engine == Engine.SSM else SPECTRUM_PARAMS
+
+
+def spectrum_params(spectrum: PowerSpectrum) -> dict[str, float]:
+    r"""Parameters of a computed power spectrum, as they were computed when the spectrum was created.
+
+    The parameters are $\alpha$, $\tilde{\beta}$, $\bar{U}_f$ and $r_*$
+    (see :py:class:`~ptplot.science.spectrum.base.PowerSpectrum`).
+    For the Sound Shell Model, they include also ``ubarf_bubble``,
+    $\bar{U}_f$ of the fluid shell (:py:attr:`pttools.bubble.bubble.Bubble.ubarf`),
+    and ``ubarf_spectrum``, $\sqrt{\bar{U}_f^2}$ of the PTtools spectrum
+    (see :py:attr:`pttools.ssm.spectrum.SSMSpectrum.ubarf`).
+    The latter is NaN if the PTtools spectrum has not been computed.
+
+    :param spectrum: Power spectrum, whose
+        :py:meth:`~ptplot.science.spectrum.base.PowerSpectrum.power_spectrum` has been called
+    :return: Parameters by the names of :py:func:`param_names`
+    """
+    params = {
+        "alpha": spectrum.alpha,
+        "beta_tilde": spectrum.beta_tilde,
+        "ubarf": spectrum.ubarf,
+        "r_star": spectrum.r_star,
+    }
+    if isinstance(spectrum, PowerSpectrumSSM):
+        params["ubarf_bubble"] = float(spectrum.bubble.ubarf)
+        params["ubarf_spectrum"] = np.nan if spectrum.spectrum is None else math.sqrt(spectrum.spectrum.ubarf2)
+    return params
 
 
 def export_records(exporter: Exporter, records: Iterable[Record | None]) -> None:

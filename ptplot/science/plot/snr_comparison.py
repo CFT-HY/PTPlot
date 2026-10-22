@@ -25,8 +25,8 @@ def snr_comparison(
     fig, ax, extent = log_figure(
         x=np.log10(comparison.x),
         y=np.log10(comparison.y),
-        xlabel=comparison.X_LABEL,
-        ylabel=comparison.Y_LABEL
+        xlabel=comparison.X_LABEL_LATEX,
+        ylabel=comparison.Y_LABEL_LATEX
     )
     contour = ax.contourf(
         comparison.snr_diff,

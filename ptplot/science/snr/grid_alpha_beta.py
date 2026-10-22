@@ -18,8 +18,8 @@ class SNRGridAlphaBeta(SNRGrid):
 
     X_NAME = "alpha_n"
     Y_NAME = "beta/H*"
-    X_LABEL = r"$\alpha$"
-    Y_LABEL = r"$\beta/H_*$"
+    X_LABEL_LATEX = r"$\alpha$"
+    Y_LABEL_LATEX = r"$\beta/H_*$"
     X_LABEL_HTML = "α"
     Y_LABEL_HTML = "β/H<sub>*</sub>"
 

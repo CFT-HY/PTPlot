@@ -10,7 +10,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 from ptplot.science import const
-from ptplot.science.plot.snr import PLOTLY_N_F, SNRFigure
+from ptplot.science.plot.snr import PARAM_LABELS_HTML, PLOTLY_N_F, PLOTLY_SCRIPT, SNRFigure
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
@@ -97,6 +97,10 @@ class SNRFigureTest(TestCase):
             f_indices = figure.f_indices()
             np.testing.assert_array_equal(spectrum.x, grid.f[f_indices])
             np.testing.assert_array_equal(spectrum.y, grid.spectra[iy, ix, f_indices])
+            info = next(fig.select_annotations(selector={"name": "selected"}))
+            for name in ("alpha", "beta_tilde", "ubarf", "r_star"):
+                assert f"{PARAM_LABELS_HTML[name]} = {grid.spectrum_params[name][iy, ix]:.3g}" in info.text
+            assert f"SNR = {grid.snr[iy, ix]:.3g}" in info.text
 
     @staticmethod
     def test_plotly_data() -> None:
@@ -115,6 +119,11 @@ class SNRFigureTest(TestCase):
             np.testing.assert_array_equal(data["x"], grid.x)
             np.testing.assert_array_equal(data["y"], grid.y)
             np.testing.assert_array_equal(np.array(data["snr"], dtype=np.float64), grid.snr)
+            assert [param["label"] for param in data["params"]] == [
+                PARAM_LABELS_HTML[name] for name in grid.spectrum_params
+            ]
+            for param, values in zip(data["params"], grid.spectrum_params.values(), strict=True):
+                np.testing.assert_array_equal(np.array(param["values"], dtype=np.float64), values)
 
     @staticmethod
     def test_plotly_html() -> None:
@@ -122,6 +131,7 @@ class SNRFigureTest(TestCase):
         for figure in figures():
             html = figure.plotly_html(full_html=False, include_plotlyjs=False)
             assert "plotly_click" in html
+            assert PLOTLY_SCRIPT.rsplit("__DATA__", 1)[1] in html
             assert figure.plotly_data()["spectra"] in html
             assert "__DATA__" not in html
             assert "{plot_id}" not in html

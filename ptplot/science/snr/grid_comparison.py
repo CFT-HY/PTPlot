@@ -96,8 +96,8 @@ class SNRGridComparison:
         self.y: th.FloatArr1D = grid1.y
         self.X_NAME: str = grid1.X_NAME
         self.Y_NAME: str = grid1.Y_NAME
-        self.X_LABEL: str = grid1.X_LABEL
-        self.Y_LABEL: str = grid1.Y_LABEL
+        self.X_LABEL_LATEX: str = grid1.X_LABEL_LATEX
+        self.Y_LABEL_LATEX: str = grid1.Y_LABEL_LATEX
 
         match method:
             case ComparisonMethod.RELATIVE_DIFFERENCE:
