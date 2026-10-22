@@ -1,11 +1,16 @@
 """Plotting utilities."""
 
+from collections.abc import Sequence
 from datetime import datetime
 import html
 import io
+import math
+import os
+from pathlib import Path
 import re
 import typing as tp
 
+from matplotlib import rcParams
 from matplotlib.axes import Axes
 from matplotlib.contour import ContourSet
 from matplotlib.figure import Figure
@@ -20,6 +25,23 @@ from ptplot.science.utils import GIT_DESCRIPTION
 POINTS_PER_INCH: float = 72
 #: Default padding around the text of :func:`add_text`, in points.
 TEXT_PAD: float = 3
+
+
+@matplotlib_lock
+def add_subplot_titles(fig: Figure, axs: Sequence[Axes], titles: Sequence[str]) -> None:
+    """Add the watermark above the first subplot, and the titles of the subplots above it, and lay out the figure.
+
+    :param fig: Figure of the subplots
+    :param axs: Subplots
+    :param titles: Titles of the subplots
+    """
+    txt = add_text(axs[0], watermark())
+    # The titles are put above the text, which is excluded from the layout,
+    # and the figure is laid out again to make room for them.
+    pad = title_pad(txt)
+    for ax, title in zip(axs, titles, strict=True):
+        ax.set_title(title, pad=pad)
+    fig.tight_layout()
 
 
 @matplotlib_lock
@@ -105,6 +127,7 @@ def has_lines(contour: ContourSet) -> bool:
     """Whether the contour set has any lines, which is required for placing its labels manually."""
     return any(np.asarray(path.vertices).size for path in contour.get_paths())
 
+
 def latex_to_html(text: str) -> str:
     """Convert the subscripts and superscripts of the LaTeX math in a text to HTML, e.g. for Plotly.
 
@@ -126,6 +149,53 @@ def latex_to_html(text: str) -> str:
         last = parts.pop()
         parts[-1] = f"{parts[-1]}${last}"
     return "".join(convert_math(part) if i % 2 else html.escape(part) for i, part in enumerate(parts))
+
+
+def save_html(html_str: str, path: str | os.PathLike[str]) -> Path:
+    """Save an HTML document, e.g. an interactive figure, creating the missing parent directories.
+
+    :param html_str: HTML to save, e.g. from :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`
+    :param path: Path of the file
+    :return: Path of the saved file
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(html_str, encoding="utf-8")
+    return path
+
+
+@matplotlib_lock
+def subplot_grid(n: int, ncols: int = 2) -> tuple[Figure, list[Axes]]:
+    """Create a figure with a grid of subplots, each of the default size.
+
+    The unused subplots of the last row are removed.
+
+    :param n: Number of subplots
+    :param ncols: Maximum number of columns
+    :return: Figure and its axes in row-major order
+    :raises ValueError: If the number of subplots or columns is not positive
+    """
+    if n < 1 or ncols < 1:
+        raise ValueError(f"The numbers of subplots and columns must be positive. Got: n={n}, ncols={ncols}")
+    ncols = min(n, ncols)
+    nrows = math.ceil(n / ncols)
+    width, height = rcParams["figure.figsize"]
+    fig = Figure(figsize=(ncols * width, nrows * height))
+    axs = fig.subplots(nrows, ncols, squeeze=False).flatten().tolist()
+    for ax in axs[n:]:
+        ax.remove()
+    return fig, axs[:n]
+
+
+@matplotlib_lock
+def title_pad(text: Annotation) -> float:
+    """Padding of a title that is placed above a text created by :func:`add_text`.
+
+    :param text: Text above the top left corner of the axes
+    :return: Padding of the title in points
+    """
+    fig = tp.cast(Figure, text.get_figure(root=True))
+    return text.get_window_extent().height * POINTS_PER_INCH / fig.dpi + 2 * TEXT_PAD
 
 
 def watermark() -> str:

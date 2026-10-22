@@ -19,6 +19,7 @@ For the statistics of related objects, the related objects should therefore be p
 """
 
 from dataclasses import dataclass
+from enum import StrEnum
 import statistics
 import typing as tp
 
@@ -98,6 +99,26 @@ class BoolStats:
     n: int
     #: Number of objects for which the field is true
     n_true: int
+
+
+class Statistic(StrEnum):
+    """Statistics that summarise the values of a field with a single value, see :py:meth:`compute`."""
+
+    MEAN = "mean"
+    MEDIAN = "median"
+
+    def compute(self, values: tp.Iterable[float]) -> float:
+        """Compute the statistic of the values.
+
+        :param values: Values of a field
+        :return: The statistic
+        :raises statistics.StatisticsError: If there are no values
+        """
+        match self:
+            case Statistic.MEAN:
+                return statistics.fmean(values)
+            case Statistic.MEDIAN:
+                return float(statistics.median(values))
 
 
 def format_value(value: float | None) -> str:

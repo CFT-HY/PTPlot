@@ -1,9 +1,12 @@
 """Particle physics models."""
 
+from collections.abc import Sequence
 import typing as tp
 
 from django.core import validators
 from django.db import models
+from django.db.models import F
+from django.db.models.functions import Abs
 from django.urls import reverse
 from matplotlib.figure import Figure
 import numpy as np
@@ -13,13 +16,14 @@ from pttools.math import as_latex
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.methods.models import point_data
-from ptplot.methods.stats import related_stats_annotations, window_stats_annotations
+from ptplot.methods.stats import Statistic, related_stats_annotations, window_stats_annotations
 from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.fields import LatexFloatField
 from ptplot.science import const
 from ptplot.science.noise import Noise
+from ptplot.science.plot.snr import SNRFigure, snr_figure_grid
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
-from ptplot.science.plot.snr_comparison import snr_comparison
+from ptplot.science.plot.snr_comparison import snr_comparison, snr_comparison_grid
 from ptplot.science.plot.snr_histogram import snr_histogram
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes, SNRGrid
@@ -177,6 +181,20 @@ class Model(models.Model):
             self.annotated_label("g_*", self.points__g_star__min, self.points__g_star__max, default=self.g_star)
         ]) + "$"
 
+    def closest_point(self, alpha: float) -> "ParameterChoice":
+        r"""Find the point of this model whose $\alpha$ is closest to the given value.
+
+        If several points are equally close, the one with the smallest number is returned.
+
+        :param alpha: $\alpha$, phase transition strength
+        :return: The closest point
+        :raises ValueError: If the model has no points
+        """
+        point = self.points.annotate(alpha_diff=Abs(F("alpha") - alpha)).order_by("alpha_diff", "number").first()
+        if point is None:
+            raise ValueError(f"The model {self.name} has no points.")
+        return point
+
     def point_data(self) -> DataFrame:
         """Get the data of the points of this model as a DataFrame."""
         return point_data(self.points.all())
@@ -230,12 +248,44 @@ class Model(models.Model):
 
         return v_wall, alpha, beta_tilde, T_star, g_star, labels, titles
 
+    def point_index(self, point: "ParameterChoice") -> int:
+        """Get the index of a point of this model in the arrays of :py:meth:`point_data_by_field`.
+
+        This is also the index of the point in the points of the SNR grids created with ``by_scenario=False``,
+        e.g. for highlighting it in the SNR figures.
+
+        :param point: A point of this model
+        :return: Index of the point
+        :raises ValueError: If the point is not a point of this model
+        """
+        for i, other in enumerate(self.points.all()):
+            if other.pk == point.pk:
+                return i
+        raise ValueError(f"The point {point} is not a point of the model {self.name}.")
+
+    def point_T_star(self, statistic: Statistic | str = Statistic.MEAN) -> float:  # noqa: N802
+        """Get a statistic of the $T_*$ of the points of this model, e.g. for computing the SNR grids.
+
+        The $T_*$ of a point defaults to that of its scenario or model,
+        see :py:attr:`ptplot.models.parameter_choice.ParameterChoice.T_star_value`.
+
+        :param statistic: Which statistic to compute, e.g. the mean or the median
+        :return: $T_*$ in GeV
+        :raises ValueError: If the statistic is unknown or the model has no points
+        """
+        statistic = Statistic(statistic)
+        T_star = self.point_data()["T_star"].to_list()
+        if not T_star:
+            raise ValueError(f"The model {self.name} has no points.")
+        return statistic.compute(T_star)
+
     def snr_comparison(
             self,
             grid1: SNRGrid,
             grid2: SNRGrid,
             method: ComparisonMethod = ComparisonMethod.DEFAULT,
-            label: str | None = None) -> Figure:
+            label: str | None = None,
+            highlights: dict[str, int] | None = None) -> Figure:
         """Compare the SNR values of two grids.
 
         :param grid1: SNR grid of the reference
@@ -243,42 +293,115 @@ class Model(models.Model):
         :param method: How to compare the SNR values
         :param label: Label of the comparison, defaults to a label deduced from the method
             and the names of the grids
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: Figure of the compared SNR values
         """
         return snr_comparison(
-            SNRGridComparison(grid1=grid1, grid2=grid2, method=method, label=label)
+            SNRGridComparison(grid1=grid1, grid2=grid2, method=method, label=label),
+            highlights=highlights
+        )
+
+    def snr_comparison_grid(
+            self,
+            comparisons: Sequence[SNRGridComparison],
+            highlights: dict[str, int] | None = None,
+            ncols: int = 2) -> Figure:
+        """Plot several comparisons of SNR grids of this model as the subplots of a single figure.
+
+        :param comparisons: Comparisons of SNR grids,
+            e.g. from :py:func:`ptplot.science.snr.grid_comparison.engine_comparisons`
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
+        :param ncols: Maximum number of columns of subplots
+        :return: Figure of the compared SNR values
+        """
+        return snr_comparison_grid(comparisons, highlights=highlights, ncols=ncols)
+
+    def snr_figure(
+            self,
+            grid: SNRGrid,
+            filled: bool = False,
+            highlights: dict[str, int] | None = None) -> SNRFigure:
+        """Set up the SNR figure of a grid of this model.
+
+        :param grid: Precomputed SNR grid
+        :param filled: Whether to fill the contour plot
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
+        :return: SNR figure, which can be drawn with Matplotlib or Plotly
+        :raises TypeError: If the type of the grid is not supported
+        """
+        figure_class: type[SNRFigureAlphaBeta] | type[SNRFigureUbarfRStar]
+        if isinstance(grid, SNRGridAlphaBeta):
+            figure_class = SNRFigureAlphaBeta
+        elif isinstance(grid, SNRGridUbarfRStar):
+            figure_class = SNRFigureUbarfRStar
+        else:
+            raise TypeError(f"Unsupported SNR grid: {type(grid)}")
+        return figure_class(
+            grid=grid,  # pyrefly: ignore[bad-argument-type]
+            huge_alpha=self.huge_alpha,
+            filled=filled,
+            highlights=highlights
         )
 
     def snr_figure_alpha_beta(
             self,
             grid: SNRGridAlphaBeta | None = None,
-            filled: bool = False) -> Figure:
+            filled: bool = False,
+            highlights: dict[str, int] | None = None) -> Figure:
         r"""Plot the SNR of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_alpha_beta` if not given
         :param filled: Whether to fill the contour plot
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: SNR figure
         """
-        return SNRFigureAlphaBeta(
+        return self.snr_figure(
             grid=self.snr_grid_alpha_beta() if grid is None else grid,
-            huge_alpha=self.huge_alpha,
-            filled=filled
+            filled=filled,
+            highlights=highlights
         ).matplotlib()
+
+    def snr_figure_grid(
+            self,
+            grids: Sequence[SNRGrid],
+            filled: bool = False,
+            highlights: dict[str, int] | None = None,
+            ncols: int = 2) -> Figure:
+        """Plot several SNR grids of this model as the subplots of a single figure, e.g. those of different engines.
+
+        :param grids: Precomputed SNR grids
+        :param filled: Whether to fill the contour plots
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
+        :param ncols: Maximum number of columns of subplots
+        :return: SNR figure
+        """
+        return snr_figure_grid(
+            [self.snr_figure(grid, filled=filled, highlights=highlights) for grid in grids],
+            ncols=ncols
+        )
 
     def snr_figure_ubarf_rstar(
             self,
             grid: SNRGridUbarfRStar | None = None,
-            filled: bool = False) -> Figure:
+            filled: bool = False,
+            highlights: dict[str, int] | None = None) -> Figure:
         r"""Plot the SNR of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_ubarf_rstar` if not given
         :param filled: Whether to fill the contour plot
+        :param highlights: Labels of the points to be highlighted, and their indices,
+            see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: SNR figure
         """
-        return SNRFigureUbarfRStar(
+        return self.snr_figure(
             grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
-            huge_alpha=self.huge_alpha,
-            filled=filled
+            filled=filled,
+            highlights=highlights
         ).matplotlib()
 
     def snr_grid_alpha_beta(
@@ -294,7 +417,8 @@ class Model(models.Model):
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             exporter: Exporter | None = None,
             axes: GridAxes | None = None,
-            ssm_settings: SSMSettings | None = None) -> SNRGridAlphaBeta:
+            ssm_settings: SSMSettings | None = None,
+            by_scenario: bool = True) -> SNRGridAlphaBeta:
         r"""Compute the SNR grid of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -310,9 +434,12 @@ class Model(models.Model):
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :param axes: Size and limits of the axes of the grid
         :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param by_scenario: Whether to group the points by scenario, see :py:meth:`point_data_by_field_and_scenario`.
+            If False, all the points of the model are a single set, see :py:meth:`point_data_by_field`.
         :return: SNR grid
         """
-        v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall_points, alpha, beta_tilde, _, _, labels, titles = \
+            self.point_data_by_field_and_scenario() if by_scenario else self.point_data_by_field()
         return SNRGridAlphaBeta(
             T_star=self.T_star if T_star is None else T_star,
             g_star=self.g_star if g_star is None else g_star,
@@ -347,7 +474,8 @@ class Model(models.Model):
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             exporter: Exporter | None = None,
             axes: GridAxes | None = None,
-            ssm_settings: SSMSettings | None = None) -> SNRGridUbarfRStar:
+            ssm_settings: SSMSettings | None = None,
+            by_scenario: bool = True) -> SNRGridUbarfRStar:
         r"""Compute the SNR grid of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param engine: Which power spectrum engine to use
@@ -364,9 +492,12 @@ class Model(models.Model):
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :param axes: Size and limits of the axes of the grid
         :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param by_scenario: Whether to group the points by scenario, see :py:meth:`point_data_by_field_and_scenario`.
+            If False, all the points of the model are a single set, see :py:meth:`point_data_by_field`.
         :return: SNR grid
         """
-        v_wall_points, alpha, beta_tilde, _, _, labels, titles = self.point_data_by_field_and_scenario()
+        v_wall_points, alpha, beta_tilde, _, _, labels, titles = \
+            self.point_data_by_field_and_scenario() if by_scenario else self.point_data_by_field()
         return SNRGridUbarfRStar(
             v_wall=self.v_wall if v_wall is None else v_wall,
             T_star=self.T_star if T_star is None else T_star,

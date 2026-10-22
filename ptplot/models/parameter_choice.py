@@ -25,7 +25,7 @@ from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
-from ptplot.science.spectrum import Engine, power_spectrum
+from ptplot.science.spectrum import Engine, PowerSpectrum, power_spectrum
 from ptplot.science.spectrum.ssm import SSMSettings
 
 if tp.TYPE_CHECKING:
@@ -202,6 +202,37 @@ class ParameterChoice(models.Model):
             raise ValueError("Got no CSV data.")
         return csv
 
+    def power_spectrum(
+            self,
+            engine: Engine = Engine.DEFAULT,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            ssm_settings: SSMSettings | None = None,
+            **kwargs: tp.Any) -> PowerSpectrum:
+        r"""Create the power spectrum of this parameter choice.
+
+        :param engine: Which power spectrum engine to use
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param kwargs: Parameters that override those of this point,
+            see :py:func:`ptplot.science.spectrum.create.power_spectrum`.
+            E.g. ``beta_tilde=None, r_star=...`` gives the spectrum the $r_*$ instead of the $\beta/H$ of this point.
+        :return: Power spectrum
+        """
+        params: dict[str, tp.Any] = {
+            "T_star": self.T_star_value,
+            "g_star": self.g_star_value,
+            "v_wall": self.v_wall_value,
+            "alpha": self.alpha,
+            "beta_tilde": self.beta_tilde,
+        }
+        return power_spectrum(
+            engine=engine,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
+            **(params | kwargs)
+        )
+
     def power_spectrum_figure(
             self,
             noise: Noise | None = None,
@@ -225,12 +256,7 @@ class ParameterChoice(models.Model):
         """
         return power_spectrum_figure(
             spectra=[
-                power_spectrum(
-                    T_star=self.T_star_value,
-                    g_star=self.g_star_value,
-                    v_wall=self.v_wall_value,
-                    alpha=self.alpha,
-                    beta_tilde=self.beta_tilde,
+                self.power_spectrum(
                     engine=spectrum_engine,
                     legacy_nucleation_cs_max=legacy_nucleation_cs_max,
                     ssm_settings=ssm_settings

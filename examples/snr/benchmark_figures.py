@@ -45,12 +45,13 @@ from ptplot.methods import setup_django
 if __name__ == "__main__":
     setup_django()
 
-from ptplot.methods import n_workers
+from ptplot.methods import log_exceptions, n_workers
 from ptplot.models import Model
 from ptplot.science import const
-from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
-from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.plot.snr_comparison import snr_comparison
+from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_comparison import SNRGridComparison, engine_comparisons
 from ptplot.science.spectrum import Engine
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -110,7 +111,6 @@ def create_figures(  # noqa: PLR0915
         models = models.filter(slug__in=slugs)
     n_models = len(models)
     engines = Engine.engines(fast=True, log=True)
-    engines_non_default = Engine.non_default(fast=True)
 
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
     max_workers = n_workers()
@@ -129,7 +129,7 @@ def create_figures(  # noqa: PLR0915
         snr_abs: dict[Engine, SNRGridAlphaBeta] = {}
         for i_engine, engine in enumerate(engines):
             engine_start_time = time.perf_counter()
-            try:
+            with log_exceptions(logger, "Failed to plot snr_alpha_beta for %s", model.name):
                 n_spectra_ab = const.DEFAULT_ALPHA_N_RANGE.size * const.DEFAULT_ALPHA_N_RANGE.size + model.n_points
                 with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_alpha_beta"):
                     snr_ab = model.snr_grid_alpha_beta(
@@ -138,18 +138,9 @@ def create_figures(  # noqa: PLR0915
                     )
                 snr_abs[engine] = snr_ab
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
-                snr_ab_fig = model.snr_figure_alpha_beta(grid=snr_ab)
-                save_model_fig(snr_ab_fig, model, f"snr_alpha_beta_{engine}")
-                snr_ab_fig2 = model.snr_figure_alpha_beta(grid=snr_ab, filled=True)
-                save_model_fig(snr_ab_fig2, model, f"snr_alpha_beta_{engine}_filled")
-                save_model_html(
-                    SNRFigureAlphaBeta(grid=snr_ab, huge_alpha=model.huge_alpha).plotly_html(),
-                    model, f"snr_alpha_beta_{engine}"
-                )
-            except Exception as exc:
-                logger.exception("Failed to plot snr_alpha_beta for %s", model.name, exc_info=exc)
+                save_snr_figures(model, snr_ab, f"snr_alpha_beta_{engine}")
 
-            try:
+            with log_exceptions(logger, "Failed to plot snr_ubarf_rstar for %s", model.name):
                 n_spectra_ur = const.DEFAULT_UBARF_RANGE.size * const.DEFAULT_UBARF_RANGE.size + model.n_points
                 with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_ubarf_rstar"):
                     snr_ur = model.snr_grid_ubarf_rstar(
@@ -157,36 +148,21 @@ def create_figures(  # noqa: PLR0915
                         exporter=exporter if engine in EXPORT_ENGINES else None
                     )
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
-                snr_ur_fig = model.snr_figure_ubarf_rstar(grid=snr_ur)
-                save_model_fig(snr_ur_fig, model, f"snr_ubarf_rstar_{engine}")
-                snr_ur_fig2 = model.snr_figure_ubarf_rstar(grid=snr_ur, filled=True)
-                save_model_fig(snr_ur_fig2, model, f"snr_ubarf_rstar_{engine}_filled")
-                save_model_html(
-                    SNRFigureUbarfRStar(grid=snr_ur, huge_alpha=model.huge_alpha).plotly_html(),
-                    model, f"snr_ubarf_rstar_{engine}"
-                )
-            except Exception as exc:
-                logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
+                save_snr_figures(model, snr_ur, f"snr_ubarf_rstar_{engine}")
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time
 
-        for engine in engines_non_default:
-            try:
-                snr_comp = model.snr_comparison(grid1=snr_abs[Engine.DEFAULT], grid2=snr_abs[engine])
-                save_model_fig(snr_comp, model, f"snr_comparison_{engine}")
-            except Exception as exc:
-                logger.exception(
-                    "Failed to plot snr_comparison_%s for %s",
-                    engine.name, model.name,
-                    exc_info=exc
-                )
+        comparisons: dict[Engine, SNRGridComparison] = {}
+        with log_exceptions(logger, "Failed to compare the engines for %s", model.name):
+            comparisons = engine_comparisons(snr_abs)
+        for engine, comparison in comparisons.items():
+            with log_exceptions(logger, "Failed to plot snr_comparison_%s for %s", engine.name, model.name):
+                save_model_fig(snr_comparison(comparison), model, f"snr_comparison_{engine}")
 
-        try:
+        with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
             with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_histogram"):
                 snr_hist = model.snr_histogram(engines=engines, exporter=exporter)
             n_spectra_other[i_model, :] += model.n_points
             save_model_fig(snr_hist, model, "snr_histogram")
-        except Exception as exc:
-            logger.exception("Failed to plot snr_histogram for %s", model.name, exc_info=exc)
 
         model_time = time.perf_counter() - model_start_time
         times[i_model] = model_time
@@ -240,6 +216,19 @@ def get_slugs(slugs: str | Iterable[str] | None) -> list[str] | None:
             f"Available slugs: {', '.join(Model.objects.order_by('slug').values_list('slug', flat=True))}"
         )
     return slugs
+
+
+def save_snr_figures(model: Model, grid: SNRGrid, name: str) -> None:
+    """Save the SNR figures of a grid of a model, both unfilled and filled, and the interactive HTML figure.
+
+    :param model: Model of the grid
+    :param grid: SNR grid
+    :param name: Name of the figures
+    """
+    figure = model.snr_figure(grid)
+    save_model_fig(figure.matplotlib(), model, name)
+    save_model_fig(model.snr_figure(grid, filled=True).matplotlib(), model, f"{name}_filled")
+    save_model_html(figure.plotly_html(), model, name)
 
 
 def main(slugs: str | Iterable[str] | None = None) -> None:

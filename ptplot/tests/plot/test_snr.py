@@ -8,9 +8,18 @@ from django.test import TestCase
 from matplotlib.figure import Figure
 import numpy as np
 import plotly.graph_objects as go
+import pytest
 
 from ptplot.science import const
-from ptplot.science.plot.snr import PARAM_LABELS_HTML, PLOTLY_N_F, PLOTLY_SCRIPT, SNRFigure, decade_label
+from ptplot.science.plot.logarithmic import flat_points
+from ptplot.science.plot.snr import (
+    PARAM_LABELS_HTML,
+    PLOTLY_N_F,
+    PLOTLY_SCRIPT,
+    SNRFigure,
+    decade_label,
+    snr_figure_grid,
+)
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
@@ -25,6 +34,8 @@ ALPHA_POINTS: list[FloatArr1D] = [np.array([0.1, 0.2]), np.array([0.5])]
 BETA_TILDE_POINTS: list[FloatArr1D] = [np.array([100., 50.]), np.array([20.])]
 LABELS: list[list[str]] = [["A", "B"], ["C"]]
 TITLES: list[str] = ["Scenario 1", "Scenario 2"]
+#: Highlighted points by their indices in the flattened points, i.e. "B" and "C"
+HIGHLIGHTS: dict[str, int] = {"Highlight 1": 1, "Highlight 2": 2}
 
 
 @functools.cache
@@ -47,6 +58,15 @@ def figures() -> list[SNRFigure]:
         figure
         for filled in (False, True)
         for figure in (SNRFigureAlphaBeta(grid_ab, filled=filled), SNRFigureUbarfRStar(grid_ur, filled=filled))
+    ]
+
+
+def highlighted_figures(filled: bool = False) -> list[SNRFigure]:
+    """SNR figures of the test grids with the points of :py:data:`HIGHLIGHTS` highlighted."""
+    grid_ab, grid_ur = grids()
+    return [
+        SNRFigureAlphaBeta(grid_ab, filled=filled, highlights=HIGHLIGHTS),
+        SNRFigureUbarfRStar(grid_ur, filled=filled, highlights=HIGHLIGHTS),
     ]
 
 
@@ -135,6 +155,86 @@ class SNRFigureTest(TestCase):
             assert figure.plotly_data()["spectra"] in html
             assert "__DATA__" not in html
             assert "{plot_id}" not in html
+
+
+class SNRFigureHighlightTest(TestCase):
+    """Tests for the highlighted points and the subplots of the SNR figures."""
+
+    @staticmethod
+    def test_flat_points() -> None:
+        """The points of the scenarios should follow each other."""
+        x, y = flat_points(ALPHA_POINTS, BETA_TILDE_POINTS)
+        np.testing.assert_array_equal(x, [0.1, 0.2, 0.5])
+        np.testing.assert_array_equal(y, [100., 50., 20.])
+        x, y = flat_points(0.1, 100.)
+        np.testing.assert_array_equal(x, [0.1])
+        np.testing.assert_array_equal(y, [100.])
+
+    @staticmethod
+    def test_matplotlib() -> None:
+        """The highlighted points should be drawn at the right places and added to the legend of the scenarios."""
+        for filled in (False, True):
+            for figure in highlighted_figures(filled=filled):
+                grid = figure.grid
+                ax = figure.matplotlib().get_axes()[0]
+                legend = ax.get_legend()
+                assert legend is not None
+                assert [text.get_text() for text in legend.get_texts()] == TITLES + list(HIGHLIGHTS)
+                x_flat, y_flat = flat_points(*grid.points())
+                highlighted = ax.get_lines()[-len(HIGHLIGHTS):]
+                for line, index in zip(highlighted, HIGHLIGHTS.values(), strict=True):
+                    np.testing.assert_allclose(np.asarray(line.get_xdata(), dtype=np.float64), np.log10(x_flat[index]))
+                    np.testing.assert_allclose(np.asarray(line.get_ydata(), dtype=np.float64), np.log10(y_flat[index]))
+
+    @staticmethod
+    def test_plotly() -> None:
+        """The highlighted points should be drawn at the right places with their labels."""
+        for figure in highlighted_figures():
+            grid = figure.grid
+            fig = figure.plotly()
+            x_flat, y_flat = flat_points(*grid.points())
+            for label, index in HIGHLIGHTS.items():
+                trace = next(fig.select_traces(selector={"name": label}))
+                np.testing.assert_allclose(trace.x, [np.log10(x_flat[index])])
+                np.testing.assert_allclose(trace.y, [np.log10(y_flat[index])])
+
+    @staticmethod
+    def test_no_highlights() -> None:
+        """Without highlights, the legend should contain only the scenarios."""
+        fig = SNRFigureAlphaBeta(grids()[0]).matplotlib()
+        legend = fig.get_axes()[0].get_legend()
+        assert legend is not None
+        assert [text.get_text() for text in legend.get_texts()] == TITLES
+
+    @staticmethod
+    def test_highlights_without_points() -> None:
+        """Points cannot be highlighted on a grid without points."""
+        grid = SNRGridAlphaBeta(
+            T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
+            alpha_n=np.array([0.1, 1.]), beta_tilde=np.array([100., 1000.])
+        )
+        with pytest.raises(ValueError, match="no points"):
+            SNRFigureAlphaBeta(grid, highlights=HIGHLIGHTS)
+
+    @staticmethod
+    def test_figure_grid() -> None:
+        """Each figure should be drawn as a subplot with its title, and the unused subplots should be removed."""
+        figs = figures()[:3]
+        titles = ["A", "B", "C"]
+        fig = snr_figure_grid(figs, titles=titles)
+        plot_axes = [ax for ax in fig.get_axes() if ax.get_title()]
+        assert [ax.get_title() for ax in plot_axes] == titles
+        # The third subplot is at the start of the second row.
+        assert plot_axes[2].get_position().x0 == pytest.approx(plot_axes[0].get_position().x0)
+        assert plot_axes[2].get_position().y1 < plot_axes[0].get_position().y0
+        # The watermark is above the first subplot, and the titles above it.
+        watermarks = [[text for text in ax.texts if text.get_text().startswith("PTPlot")] for ax in plot_axes]
+        assert [len(texts) for texts in watermarks] == [1, 0, 0]
+        assert plot_axes[0].title.get_window_extent().y0 >= watermarks[0][0].get_window_extent().y1
+        fig_default = snr_figure_grid(figs)
+        assert [ax.get_title() for ax in fig_default.get_axes() if ax.get_title()] == [
+            figure.grid.name for figure in figs
+        ]
 
 
 def test_decade_label() -> None:

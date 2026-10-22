@@ -10,6 +10,8 @@ import pttools.plot.utils as plot_utils
 from pttools.plot.utils import FIG_FORMATS
 from pttools.utils.docstrings import copy_docstring_dec
 
+from ptplot.science.plot.utils import save_html
+
 if tp.TYPE_CHECKING:
     from ptplot.models import Model
 
@@ -65,23 +67,43 @@ def save_figs(
     plot_utils.save_figs(figs=figs, fig_dir=fig_dir, formats=formats, makedirs=makedirs, **kwargs)
 
 
-def save_model_fig(fig: Figure, model: Model, name: str) -> None:
-    """Save a figure of a model as ``FORMAT/SLUG/SLUG_NAME.FORMAT`` in the figure directory."""
-    save_fig(fig, Path(model.slug) / f"{model.slug}_{name}")
+def save_model_fig(
+        fig: Figure,
+        model: "Model",
+        name: str,
+        fig_dir: str | os.PathLike[str] = FIG_DIR,
+        model_dir: bool = True) -> None:
+    """Save a figure of a model as ``FIG_DIR/FORMAT/SLUG/SLUG_NAME.FORMAT``.
+
+    :param fig: Figure to save
+    :param model: Model of the figure
+    :param name: Name of the figure
+    :param fig_dir: Figure directory
+    :param model_dir: Whether to save the figure in a subdirectory of the model
+    """
+    path = Path(f"{model.slug}_{name}")
+    save_fig(fig, Path(model.slug) / path if model_dir else path, fig_dir=fig_dir)
 
 
-def save_model_html(html: str, model: Model, name: str) -> Path:
-    """Save an HTML figure of a model as ``html/SLUG/SLUG_NAME.html`` in the figure directory.
+def save_model_html(
+        html: str,
+        model: "Model",
+        name: str,
+        fig_dir: str | os.PathLike[str] = FIG_DIR,
+        model_dir: bool = True) -> Path:
+    """Save an HTML figure of a model as ``FIG_DIR/html/SLUG/SLUG_NAME.html``.
 
     :param html: HTML of the figure, e.g. from :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`
     :param model: Model of the figure
     :param name: Name of the figure
+    :param fig_dir: Figure directory
+    :param model_dir: Whether to save the figure in a subdirectory of the model
     :return: Path of the saved file
     """
-    path = FIG_DIR / "html" / model.slug / f"{model.slug}_{name}.html"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(html, encoding="utf-8")
-    return path
+    html_dir = Path(fig_dir) / "html"
+    if model_dir:
+        html_dir /= model.slug
+    return save_html(html, html_dir / f"{model.slug}_{name}.html")
 
 
 def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> None:

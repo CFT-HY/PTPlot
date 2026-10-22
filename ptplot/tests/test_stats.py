@@ -4,7 +4,7 @@ from django.db.models import Prefetch
 from django.test import TestCase
 import pytest
 
-from ptplot.methods import FieldStats, format_value, related_stats, window_bool_stats, window_stats
+from ptplot.methods import FieldStats, Statistic, format_value, related_stats, window_bool_stats, window_stats
 from ptplot.models import Model, ParameterChoice, Scenario
 from ptplot.science import const
 
@@ -134,3 +134,12 @@ class StatsTest(TestCase):
         assert format_value(None) == "-"
         assert format_value(123456.0) == "1.235e+05"
         assert format_value(0.5) == "0.5"
+
+
+def test_statistic() -> None:
+    """The statistics should be computed from any iterable of values."""
+    values = [1., 2., 10.]
+    assert Statistic.MEAN.compute(values) == pytest.approx(13 / 3)
+    assert Statistic.MEDIAN.compute(iter(values)) == pytest.approx(2)
+    assert Statistic.MEDIAN.compute([1., 2.]) == pytest.approx(1.5)
+    assert Statistic("median") is Statistic.MEDIAN

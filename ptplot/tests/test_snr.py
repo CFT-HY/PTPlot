@@ -13,7 +13,7 @@ from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
-from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
+from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison, engine_comparisons
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.create import power_spectrum
@@ -325,3 +325,27 @@ class SNRTest(TestCase):
         )
         with pytest.raises(ValueError, match="same ranges"):
             SNRGridComparison(grid1=cls.snr_grid(), grid2=grid2)
+
+    @classmethod
+    def test_engine_comparisons(cls) -> None:
+        """The grids of the other engines should be compared to that of the reference, in the order of the grids."""
+        grid1, grid2 = cls.snr_grids()
+        grid3 = cls.snr_grid(name="grid3")
+        comparisons = engine_comparisons({Engine.SSM: grid2, Engine.DEFAULT: grid1, Engine.GH21dbpl: grid3})
+        assert list(comparisons) == [Engine.SSM, Engine.GH21dbpl]
+        assert all(comparison.grid1 is grid1 for comparison in comparisons.values())
+        assert [comparison.grid2 for comparison in comparisons.values()] == [grid2, grid3]
+        np.testing.assert_allclose(
+            comparisons[Engine.SSM].snr_diff, SNRGridComparison(grid1=grid1, grid2=grid2).snr_diff
+        )
+
+        comparisons = engine_comparisons(
+            {Engine.DEFAULT: grid1, Engine.SSM: grid2},
+            reference=Engine.SSM, method=ComparisonMethod.ABSOLUTE_DIFFERENCE
+        )
+        assert list(comparisons) == [Engine.DEFAULT]
+        assert comparisons[Engine.DEFAULT].grid1 is grid2
+        assert comparisons[Engine.DEFAULT].method == ComparisonMethod.ABSOLUTE_DIFFERENCE
+
+        with pytest.raises(ValueError, match="reference engine"):
+            engine_comparisons({Engine.SSM: grid2})

@@ -4,10 +4,13 @@ from django.test import TestCase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
+import numpy as np
+from pttools.math import as_latex
 import pytest
 
 from ptplot.science import const
-from ptplot.science.plot.ps import power_spectrum_figure
+from ptplot.science.noise import resolve_noise
+from ptplot.science.plot.ps import YLIM, SpectrumCurve, power_spectrum_figure
 from ptplot.science.spectrum import (
     CosWG20bpl,
     CosWG24bpl,
@@ -108,3 +111,41 @@ class PowerSpectrumFigureTest(TestCase):
         """Drawing without spectra should fail with a clear error."""
         with pytest.raises(ValueError, match="no power spectra"):
             power_spectrum_figure([])
+        with pytest.raises(ValueError, match="no power spectra"):
+            power_spectrum_figure([], curves=[])
+
+    @staticmethod
+    def test_curves() -> None:
+        """The precomputed curves should be drawn before the spectra, with their SNRs in the legend."""
+        spectra_list = spectra()
+        spectrum = spectra_list[0]
+        noise = resolve_noise(None)
+        omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise)
+        curves = [
+            SpectrumCurve(f=noise.f, omgw0_h2=omgw0_h2, label="Curve 1"),
+            SpectrumCurve(f=noise.f, omgw0_h2=omgw0_h2 / 2, label="Curve 2", color="red", linestyle="--"),
+        ]
+        fig = power_spectrum_figure(spectra_list, curves=curves)
+        assert labels(fig) == ["Curve 1", "Curve 2"] + [
+            rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})" for spectrum in spectra_list
+        ]
+        lines = fig.get_axes()[0].get_lines()
+        np.testing.assert_array_equal(lines[1].get_ydata(), omgw0_h2 / 2)
+        assert (lines[1].get_color(), lines[1].get_linestyle()) == ("red", "--")
+        # The SNR of the first curve is that of the spectrum, and the SNR scales linearly with the spectrum.
+        snr_labels = [label.split(", SNR=")[1] for label in labels(fig, strip_snr=False)[:2]]
+        assert snr_labels == [as_latex(snr, math_mode=True), as_latex(snr / 2, math_mode=True)]
+
+    @staticmethod
+    def test_curves_only() -> None:
+        """A figure can contain only precomputed curves."""
+        noise = resolve_noise(None)
+        fig = power_spectrum_figure([], curves=[SpectrumCurve(f=noise.f, omgw0_h2=noise.noise, label="Curve")])
+        assert labels(fig) == ["Curve"]
+
+    @staticmethod
+    def test_ylim() -> None:
+        """The limits of the y-axis can be changed."""
+        assert power_spectrum_figure(spectra()).get_axes()[0].get_ylim() == pytest.approx(YLIM)
+        ylim = (1e-20, 1e-5)
+        assert power_spectrum_figure(spectra(), ylim=ylim).get_axes()[0].get_ylim() == pytest.approx(ylim)

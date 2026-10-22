@@ -1,9 +1,10 @@
 """Tests for the parameter choices."""
 
 from django.test import TestCase
+import pytest
 
 from ptplot.models import Model, ParameterChoice
-from ptplot.science.spectrum import Engine
+from ptplot.science.spectrum import Engine, power_spectrum
 from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
@@ -67,3 +68,27 @@ class PowerSpectrumFigureTest(TestCase):
         assert labels(fig) == [
             rf"$\Omega_\mathrm{{sw}}$ ({engine.spectrum.SHORT_NAME})" for engine in ENGINES
         ]
+
+
+class PowerSpectrumTest(TestCase):
+    """Tests for :func:`ptplot.models.parameter_choice.ParameterChoice.power_spectrum`."""
+
+    @staticmethod
+    def test_parameters() -> None:
+        """The spectrum should have the parameters of the point, or those of the model if not set for the point."""
+        spectrum = point().power_spectrum(engine=Engine.GH21dbpl)
+        assert isinstance(spectrum, Engine.GH21dbpl.spectrum)
+        assert (spectrum.alpha, spectrum.beta_tilde, spectrum.v_wall, spectrum.T_star, spectrum.g_star) == \
+            pytest.approx((0.1, 100, 0.9, 100, 100))
+
+    @staticmethod
+    def test_overrides() -> None:
+        r"""The parameters can be overridden, e.g. $\beta/H_*$ with $r_*$."""
+        p = point()
+        r_star = p.power_spectrum().r_star
+        spectrum = p.power_spectrum(v_wall=0.5, beta_tilde=None, r_star=r_star)
+        reference = power_spectrum(v_wall=0.5, alpha=0.1, r_star=r_star, T_star=100, g_star=100)
+        assert (spectrum.v_wall, spectrum.r_star, spectrum.alpha) == pytest.approx((0.5, r_star, 0.1))
+        assert spectrum.beta_tilde == pytest.approx(reference.beta_tilde)
+        # The r_* of the point is given, so beta/H_* differs from that of the point for another v_wall.
+        assert spectrum.beta_tilde != pytest.approx(100)

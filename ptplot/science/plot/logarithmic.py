@@ -11,6 +11,9 @@ from ptplot.science.plot.ticks import add_ticks
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d
 
+#: Markers of the highlighted points, see :py:func:`add_highlights`
+HIGHLIGHT_MARKERS: tuple[str, ...] = ("*", "D", "P", "X", "s")
+
 
 def add_points(
         ax: Axes,
@@ -44,6 +47,49 @@ def add_points(
     return x2, y2
 
 
+def add_highlights(
+        ax: Axes,
+        x: th.FloatOrArrOrList1D2D,
+        y: th.FloatOrArrOrList1D2D,
+        highlights: dict[str, int]) -> None:
+    r"""Highlight some of the points of a plot with logarithmic values on linear axes, e.g. an SNR figure.
+
+    Each highlighted point is drawn with a marker of its own, which is added to the legend with its label.
+    The existing entries of the legend, e.g. those of :py:func:`add_points`, are kept.
+
+    :param ax: Axes to draw on
+    :param x: x values of all the points [scenario, point]
+    :param y: y values of all the points [scenario, point]
+    :param highlights: Labels of the highlighted points, and their indices in the flattened points,
+        see :py:func:`flat_points`
+    """
+    x_flat, y_flat = flat_points(x, y)
+    legend = ax.get_legend()
+    handles: list[tp.Any] = [] if legend is None else list(legend.legend_handles)
+    labels: list[str] = [] if legend is None else [text.get_text() for text in legend.get_texts()]
+    for i, (label, index) in enumerate(highlights.items()):
+        handles += ax.plot(
+            np.log10(x_flat[index]), np.log10(y_flat[index]),
+            marker=HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)], markersize=10,
+            color="red", markeredgecolor="black", linestyle="none", zorder=10
+        )
+        labels.append(label)
+    ax.legend(handles, labels, loc="lower left", framealpha=0.9)
+
+
+def flat_points(
+        x: th.FloatOrArrOrList1D2D,
+        y: th.FloatOrArrOrList1D2D) -> tuple[th.FloatArr1D, th.FloatArr1D]:
+    """Flatten the points [scenario, point] to 1D arrays, in which the scenarios follow each other.
+
+    :param x: x values of the points [scenario, point]
+    :param y: y values of the points [scenario, point]
+    :return: Flattened x and y values
+    """
+    x2, y2 = atleast_2d(x, y)
+    return np.concatenate([np.ravel(x_set) for x_set in x2]), np.concatenate([np.ravel(y_set) for y_set in y2])
+
+
 def nested_labels(labels: th.StrOrListOrNestedList | None) -> list[list[str]] | None:
     """Convert the labels of the points to the form [scenario, point].
 
@@ -64,22 +110,31 @@ def log_figure(
         y: th.FloatArr1D,
         xlabel: str,
         ylabel: str,
-        # fig: Figure = None,
-        # ax: Axes = None,
+        fig: Figure | None = None,
+        ax: Axes | None = None,
         xtickpos: th.IntArr1D | None = None,
         ytickpos: th.IntArr1D | None = None,
         xticklabels: list[str] | None = None,
         yticklabels: list[str] | None = None,
         label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE) -> tuple[Figure, Axes, tuple[float, float, float, float]]:
-    """Create a figure that has logarithmic tick labels on linear axes."""
+    """Create a figure that has logarithmic tick labels on linear axes.
+
+    :param fig: Figure of the axes. If the axes are not given, a new figure with a single axes is created.
+    :param ax: Axes to set up, e.g. a subplot of a larger figure
+    :return: Figure, axes and the extent of the axes
+    :raises ValueError: If the axes are given without their figure
+    """
     x_min = x[0]
     x_max = x[-1]
     y_min = y[0]
     y_max = y[-1]
     extent = (x_min, x_max, y_min, y_max)
 
-    fig = Figure()
-    ax = fig.add_subplot()
+    if ax is None:
+        fig = Figure()
+        ax = fig.add_subplot()
+    elif fig is None:
+        raise ValueError("The figure of the axes must be given together with the axes.")
 
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)

@@ -6,11 +6,13 @@ In the interactive figures, clicking on the SNR plot shows the power spectrum at
 """
 
 import base64
+from collections.abc import Sequence
 import json
 from pathlib import Path
 import typing as tp
 
 from matplotlib import cm, rc_context
+from matplotlib.axes import Axes
 from matplotlib.colors import LogNorm, to_hex
 from matplotlib.figure import Figure
 import numpy as np
@@ -19,8 +21,23 @@ from plotly.subplots import make_subplots
 
 from ptplot.science import const
 from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.logarithmic import add_points, log_figure, nested_labels
-from ptplot.science.plot.utils import add_text, find_label_place, has_lines, latex_to_html, watermark
+from ptplot.science.plot.logarithmic import (
+    HIGHLIGHT_MARKERS,
+    add_highlights,
+    add_points,
+    flat_points,
+    log_figure,
+    nested_labels,
+)
+from ptplot.science.plot.utils import (
+    add_subplot_titles,
+    add_text,
+    find_label_place,
+    has_lines,
+    latex_to_html,
+    subplot_grid,
+    watermark,
+)
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d
@@ -89,7 +106,8 @@ class SNRFigure:
             xticklabels: list[str] | None = None,
             yticklabels: list[str] | None = None,
             label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
-            contour_label_fontsize: int = 8):
+            contour_label_fontsize: int = 8,
+            highlights: dict[str, int] | None = None):
         r"""Set up the SNR figure. The figures are created by :py:meth:`matplotlib` and :py:meth:`plotly`.
 
         :param grid: Precomputed SNR grid
@@ -112,7 +130,13 @@ class SNRFigure:
         :param yticklabels: Labels of the y-axis ticks in the Matplotlib figure
         :param label_fontsize: Font size of the axis labels in the Matplotlib figure
         :param contour_label_fontsize: Font size of the contour labels
+        :param highlights: Labels of the points of the grid to be highlighted,
+            and their indices in the flattened points, in which the scenarios follow each other,
+            see :py:func:`ptplot.science.plot.logarithmic.flat_points`
+        :raises ValueError: If points are highlighted, but the grid has no points
         """
+        if highlights and not grid.has_points:
+            raise ValueError("Cannot highlight points, as the grid has no points.")
         self.grid: SNRGrid = grid
         self.labels: th.StrOrListOrNestedList | None = grid.labels_points if labels is None else labels
         self.titles: th.StrOrList | None = grid.titles if titles is None else titles
@@ -127,6 +151,7 @@ class SNRFigure:
         self.yticklabels: list[str] | None = yticklabels
         self.label_fontsize: int = label_fontsize
         self.contour_label_fontsize: int = contour_label_fontsize
+        self.highlights: dict[str, int] = {} if highlights is None else highlights
 
         #: Base-10 logarithms of the x values of the grid
         self.x_log10: th.FloatArr1D = np.log10(grid.x)
@@ -162,18 +187,23 @@ class SNRFigure:
         return range(int(self.y_log10[0]), int(self.y_log10[-1]) + 1)
 
     @matplotlib_lock
-    def matplotlib(self) -> Figure:
+    def matplotlib(self, fig: Figure | None = None, ax: Axes | None = None) -> Figure:
         """Create the SNR figure with Matplotlib.
 
+        :param fig: Figure of the axes, see :py:func:`ptplot.science.plot.logarithmic.log_figure`
+        :param ax: Axes to draw on, e.g. a subplot of a larger figure, see :py:func:`snr_figure_grid`.
+            If not given, a new figure is created, and the watermark is added to it.
         :return: Matplotlib figure
         """
         grid = self.grid
         x_log10 = self.x_log10
         y_log10 = self.y_log10
+        standalone = ax is None
         with rc_context(const.DEFAULT_RC_CONTEXT):
             fig, ax, extent = log_figure(
                 x=x_log10, y=y_log10,
                 xlabel=grid.X_LABEL_LATEX, ylabel=grid.Y_LABEL_LATEX,
+                fig=fig, ax=ax,
                 xtickpos=self.xtickpos, ytickpos=self.ytickpos,
                 xticklabels=self.xticklabels, yticklabels=self.yticklabels,
                 label_fontsize=self.label_fontsize
@@ -237,8 +267,11 @@ class SNRFigure:
             if grid.has_points:
                 x_points, y_points = grid.points()
                 add_points(ax=ax, x=x_points, y=y_points, labels=self.labels, titles=self.titles)
+                if self.highlights:
+                    add_highlights(ax=ax, x=x_points, y=y_points, highlights=self.highlights)
 
-            add_text(ax, watermark())
+            if standalone:
+                add_text(ax, watermark())
             return fig
 
     def f_indices(self, n_f: int = PLOTLY_N_F) -> th.IntArr1D:
@@ -350,6 +383,7 @@ class SNRFigure:
 
         if grid.has_points:
             self._plotly_points(fig)
+            self._plotly_highlights(fig)
 
         f_indices = self.f_indices(n_f)
         f = grid.f[f_indices]
@@ -480,6 +514,22 @@ class SNRFigure:
                 hoverinfo="skip"
             ), row=1, col=1)
 
+    def _plotly_highlights(self, fig: go.Figure) -> None:
+        """Add the highlighted points of the grid to the SNR plot of a Plotly figure."""
+        x_flat, y_flat = flat_points(*self.grid.points())
+        for i, (label, index) in enumerate(self.highlights.items()):
+            # The Plotly marker symbols corresponding to those of Matplotlib
+            symbol = {"*": "star", "D": "diamond", "P": "cross", "X": "x", "s": "square"}[
+                HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)]
+            ]
+            fig.add_trace(go.Scatter(
+                x=[np.log10(x_flat[index])], y=[np.log10(y_flat[index])],
+                mode="markers",
+                marker={"symbol": symbol, "size": 14, "color": "red", "line": {"width": 1, "color": "black"}},
+                name=latex_to_html(label),
+                hoverinfo="skip"
+            ), row=1, col=1)
+
     def _info(self, iy: int, ix: int) -> str:
         """Parameters and SNR of a grid point as HTML, as created also by :py:data:`PLOTLY_SCRIPT`."""
         grid = self.grid
@@ -515,3 +565,25 @@ class SNRFigure:
             "labelformat": labelformat,
             "labelfont": {"size": self.contour_label_fontsize + 2},
         }
+
+
+@matplotlib_lock
+def snr_figure_grid(
+        figures: Sequence[SNRFigure],
+        titles: Sequence[str] | None = None,
+        ncols: int = 2) -> Figure:
+    """Draw several SNR figures as the subplots of a single Matplotlib figure, e.g. those of different engines.
+
+    :param figures: SNR figures to draw
+    :param titles: Titles of the subplots, defaults to the names of the grids
+    :param ncols: Maximum number of columns of subplots
+    :return: Matplotlib figure
+    """
+    if titles is None:
+        titles = [figure.grid.name for figure in figures]
+    with rc_context(const.DEFAULT_RC_CONTEXT):
+        fig, axs = subplot_grid(len(figures), ncols=ncols)
+        for figure, ax in zip(figures, axs, strict=True):
+            figure.matplotlib(fig=fig, ax=ax)
+        add_subplot_titles(fig, axs, titles)
+    return fig

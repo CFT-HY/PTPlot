@@ -1,5 +1,6 @@
 """Comparison of the SNR values of two grids."""
 
+from collections.abc import Mapping
 import enum
 import logging
 
@@ -7,6 +8,7 @@ from matplotlib.colors import Normalize, SymLogNorm
 import numpy as np
 
 from ptplot.science.snr.grid import SNRGrid
+from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -20,6 +22,26 @@ class ComparisonMethod(enum.StrEnum):
 
     RELATIVE_DIFFERENCE = DEFAULT = "relative_difference"
     ABSOLUTE_DIFFERENCE = "absolute_difference"
+
+
+def engine_comparisons(
+        grids: Mapping[Engine, SNRGrid],
+        reference: Engine = Engine.DEFAULT,
+        method: ComparisonMethod = ComparisonMethod.DEFAULT) -> "dict[Engine, SNRGridComparison]":
+    """Compare the SNR grids of each engine to that of the reference engine.
+
+    :param grids: SNR grids of the same axes and ranges, computed with different engines
+    :param reference: Engine whose grid is the reference of the comparisons
+    :param method: How to compare the SNR values
+    :return: Comparisons of the grids of the other engines to the reference, in the order of the grids
+    :raises ValueError: If the grid of the reference engine is not given
+    """
+    if reference not in grids:
+        raise ValueError(f"The grid of the reference engine {reference} is not given.")
+    return {
+        engine: SNRGridComparison(grid1=grids[reference], grid2=grid, method=method)
+        for engine, grid in grids.items() if engine != reference
+    }
 
 
 def symlog_levels(

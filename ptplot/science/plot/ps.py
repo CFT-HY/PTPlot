@@ -2,6 +2,7 @@
 
 """Power spectrum plotting."""
 
+from dataclasses import dataclass
 from pathlib import Path
 import sys
 import typing as tp
@@ -17,13 +18,30 @@ from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, fig_to_svg, watermark
+from ptplot.science.plot.utils import add_text, fig_to_svg, title_pad, watermark
 from ptplot.science.spectrum import CosWG20bpl, PowerSpectrum, power_spectrum
+import ptplot.science.type_hints as th
 
 #: Line style of the turbulence curves, when multiple spectra are drawn in the same figure.
 TURB_LINESTYLE: str = "--"
 #: Line style of the total curves, when multiple spectra are drawn in the same figure.
 TOTAL_LINESTYLE: str = ":"
+#: Default limits of the y-axis
+YLIM: tuple[float, float] = (1e-16, 1e-8)
+
+
+@dataclass(frozen=True, slots=True)
+class SpectrumCurve:
+    r"""A precomputed GW power spectrum to be drawn in :py:func:`power_spectrum_figure`, e.g. that of a simulation."""
+
+    #: $f$, frequencies in Hz
+    f: th.FloatArr1D
+    #: $h^2 \Omega_\text{gw,0}(f)$, GW power spectrum today multiplied by $h^2$
+    omgw0_h2: th.FloatArr1D
+    #: Label of the curve in the legend, to which the SNR is appended
+    label: str
+    color: str = "black"
+    linestyle: str = "-"
 
 
 @matplotlib_lock
@@ -31,7 +49,9 @@ def power_spectrum_figure(
         spectra: PowerSpectrum | tp.Iterable[PowerSpectrum],
         noise: Noise | None = None,
         sw_only: bool = True,
-        title: str | None = None) -> Figure:
+        title: str | None = None,
+        curves: tp.Iterable[SpectrumCurve] = (),
+        ylim: tuple[float, float] = YLIM) -> Figure:
     r"""Produce the power spectrum plot.
 
     The engine and the SNR of each spectrum are printed in the legend.
@@ -43,14 +63,18 @@ def power_spectrum_figure(
     :param noise: Which noise curve to use
     :param sw_only: Whether to ignore turbulence
     :param title: Title of the figure, which is drawn above the watermark
+    :param curves: Precomputed spectra to be drawn before the spectra of the engines, e.g. those of simulations.
+        Their SNRs are computed against the noise curve.
+    :param ylim: Limits of the y-axis, e.g. to make room for the legend above the spectra
     :return: Power spectrum figure
-    :raises ValueError: If no spectra were given
+    :raises ValueError: If no spectra or curves were given
     """
     spectra_list: list[PowerSpectrum] = [spectra] if isinstance(spectra, PowerSpectrum) else list(spectra)
-    if not spectra_list:
+    curves_list = list(curves)
+    if not spectra_list and not curves_list:
         raise ValueError("Got no power spectra to plot.")
     # Whether the figure contains multiple spectra, which have to be distinguished from each other
-    multiple = len(spectra_list) > 1
+    multiple = len(spectra_list) + len(curves_list) > 1
 
     noise = resolve_noise(noise)
 
@@ -63,6 +87,13 @@ def power_spectrum_figure(
         ax = fig.add_subplot()
 
         ax.fill_between(noise.f, noise.noise, 1, alpha=0.3, label=r"LISA noise")
+
+        for curve in curves_list:
+            snr_value = PowerSpectrum.snr(curve.f, curve.omgw0_h2, noise)
+            ax.plot(
+                curve.f, curve.omgw0_h2, color=curve.color, linestyle=curve.linestyle,
+                label=f"{curve.label}, SNR={as_latex(snr_value, math_mode=True)}"
+            )
 
         for spectrum in spectra_list:
             pow_spec, snr_value = spectrum.power_spectrum(noise.f, noise=noise)
@@ -91,7 +122,7 @@ def power_spectrum_figure(
         ax.set_xlabel(r"$f\; \mathrm{(Hz)}$", fontsize=const.DEFAULT_LABEL_FONTSIZE)
         ax.set_ylabel(r"$h^2 \, \Omega_\mathrm{GW}(f)$", fontsize=const.DEFAULT_LABEL_FONTSIZE)
         ax.set_xlim(1e-5, 0.1)
-        ax.set_ylim(1e-16, 1e-8)
+        ax.set_ylim(*ylim)
         ax.set_yscale("log", nonpositive="clip")
         ax.set_xscale("log", nonpositive="clip")
         ax.legend(loc="upper right")
@@ -106,8 +137,7 @@ def power_spectrum_figure(
         if title is not None:
             # The title is put above the text, which is excluded from the layout,
             # and the figure is laid out again to make room for the title.
-            text_height = txt.get_window_extent().height * POINTS_PER_INCH / fig.dpi
-            ax.set_title(title, pad=text_height + 2 * TEXT_PAD)
+            ax.set_title(title, pad=title_pad(txt))
             fig.tight_layout()
     return fig
 

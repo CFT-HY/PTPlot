@@ -1,6 +1,9 @@
 """Tests for the plotting utilities."""
 
+from pathlib import Path
+
 from django.test import TestCase
+from matplotlib import rcParams
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.text import Text
@@ -8,7 +11,16 @@ from matplotlib.transforms import Bbox
 import numpy as np
 import pytest
 
-from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, has_lines, latex_to_html
+from ptplot.science.plot.utils import (
+    POINTS_PER_INCH,
+    TEXT_PAD,
+    add_text,
+    has_lines,
+    latex_to_html,
+    save_html,
+    subplot_grid,
+    title_pad,
+)
 
 #: Tick label formats that result in plot areas of different sizes
 TICK_LABEL_FORMATS: tuple[str, ...] = ("{:.0f}", "{:.10f}", "{:.30f}")
@@ -84,6 +96,43 @@ class AddTextTest(TestCase):
         """Adding text to a figure without axes should fail with a clear error."""
         with pytest.raises(ValueError, match="no axes"):
             add_text(Figure(), TEXT)
+
+
+def test_save_html(tmp_path: Path) -> None:
+    """The HTML should be saved, and the missing parent directories created."""
+    path = tmp_path / "a" / "b" / "figure.html"
+    assert save_html("<p>α</p>", path) == path
+    assert path.read_text(encoding="utf-8") == "<p>α</p>"
+
+
+@pytest.mark.parametrize(("n", "ncols", "shape"), [(1, 2, (1, 1)), (3, 2, (2, 2)), (4, 2, (2, 2)), (3, 3, (1, 3))])
+def test_subplot_grid(n: int, ncols: int, shape: tuple[int, int]) -> None:
+    """The subplots should be in a grid of the default subplot size, without the unused subplots."""
+    fig, axs = subplot_grid(n, ncols=ncols)
+    assert len(axs) == n
+    assert fig.get_axes() == axs
+    nrows, ncols_actual = shape
+    width, height = rcParams["figure.figsize"]
+    assert tuple(fig.get_size_inches()) == pytest.approx((ncols_actual * width, nrows * height))
+    gridspec = axs[0].get_gridspec()
+    assert gridspec is not None
+    assert (gridspec.nrows, gridspec.ncols) == shape
+
+
+def test_subplot_grid_invalid() -> None:
+    """There must be at least one subplot and column."""
+    for n, ncols in ((0, 2), (1, 0)):
+        with pytest.raises(ValueError, match="must be positive"):
+            subplot_grid(n, ncols=ncols)
+
+
+def test_title_pad() -> None:
+    """A title with the padding should be above the text."""
+    fig, ax = figure()
+    txt = add_text(ax, TEXT)
+    ax.set_title("Title", pad=title_pad(txt))
+    fig.tight_layout()
+    assert ax.title.get_window_extent().y0 >= txt.get_window_extent().y1
 
 
 def test_has_lines() -> None:

@@ -1,5 +1,8 @@
 """Generic utility methods."""
 
+from collections.abc import Iterator
+import contextlib
+import logging
 import os
 from threading import Lock
 import typing as tp
@@ -42,6 +45,24 @@ def get_object_or_404_related[T: Model](
     except ObjectDoesNotExist as err:
         raise Http404(f"No {model._meta.object_name} matches the given query.") from err  # noqa: SLF001
     return obj
+
+
+@contextlib.contextmanager
+def log_exceptions(logger: logging.Logger, msg: str, *args: object) -> Iterator[None]:
+    """Log the exceptions raised within the context instead of raising them.
+
+    This is for long scripts, e.g. those that create many figures,
+    which should continue with the rest of their work if a part of it fails.
+    Only the subclasses of :py:class:`Exception` are caught, so e.g. :py:class:`KeyboardInterrupt` is not.
+
+    :param logger: Logger to which the exceptions are logged
+    :param msg: Message of the log entry, with ``%`` placeholders for the arguments
+    :param args: Arguments of the message
+    """
+    try:
+        yield
+    except Exception:
+        logger.exception(msg, *args)
 
 
 def setup_django(log_dir: str | os.PathLike[str] | None = None, settings: str = "ptplot_site.settings.dev") -> None:
