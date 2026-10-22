@@ -47,6 +47,10 @@ DIST_DIR: Path = ARCHIVE_DIR / "dist"
 FIG_PARENT_DIR: Path = ARCHIVE_DIR / "fig"
 #: The environment variable with which the figure directory of the examples is set, see ``examples/utils.py``
 FIG_DIR_ENV: str = "PTPLOT_FIG_DIR"
+#: The make target of the documentation build.
+#: This is like "all", but a failed link check does not stop the build,
+#: as it is often caused by a temporarily unreachable server.
+DOCS_TARGET: str = "all-nofail-links"
 #: The 7-Zip wildcards of the files that are left out of the archive.
 #: The checksum files ``*.h5.sha256`` of the HDF5 files are still included.
 ARCHIVE_EXCLUDE: tuple[str, ...] = ("*.h5",)
@@ -658,7 +662,7 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
 
     log(f"Starting the nightly run at HEAD {head}.")
 
-    # The build directory is cleaned also by "make all",
+    # The build directory is cleaned also by the make target,
     # but cleaning it already here ensures that no output of a previous run is left there if the run fails.
     for directory in (DOCS_BUILD_DIR, DIST_DIR):
         if directory.exists():
@@ -686,7 +690,7 @@ def nightly_run(lock_fd: int, log_file: Path, started: datetime.datetime) -> int
     # A variable given on the command line of make overrides the one in the Makefile,
     # and it is passed on to the recursive make calls.
     subprocess.run(
-        [*uv_run, "make", "-C", str(DOCS_DIR), "all", f"BUILDDIR={DOCS_BUILD_DIR}"], cwd=REPO_DIR, check=True
+        [*uv_run, "make", "-C", str(DOCS_DIR), DOCS_TARGET, f"BUILDDIR={DOCS_BUILD_DIR}"], cwd=REPO_DIR, check=True
     )
     log("Documentation build finished.")
 
