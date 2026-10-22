@@ -51,6 +51,15 @@ PLOTLY_SCRIPT: str = (Path(__file__).parent / "snr_plotly.js").read_text(encodin
 TURBULENCE_RANGE: tuple[float, float] = (1e-4, 1)
 
 
+def decade_label(decade: float) -> str:
+    """Tick label of an integer power of ten as HTML, e.g. ``10<sup>-2</sup>``, but ``1`` for $10^0$.
+
+    :param decade: The base-10 logarithm of the value
+    :return: Tick label
+    """
+    return "1" if decade == 0 else f"10<sup>{decade:.0f}</sup>"
+
+
 class SNRFigure:
     r"""SNR figure of an SNR grid.
 
@@ -308,7 +317,7 @@ class SNRFigure:
                 colorbar={
                     "title": {"text": f"SNR<sub>{grid.engine}</sub>"},
                     "tickvals": decades,
-                    "ticktext": [f"10<sup>{decade:.0f}</sup>" for decade in decades],
+                    "ticktext": [decade_label(decade) for decade in decades],
                     "x": 0.43,
                     "xanchor": "left",
                     "thickness": 15,
@@ -492,7 +501,7 @@ class SNRFigure:
         decades = np.arange(np.ceil(values_log10.min()), np.floor(values_log10.max()) + 1)
         return {
             "tickvals": decades,
-            "ticktext": [f"10<sup>{decade:.0f}</sup>" for decade in decades],
+            "ticktext": [decade_label(decade) for decade in decades],
         }
 
     def _single_contour(self, level: float, labelformat: str) -> dict[str, tp.Any]:

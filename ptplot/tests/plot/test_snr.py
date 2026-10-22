@@ -10,7 +10,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 from ptplot.science import const
-from ptplot.science.plot.snr import PARAM_LABELS_HTML, PLOTLY_N_F, PLOTLY_SCRIPT, SNRFigure
+from ptplot.science.plot.snr import PARAM_LABELS_HTML, PLOTLY_N_F, PLOTLY_SCRIPT, SNRFigure, decade_label
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
@@ -135,3 +135,11 @@ class SNRFigureTest(TestCase):
             assert figure.plotly_data()["spectra"] in html
             assert "__DATA__" not in html
             assert "{plot_id}" not in html
+
+
+def test_decade_label() -> None:
+    """The tick labels should be powers of ten, except 1 for 10^0, as on the logarithmic axes of Plotly."""
+    assert decade_label(-2) == "10<sup>-2</sup>"
+    assert decade_label(0) == "1"
+    assert decade_label(-0.) == "1"
+    assert decade_label(3) == "10<sup>3</sup>"
