@@ -60,9 +60,13 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - When using equations from articles, cite the article, including the number of the equation, if possible.
 - Use Sphinx extlinks for references.
 - After changing equations in docstrings, run `uv run python -m pttools.docs.lint`.
-  It builds the documentation without running the examples (`make latexpdf-noplot`), prints the Sphinx errors and warnings
+  It builds the documentation without running the examples or generating the figures of the `plot` directive (`make latexpdf-noplot`), prints the Sphinx errors and warnings
   and the LaTeX errors, and saves the Sphinx output to `./logs/sphinx_TIMESTAMP.log`. Its exit code is that of `make`.
+  It builds in a new temporary directory `./docs/lint/lint_TIMESTAMP_RANDOM`, whose path it prints,
+  so multiple lints can be run simultaneously. These directories are not removed automatically.
   Fix all reported errors, as the documentation is built with `--fail-on-warning`.
+- In docstring equations, write `\ast` instead of `*` after an opening bracket, e.g. `r_{\ast,0}`,
+  as reStructuredText reads `{*` as the start of italics.
 
 ## General instructions
 - PTtools is installed as a pip package to the uv-managed virtualenv, usually in `./.venv`.
