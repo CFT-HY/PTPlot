@@ -1,7 +1,9 @@
 """Plotting utilities."""
 
 from datetime import datetime
+import html
 import io
+import re
 import typing as tp
 
 from matplotlib.axes import Axes
@@ -102,6 +104,29 @@ def find_label_place(
 def has_lines(contour: ContourSet) -> bool:
     """Whether the contour set has any lines, which is required for placing its labels manually."""
     return any(np.asarray(path.vertices).size for path in contour.get_paths())
+
+def latex_to_html(text: str) -> str:
+    """Convert the subscripts and superscripts of the LaTeX math in a text to HTML, e.g. for Plotly.
+
+    Only the parts of the text within ``$...$`` are converted, and only their subscripts and superscripts,
+    e.g. ``SUSY$_1$`` to ``SUSY<sub>1</sub>``. Other LaTeX commands are kept as they are.
+    The rest of the text is escaped for HTML.
+
+    :param text: Text that may contain LaTeX math
+    :return: HTML
+    """
+    def convert_math(math: str) -> str:
+        math = html.escape(math)
+        math = re.sub(r"_\{([^{}]*)\}|_(.)", lambda m: f"<sub>{m.group(1) or m.group(2)}</sub>", math)
+        return re.sub(r"\^\{([^{}]*)\}|\^(.)", lambda m: f"<sup>{m.group(1) or m.group(2)}</sup>", math)
+
+    parts = text.split("$")
+    # The parts at odd indices are within $...$. An unmatched $ is kept as it is.
+    if len(parts) % 2 == 0:
+        last = parts.pop()
+        parts[-1] = f"{parts[-1]}${last}"
+    return "".join(convert_math(part) if i % 2 else html.escape(part) for i, part in enumerate(parts))
+
 
 def watermark() -> str:
     """Get the watermark string."""

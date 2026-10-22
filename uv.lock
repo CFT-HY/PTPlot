@@ -1903,6 +1903,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "plotly" },
     { name = "pttools-gw", extra = ["numbalsoda", "performance"] },
     { name = "scipy" },
 ]
@@ -1953,6 +1954,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandas", specifier = ">=3.0.3" },
+    { name = "plotly", specifier = ">=7.1.0" },
     { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=024f993ae2bf7c86d20418918fef73ad64b91509" },
     { name = "scipy", specifier = ">=1.17.1" },
 ]

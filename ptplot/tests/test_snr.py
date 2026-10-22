@@ -8,9 +8,9 @@ import pytest
 
 from ptplot.science import const
 from ptplot.science.noise import noise_curve
-from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison
-from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
@@ -20,6 +20,10 @@ from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.ssm import BAG
 from ptplot.tests.const import TEST_SSM_SETTINGS
 
+#: Relative tolerance of the spectra of the SSM grids, which are created from the shared spectra of their columns.
+#: The median difference to the separately computed spectra is of the order of 1e-6, and the maximum 4 %.
+SPECTRUM_RTOL_SSM: float = 0.05
+
 
 class SNRTest(TestCase):
     """Tests for the SNR grids and their comparisons."""
@@ -27,13 +31,13 @@ class SNRTest(TestCase):
     @staticmethod
     def test_snr_alpha_beta() -> None:
         r"""The SNR figure in the $(\alpha_n, \beta/H)$ plane should be created."""
-        snr_figure_alpha_beta(
+        SNRFigureAlphaBeta(
             grid=SNRGridAlphaBeta(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
                 alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
                 v_wall_points=const.DEFAULT_V_WALL
             )
-        )
+        ).matplotlib()
 
     @staticmethod
     def test_grid_axes() -> None:
@@ -83,7 +87,8 @@ class SNRTest(TestCase):
             "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": 0.5,
             "alpha_n": alpha_n, "beta_tilde": beta_tilde, "engine": Engine.SSM, "log_progress_percentage": None
         }
-        snr = SNRGridAlphaBeta(model=model, **kwargs).snr
+        grid = SNRGridAlphaBeta(model=model, **kwargs)
+        snr = grid.snr
         snr_bag = SNRGridAlphaBeta(**kwargs).snr
         assert np.all(np.isnan(snr[:, 0]))
         assert np.all(np.isfinite(snr[:, 1:]))
@@ -93,8 +98,14 @@ class SNRTest(TestCase):
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=0.5,
             alpha=alpha_n[2], beta_tilde=beta_tilde[0], engine=Engine.SSM, model=model, cache=True
         )
-        _, snr_spectrum = spectrum.power_spectrum(noise_curve().f)
+        omgw0_h2, snr_spectrum = spectrum.power_spectrum(noise_curve().f)
         assert snr[0, 2] == pytest.approx(snr_spectrum, rel=0.01)
+        # The spectra of the grid are created from a shared spectrum of the column, see snr_column_ssm(),
+        # and therefore they are not identical to the separately computed spectrum.
+        assert grid.spectra.shape == (beta_tilde.size, alpha_n.size, grid.f.size)
+        assert np.all(np.isnan(grid.spectra[:, 0]))
+        assert np.all(np.isfinite(grid.spectra[:, 1:]))
+        np.testing.assert_allclose(grid.spectra[0, 2], omgw0_h2, rtol=SPECTRUM_RTOL_SSM)
 
     @staticmethod
     def test_snr_ubarf_rstar_ssm_model() -> None:
@@ -114,7 +125,42 @@ class SNRTest(TestCase):
         # and Ubarf = 1 is above the maximum of the approximation of Ubarf.
         assert np.all(np.isnan(grid.snr[:, [0, 3]]))
         assert np.all(np.isfinite(grid.snr[:, 1:3]))
-        snr_figure_ubarf_rstar(grid)
+        SNRFigureUbarfRStar(grid).matplotlib()
+
+    @staticmethod
+    def test_spectra_analytic() -> None:
+        r"""The spectra of the grids of the analytic engines should equal the separately computed spectra.
+
+        This is tested for both the $(\alpha_n, \beta/H)$ and the $(\bar{U}_f, r_*)$ grids,
+        whose spectra should be stored in the [y, x, f] order.
+        """
+        x = np.array([0.05, 0.1, 0.3])
+        y = np.array([0.01, 0.1])
+        noise = noise_curve()
+        for engine in (engine for engine in Engine if engine != Engine.SSM):
+            for ubarf_rstar in (False, True):
+                kwargs = {
+                    "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": const.DEFAULT_V_WALL,
+                    "engine": engine, "log_progress_percentage": None,
+                }
+                if ubarf_rstar:
+                    grid = SNRGridUbarfRStar(ubarf=x, r_star=y, **kwargs)
+                else:
+                    grid = SNRGridAlphaBeta(alpha_n=x, beta_tilde=1 / y, **kwargs)
+                assert grid.spectra.shape == (y.size, x.size, noise.f.size)
+                np.testing.assert_array_equal(grid.f, noise.f)
+                for i_y, i_x in np.ndindex(grid.snr.shape):
+                    spectrum = power_spectrum(
+                        T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
+                        engine=engine,
+                        **(
+                            {"ubarf": grid.x[i_x], "r_star": grid.y[i_y]} if ubarf_rstar
+                            else {"alpha": grid.x[i_x], "beta_tilde": grid.y[i_y]}
+                        )
+                    )
+                    omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise)
+                    np.testing.assert_array_equal(grid.spectra[i_y, i_x], omgw0_h2)
+                    assert grid.snr[i_y, i_x] == snr
 
     @classmethod
     def test_snr_alpha_beta_legacy_detonation(cls) -> None:
@@ -151,13 +197,13 @@ class SNRTest(TestCase):
     @staticmethod
     def test_snr_ubarf_rstar() -> None:
         r"""The SNR figure in the $(\bar{U}_f, r_*)$ plane should be created."""
-        snr_figure_ubarf_rstar(
+        SNRFigureUbarfRStar(
             grid=SNRGridUbarfRStar(
                 T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
                 alpha_points=const.DEFAULT_ALPHA, beta_tilde_points=const.DEFAULT_BETA_TILDE,
                 v_wall_points=const.DEFAULT_V_WALL
             )
-        )
+        ).matplotlib()
 
     @staticmethod
     def snr_grid(name: str | None = None) -> SNRGridAlphaBeta:

@@ -1,5 +1,7 @@
 """Figures with logarithmic axes."""
 
+import typing as tp
+
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import numpy as np
@@ -18,11 +20,7 @@ def add_points(
         titles: th.StrOrList | None = None) -> tuple[th.ArrOrListOfArrs, th.ArrOrListOfArrs]:
     r"""Add points to a $(\alpha, \beta/H)$ plot."""
     x2, y2 = atleast_2d(x, y)
-    if labels:
-        if isinstance(labels, str):
-            labels = [[labels]]
-        elif isinstance(labels[0], str):
-            labels = [labels]
+    labels = nested_labels(labels)
 
     # Iterate over scenarios
     for i, (x_set, y_set) in enumerate(zip(x2, y2, strict=True)):
@@ -44,6 +42,21 @@ def add_points(
         )
 
     return x2, y2
+
+
+def nested_labels(labels: th.StrOrListOrNestedList | None) -> list[list[str]] | None:
+    """Convert the labels of the points to the form [scenario, point].
+
+    :param labels: A label of a single point, labels of the points of a single scenario, or labels [scenario, point]
+    :return: Labels [scenario, point], or None if there are no labels
+    """
+    if not labels:
+        return None
+    if isinstance(labels, str):
+        return [[labels]]
+    if isinstance(labels[0], str):
+        return [tp.cast("list[str]", labels)]
+    return tp.cast("list[list[str]]", labels)
 
 
 def log_figure(

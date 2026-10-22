@@ -70,6 +70,20 @@ def save_model_fig(fig: Figure, model: Model, name: str) -> None:
     save_fig(fig, Path(model.slug) / f"{model.slug}_{name}")
 
 
+def save_model_html(html: str, model: Model, name: str) -> Path:
+    """Save an HTML figure of a model as ``html/SLUG/SLUG_NAME.html`` in the figure directory.
+
+    :param html: HTML of the figure, e.g. from :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`
+    :param model: Model of the figure
+    :param name: Name of the figure
+    :return: Path of the saved file
+    """
+    path = FIG_DIR / "html" / model.slug / f"{model.slug}_{name}.html"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(html, encoding="utf-8")
+    return path
+
+
 def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> None:
     """Save an SVG HttpResponse in a file"""
     path = Path(path)

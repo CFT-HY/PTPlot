@@ -29,6 +29,8 @@ class SNRColumn:
     snr: th.FloatArr1D
     #: $\mathcal{H}_* \eta_\text{sh}$ for each $y$
     shock_times: th.FloatArr1D
+    #: Power spectra $h^2 \Omega_\text{gw,0}$ [y, f] at the frequencies of the noise curve
+    spectra: th.FloatArr2D
     #: Records of the computed spectra for exporting, if an extractor was given
     records: list[Record] = dataclasses.field(default_factory=list)
 
@@ -93,7 +95,8 @@ def snr_column_ssm(
         :py:class:`~ptplot.science.spectrum.ssm.SSMSettings`.
         The ``n_z_lookup`` of the shared spectrum is scaled from it, see
         :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.settings_covering`.
-    :return: SNR values, $\mathcal{H}_* \eta_\text{sh}$ values and the records of the spectra
+    :return: SNR values, $\mathcal{H}_* \eta_\text{sh}$ values,
+        power spectra at the frequencies of the noise curve, and the records of the spectra
     :raises ValueError: If $x$ is not a scalar
     """
     noise = resolve_noise(noise)
@@ -107,7 +110,11 @@ def snr_column_ssm(
 
     x_name = "ubarf" if ubarf_rstar else "alpha"
     y_name = "r_star" if ubarf_rstar else "beta_tilde"
-    column = SNRColumn(snr=np.full(y.size, np.nan), shock_times=np.full(y.size, np.nan))
+    column = SNRColumn(
+        snr=np.full(y.size, np.nan),
+        shock_times=np.full(y.size, np.nan),
+        spectra=np.full((y.size, noise.f.size), np.nan)
+    )
     try:
         alpha_n, _ubarf = PowerSpectrumSSM.validate_alpha_ubarf_static(
             alpha=None if ubarf_rstar else x_value,
@@ -186,7 +193,7 @@ def snr_column_ssm(
                 r_star=y_i if ubarf_rstar else None
             )
             # Error logging is handled in this function
-            _power_spectrum, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
+            omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
             shock_time = spectrum.H_star_eta_sh
         except Exception as exc:
             logger.exception(
@@ -197,6 +204,7 @@ def snr_column_ssm(
             continue
         column.snr[i] = snr
         column.shock_times[i] = shock_time
+        column.spectra[i] = omgw0_h2
         if extractor is not None:
             record = extract_record(spectrum, extractor)
             if record is not None:

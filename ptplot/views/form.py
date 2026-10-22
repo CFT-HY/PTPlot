@@ -8,7 +8,7 @@ from django.shortcuts import render
 from ptplot.forms import MultipleForm, ParameterChoiceForm, PTPlotForm
 from ptplot.methods import fig_to_response, get_object_or_404_related
 from ptplot.models import Model
-from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_NAMES
@@ -45,7 +45,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
 
             label_list_final = [labels] if len(labels) == read_lines else None
 
-            fig = snr_figure_alpha_beta(
+            fig = SNRFigureAlphaBeta(
                 grid=SNRGridAlphaBeta(
                     v_wall=form.cleaned_data["v_wall"],
                     T_star=form.cleaned_data["T_star"],
@@ -58,7 +58,7 @@ def multiple(request: HttpRequest) -> HttpResponse:
                     engine=form.cleaned_data["engine"],
                     legacy_nucleation_cs_max=form.cleaned_data["legacy_nucleation_cs_max"]
                 )
-            )
+            ).matplotlib()
             return fig_to_response(fig)
     # Form not valid or not filled out
     return render(request, "multiple.html", {"form": MultipleForm()})

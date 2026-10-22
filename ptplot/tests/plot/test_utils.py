@@ -8,7 +8,7 @@ from matplotlib.transforms import Bbox
 import numpy as np
 import pytest
 
-from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, has_lines
+from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, has_lines, latex_to_html
 
 #: Tick label formats that result in plot areas of different sizes
 TICK_LABEL_FORMATS: tuple[str, ...] = ("{:.0f}", "{:.10f}", "{:.30f}")
@@ -93,3 +93,14 @@ def test_has_lines() -> None:
     z = np.outer(np.arange(3), np.ones(3))
     assert has_lines(ax.contour(z, levels=[1.5]))
     assert not has_lines(ax.contour(z, levels=[10.]))
+
+
+@pytest.mark.parametrize(("text", "expected"), [
+    ("SUSY$_1$", "SUSY<sub>1</sub>"),
+    ("$x_{ab}^2$ and $y^{-1}$", "x<sub>ab</sub><sup>2</sup> and y<sup>-1</sup>"),
+    ("No math <b>", "No math &lt;b&gt;"),
+    ("Price $5", "Price $5"),
+])
+def test_latex_to_html(text: str, expected: str) -> None:
+    """The subscripts and superscripts of LaTeX math should be converted to HTML, and the rest escaped."""
+    assert latex_to_html(text) == expected

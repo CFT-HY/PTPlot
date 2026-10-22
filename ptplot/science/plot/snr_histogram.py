@@ -59,7 +59,7 @@ def snr_histogram(
     snr = np.empty((alpha_n.size, len(engines)))
     for i_engine, engine in enumerate(engines):
         for i_point in range(alpha_n.size):
-            snr[i_point, i_engine], _, record = snr_point(
+            snr[i_point, i_engine], _, point_spectrum = snr_point(
                 x=alpha_n[i_point],
                 y=beta_tilde[i_point],
                 T_star=T_star[i_point],
@@ -73,7 +73,7 @@ def snr_histogram(
                 ssm_settings=ssm_settings
             )
             if exporter is not None:
-                export_records(exporter, (record,))
+                export_records(exporter, (point_spectrum.record,))
 
     snr_finite = np.isfinite(snr)
     snr[~snr_finite] = np.nan

@@ -18,10 +18,10 @@ from ptplot.models.const import NAME_MAX_LENGTH
 from ptplot.models.fields import LatexFloatField
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_histogram import snr_histogram
-from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
@@ -259,11 +259,11 @@ class Model(models.Model):
         :param filled: Whether to fill the contour plot
         :return: SNR figure
         """
-        return snr_figure_alpha_beta(
+        return SNRFigureAlphaBeta(
             grid=self.snr_grid_alpha_beta() if grid is None else grid,
             huge_alpha=self.huge_alpha,
             filled=filled
-        )
+        ).matplotlib()
 
     def snr_figure_ubarf_rstar(
             self,
@@ -275,11 +275,11 @@ class Model(models.Model):
         :param filled: Whether to fill the contour plot
         :return: SNR figure
         """
-        return snr_figure_ubarf_rstar(
+        return SNRFigureUbarfRStar(
             grid=self.snr_grid_ubarf_rstar() if grid is None else grid,
             huge_alpha=self.huge_alpha,
             filled=filled
-        )
+        ).matplotlib()
 
     def snr_grid_alpha_beta(
             self,

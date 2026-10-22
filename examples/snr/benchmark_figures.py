@@ -9,6 +9,11 @@ e.g. ``python -m examples.snr.benchmark_figures susy composite``, or to :py:func
 The output files of the spectra and the statistics then have the slugs as a suffix in their names,
 so that they don't overwrite those of the full run.
 
+In addition to the static figures, interactive versions of the SNR figures are saved as HTML files
+in the ``html`` subdirectory of the figure directory, see :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`.
+Clicking on the SNR plot of an interactive figure shows the power spectrum at that point.
+The spectra are those that were computed for the SNR grids, and they are embedded in the HTML files.
+
 The computed spectra are exported to the HDF5 file ``benchmark_spectra.h5`` in the figure directory
 with :py:class:`pttools.export.exporter.Exporter`.
 The spectra of the SNR grids are exported only for the engines of :py:data:`EXPORT_ENGINES`,
@@ -34,7 +39,7 @@ import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter, Preset
 
-from examples.utils import FIG_DIR, save_model_fig
+from examples.utils import FIG_DIR, save_model_fig, save_model_html
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -43,6 +48,8 @@ if __name__ == "__main__":
 from ptplot.methods import n_workers
 from ptplot.models import Model
 from ptplot.science import const
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
+from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum import Engine
 
@@ -135,6 +142,10 @@ def create_figures(  # noqa: PLR0915
                 save_model_fig(snr_ab_fig, model, f"snr_alpha_beta_{engine}")
                 snr_ab_fig2 = model.snr_figure_alpha_beta(grid=snr_ab, filled=True)
                 save_model_fig(snr_ab_fig2, model, f"snr_alpha_beta_{engine}_filled")
+                save_model_html(
+                    SNRFigureAlphaBeta(grid=snr_ab, huge_alpha=model.huge_alpha).plotly_html(),
+                    model, f"snr_alpha_beta_{engine}"
+                )
             except Exception as exc:
                 logger.exception("Failed to plot snr_alpha_beta for %s", model.name, exc_info=exc)
 
@@ -150,6 +161,10 @@ def create_figures(  # noqa: PLR0915
                 save_model_fig(snr_ur_fig, model, f"snr_ubarf_rstar_{engine}")
                 snr_ur_fig2 = model.snr_figure_ubarf_rstar(grid=snr_ur, filled=True)
                 save_model_fig(snr_ur_fig2, model, f"snr_ubarf_rstar_{engine}_filled")
+                save_model_html(
+                    SNRFigureUbarfRStar(grid=snr_ur, huge_alpha=model.huge_alpha).plotly_html(),
+                    model, f"snr_ubarf_rstar_{engine}"
+                )
             except Exception as exc:
                 logger.exception("Failed to plot snr_ubarf_rstar for %s", model.name, exc_info=exc)
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time

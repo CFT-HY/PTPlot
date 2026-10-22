@@ -1,6 +1,7 @@
 """Signal-to-noise ratio calculations for gravitational wave spectra."""
 
 from collections.abc import Iterable
+import dataclasses
 import logging
 import typing as tp
 
@@ -13,8 +14,23 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import SSMSettings
+from ptplot.science.type_hints import FloatArr1D
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+@dataclasses.dataclass(slots=True)
+class SNRPointSpectrum:
+    """The power spectrum of a single point of an SNR grid, and its record for exporting.
+
+    This is a class instead of a tuple,
+    so that :py:func:`pttools.speedup.parallel.run_parallel` can store it in an object array as is.
+    """
+
+    #: Power spectrum $h^2 \Omega_\text{gw,0}$ at the frequencies of the noise curve, NaN if the computation failed
+    omgw0_h2: FloatArr1D
+    #: Record of the spectrum for exporting, if an extractor was given and the extraction succeeded
+    record: Record | None = None
 
 
 def snr_point(
@@ -31,7 +47,7 @@ def snr_point(
         parallel: bool = True,
         legacy_nucleation_cs_max: bool = False,
         extractor: Extractor | None = None,
-        ssm_settings: SSMSettings | None = None) -> tuple[float, float, Record | None]:
+        ssm_settings: SSMSettings | None = None) -> tuple[float, float, SNRPointSpectrum]:
     r"""Compute the SNR value of a single point in the parameter space.
 
     :param x: $\alpha$ or $\bar{U}_f$
@@ -52,7 +68,9 @@ def snr_point(
         If given, the fields of the spectrum are extracted for exporting,
         see :py:meth:`ptplot.science.spectrum.base.PowerSpectrum.record`.
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
-    :return: SNR, $\mathcal{H}_* \eta_\text{sh}$ and the record of the spectrum.
+    :return: SNR, $\mathcal{H}_* \eta_\text{sh}$, and the power spectrum $h^2 \Omega_\text{gw,0}$
+        at the frequencies of the noise curve with the record of the spectrum.
+        If the computation fails, the values and the spectrum are NaN.
         The record is None if the extractor is not given, if the engine does not support exporting,
         or if the computation or the extraction failed.
     """
@@ -73,7 +91,7 @@ def snr_point(
             **kwargs
         )
         # Error logging is handled in this function
-        _power_spectrum, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
+        omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
         shock_time = spectrum.H_star_eta_sh
     except Exception as exc:
         logger.exception(
@@ -84,8 +102,11 @@ def snr_point(
             T_star, g_star, v_wall, noise, engine, adiabatic_index,
             exc_info=exc
         )
-        return np.nan, np.nan, None
-    return snr, shock_time, None if extractor is None else extract_record(spectrum, extractor)
+        return np.nan, np.nan, SNRPointSpectrum(omgw0_h2=np.full(noise.f.size, np.nan))
+    return snr, shock_time, SNRPointSpectrum(
+        omgw0_h2=omgw0_h2,
+        record=None if extractor is None else extract_record(spectrum, extractor)
+    )
 
 
 def extract_record(spectrum: PowerSpectrum, extractor: Extractor) -> Record | None:

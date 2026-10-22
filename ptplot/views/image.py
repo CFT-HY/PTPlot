@@ -6,8 +6,8 @@ from ptplot.forms import PTPlotForm
 from ptplot.methods import fig_to_response
 from ptplot.science.plot.bubble import bubble_v_figure, bubble_w_figure
 from ptplot.science.plot.ps import power_spectrum_figure
-from ptplot.science.plot.snr_alpha_beta import snr_figure_alpha_beta
-from ptplot.science.plot.snr_ubarf_rstar import snr_figure_ubarf_rstar
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
+from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.spectrum.create import power_spectrum
@@ -88,7 +88,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
         return validated
     form = validated.form
 
-    return fig_to_response(fig=snr_figure_alpha_beta(
+    return fig_to_response(fig=SNRFigureAlphaBeta(
         grid=SNRGridAlphaBeta(
             v_wall=form.cleaned_data["v_wall"],
             T_star=form.cleaned_data["T_star"],
@@ -103,7 +103,7 @@ def snr_alpha_beta(request: HttpRequest) -> HttpResponse:
             ssm_settings=validated.ssm_settings,
             axes=validated.axes
         )
-    ))
+    ).matplotlib())
 
 
 def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
@@ -116,7 +116,7 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
         return validated
     form = validated.form
 
-    return fig_to_response(fig=snr_figure_ubarf_rstar(
+    return fig_to_response(fig=SNRFigureUbarfRStar(
         grid=SNRGridUbarfRStar(
             v_wall=form.cleaned_data["v_wall"],
             T_star=form.cleaned_data["T_star"],
@@ -131,4 +131,4 @@ def snr_ubarf_rstar(request: HttpRequest) -> HttpResponse:
             ssm_settings=validated.ssm_settings,
             axes=validated.axes
         )
-    ))
+    ).matplotlib())

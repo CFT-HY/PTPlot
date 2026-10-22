@@ -37,6 +37,8 @@ class SNRGridUbarfRStar(SNRGrid):
     Y_NAME = "r_star"
     X_LABEL = r"$\overline{U}_{\rm f}$"
     Y_LABEL = r"$r_* = H_{\rm n} R_*$"
+    X_LABEL_HTML = "Ū<sub>f</sub>"
+    Y_LABEL_HTML = "r<sub>*</sub> = H<sub>n</sub> R<sub>*</sub>"
 
     def __init__(
             self,

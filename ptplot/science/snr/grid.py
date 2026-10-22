@@ -29,6 +29,7 @@ from ptplot.science.spectrum.ssm import BAG, SSMSettings
 from ptplot.science.type_hints import (
     FloatArr1D,
     FloatArr2D,
+    FloatArr3D,
     FloatOrArrOrList1D2D,
     StrOrList,
     StrOrListOrNestedList,
@@ -65,7 +66,11 @@ class SNRGrid(ABC):  # noqa: B024
 
     The grid is computed when the object is created,
     so that the same grid can be reused for several figures.
-    The points to be drawn on top of the grid are stored here as well,
+    The power spectra $h^2 \Omega_\text{gw,0}$ of the grid points are stored in :py:attr:`spectra` [y, x, f]
+    at the frequencies :py:attr:`f` of the noise curve,
+    so that they can be shown in the interactive figures without recomputing them.
+    The spectra whose computation failed are NaN.
+    The points to be drawn on top of the grid are also stored here,
     since the grid ranges are derived from them.
     """
 
@@ -73,6 +78,10 @@ class SNRGrid(ABC):  # noqa: B024
     Y_NAME: tp.ClassVar[str] = "y"
     X_LABEL: tp.ClassVar[str] = "$x$"
     Y_LABEL: tp.ClassVar[str] = "$y$"
+    #: Label of the x-axis as HTML, e.g. for Plotly
+    X_LABEL_HTML: tp.ClassVar[str] = "x"
+    #: Label of the y-axis as HTML, e.g. for Plotly
+    Y_LABEL_HTML: tp.ClassVar[str] = "y"
 
     def __init__(
             self,
@@ -198,16 +207,18 @@ class SNRGrid(ABC):  # noqa: B024
             # to get the [y, x] indexing used by the other engines and by Matplotlib contours.
             self.snr: FloatArr2D = np.stack([column.snr for column in columns], axis=1)
             self.shock_times: FloatArr2D = np.stack([column.shock_times for column in columns], axis=1)
+            #: Power spectra $h^2 \Omega_\text{gw,0}$ [y, x, f] of the grid points at the frequencies :py:attr:`f`
+            self.spectra: FloatArr3D = np.stack([column.spectra for column in columns], axis=1)
             records = [record for column in columns for record in column.records]
         else:
-            self.snr, self.shock_times, records_arr = tp.cast(
+            self.snr, self.shock_times, point_spectra = tp.cast(
                 tuple[FloatArr2D, FloatArr2D, np.ndarray],
                 run_parallel(
                     func=snr_point,
                     params=v_wall_alpha_n_grid(v_walls=x, alpha_ns=y),  # This works also for ubarf and r_star
                     multiple_params=True,
                     unpack_params=True,
-                    # The third output is the record of the spectrum for exporting, or None.
+                    # The third output is the power spectrum and its record for exporting.
                     output_dtypes=(np.float64, np.float64, object),
                     max_workers=max_workers,
                     single_thread=True,
@@ -220,9 +231,17 @@ class SNRGrid(ABC):  # noqa: B024
                     }
                 )
             )
-            records = list(records_arr.flat)
+            self.spectra = np.stack([point.omgw0_h2 for point in point_spectra.flat]).reshape(
+                *point_spectra.shape, self.noise.f.size
+            )
+            records = [point.record for point in point_spectra.flat]
         if exporter is not None:
             export_records(exporter, records)
+
+    @property
+    def f(self) -> FloatArr1D:
+        """Frequencies of the power spectra in Hz, i.e. those of the noise curve."""
+        return self.noise.f
 
     @property
     def has_points(self) -> bool:

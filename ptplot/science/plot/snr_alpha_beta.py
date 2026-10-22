@@ -7,62 +7,38 @@ Inspired by Antoine Petiteau's ExampleUseSNR1.py v0.3 (May 2015).
 
 from pathlib import Path
 import sys
-
-from matplotlib.figure import Figure
-import numpy as np
+import typing as tp
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[3]))
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.logarithmic import add_points
-from ptplot.science.plot.snr import snr_figure
+from ptplot.science.plot.snr import SNRFigure
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
-import ptplot.science.type_hints as th
 
 
-@matplotlib_lock
-def snr_figure_alpha_beta(
-        grid: SNRGridAlphaBeta,
-        labels: th.StrOrListOrNestedList | None = None,
-        titles: th.StrOrList | None = None,
-        huge_alpha: bool = False,
-        filled: bool = False) -> Figure:
-    r"""Produce the $(\alpha_n, \beta/H)$ plot.
+class SNRFigureAlphaBeta(SNRFigure):
+    r"""SNR figure of $(\alpha_n, \beta/H)$."""
 
-    :param grid: Precomputed SNR grid
-    :param labels: Labels for the points, defaults to those of the grid
-    :param titles: Titles for the scenarios, defaults to those of the grid
-    :param huge_alpha: Whether $\alpha$ is very large
-    :param filled: Whether to fill the contour plot
-    :return: SNR figure of $(\alpha_n, \beta/H)$
-    """
-    log10_alpha_n_grid = np.log10(grid.alpha_n)
-    log10_beta_tilde_grid = np.log10(grid.beta_tilde)
-    alpha_mid = (log10_alpha_n_grid[0] + log10_alpha_n_grid[-1]) / 2
+    LABEL_WANTED_Y = 2.
 
-    fig, ax = snr_figure(
-        grid=grid,
-        shock_label_locs=[
-            (alpha_mid - 0.3 + 0.2 * i, float(y))
-            for i, y in enumerate(range(int(log10_beta_tilde_grid[0]), int(log10_beta_tilde_grid[-1]) + 1))
-        ],
-        label_wanted_y=2,
-        huge_alpha=huge_alpha,
-        filled=filled
-    )
-    if grid.has_points:
-        alpha_points, beta_tilde_points = grid.points()
-        add_points(
-            ax=ax,
-            x=alpha_points, y=beta_tilde_points,
-            labels=grid.labels_points if labels is None else labels,
-            titles=grid.titles if titles is None else titles
-        )
-    return fig
+    def __init__(self, grid: SNRGridAlphaBeta, **kwargs: tp.Any):
+        r"""Set up the SNR figure of $(\alpha_n, \beta/H)$.
+
+        :param grid: Precomputed SNR grid
+        :param kwargs: Arguments of :py:class:`~ptplot.science.plot.snr.SNRFigure`
+        """
+        super().__init__(grid=grid, **kwargs)
+
+    def default_shock_label_locs(self) -> list[tuple[float, float]]:
+        r"""Locations of the $\mathcal{H}_* \eta_\text{sh}$ contour labels in the Matplotlib figure.
+
+        :return: A label for each integer power of ten on the y-axis, staggered along the x-axis
+        """
+        x_mid = (self.x_log10[0] + self.x_log10[-1]) / 2
+        return [(x_mid - 0.3 + 0.2 * i, float(y)) for i, y in enumerate(self.y_decades())]
 
 
 def main() -> None:
@@ -74,13 +50,13 @@ def main() -> None:
     )
     args = parser.parse_args()
     noise = noise_curve(obs_years=args.obs_years, eb=args.noise_eb, gb=args.noise_gb)
-    fig = snr_figure_alpha_beta(
+    fig = SNRFigureAlphaBeta(
         grid=SNRGridAlphaBeta(
             v_wall=args.v_wall, T_star=args.Tstar, g_star=args.gstar,
             alpha_points=args.alpha, beta_tilde_points=args.BetaoverH,
             noise=noise, engine=args.engine
         )
-    )
+    ).matplotlib()
     print(fig_to_svg(fig).decode("utf-8"))
 
 

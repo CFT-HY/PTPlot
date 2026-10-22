@@ -1,0 +1,127 @@
+"""Tests for the SNR figures."""
+
+import base64
+import functools
+import json
+
+from django.test import TestCase
+from matplotlib.figure import Figure
+import numpy as np
+import plotly.graph_objects as go
+
+from ptplot.science import const
+from ptplot.science.plot.snr import PLOTLY_N_F, SNRFigure
+from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
+from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.snr.grid import GridAxes
+from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
+from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.type_hints import FloatArr1D
+from ptplot.science.utils import atleast_2d
+from ptplot.tests.const import TEST_GRID_SIZE
+
+#: Points of the test grids [scenario, point]
+ALPHA_POINTS: list[FloatArr1D] = [np.array([0.1, 0.2]), np.array([0.5])]
+BETA_TILDE_POINTS: list[FloatArr1D] = [np.array([100., 50.]), np.array([20.])]
+LABELS: list[list[str]] = [["A", "B"], ["C"]]
+TITLES: list[str] = ["Scenario 1", "Scenario 2"]
+
+
+@functools.cache
+def grids() -> tuple[SNRGridAlphaBeta, SNRGridUbarfRStar]:
+    """Small SNR grids with two scenarios of points."""
+    kwargs = {
+        "T_star": const.DEFAULT_T_STAR, "g_star": const.DEFAULT_G_STAR, "v_wall": const.DEFAULT_V_WALL,
+        "alpha_points": ALPHA_POINTS, "beta_tilde_points": BETA_TILDE_POINTS,
+        "v_wall_points": [np.full_like(points, const.DEFAULT_V_WALL) for points in ALPHA_POINTS],
+        "labels_points": LABELS, "titles": TITLES, "axes": GridAxes(size=TEST_GRID_SIZE),
+        "log_progress_percentage": None,
+    }
+    return SNRGridAlphaBeta(**kwargs), SNRGridUbarfRStar(**kwargs)
+
+
+def figures() -> list[SNRFigure]:
+    """SNR figures of the test grids, both with and without filling."""
+    grid_ab, grid_ur = grids()
+    return [
+        figure
+        for filled in (False, True)
+        for figure in (SNRFigureAlphaBeta(grid_ab, filled=filled), SNRFigureUbarfRStar(grid_ur, filled=filled))
+    ]
+
+
+def trace_by_uid(fig: go.Figure, uid: str) -> go.Scatter:
+    """Get the trace of a Plotly figure by its uid."""
+    return next(fig.select_traces(selector={"uid": uid}))
+
+
+class SNRFigureTest(TestCase):
+    """Tests for the SNR figures."""
+
+    @staticmethod
+    def test_matplotlib() -> None:
+        """The Matplotlib figures should be created."""
+        for figure in figures():
+            assert isinstance(figure.matplotlib(), Figure)
+
+    @staticmethod
+    def test_f_indices() -> None:
+        """The spectra should be subsampled to at most the given number of frequencies, including both ends."""
+        figure = figures()[0]
+        n_f_grid = figure.grid.f.size
+        for n_f in (10, PLOTLY_N_F, n_f_grid, 2 * n_f_grid):
+            indices = figure.f_indices(n_f)
+            assert indices.size == min(n_f, n_f_grid)
+            assert indices[0] == 0
+            assert indices[-1] == n_f_grid - 1
+            assert np.all(np.diff(indices) > 0)
+
+    @staticmethod
+    def test_plotly() -> None:
+        """The Plotly figure should show the points and the spectrum of the grid point nearest to the first point."""
+        for figure in figures():
+            fig = figure.plotly()
+            grid = figure.grid
+            point_traces = [trace for trace in fig.select_traces() if trace.name in TITLES]
+            assert [trace.name for trace in point_traces] == TITLES
+            assert [list(trace.text) for trace in point_traces] == LABELS
+
+            iy, ix = figure.initial_indices()
+            x_points, y_points = atleast_2d(*grid.points())
+            assert ix == np.abs(np.log10(grid.x) - np.log10(x_points[0][0])).argmin()
+            assert iy == np.abs(np.log10(grid.y) - np.log10(y_points[0][0])).argmin()
+            selected = trace_by_uid(fig, "selected")
+            assert selected.x[0] == figure.x_log10[ix]
+            assert selected.y[0] == figure.y_log10[iy]
+            spectrum = trace_by_uid(fig, "spectrum")
+            f_indices = figure.f_indices()
+            np.testing.assert_array_equal(spectrum.x, grid.f[f_indices])
+            np.testing.assert_array_equal(spectrum.y, grid.spectra[iy, ix, f_indices])
+
+    @staticmethod
+    def test_plotly_data() -> None:
+        """The embedded spectra should be the subsampled spectra of the grid as 32-bit floats in the [y, x, f] order."""
+        for figure in figures():
+            grid = figure.grid
+            n_f = 50
+            data = json.loads(json.dumps(figure.plotly_data(n_f)))
+            f_indices = figure.f_indices(n_f)
+            spectra = np.frombuffer(base64.b64decode(data["spectra"]), dtype="<f4")
+            np.testing.assert_array_equal(
+                spectra.reshape(grid.y.size, grid.x.size, f_indices.size),
+                grid.spectra[:, :, f_indices].astype(np.float32)
+            )
+            np.testing.assert_array_equal(data["f"], grid.f[f_indices])
+            np.testing.assert_array_equal(data["x"], grid.x)
+            np.testing.assert_array_equal(data["y"], grid.y)
+            np.testing.assert_array_equal(np.array(data["snr"], dtype=np.float64), grid.snr)
+
+    @staticmethod
+    def test_plotly_html() -> None:
+        """The HTML should contain the figure, the data of the grid and the script that handles the clicks."""
+        for figure in figures():
+            html = figure.plotly_html(full_html=False, include_plotlyjs=False)
+            assert "plotly_click" in html
+            assert figure.plotly_data()["spectra"] in html
+            assert "__DATA__" not in html
+            assert "{plot_id}" not in html
