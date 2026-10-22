@@ -14,6 +14,7 @@ from ptplot.science.plot.utils import save_html
 
 if tp.TYPE_CHECKING:
     from ptplot.models import Model
+    from ptplot.science.snr.grid import SNRGrid
 
 EXAMPLES_DIR: Path = Path(__file__).resolve().parent
 PROJECT_DIR: Path = EXAMPLES_DIR.parent
@@ -72,17 +73,16 @@ def save_model_fig(
         model: "Model",
         name: str,
         fig_dir: str | os.PathLike[str] = FIG_DIR,
-        model_dir: bool = True) -> None:
-    """Save a figure of a model as ``FIG_DIR/FORMAT/SLUG/SLUG_NAME.FORMAT``.
+        subdir: str | None = None) -> None:
+    """Save a figure of a model as ``FIG_DIR/FORMAT/SUBDIR/SLUG_NAME.FORMAT``.
 
     :param fig: Figure to save
     :param model: Model of the figure
     :param name: Name of the figure
     :param fig_dir: Figure directory
-    :param model_dir: Whether to save the figure in a subdirectory of the model
+    :param subdir: Subdirectory within the directory of each format, defaults to the slug of the model
     """
-    path = Path(f"{model.slug}_{name}")
-    save_fig(fig, Path(model.slug) / path if model_dir else path, fig_dir=fig_dir)
+    save_fig(fig, Path(model.slug if subdir is None else subdir) / f"{model.slug}_{name}", fig_dir=fig_dir)
 
 
 def save_model_html(
@@ -90,20 +90,40 @@ def save_model_html(
         model: "Model",
         name: str,
         fig_dir: str | os.PathLike[str] = FIG_DIR,
-        model_dir: bool = True) -> Path:
-    """Save an HTML figure of a model as ``FIG_DIR/html/SLUG/SLUG_NAME.html``.
+        subdir: str | None = None) -> Path:
+    """Save an HTML figure of a model as ``FIG_DIR/html/SUBDIR/SLUG_NAME.html``.
 
     :param html: HTML of the figure, e.g. from :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`
     :param model: Model of the figure
     :param name: Name of the figure
     :param fig_dir: Figure directory
-    :param model_dir: Whether to save the figure in a subdirectory of the model
+    :param subdir: Subdirectory within the directory of the HTML files, defaults to the slug of the model
     :return: Path of the saved file
     """
-    html_dir = Path(fig_dir) / "html"
-    if model_dir:
-        html_dir /= model.slug
+    html_dir = Path(fig_dir) / "html" / (model.slug if subdir is None else subdir)
     return save_html(html, html_dir / f"{model.slug}_{name}.html")
+
+
+def save_snr_figures(
+        model: "Model",
+        grid: "SNRGrid",
+        name: str,
+        fig_dir: str | os.PathLike[str] = FIG_DIR,
+        subdir: str | None = None) -> None:
+    """Save the SNR figures of a grid of a model, both unfilled and filled, and the interactive HTML figure.
+
+    :param model: Model of the grid
+    :param grid: SNR grid
+    :param name: Name of the figures
+    :param fig_dir: Figure directory
+    :param subdir: Subdirectory within the directory of each format, defaults to the slug of the model
+    """
+    figure = model.snr_figure(grid)
+    save_model_fig(figure.matplotlib(), model, name, fig_dir=fig_dir, subdir=subdir)
+    save_model_fig(
+        model.snr_figure(grid, filled=True).matplotlib(), model, f"{name}_filled", fig_dir=fig_dir, subdir=subdir
+    )
+    save_model_html(figure.plotly_html(), model, name, fig_dir=fig_dir, subdir=subdir)
 
 
 def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> None:

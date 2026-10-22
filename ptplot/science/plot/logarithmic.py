@@ -11,8 +11,9 @@ from ptplot.science.plot.ticks import add_ticks
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d
 
-#: Markers of the highlighted points, see :py:func:`add_highlights`
-HIGHLIGHT_MARKERS: tuple[str, ...] = ("*", "D", "P", "X", "s")
+#: Markers of the highlighted points, see :py:func:`add_highlights`.
+#: These have the same shape and therefore the same visual size.
+HIGHLIGHT_MARKERS: tuple[str, ...] = ("^", "v", "<", ">")
 
 
 def add_points(

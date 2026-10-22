@@ -92,3 +92,22 @@ class PowerSpectrumTest(TestCase):
         assert spectrum.beta_tilde == pytest.approx(reference.beta_tilde)
         # The r_* of the point is given, so beta/H_* differs from that of the point for another v_wall.
         assert spectrum.beta_tilde != pytest.approx(100)
+
+    @staticmethod
+    def test_v_wall() -> None:
+        r"""The $v_\text{wall}$ should override that of the point, also in the conversion of $\beta/H_*$ to $r_*$."""
+        p = point()
+        spectrum = p.power_spectrum(v_wall=0.5)
+        reference = power_spectrum(v_wall=0.5, alpha=0.1, beta_tilde=100, T_star=100, g_star=100)
+        assert (spectrum.v_wall, spectrum.beta_tilde) == pytest.approx((0.5, 100))
+        assert spectrum.r_star == pytest.approx(reference.r_star)
+        assert spectrum.r_star != pytest.approx(p.power_spectrum().r_star)
+
+
+def test_figure_title() -> None:
+    r"""The title should contain $v_\text{wall}$ only if requested."""
+    p = point()
+    assert p.title == p.figure_title()
+    assert r"v_\mathrm{w}" in p.title
+    assert p.figure_title(v_wall=False) == p.title.replace(r"$v_\mathrm{w} = 0.9$, ", "")
+    assert r"v_\mathrm{w}" not in p.figure_title(v_wall=False)

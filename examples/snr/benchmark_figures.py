@@ -39,20 +39,20 @@ import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter, Preset
 
-from examples.utils import FIG_DIR, save_model_fig, save_model_html
+from examples.utils import FIG_DIR, save_model_fig, save_snr_figures
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
     setup_django()
 
-from ptplot.methods import log_exceptions, n_workers
+from ptplot.methods import n_workers
 from ptplot.models import Model
 from ptplot.science import const
 from ptplot.science.plot.snr_comparison import snr_comparison
-from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import SNRGridComparison, engine_comparisons
 from ptplot.science.spectrum import Engine
+from ptplot.science.utils import log_exceptions
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -216,19 +216,6 @@ def get_slugs(slugs: str | Iterable[str] | None) -> list[str] | None:
             f"Available slugs: {', '.join(Model.objects.order_by('slug').values_list('slug', flat=True))}"
         )
     return slugs
-
-
-def save_snr_figures(model: Model, grid: SNRGrid, name: str) -> None:
-    """Save the SNR figures of a grid of a model, both unfilled and filled, and the interactive HTML figure.
-
-    :param model: Model of the grid
-    :param grid: SNR grid
-    :param name: Name of the figures
-    """
-    figure = model.snr_figure(grid)
-    save_model_fig(figure.matplotlib(), model, name)
-    save_model_fig(model.snr_figure(grid, filled=True).matplotlib(), model, f"{name}_filled")
-    save_model_html(figure.plotly_html(), model, name)
 
 
 def main(slugs: str | Iterable[str] | None = None) -> None:

@@ -10,4 +10,5 @@ from .create import *
 from .engine import *
 from .engines import *
 from .gh21dbpl import *
+from .lattice import *
 from .ssm import *

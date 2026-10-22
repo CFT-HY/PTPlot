@@ -16,42 +16,37 @@ The histograms of the SNR values of the points include all the engines.
 
 The points whose $\alpha_n$ is closest to those of the lattice simulations of :correia_2025:`\ `
 (see :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`) are highlighted in the SNR figures.
-For each of these points, the GW power spectrum of the last time step of the simulation
-and that of the simulation scaled to its asymptote
-(see :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw_scaled_to_asymptote`)
-are compared to the spectra of the engines.
-All the spectra are given the $r_*$ of the point, and the spectra of the engines the $v_\text{wall}$ of the simulation.
-The other parameters are those of the point.
+For each of these points, the GW power spectra of the simulation are compared to those of the engines,
+see :py:func:`ptplot.science.plot.lattice.lattice_figure`.
 The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
 
-The static figures are saved in the ``singlets`` subdirectory of the figure directory,
-and the interactive versions of the SNR figures of all the engines as HTML files in its ``html`` subdirectory,
-see :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`.
+The figures are saved in the ``singlets`` subdirectory of the directory of each file format,
+e.g. ``png/singlets``, and the interactive versions of the SNR figures of all the engines as HTML files
+in ``html/singlets``, see :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`.
 The settings can be changed with the command-line arguments, see ``python -m examples.snr.singlets --help``,
 or with the arguments of :py:func:`main`.
 """
 
 import argparse
 import logging
-from pathlib import Path
 
 from matplotlib.figure import Figure
-from pttools.lattice import CHRW25_RUNS, LatticeRun, load_chrw25_runs
-from pttools.math import as_latex
+from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
 
-from examples.utils import FIG_DIR, save_model_fig, save_model_html
+from examples.utils import save_model_fig, save_model_html
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
     setup_django()
 
-from ptplot.methods import Statistic, log_exceptions, n_workers
-from ptplot.models import Model, ParameterChoice
-from ptplot.science.plot.ps import SpectrumCurve, power_spectrum_figure
+from ptplot.methods import Statistic, n_workers
+from ptplot.models import Model
+from ptplot.science.plot.lattice import lattice_figures
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_comparison import engine_comparisons
 from ptplot.science.spectrum import Engine
+from ptplot.science.utils import log_exceptions
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -59,8 +54,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 SLUGS: tuple[str, ...] = ("singlet_jonathan", "singlet_jonathan_z2")
 #: Engines whose SNR figures are drawn as the subplots of a single figure
 GRID_ENGINES: tuple[Engine, ...] = (Engine.CosWG20bpl, Engine.GH21dbpl, Engine.CosWG24dbpl, Engine.SSM)
-#: Directory of the figures
-SINGLETS_DIR: Path = FIG_DIR / "singlets"
+#: Subdirectory of the figures within the directory of each file format
+SUBDIR: str = "singlets"
 #: Default maximum $\alpha_n$ of the $(\alpha_n, \beta/H_*)$ figures
 ALPHA_N_MAX: float = 1.
 
@@ -97,7 +92,7 @@ def create_figures(
                 grids[name][engine] = grid
                 save_model_html(
                     model.snr_figure(grid, highlights=highlights).plotly_html(), model, f"{name}_{engine}",
-                    fig_dir=SINGLETS_DIR, model_dir=False
+                    subdir=SUBDIR
                 )
 
     for name, name_grids in grids.items():
@@ -124,56 +119,6 @@ def create_figures(
         save(model.snr_histogram(engines=engines), model, "snr_histogram")
 
 
-def lattice_figure(point: ParameterChoice, run: LatticeRun, engines: list[Engine]) -> Figure:
-    r"""Compare the GW power spectra of a lattice simulation to those of the engines at a point.
-
-    The spectra are given the $r_*$ of the point, and the spectra of the engines the $v_\text{wall}$ of the simulation.
-
-    :param point: Point whose parameters are used
-    :param run: Lattice simulation
-    :param engines: Engines whose spectra are drawn
-    :return: Power spectrum figure
-    """
-    r_star = point.power_spectrum().r_star
-    spectrum = run.spectrum(run.last_step(), r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value)
-    f = spectrum.f()
-    curves = [
-        SpectrumCurve(f=f, omgw0_h2=spectrum.omgw0_h2(), label=f"Lattice, {spectrum.label_latex}"),
-        SpectrumCurve(
-            f=f,
-            omgw0_h2=spectrum.F_gw0_h2() * spectrum.pow_gw_scaled_to_asymptote(step_end=spectrum.step),
-            label=f"Lattice, {run.name}, asymptotic",
-            linestyle="--"
-        ),
-    ]
-    spectra = [
-        point.power_spectrum(engine=engine, v_wall=run.v_wall, beta_tilde=None, r_star=r_star)
-        for engine in engines
-    ]
-    return power_spectrum_figure(
-        spectra,
-        curves=curves,
-        # The legend has many entries, and is therefore placed above the spectra.
-        ylim=(1e-16, 1e-6),
-        title=f"{point.model.name}, point {point.number}\n{point.title}\n"
-              rf"{run.label_latex}, $r_* = {as_latex(r_star)}$"
-    )
-
-
-def lattice_figures(model: Model, runs: dict[str, LatticeRun], lattice_coswg24bpl: bool = True) -> None:
-    """Create the power spectrum figures of the points of a model that are closest to the lattice simulations.
-
-    :param model: Model whose points are used
-    :param runs: Lattice simulations with the keys of :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`
-    :param lattice_coswg24bpl: Whether to include CosWG24bpl in the engines
-    """
-    engines = [engine for engine in Engine.engines(fast=True) if lattice_coswg24bpl or engine != Engine.CosWG24bpl]
-    for name, run in runs.items():
-        with log_exceptions(logger, "Failed to plot the lattice spectra of %s for %s", name, model.name):
-            point = model.closest_point(CHRW25_RUNS[name].alpha_n)
-            save(lattice_figure(point, run, engines), model, f"lattice_{name}")
-
-
 def lattice_highlights(model: Model) -> dict[str, int]:
     r"""Find the points of a model whose $\alpha_n$ is closest to those of the lattice simulations.
 
@@ -187,8 +132,8 @@ def lattice_highlights(model: Model) -> dict[str, int]:
 
 
 def save(fig: Figure, model: Model, name: str) -> None:
-    """Save a figure of a model in :py:data:`SINGLETS_DIR`."""
-    save_model_fig(fig, model, name, fig_dir=SINGLETS_DIR, model_dir=False)
+    """Save a figure of a model in the subdirectory :py:data:`SUBDIR` of the directory of each file format."""
+    save_model_fig(fig, model, name, subdir=SUBDIR)
 
 
 def main(
@@ -210,6 +155,9 @@ def main(
     max_workers = n_workers()
     logger.info("Creating the singlet figures with %d parallel workers.", max_workers)
     runs = load_chrw25_runs(missing_ok=True)
+    lattice_engines = [
+        engine for engine in Engine.engines(fast=True) if lattice_coswg24bpl or engine != Engine.CosWG24bpl
+    ]
     for model in Model.objects.filter(slug__in=SLUGS).prefetch_related("points"):
         logger.info("##### Processing model: %s", model.name)
         create_figures(
@@ -219,7 +167,8 @@ def main(
             histogram_coswg24bpl=histogram_coswg24bpl,
             max_workers=max_workers
         )
-        lattice_figures(model, runs, lattice_coswg24bpl=lattice_coswg24bpl)
+        for name, fig in lattice_figures(model, runs, engines=lattice_engines).items():
+            save(fig, model, f"lattice_{name}")
 
 
 if __name__ == "__main__":

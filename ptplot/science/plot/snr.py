@@ -64,6 +64,14 @@ PLOTLY_N_F: int = 100
 #: ``{plot_id}`` is replaced by Plotly with the id of the figure, and ``__DATA__`` with the data of the grid,
 #: see :py:meth:`SNRFigure.plotly_data`.
 PLOTLY_SCRIPT: str = (Path(__file__).parent / "snr_plotly.js").read_text(encoding="utf-8")
+#: Plotly symbols of the markers of the highlighted points,
+#: see :py:data:`ptplot.science.plot.logarithmic.HIGHLIGHT_MARKERS`
+PLOTLY_HIGHLIGHT_SYMBOLS: dict[str, str] = {
+    "^": "triangle-up",
+    "v": "triangle-down",
+    "<": "triangle-left",
+    ">": "triangle-right",
+}
 #: Range of $\mathcal{H}_* \eta_\text{sh}$ of the shaded region, where turbulence may be significant
 TURBULENCE_RANGE: tuple[float, float] = (1e-4, 1)
 
@@ -187,12 +195,18 @@ class SNRFigure:
         return range(int(self.y_log10[0]), int(self.y_log10[-1]) + 1)
 
     @matplotlib_lock
-    def matplotlib(self, fig: Figure | None = None, ax: Axes | None = None) -> Figure:
+    def matplotlib(
+            self,
+            fig: Figure | None = None,
+            ax: Axes | None = None,
+            engine_in_label: bool = True) -> Figure:
         """Create the SNR figure with Matplotlib.
 
         :param fig: Figure of the axes, see :py:func:`ptplot.science.plot.logarithmic.log_figure`
         :param ax: Axes to draw on, e.g. a subplot of a larger figure, see :py:func:`snr_figure_grid`.
             If not given, a new figure is created, and the watermark is added to it.
+        :param engine_in_label: Whether to show the engine as the subscript of the label of the color scale
+            of a filled figure. This can be disabled if the engine is shown elsewhere, e.g. in the title.
         :return: Matplotlib figure
         """
         grid = self.grid
@@ -214,7 +228,7 @@ class SNRFigure:
                 fig.colorbar(
                     contour,
                     ax=ax,
-                    label=rf"$\text{{SNR}}_{{{grid.engine}}}$"
+                    label=rf"$\text{{SNR}}_{{{grid.engine}}}$" if engine_in_label else "SNR"
                 )
             else:
                 contour = ax.contour(
@@ -519,9 +533,7 @@ class SNRFigure:
         x_flat, y_flat = flat_points(*self.grid.points())
         for i, (label, index) in enumerate(self.highlights.items()):
             # The Plotly marker symbols corresponding to those of Matplotlib
-            symbol = {"*": "star", "D": "diamond", "P": "cross", "X": "x", "s": "square"}[
-                HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)]
-            ]
+            symbol = PLOTLY_HIGHLIGHT_SYMBOLS[HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)]]
             fig.add_trace(go.Scatter(
                 x=[np.log10(x_flat[index])], y=[np.log10(y_flat[index])],
                 mode="markers",
@@ -584,6 +596,7 @@ def snr_figure_grid(
     with rc_context(const.DEFAULT_RC_CONTEXT):
         fig, axs = subplot_grid(len(figures), ncols=ncols)
         for figure, ax in zip(figures, axs, strict=True):
-            figure.matplotlib(fig=fig, ax=ax)
+            # The titles of the subplots show the engines.
+            figure.matplotlib(fig=fig, ax=ax, engine_in_label=False)
         add_subplot_titles(fig, axs, titles)
     return fig

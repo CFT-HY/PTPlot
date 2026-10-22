@@ -6,7 +6,10 @@ import typing as tp
 
 from pttools.utils import IS_GITHUB_ACTIONS
 
-if tp.TYPE_CHECKING:
+import ptplot.science.type_hints as th
+
+# The module annotations are evaluated by the documentation tools, and therefore the import is needed for them too.
+if th.TYPE_CHECKING_OR_DOCS:
     from ptplot.science.spectrum.base import PowerSpectrum
 
 logger: logging.Logger = logging.getLogger(__name__)

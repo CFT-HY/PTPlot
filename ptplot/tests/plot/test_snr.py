@@ -237,6 +237,20 @@ class SNRFigureHighlightTest(TestCase):
         ]
 
 
+def colorbar_labels(fig: Figure) -> list[str]:
+    """Labels of the color scales of a figure, i.e. of its axes that have no title."""
+    return [ax.get_ylabel() for ax in fig.get_axes() if not ax.get_title() and not ax.get_xlabel()]
+
+
+def test_colorbar_label() -> None:
+    """The engine should be in the label of the color scale, unless it's in the titles of the subplots."""
+    filled = [figure for figure in figures() if figure.filled]
+    for figure in filled:
+        assert colorbar_labels(figure.matplotlib()) == [rf"$\text{{SNR}}_{{{figure.grid.engine}}}$"]
+        assert colorbar_labels(figure.matplotlib(engine_in_label=False)) == ["SNR"]
+    assert colorbar_labels(snr_figure_grid(filled)) == ["SNR"] * len(filled)
+
+
 def test_decade_label() -> None:
     """The tick labels should be powers of ten, except 1 for 10^0, as on the logarithmic axes of Plotly."""
     assert decade_label(-2) == "10<sup>-2</sup>"

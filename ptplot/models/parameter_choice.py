@@ -134,13 +134,7 @@ class ParameterChoice(models.Model):
     @property
     def title(self) -> str:
         r"""Title of the figures of this point, containing $\alpha$, $\beta/H_*$, $v_\text{wall}$, $T_*$ and $g_*$."""
-        return ", ".join([
-            rf"$\alpha = {as_latex(self.alpha)}$",
-            rf"$\beta/H_* = {as_latex(self.beta_tilde)}$",
-            rf"$v_\mathrm{{w}} = {as_latex(self.v_wall_value)}$",
-            rf"$T_* = {as_latex(self.T_star_value)}$ GeV",
-            rf"$g_* = {as_latex(self.g_star_value)}$",
-        ])
+        return self.figure_title()
 
     @property
     def T_star_value(self) -> float:
@@ -202,15 +196,32 @@ class ParameterChoice(models.Model):
             raise ValueError("Got no CSV data.")
         return csv
 
+    def figure_title(self, v_wall: bool = True) -> str:
+        r"""Title of the figures of this point, containing $\alpha$, $\beta/H_*$, $v_\text{wall}$, $T_*$ and $g_*$.
+
+        :param v_wall: Whether to include $v_\text{wall}$, e.g. not when the figure uses another $v_\text{wall}$
+        :return: Title
+        """
+        return ", ".join([
+            rf"$\alpha = {as_latex(self.alpha)}$",
+            rf"$\beta/H_* = {as_latex(self.beta_tilde)}$",
+            *([rf"$v_\mathrm{{w}} = {as_latex(self.v_wall_value)}$"] if v_wall else []),
+            rf"$T_* = {as_latex(self.T_star_value)}$ GeV",
+            rf"$g_* = {as_latex(self.g_star_value)}$",
+        ])
+
     def power_spectrum(
             self,
             engine: Engine = Engine.DEFAULT,
+            v_wall: float | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             ssm_settings: SSMSettings | None = None,
             **kwargs: tp.Any) -> PowerSpectrum:
         r"""Create the power spectrum of this parameter choice.
 
         :param engine: Which power spectrum engine to use
+        :param v_wall: $v_\text{wall}$, wall velocity, defaults to that of this point.
+            It also affects the conversion of the $\beta/H_*$ of this point to $r_*$.
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
@@ -222,7 +233,7 @@ class ParameterChoice(models.Model):
         params: dict[str, tp.Any] = {
             "T_star": self.T_star_value,
             "g_star": self.g_star_value,
-            "v_wall": self.v_wall_value,
+            "v_wall": self.v_wall_value if v_wall is None else v_wall,
             "alpha": self.alpha,
             "beta_tilde": self.beta_tilde,
         }
