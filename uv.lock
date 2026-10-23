@@ -3,25 +3,25 @@ revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'win32')",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'win32')",
-    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'win32')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
-    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
-    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
     "python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
     "(python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version >= '3.14' and platform_machine != 'x86_64' and sys_platform == 'darwin')",
+    "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'win32')",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
     "python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
-    "python_full_version < '3.13' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
-    "python_full_version < '3.13' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
     "(python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine != 'x86_64' and sys_platform == 'darwin')",
+    "python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
+    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'win32')",
+    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
+    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
+    "python_full_version < '3.13' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
+    "python_full_version < '3.13' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
     "(python_full_version < '3.13' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version < '3.13' and platform_machine != 'x86_64' and sys_platform == 'darwin')",
 ]
 
@@ -2063,7 +2063,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandas", specifier = ">=3.0.3" },
     { name = "plotly", specifier = ">=7.1.0" },
-    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=8f3d7a2696093dc21219c38a6403cd32401d4c22" },
+    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=f5898ed14bb44807b2e6b9bb3d7b619154fb700a" },
     { name = "scipy", specifier = ">=1.17.1" },
 ]
 
@@ -2107,7 +2107,7 @@ docs = [
 [[package]]
 name = "pttools-gw"
 version = "0.10.0"
-source = { git = "https://github.com/CFT-HY/pttools.git?rev=8f3d7a2696093dc21219c38a6403cd32401d4c22#8f3d7a2696093dc21219c38a6403cd32401d4c22" }
+source = { git = "https://github.com/CFT-HY/pttools.git?rev=f5898ed14bb44807b2e6b9bb3d7b619154fb700a#f5898ed14bb44807b2e6b9bb3d7b619154fb700a" }
 dependencies = [
     { name = "h5py" },
     { name = "kaleido" },
@@ -2682,16 +2682,16 @@ version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
-    "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'win32')",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'win32')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
-    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
     "python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
     "(python_full_version >= '3.14' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version >= '3.14' and platform_machine != 'x86_64' and sys_platform == 'darwin')",
+    "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'win32')",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
+    "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
     "python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform == 'emscripten'",
     "(python_full_version == '3.13.*' and platform_machine != 'AMD64' and platform_machine != 'x86_64' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine != 'x86_64' and sys_platform == 'darwin')",
@@ -2882,10 +2882,10 @@ resolution-markers = [
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
     "(python_full_version >= '3.14' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version >= '3.14' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
     "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'win32')",
-    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'win32')",
     "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
-    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
     "(python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
+    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'win32')",
+    "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform == 'emscripten') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'emscripten')",
     "(python_full_version < '3.13' and platform_machine == 'AMD64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32') or (python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32')",
 ]
 dependencies = [
