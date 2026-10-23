@@ -34,7 +34,6 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
     run `./ptplot/nightly.py --status` before starting to work on it.
     Skip the nightly run if needed. If you skip it, run it manually when you're done with your work.
 
-
 ## CI
 - The CI and deploy workflows use reusable workflows and composite actions from the `dev` branch of PTtools,
   and have the same job structure as those of PTtools.
@@ -75,6 +74,7 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
   If there are no such unit tests yet, create them. Use the existing output of the code as a reference,
   and also reference values from the literature, if there are any.
 - If you change any of the physics, inform the user explicitly and exactly what has been changed.
+- When changing the physics beyond bug fixes, add an argument for switching to the old behaviour, if feasible.
 
 ## Description of PTPlot
 PTPlot is a plotting tool for visualizing the gravitational wave power
@@ -96,3 +96,13 @@ PTPlot supports five modeling engines:
 - Double-broken power law (DBPL) of Gowling & Hindmarsh (2021), `dbpl-2021`
 - Double-broken power law (DBPL) of Caprini et al. (2024), `dbpl-2024`
 - Sound Shell Model (SSM), provided by the PTtools library from the same authors as PTPlot
+
+## Related repositories
+You may `git clone` these with SSH in the same parent directory as PTPlot.
+- [PTtools](https://github.com/CFT-HY/pttools): `../pttools` (public)
+  - PTPlot uses PTtools as a back-end for the Sound Shell Model and various utilities.
+  - PTtools is maintained by the same authors as PTPlot. Therefore, if you need a feature or a change in PTtools,
+    you may implement it in the local copy, if there are no uncommitted changes in the relevant files or other active sessions editing the code.
+- Correia et al. (2025), "Gravitational waves from strong first-order phase transitions" (Correia:2025qif, 2505.17824)
+  - [Hydro_plot](https://github.com/jrcccc/Hydro_plot): `../Hydro_plot`, another version of the plotting code (private)
+  - [UETC_paper_Hydro](https://github.com/jrcccc/UETC_paper_Hydro): `../UETC_paper_Hydro`, the code and data used in the article (private)
