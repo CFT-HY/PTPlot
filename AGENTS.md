@@ -17,6 +17,9 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Build documentation with examples: `uv run make -C docs all`
   - This will run the examples and can therefore take 1-3 h.
 - Build documentation without examples: `uv run make -C docs all-noplot`
+- The documentation builds, including `python -m pttools.docs.lint`, need network access for the intersphinx inventories of `intersphinx_mapping` in `./docs/conf.py`,
+  which includes those of `pttools.docs.intersphinx`. Their domains are allowed in the Claude Code sandbox in `.claude/settings.json`. Keep these in sync.
+  The link check of `make all` and `make all-noplot` needs access to all the linked sites, and can be skipped with `SKIP_LINKCHECK=1`.
 - Update PTtools to the latest commit of its `dev` branch: `./install_requirements.sh --update-pttools`
   - This updates the `rev` of `pttools-gw` in `[tool.uv.sources]` in `./pyproject.toml` before installing.
     It also cleans the Numba cache of PTtools to ensure that cached functions from the previous version are removed.
