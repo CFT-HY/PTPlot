@@ -525,7 +525,8 @@ class Model(models.Model):
             engines: list[Engine] | None = None,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             exporter: Exporter | None = None,
-            ssm_settings: SSMSettings | None = None) -> Figure:
+            ssm_settings: SSMSettings | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this model.
 
         :param noise: Which noise curve to use
@@ -534,6 +535,7 @@ class Model(models.Model):
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
         :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param max_workers: Maximum number of worker processes or threads
         :return: SNR histogram figure
         """
         v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
@@ -544,5 +546,6 @@ class Model(models.Model):
             engines=engines,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             ssm_settings=ssm_settings,
-            exporter=exporter
+            exporter=exporter,
+            max_workers=max_workers
         )

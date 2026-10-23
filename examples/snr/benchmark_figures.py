@@ -160,7 +160,7 @@ def create_figures(  # noqa: PLR0915
 
         with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
             with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_histogram"):
-                snr_hist = model.snr_histogram(engines=engines, exporter=exporter)
+                snr_hist = model.snr_histogram(engines=engines, exporter=exporter, max_workers=max_workers)
             n_spectra_other[i_model, :] += model.n_points
             save_model_fig(snr_hist, model, "snr_histogram")
 

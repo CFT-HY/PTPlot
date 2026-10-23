@@ -117,7 +117,7 @@ def create_figures(
             engine for engine in Engine.engines(fast=True)
             if histogram_coswg24bpl or engine != Engine.CosWG24bpl
         ]
-        save(model.snr_histogram(engines=engines), model, "snr_histogram")
+        save(model.snr_histogram(engines=engines, max_workers=max_workers), model, "snr_histogram")
 
 
 def lattice_highlights(model: Model) -> dict[str, int]:
