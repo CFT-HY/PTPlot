@@ -19,6 +19,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+from pttools.utils.time import log_duration
 
 from examples.noise.foreground_utils import S_gal_babak, S_gb_cornish, noise_with_foreground
 from examples.utils import save_fig
@@ -74,6 +75,7 @@ def snr_grid(noise: Noise) -> th.FloatArr2D:
     ).snr
 
 
+@log_duration
 def main() -> None:
     """Plot the SNR with the variants of the galactic foreground."""
     noises = noise_variants()

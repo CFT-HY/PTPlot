@@ -15,6 +15,7 @@ See :py:mod:`ptplot.methods.stats` for details.
 
 from django.db.models import Prefetch
 from pandas import DataFrame
+from pttools.utils.time import log_duration
 
 from ptplot.methods import setup_django
 
@@ -44,6 +45,7 @@ def print_stats(title: str, stats: list[FieldStats]) -> None:
     print(f"{title}\n{stats_table(stats)}\n")
 
 
+@log_duration
 def main() -> None:
     """Print the statistics of the models, scenarios and points.
 

@@ -23,6 +23,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+from pttools.utils.time import log_duration
 
 from examples.utils import save_fig
 from ptplot.methods import setup_django
@@ -62,6 +63,7 @@ def new_grid(v_wall: float, noise: Noise, legacy: bool = False) -> th.FloatArr2D
     ).snr
 
 
+@log_duration
 def main() -> None:
     r"""Plot the old and the new SNR contours on the $(\alpha, \beta/H_*)$ plane."""
     (_, snr_old, log10_r_star, log10_ubarf), from_old_code = old_or_reconstructed_grid(

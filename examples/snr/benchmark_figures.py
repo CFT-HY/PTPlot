@@ -29,7 +29,6 @@ The file can be read with :py:class:`pttools.export.importer.Importer`.
 import argparse
 from collections.abc import Iterable, Iterator
 import contextlib
-from datetime import timedelta
 import logging
 import time
 import typing as tp
@@ -38,6 +37,7 @@ from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter, Preset
+from pttools.utils.time import format_duration, log_duration
 
 from examples.utils import FIG_DIR, save_model_fig, save_snr_figures
 from ptplot.methods import setup_django
@@ -167,14 +167,14 @@ def create_figures(  # noqa: PLR0915
         model_time = time.perf_counter() - model_start_time
         times[i_model] = model_time
         logger.info(
-            "Processed model %d/%d: %s, took %.2f s",
-            i_model+1, n_models, model.name, model_time
+            "Processed model %d/%d: %s, took %s",
+            i_model+1, n_models, model.name, format_duration(model_time)
         )
 
     total_time = time.perf_counter() - start_time
     logger.info(
-        "Processed %d models, took %s s, %.2f s per model.",  # Bubble cache info: %s
-        n_models, timedelta(seconds=total_time), total_time / n_models,
+        "Processed %d models, took %s, %s per model.",  # Bubble cache info: %s
+        n_models, format_duration(total_time), format_duration(total_time / n_models),
         # bubble.cache_info()
     )
 
@@ -218,6 +218,7 @@ def get_slugs(slugs: str | Iterable[str] | None) -> list[str] | None:
     return slugs
 
 
+@log_duration
 def main(slugs: str | Iterable[str] | None = None) -> None:
     """Create the SNR figures for the benchmark models, and export the SSM spectra.
 

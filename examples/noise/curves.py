@@ -19,6 +19,7 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from pttools.omgw0.noise import omega_eb_h2, omega_h2, omega_ins_h2
+from pttools.utils.time import log_duration
 
 from examples.noise.foreground_utils import S_gal_babak, S_gb_cornish
 from examples.utils import save_fig
@@ -39,6 +40,7 @@ T_STAR: float = 100.
 R_STARS: tuple[float, ...] = (1e-3, 1e-2, 3e-2, 1e-1, 1.)
 
 
+@log_duration
 def main() -> None:
     """Plot the noise curves and their ratios to the old sensitivity curve."""
     f_old, om_old = load_sensitivity(OLD_SENSITIVITY_FILE)

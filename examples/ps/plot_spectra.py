@@ -9,6 +9,7 @@ import logging
 import typing as tp
 
 from matplotlib.figure import Figure
+from pttools.utils.time import log_duration
 
 from examples.utils import save_and_show_figs
 from ptplot.methods import setup_django
@@ -38,6 +39,7 @@ def plot_spectra(slug: str, number: int, engine: Engine | str | tp.Iterable[Engi
     return point.power_spectrum_figure(engine=engine)
 
 
+@log_duration
 def main() -> None:
     """Plot spectra of the selected points"""
     slug = "singlet_jonathan"

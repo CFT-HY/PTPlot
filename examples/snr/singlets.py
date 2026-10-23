@@ -33,6 +33,7 @@ import logging
 
 from matplotlib.figure import Figure
 from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
+from pttools.utils.time import log_duration
 
 from examples.utils import save_model_fig, save_model_html
 from ptplot.methods import setup_django
@@ -136,6 +137,7 @@ def save(fig: Figure, model: Model, name: str) -> None:
     save_model_fig(fig, model, name, subdir=SUBDIR)
 
 
+@log_duration
 def main(
         alpha_n_max: float | None = ALPHA_N_MAX,
         T_star_statistic: Statistic | str = Statistic.MEAN,  # noqa: N803

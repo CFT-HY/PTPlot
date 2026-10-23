@@ -11,12 +11,14 @@ Only the files tracked by Git are counted, and the files matching the patterns o
 from pathlib import Path
 
 from pttools.docs.cloc import cloc_compact
+from pttools.utils.time import log_duration
 
 from ptplot import PTPLOT_DIR
 
 REPO_DIR: Path = PTPLOT_DIR.parent
 
 
+@log_duration
 def main() -> None:
     """Print the lines of code of the PTPlot repository and the PTPlot module."""
     print("Lines of code in the PTPlot repository")

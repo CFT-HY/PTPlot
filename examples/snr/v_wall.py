@@ -7,6 +7,8 @@ Compare the SNR results of a model with two different $v_\text{wall}$ for each s
 
 import logging
 
+from pttools.utils.time import log_duration
+
 from examples.utils import save_fig
 from ptplot.methods import setup_django
 
@@ -37,6 +39,7 @@ def snr_grid(model: Model, engine: Engine, v_wall: float, max_workers: int) -> S
     )
 
 
+@log_duration
 def main(
         slug: str = "singlet_jonathan",
         v_wall1: float = 0.95,

@@ -6,7 +6,9 @@ The simulated GW power spectra are converted to the GW power spectrum today in t
 
 - From the GW power spectrum $\mathcal{P}_\text{gw}$ that has accumulated by the time step,
   as in PTtools, see :py:class:`pttools.lattice.spectrum.LatticeSpectrum`.
-  This conversion neglects the expansion of the universe.
+  The simulation is considered as a source that has lasted from its start to the time step,
+  and its GW power is reduced by the expansion of the universe during this time
+  in the same way as that of the Sound Shell Model.
   The simulations end before the GW power has stopped growing.
   Therefore, the spectrum can be scaled to the asymptotic GW power,
   which is extrapolated with :correia_2025:`\ ` eq. 47,
@@ -81,7 +83,8 @@ class PowerSpectrumLattice(PowerSpectrum):
             step_end: int | None = None,
             name: str = SHORT_NAME,
             conversion: LatticeConversion = LatticeConversion.ASYMPTOTE,
-            adiabatic_index: float | None = None):
+            adiabatic_index: float | None = None,
+            asymptote_duration: bool = True):
         r"""Create the spectrum of a run at a time step.
 
         :param run: the simulation run
@@ -100,12 +103,17 @@ class PowerSpectrumLattice(PowerSpectrum):
         :param conversion: which conversion :py:meth:`power_spectrum` gives
         :param adiabatic_index: $\Gamma$, mean adiabatic index,
             defaults to that of the bag model fluid shell :py:attr:`bubble`, as used by the Sound Shell Model
+        :param asymptote_duration: whether to take into account the expansion of the universe in the asymptotic
+            spectrum with the duration in which the GW power would reach the asymptote,
+            instead of the duration up to the time step,
+            see :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw_asymptote_scale`
         """
         self.run: LatticeRun = run
         self.step: int = run.last_step() if step is None else step
         self.step_end: int = run.last_step() if step_end is None else step_end
         self.name: str = name
         self.conversion: LatticeConversion = LatticeConversion(conversion)
+        self.asymptote_duration: bool = asymptote_duration
         #: The spectrum of PTtools, which is in the units of the simulation
         self.spectrum: PTtoolsLatticeSpectrum = run.spectrum(
             self.step, step_prev, r_star=r_star, T_star=T_star, g_star=g_star
@@ -117,11 +125,13 @@ class PowerSpectrumLattice(PowerSpectrum):
 
     @functools.cached_property
     def asymptote_ratio(self) -> float:
-        r"""$\Omega_\text{gw}^\infty / \Omega_\text{gw}(t)$, ratio of the asymptotic and current GW energy density.
+        r"""$\mathcal{P}_\text{gw}^\infty / \mathcal{P}_\text{gw}(t)$, ratio of the asymptotic and current GW power.
 
-        See :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.omega_gw_asymptote_ratio`.
+        See :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw_asymptote_ratio`.
+        Without :py:attr:`asymptote_duration`, this is the ratio of the asymptotic and current GW energy density
+        $\Omega_\text{gw}^\infty / \Omega_\text{gw}(t)$ of the simulation.
         """
-        return self.spectrum.omega_gw_asymptote_ratio(step_end=self.step_end)
+        return self.spectrum.pow_gw_asymptote_ratio(asymptote_duration=self.asymptote_duration, step_end=self.step_end)
 
     @functools.cached_property
     def bubble(self) -> Bubble:
@@ -138,7 +148,9 @@ class PowerSpectrumLattice(PowerSpectrum):
         r"""$\Omega_{\text{gw},0} h^2(f)$, GW power spectrum today from the accumulated GW power at the time step.
 
         $$\Omega_{\text{gw},0} h^2(f) = F_{\text{gw},0} h^2 \, \mathcal{P}_\text{gw}(z, t),$$
-        see :py:meth:`pttools.omgw0.base.Omgw0Base.omgw0_h2`.
+        see :py:meth:`pttools.omgw0.base.Omgw0Base.omgw0_h2`,
+        where $\mathcal{P}_\text{gw}$ includes the reduction by the expansion of the universe,
+        see :py:attr:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw`.
         """
         return self.spectrum.omgw0_h2(om_gamma0_h2=const.OMEGA_PHOTON_H2)
 
@@ -146,13 +158,15 @@ class PowerSpectrumLattice(PowerSpectrum):
     def omgw0_h2_asymptote(self) -> FloatArr1D:
         r"""$\Omega_{\text{gw},0} h^2(f)$, GW power spectrum today scaled to the asymptotic GW power.
 
-        $$\Omega_{\text{gw},0}^\infty h^2(f) = \frac{\Omega_\text{gw}^\infty}{\Omega_\text{gw}(t)}
-        \Omega_{\text{gw},0} h^2(f),$$
-        see :py:attr:`asymptote_ratio` and
-        :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw_scaled_to_asymptote`.
+        $$\Omega_{\text{gw},0}^\infty h^2(f) = F_{\text{gw},0} h^2 \, \mathcal{P}_\text{gw}^\infty(z)
+        = \frac{\mathcal{P}_\text{gw}^\infty}{\mathcal{P}_\text{gw}(t)} \Omega_{\text{gw},0} h^2(f),$$
+        see :py:attr:`asymptote_ratio` and :py:meth:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw_asymptote`.
         This assumes that the shape of the spectrum no longer changes after the time step.
         """
-        return self.asymptote_ratio * self.omgw0_h2
+        spectrum = self.spectrum
+        return spectrum.F_gw0_h2(om_gamma0_h2=const.OMEGA_PHOTON_H2) * spectrum.pow_gw_asymptote(
+            asymptote_duration=self.asymptote_duration, step_end=self.step_end
+        )
 
     @functools.cached_property
     def omgw0_h2_rate(self) -> FloatArr1D:
@@ -214,9 +228,9 @@ class PowerSpectrumLattice(PowerSpectrum):
     def valid(self) -> slice:
         """Indices of the spectra below the lattice artifact.
 
-        See :py:func:`pttools.ssm.suppression.fit.lattice_artifact_start`.
+        See :py:attr:`pttools.lattice.spectrum.LatticeSpectrum.valid_slice`.
         """
-        return slice(None, lattice_artifact_start(self.spectrum.y, self.spectrum.pow_gw))
+        return self.spectrum.valid_slice
 
     @functools.cached_property
     def valid_rate(self) -> slice:
