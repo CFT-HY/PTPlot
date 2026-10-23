@@ -94,11 +94,13 @@ Modules:
 - `tools` contains external utilities
 
 PTPlot supports five modeling engines:
-- Broken power law (BPL) of Hindmarsh et al. (2017) and Caprini et al. (2020), `bpl-2020` (default)
-- Broken power law (BPL) of Caprini et al. (2024), `bpl-2024`
-- Double-broken power law (DBPL) of Gowling & Hindmarsh (2021), `dbpl-2021`
-- Double-broken power law (DBPL) of Caprini et al. (2024), `dbpl-2024`
+- Broken power law (BPL) of Hindmarsh et al. (2017) and Caprini et al. (2020), `CosWG20bpl` (default)
+- Broken power law (BPL) of Caprini et al. (2024), `CosWG24bpl`
+- Double-broken power law (DBPL) of Gowling & Hindmarsh (2021), `GH21dbpl`
+- Double-broken power law (DBPL) of Caprini et al. (2024), `CosWG24dbpl`
 - Sound Shell Model (SSM), provided by the PTtools library from the same authors as PTPlot
+
+`./docs/sg_api_usage.rst` and `./docs/sg_execution_times.rst` are auto-generated and untracked.
 
 ## Related repositories
 You may `git clone` these with SSH in the same parent directory as PTPlot.
