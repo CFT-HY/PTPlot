@@ -89,7 +89,7 @@ class PowerSpectrumLattice(PowerSpectrum):
 
         :param run: the simulation run
         :param step: the time step, defaults to the last time step of the data,
-            see :py:meth:`pttools.lattice.run.LatticeRun.last_step`
+            see :py:meth:`pttools.lattice.run_spectra.LatticeRunSpectra.last_step`
         :param step_prev: the earlier time step for computing the GW power growth rate,
             which is required for :py:attr:`omgw0_h2_rate`
         :param r_star: $r_*$, Hubble-scaled mean bubble spacing, defaults to that of the simulation,

@@ -6,7 +6,7 @@ Compare the GW power spectra of the $4096^3$ hydrodynamic lattice simulations of
 with the spectra of the engines at the parameter values of the simulations.
 
 The simulated spectra are those of the last time step of the data,
-see :py:meth:`pttools.lattice.run.LatticeRun.last_step`,
+see :py:meth:`pttools.lattice.run_spectra.LatticeRunSpectra.last_step`,
 which is also the last time step of the extrapolation of the GW power to late times,
 as in the example ``examples.snr.singlets``.
 They are converted to the GW power spectrum today from the GW power spectrum $\mathcal{P}_\text{gw}$
@@ -22,7 +22,7 @@ and the simulated spectra and the engines are evaluated at the same chosen value
 
 The SSM engine assumes exponential nucleation,
 whereas the bubbles of the simulations are nucleated simultaneously,
-see :py:attr:`pttools.lattice.run.LatticeRun.nuc_type`.
+see :py:attr:`pttools.lattice.run_base.LatticeRunBase.nuc_type`.
 Exponential nucleation gives a wider distribution of bubble sizes,
 which shifts the peak of the SSM spectrum to lower frequencies.
 Therefore, the SSM spectrum with the nucleation type of the simulation is also drawn
@@ -76,7 +76,7 @@ def ssm_nucleation(
     :py:class:`ptplot.science.spectrum.ssm.PowerSpectrumSSM`.
 
     :param bubble: fluid shell with the parameters of the simulation
-    :param nuc_type: nucleation type of the simulation, see :py:attr:`pttools.lattice.run.LatticeRun.nuc_type`
+    :param nuc_type: nucleation type of the simulation, see :py:attr:`pttools.lattice.run_base.LatticeRunBase.nuc_type`
     :param f: frequencies $f$
     :param r_star: $r_*$, Hubble-scaled mean bubble spacing
     :param T_star: $T_*$, temperature at the time of GW production
