@@ -15,6 +15,27 @@ build:
     - gfortran
     - libtbb12
     - optipng
+    - patchelf
+    # Shared libraries of Chrome, which Kaleido needs for exporting Plotly figures.
+    # The list is from choreographer.browsers._errors.BrowserDepsError.
+    - libasound2t64
+    - libatk-bridge2.0-0
+    - libcairo2
+    - libcups2t64
+    - libgbm1
+    - libnss3
+    - libpango-1.0-0
+    - libxcomposite1
+    - libxdamage1
+    - libxfixes3
+    - libxkbcommon0
+    - libxrandr2
+  jobs:
+    post_install:
+      # Read the Docs accepts only package names from the Ubuntu repositories in apt_packages, not URLs of .deb files,
+      # and the build jobs run without root access. Therefore, Chrome is installed with Kaleido,
+      # which downloads Chrome for Testing to the user data directory, where Kaleido finds it automatically.
+      - "$READTHEDOCS_VIRTUALENV_PATH/bin/kaleido_get_chrome"
 
 # Optionally build your docs in additional formats such as PDF
 formats: all
@@ -31,4 +52,4 @@ python:
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/conf.py
-  # fail_on_warning: true
+  fail_on_warning: true
