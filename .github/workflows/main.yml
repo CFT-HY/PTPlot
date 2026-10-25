@@ -99,6 +99,10 @@ jobs:
     needs: [build, lint, typecheck]
     uses: CFT-HY/pttools/.github/workflows/graph.yml@dev
     with:
+      # NumbaLSODA does not provide wheels for recent Python versions, so it's built from source,
+      # which requires a Fortran compiler. The default ubuntu-slim runner of the graph workflow does not have one,
+      # but ubuntu-latest does.
+      runs-on: ubuntu-latest
       target: ptplot
   lint:
     # The pull requests from the branches of this repository are already tested by the push event,
