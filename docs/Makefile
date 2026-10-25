@@ -42,7 +42,7 @@ endif
 # Like "all", but a failed link check, e.g. because of a temporarily unreachable server, does not stop the build.
 # A message is printed instead, after the output of the link check, which lists the broken links.
 # The other errors of the link check, such as Sphinx warnings, are found also by the builds after it.
-# This is used by the nightly run (ptplot/nightly.py).
+# This is used by the nightly run (pttools/docs/nightly.py of PTtools).
 all-nofail-links:
 	$(MAKE) clean
 	$(MAKE) linkcheck || echo "The link check failed. Continuing the build. See the output of the link check above."

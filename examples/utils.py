@@ -19,7 +19,7 @@ if tp.TYPE_CHECKING:
 EXAMPLES_DIR: Path = Path(__file__).resolve().parent
 PROJECT_DIR: Path = EXAMPLES_DIR.parent
 #: The figure directory, which can be changed with the ``PTPLOT_FIG_DIR`` environment variable,
-#: e.g. by the nightly run ``ptplot/nightly.py``
+#: e.g. by the nightly run ``pttools/docs/nightly.py`` of PTtools
 FIG_DIR: Path = Path(os.environ.get("PTPLOT_FIG_DIR") or EXAMPLES_DIR / "fig").resolve()
 LOG_DIR: Path = PROJECT_DIR / "logs"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
