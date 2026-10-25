@@ -12,6 +12,7 @@ build:
     # Keep this in sync with .python-version, as otherwise uv would download another Python version for the build.
     python: "3.14"
   apt_packages:
+    - cloc
     - gfortran
     - libtbb12
     - optipng
@@ -36,6 +37,13 @@ build:
       # and the build jobs run without root access. Therefore, Chrome is installed with Kaleido,
       # which downloads Chrome for Testing to the user data directory, where Kaleido finds it automatically.
       - "$READTHEDOCS_VIRTUALENV_PATH/bin/kaleido_get_chrome"
+    pre_build:
+      # The same Django setup steps as in the test job of .github/workflows/main.yml.
+      # The migrations are not version-controlled, so they have to be created before the documentation build.
+      # manage.py uses ptplot_site.settings.dev by default, as does the test job.
+      - "$READTHEDOCS_VIRTUALENV_PATH/bin/python manage.py makemigrations"
+      - "$READTHEDOCS_VIRTUALENV_PATH/bin/python manage.py migrate"
+      - "$READTHEDOCS_VIRTUALENV_PATH/bin/python manage.py check --fail-level WARNING"
 
 # Optionally build your docs in additional formats such as PDF
 formats: all
