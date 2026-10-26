@@ -15,6 +15,7 @@ from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
 from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, arxiv_link, convert_extlinks
 from pttools.docs.setup import pre_setup, setup_sphinx, setup_sphinx_logging
 from pttools.speedup.options import MAX_WORKERS_DEFAULT
+from pttools.utils.system import IS_READ_THE_DOCS
 from sphinx_gallery.sorting import ExplicitOrder
 
 DOCS_DIR: Path = Path(__file__).resolve().parent
@@ -197,7 +198,12 @@ linkcheck_retries = 5
 linkcheck_timeout = 20
 linkcheck_workers = 10
 
-show_memory = True
+#: Whether Sphinx-Gallery measures the peak memory usage of the examples.
+#: This prevents running the examples in parallel. On Read the Docs, the build has only 2 cores and a time limit,
+#: and the examples use only one of the cores most of the time. Therefore, the examples are run in parallel there,
+#: without measuring the memory usage. The fluid reference data of PTtools is loaded or generated before the examples
+#: by :func:`pttools.docs.setup.load_fluid_reference`, so that the parallel examples don't generate it simultaneously.
+show_memory = not IS_READ_THE_DOCS
 
 sphinx_gallery_conf = {
     "backreferences_dir": "gen_modules/backreferences",
