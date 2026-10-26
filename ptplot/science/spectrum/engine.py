@@ -4,7 +4,7 @@ from enum import StrEnum
 import logging
 import typing as tp
 
-from pttools.utils import IS_GITHUB_ACTIONS
+from pttools.utils import IS_GITHUB_ACTIONS, IS_READ_THE_DOCS
 
 import ptplot.science.type_hints as th
 
@@ -52,15 +52,15 @@ class Engine(StrEnum):
         """
         engines2 = ([Engine(engines)] if isinstance(engines, str) else list(engines)) \
             if engines is not None and engines else cls
-        get_all = not (fast and IS_GITHUB_ACTIONS)
+        get_all = not (fast and (IS_GITHUB_ACTIONS or IS_READ_THE_DOCS))
         engines = [
             engine for engine in engines2
             if (get_all or engine != cls.SSM) and (strong or engine not in STRONG_ENGINES)
         ]
         if log:
             logger.info(
-                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s, strong=%s)",
-                engines, fast, IS_GITHUB_ACTIONS, strong
+                "Enabled engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s, IS_READ_THE_DOCS=%s, strong=%s)",
+                engines, fast, IS_GITHUB_ACTIONS, IS_READ_THE_DOCS, strong
             )
         return engines
 
@@ -75,8 +75,8 @@ class Engine(StrEnum):
         engines = [engine for engine in cls.engines(fast=fast) if engine != cls.DEFAULT]
         if log:
             logger.info(
-                "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s)",
-                engines, fast, IS_GITHUB_ACTIONS
+                "Enabled non-default engines: %s (docs=%s, IS_GITHUB_ACTIONS=%s, IS_READ_THE_DOCS=%s)",
+                engines, fast, IS_GITHUB_ACTIONS, IS_READ_THE_DOCS
             )
         return engines
 
