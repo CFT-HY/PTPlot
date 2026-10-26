@@ -57,7 +57,7 @@ def new_grid(v_wall: float, noise: Noise, legacy: bool = False) -> th.FloatArr2D
     r"""Compute the BPL2020 SNR grid on the default $(\alpha, \beta/H_*)$ grid with the current code."""
     return SNRGridAlphaBeta(
         T_star=T_STAR, g_star=G_STAR, v_wall=v_wall,
-        alpha_n=const.DEFAULT_ALPHA_N_RANGE, beta_tilde=const.DEFAULT_beta_tilde_RANGE,
+        alpha_n=const.DEFAULT_ALPHA_N_RANGE, beta_tilde=const.DEFAULT_BETA_TILDE_RANGE,
         noise=noise, engine=Engine.CosWG20bpl, log_progress_percentage=None,
         legacy_nucleation_cs_max=legacy
     ).snr
@@ -74,7 +74,7 @@ def main() -> None:
     noise_ins = Noise(obs_years=OLD_OBS_YEARS, eb=False, gb=False)
     noise_full = Noise(obs_years=OLD_OBS_YEARS)
     x = np.log10(const.DEFAULT_ALPHA_N_RANGE)
-    y = np.log10(const.DEFAULT_beta_tilde_RANGE)
+    y = np.log10(const.DEFAULT_BETA_TILDE_RANGE)
 
     fig, axs = plt.subplots(2, len(V_WALLS), figsize=(4 * len(V_WALLS), 8), sharex=True, sharey=True)
     for i, v_wall in enumerate(V_WALLS):

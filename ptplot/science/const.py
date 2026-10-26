@@ -1,5 +1,6 @@
 """Constants used by other modules."""
 
+import math
 import typing as tp
 
 from matplotlib.typing import RcKeyType
@@ -10,7 +11,9 @@ import pttools.ssm.const as ssm_const
 
 import ptplot.science.type_hints as th
 
+# -----
 # Default values
+# -----
 #: Default mean adiabatic index $\Gamma$
 DEFAULT_ADIABATIC_INDEX: float = bubble_const.DEFAULT_ADIABATIC_INDEX
 #: Default transition strength $\alpha$
@@ -34,20 +37,56 @@ For details, please see
 
 #: Log the progress of a parallel computation every $x$ %. Set to None to disable the logging.
 DEFAULT_LOG_PROGRESS_PERCENTAGE: float = 10.
-DEFAULT_SNR_F_MIN: float = 1e-6
-DEFAULT_SNR_F_MAX: float = 1.
+#: Default minimum frequency $f_\text{min}$
+DEFAULT_F_MIN: float = 1e-5
+#: Default maximum frequency $f_\text{max}$
+DEFAULT_F_MAX: float = 0.1
+#: Default LISA mission duration $T_\text{obs}$ in years
+DEFAULT_OBS_YEARS: float = 3.
+#: Default transition temperature $T_*$
 DEFAULT_T_STAR: float = 180.
+#: Default wall speed $v_\text{wall}$
 DEFAULT_V_WALL: float = 0.9
 
-# Default plotting ranges
+# -----
+# Default plotting range sizes
+# -----
+#: Default number of frequency points of a noise curve
+DEFAULT_F_SIZE: int = 2000
+#: Default number of points for $(\alpha_n, \tilde{\beta}, \bar{U}_\text{f}, r_*)$
 DEFAULT_GRID_SIZE: int = 51
+#: Minimum number of frequencies for e.g. a noise curve
+MIN_F_SIZE: int = 2
+
+# -----
+# Default plotting ranges
+# -----
+#: Default range of transition strength $\alpha_n$ for e.g. SNR plots
 DEFAULT_ALPHA_N_RANGE: th.FloatArr1D = np.logspace(-2, 0.3, DEFAULT_GRID_SIZE)
-DEFAULT_beta_tilde_RANGE: th.FloatArr1D = np.logspace(0.5, 4.5, DEFAULT_GRID_SIZE)
+#: Default range of frequency $f$
+DEFAULT_F_RANGE: th.FloatArr1D = np.logspace(math.log10(DEFAULT_F_MIN), math.log10(DEFAULT_F_MAX), DEFAULT_F_SIZE)
+#: Default range of inverse phase transition duration $\tilde{\beta} \equiv \frac{\beta}{H_*}$
+DEFAULT_BETA_TILDE_RANGE: th.FloatArr1D = np.logspace(0.5, 4.5, DEFAULT_GRID_SIZE)
+#: Default range of mean bubble spacing $r_*$
 DEFAULT_R_STAR_RANGE: th.FloatArr1D = np.logspace(-4, 0.08, DEFAULT_GRID_SIZE)
+#: Default range of $\bar{U}_\text{f}$
 DEFAULT_UBARF_RANGE: th.FloatArr1D = np.logspace(-2, 0, DEFAULT_GRID_SIZE)
 
+# -----
+# Minimum accuracy settings
+# -----
+# Minimum values of the accuracy settings in :py:class:`SSMSettingsForm`,
+# which are those used for compiling the Numba functions in the dataset example of PTtools
+MIN_N_Z_LOOKUP: int = 200
+MIN_N_T: int = 100
+MIN_NX_P_TILDE_GW: int = 50
+
+# -----
 # Default plotting parameters
+# -----
+#: Default font size of figure labels
 DEFAULT_LABEL_FONTSIZE: int = 14
+#: Default Matplotlib context
 DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
     "backend": "Agg",
     "font.family": "serif",
@@ -55,7 +94,9 @@ DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
     # "text.usetex": usetex
 }
 
+# -----
 # Numerical constants
+# -----
 #: $c_s$, bag model sound speed
 CS0: tp.Final[float] = bubble_const.CS0
 #: $c_s^2$, bag model sound speed squared
@@ -73,7 +114,9 @@ For details, please see
 #: Number of seconds in a year
 YEAR_IN_SECONDS: float = omgw0_const.YEAR_IN_SECONDS
 
+# -----
 # Names
+# -----
 ALPHA_NAME: str = "transition strength (α)"
 BETA_TILDE_NAME: str = "inverse phase transition duration (β/H)"
 G_STAR_NAME: str = "degrees of freedom (g*)"

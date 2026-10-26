@@ -9,23 +9,28 @@ Please see :py:mod:`ptplot.tests.test_noise` for a comparison of the old and the
 
 import functools
 import math
+import typing as tp
 
 import numpy as np
 from pttools.omgw0 import omega_noise_h2
 
-from ptplot.science.const import DEFAULT_SNR_F_MAX, DEFAULT_SNR_F_MIN, YEAR_IN_SECONDS
+from ptplot.science.const import (
+    DEFAULT_F_MAX,
+    DEFAULT_F_MIN,
+    DEFAULT_F_RANGE,
+    DEFAULT_F_SIZE,
+    DEFAULT_OBS_YEARS,
+    MIN_F_SIZE,
+    YEAR_IN_SECONDS,
+)
 import ptplot.science.type_hints as th
 
-#: Default LISA mission duration $T_\text{obs}$ in years
-DEFAULT_OBS_YEARS: float = 3.
 #: Whether the extragalactic compact binary noise $\Omega_\text{eb}$ is included by default
 DEFAULT_NOISE_EB: bool = False
 #: Whether the galactic compact binary noise $\Omega_\text{gb}$ is included by default
 DEFAULT_NOISE_GB: bool = False
-#: Default number of frequency points of a noise curve
-DEFAULT_NOISE_SIZE: int = 2000
-#: Minimum number of frequency points of a noise curve
-MIN_NOISE_SIZE: int = 2
+# Number of :py:class:`Noise` objects that are kept in cache
+NOISE_CACHE_SIZE: tp.Final[int] = 16
 
 
 class Noise:
@@ -43,9 +48,9 @@ class Noise:
             obs_years: float = DEFAULT_OBS_YEARS,
             eb: bool = DEFAULT_NOISE_EB,
             gb: bool = DEFAULT_NOISE_GB,
-            f_min: float = DEFAULT_SNR_F_MIN,
-            f_max: float = DEFAULT_SNR_F_MAX,
-            size: int = DEFAULT_NOISE_SIZE):
+            f_min: float = DEFAULT_F_MIN,
+            f_max: float = DEFAULT_F_MAX,
+            size: int = DEFAULT_F_SIZE):
         r"""
         Create a noise curve.
 
@@ -58,10 +63,17 @@ class Noise:
         """
         if obs_years is None or not np.isfinite(obs_years) or obs_years <= 0:
             raise ValueError(f"Invalid obs_years={obs_years}")
-        if not 0 < f_min < f_max:
-            raise ValueError(f"Invalid frequency range: f_min={f_min}, f_max={f_max}")
-        if size < MIN_NOISE_SIZE:
-            raise ValueError(f"Invalid size={size}")
+
+        #: Frequencies $f$ (Hz) corresponding to the noise values
+        self.f: th.FloatArr1D
+        if f_min == DEFAULT_F_MIN and f_max == DEFAULT_F_MAX and size == DEFAULT_F_SIZE:
+            self.f = DEFAULT_F_RANGE
+        else:
+            if not 0 < f_min < f_max:
+                raise ValueError(f"Invalid frequency range: f_min={f_min}, f_max={f_max}")
+            if size < MIN_F_SIZE:
+                raise ValueError(f"Invalid size={size}")
+            self.f = np.logspace(math.log10(f_min), math.log10(f_max), size)
 
         #: Mission duration $T_\text{obs}$ in years
         self.obs_years: float = obs_years
@@ -69,8 +81,6 @@ class Noise:
         self.eb: bool = eb
         #: Whether the galactic compact binary noise $\Omega_\text{gb}$ is included
         self.gb: bool = gb
-        #: Frequencies $f$ (Hz) corresponding to the noise values
-        self.f: th.FloatArr1D = np.logspace(math.log10(f_min), math.log10(f_max), size)
         #: Noise $\Omega_\text{noise} h^2$
         self.noise: th.FloatArr1D = omega_noise_h2(f=self.f, eb=self.eb, gb=self.gb)
 
@@ -84,14 +94,14 @@ class Noise:
         return f"LISA, {self.obs_years:g} years, noise from {', '.join(sources)}"
 
     @property
-    def f_min(self) -> float:
+    def f_min(self) -> np.float64:
         r"""Minimum frequency $f_\text{min}$ (Hz)."""
-        return self.f[0].item()
+        return self.f[0]
 
     @property
-    def f_max(self) -> float:
+    def f_max(self) -> np.float64:
         r"""Maximum frequency $f_\text{max}$ (Hz)."""
-        return self.f[-1].item()
+        return self.f[-1]
 
     @property
     def file_name(self) -> str:
@@ -112,7 +122,7 @@ class Noise:
         return omega_noise_h2(f=f, eb=self.eb, gb=self.gb)
 
 
-@functools.lru_cache(maxsize=16)
+@functools.lru_cache(maxsize=NOISE_CACHE_SIZE)
 def _noise_curve(obs_years: float, eb: bool, gb: bool, f_min: float, f_max: float, size: int) -> Noise:
     """Cache of the noise curves, keyed by positional arguments only."""
     return Noise(obs_years=obs_years, eb=eb, gb=gb, f_min=f_min, f_max=f_max, size=size)
@@ -122,9 +132,9 @@ def noise_curve(
         obs_years: float = DEFAULT_OBS_YEARS,
         eb: bool = DEFAULT_NOISE_EB,
         gb: bool = DEFAULT_NOISE_GB,
-        f_min: float = DEFAULT_SNR_F_MIN,
-        f_max: float = DEFAULT_SNR_F_MAX,
-        size: int = DEFAULT_NOISE_SIZE) -> Noise:
+        f_min: float = DEFAULT_F_MIN,
+        f_max: float = DEFAULT_F_MAX,
+        size: int = DEFAULT_F_SIZE) -> Noise:
     """Get a cached noise curve, or generate it if it has not been generated yet.
 
     The arguments are the same as for :py:class:`Noise`.

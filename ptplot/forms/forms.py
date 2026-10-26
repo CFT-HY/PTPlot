@@ -27,7 +27,7 @@ from ptplot.forms.fields import (
 )
 from ptplot.models import Model
 from ptplot.science import const
-from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX
+from ptplot.science.const import DEFAULT_LEGACY_NUCLEATION_CS_MAX, MIN_N_T, MIN_N_Z_LOOKUP, MIN_NX_P_TILDE_GW
 from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS, Noise, noise_curve
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.spectrum.create import ssm_model
@@ -35,12 +35,6 @@ from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG, SSMSettings
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-#: Minimum values of the accuracy settings in :py:class:`SSMSettingsForm`,
-#: which are those used for compiling the Numba functions in the dataset example of PTtools
-MIN_N_Z_LOOKUP: int = 200
-MIN_N_T: int = 100
-MIN_NX_P_TILDE_GW: int = 50
 
 
 class NoiseFormMixin(Form):
@@ -159,7 +153,7 @@ class GridAxesForm(Form):
     #: Names of the axes and their default ranges, see :py:class:`ptplot.science.snr.grid.GridAxes`
     AXES: tp.ClassVar[dict[str, tuple[str, np.ndarray]]] = {
         "alpha": ("alpha_n", const.DEFAULT_ALPHA_N_RANGE),
-        "beta_tilde": ("beta_tilde", const.DEFAULT_beta_tilde_RANGE),
+        "beta_tilde": ("beta_tilde", const.DEFAULT_BETA_TILDE_RANGE),
         "ubarf": ("ubarf", const.DEFAULT_UBARF_RANGE),
         "r_star": ("r_star", const.DEFAULT_R_STAR_RANGE),
     }

@@ -92,7 +92,7 @@ class SNRGridAlphaBeta(SNRGrid):
             if beta_tilde_points is None:
                 raise ValueError("Provide either beta_tilde or beta_tilde_points.")
             beta_tilde = log_range(
-                beta_tilde_points, const.DEFAULT_beta_tilde_RANGE,
+                beta_tilde_points, const.DEFAULT_BETA_TILDE_RANGE,
                 size=axes.size, range_min=axes.beta_tilde_min, range_max=axes.beta_tilde_max
             )
 

@@ -51,7 +51,7 @@ class SNRTest(TestCase):
         grid = SNRGridAlphaBeta(**kwargs)
         assert grid.snr.shape == (axes.size, axes.size)
         np.testing.assert_allclose(grid.alpha_n[[0, -1]], [0.05, const.DEFAULT_ALPHA_N_RANGE[-1]], rtol=1e-12)
-        np.testing.assert_allclose(grid.beta_tilde[[0, -1]], [const.DEFAULT_beta_tilde_RANGE[0], 1000.], rtol=1e-12)
+        np.testing.assert_allclose(grid.beta_tilde[[0, -1]], [const.DEFAULT_BETA_TILDE_RANGE[0], 1000.], rtol=1e-12)
         grid_ubarf = SNRGridUbarfRStar(**kwargs)
         assert grid_ubarf.snr.shape == (axes.size, axes.size)
         np.testing.assert_allclose(grid_ubarf.ubarf[[0, -1]], [const.DEFAULT_UBARF_RANGE[0], 0.5], rtol=1e-12)

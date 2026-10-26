@@ -10,7 +10,7 @@ from ptplot.science.utils import log_exceptions, log_range
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-DEFAULT: np.ndarray = const.DEFAULT_beta_tilde_RANGE
+DEFAULT: np.ndarray = const.DEFAULT_BETA_TILDE_RANGE
 
 
 def test_log_range_default() -> None:
