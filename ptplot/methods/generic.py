@@ -1,6 +1,7 @@
 """Generic utility methods."""
 
 import os
+from pathlib import Path
 from threading import Lock
 import typing as tp
 
@@ -16,6 +17,14 @@ from ptplot.science.plot.utils import fig_to_svg
 
 #: Lock for setting up Django only once.
 DJANGO_SETUP_LOCK: Lock = Lock()
+
+
+def _default_log_dir() -> Path:
+    """Get the default log directory, which is ``logs`` in the repository."""
+    repo_dir = PTPLOT_DIR.parent
+    if not (repo_dir / "examples").is_dir():
+        raise ValueError("log_dir must be specified when PTPlot is not installed with \"git clone\".")
+    return repo_dir / "logs"
 
 
 def fig_to_response(fig: Figure) -> HttpResponse:
@@ -50,14 +59,27 @@ def setup_django(log_dir: str | os.PathLike[str] | None = None, settings: str = 
         return
 
     if log_dir is None:
-        repo_dir = PTPLOT_DIR.parent
-        if not (repo_dir / "examples").is_dir():
-            raise ValueError("log_dir must be specified when PTPlot is not installed with \"git clone\".")
-        log_dir = repo_dir / "logs"
+        log_dir = _default_log_dir()
     setup_logging(log_dir=log_dir)
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings)
     django.setup()
+
+
+def setup_example_logging(gallery_conf: dict[str, tp.Any], fname: str | None) -> None:  # noqa: ARG001
+    """Ensure that logging is configured before running an example.
+
+    This is a resetter for the ``reset_modules`` option of Sphinx-Gallery, which is called before each example.
+    With the ``parallel`` option, the examples are run in worker processes,
+    which do not inherit the logging configuration of the main process.
+    If an example configured the logging itself, the console handler would be attached to the stream
+    with which Sphinx-Gallery captures the output of the example,
+    and which forwards the output to the ``sphinx`` logger.
+    In the worker processes the ``sphinx`` logger propagates to the root logger, as Sphinx has not configured it there,
+    and this would result in an infinite recursion.
+    Configuring the logging here, before Sphinx-Gallery captures the output, prevents this.
+    """
+    setup_logging(log_dir=_default_log_dir())
 
 
 def setup_logging(name: str = "ptplot", log_dir: str | os.PathLike[str] | None = None) -> None:
