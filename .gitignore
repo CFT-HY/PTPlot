@@ -8,7 +8,6 @@ __pycache__
 .coverage*
 .env
 .idea
-.mcp.json
 .ruff_cache
 .test_durations
 .venv
