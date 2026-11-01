@@ -133,14 +133,22 @@ concurrency = [
     "thread",
     "multiprocessing"
 ]
+# The default sys.monitoring core of Python 3.14+ doesn't support plugin file tracers,
+# which django_coverage_plugin needs for measuring the template coverage.
+core = "ctrace"
 source = ["."]
 omit = [
-    "*/.venv/*",
-    "*/envs/*",
-    "*/venv/*",
+    "*/.venv/**",
+    "*/envs/**",
+    "*/venv/**",
     "*.txt",
-    "docs/_build/*",
-    "test-results/*"
+    "docs/_build/**",
+    "docs/lint/**",
+    "docs/nightly/**",
+    "examples/fig/**",
+    "htmlcov/**",
+    "ptplot/migrations/**",
+    "test-results/**"
 ]
 parallel = true
 plugins = ["django_coverage_plugin"]
