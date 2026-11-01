@@ -6,7 +6,7 @@ This script generates the SNR figures for the singlet scalar model and the $Z_2$
 Running this script can take several hours.
 
 The SNR figures of the engines of :py:data:`GRID_ENGINES` are drawn as the subplots of a single figure,
-and the SNR grids of the other engines are computed only for the interactive figures.
+and the SNR figures of all the engines are also saved individually, both unfilled and filled.
 The points of a model are drawn as a single set, i.e. they are not grouped by scenario.
 The SNR grids are computed with the mean $T_*$ of the points of the model instead of the $T_*$ of the model,
 see :py:meth:`ptplot.models.model.Model.point_T_star`.
@@ -22,7 +22,7 @@ The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
 
 The figures are saved in the ``singlets`` subdirectory of the directory of each file format,
-e.g. ``png/singlets``, and the interactive versions of the SNR figures of all the engines as HTML files
+e.g. ``png/singlets``, and the interactive versions of the individual SNR figures as HTML files
 in ``html/singlets``, see :py:meth:`ptplot.science.plot.snr.SNRFigure.plotly_html`.
 The settings can be changed with the command-line arguments, see ``python -m examples.snr.singlets --help``,
 or with the arguments of :py:func:`main`.
@@ -35,7 +35,7 @@ from matplotlib.figure import Figure
 from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
 from pttools.utils.time import log_duration
 
-from examples.utils import save_model_fig, save_model_html
+from examples.utils import save_model_fig, save_snr_figures
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -91,9 +91,8 @@ def create_figures(
                     engine=engine, T_star=T_star, axes=axes, max_workers=max_workers, by_scenario=False
                 )
                 grids[name][engine] = grid
-                save_model_html(
-                    model.snr_figure(grid, highlights=highlights).plotly_html(), model, f"{name}_{engine}",
-                    subdir=SUBDIR
+                save_snr_figures(
+                    model, grid, f"{name}_{engine}", subdir=SUBDIR, highlights=highlights, log_errors=True
                 )
 
     for name, name_grids in grids.items():

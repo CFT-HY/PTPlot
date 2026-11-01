@@ -1,5 +1,7 @@
 """Utilities for PTPlot examples"""
 
+import contextlib
+import logging
 import os
 from pathlib import Path
 import typing as tp
@@ -11,10 +13,13 @@ from pttools.plot.utils import FIG_FORMATS
 from pttools.utils.docstrings import copy_docstring_dec
 
 from ptplot.science.plot.utils import save_html
+from ptplot.science.utils import log_exceptions
 
 if tp.TYPE_CHECKING:
     from ptplot.models import Model
     from ptplot.science.snr.grid import SNRGrid
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 EXAMPLES_DIR: Path = Path(__file__).resolve().parent
 PROJECT_DIR: Path = EXAMPLES_DIR.parent
@@ -109,7 +114,9 @@ def save_snr_figures(
         grid: "SNRGrid",
         name: str,
         fig_dir: str | os.PathLike[str] = FIG_DIR,
-        subdir: str | None = None) -> None:
+        subdir: str | None = None,
+        highlights: dict[str, int] | None = None,
+        log_errors: bool = False) -> None:
     """Save the SNR figures of a grid of a model, both unfilled and filled, and the interactive HTML figure.
 
     :param model: Model of the grid
@@ -117,13 +124,30 @@ def save_snr_figures(
     :param name: Name of the figures
     :param fig_dir: Figure directory
     :param subdir: Subdirectory within the directory of each format, defaults to the slug of the model
+    :param highlights: Labels of the points to be highlighted, and their indices,
+        see :py:class:`~ptplot.science.plot.snr.SNRFigure`
+    :param log_errors: Whether to log the exceptions of each figure instead of raising them,
+        so that a failure in one figure does not prevent saving the others,
+        see :py:func:`ptplot.science.utils.log_exceptions`
     """
-    figure = model.snr_figure(grid)
-    save_model_fig(figure.matplotlib(), model, name, fig_dir=fig_dir, subdir=subdir)
-    save_model_fig(
-        model.snr_figure(grid, filled=True).matplotlib(), model, f"{name}_filled", fig_dir=fig_dir, subdir=subdir
-    )
-    save_model_html(figure.plotly_html(), model, name, fig_dir=fig_dir, subdir=subdir)
+    def handler(fig_name: str) -> contextlib.AbstractContextManager[None]:
+        if log_errors:
+            return log_exceptions(logger, "Failed to save %s for %s", fig_name, model.name)
+        return contextlib.nullcontext()
+
+    with handler(name):
+        save_model_fig(
+            model.snr_figure(grid, highlights=highlights).matplotlib(), model, name, fig_dir=fig_dir, subdir=subdir
+        )
+    with handler(f"{name}_filled"):
+        save_model_fig(
+            model.snr_figure(grid, filled=True, highlights=highlights).matplotlib(), model, f"{name}_filled",
+            fig_dir=fig_dir, subdir=subdir
+        )
+    with handler(f"{name} HTML"):
+        save_model_html(
+            model.snr_figure(grid, highlights=highlights).plotly_html(), model, name, fig_dir=fig_dir, subdir=subdir
+        )
 
 
 def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> None:

@@ -138,7 +138,7 @@ def create_figures(  # noqa: PLR0915
                     )
                 snr_abs[engine] = snr_ab
                 n_spectra_engine[i_model, i_engine] += n_spectra_ab
-                save_snr_figures(model, snr_ab, f"snr_alpha_beta_{engine}")
+                save_snr_figures(model, snr_ab, f"snr_alpha_beta_{engine}", log_errors=True)
 
             with log_exceptions(logger, "Failed to plot snr_ubarf_rstar for %s", model.name):
                 n_spectra_ur = const.DEFAULT_UBARF_RANGE.size * const.DEFAULT_UBARF_RANGE.size + model.n_points
@@ -148,7 +148,7 @@ def create_figures(  # noqa: PLR0915
                         exporter=exporter if engine in EXPORT_ENGINES else None
                     )
                 n_spectra_engine[i_model, i_engine] += n_spectra_ur
-                save_snr_figures(model, snr_ur, f"snr_ubarf_rstar_{engine}")
+                save_snr_figures(model, snr_ur, f"snr_ubarf_rstar_{engine}", log_errors=True)
             times_engine[i_model, i_engine] = time.perf_counter() - engine_start_time
 
         comparisons: dict[Engine, SNRGridComparison] = {}
