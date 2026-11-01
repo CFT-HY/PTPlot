@@ -15,6 +15,7 @@ from ptplot.science.plot.utils import (
     POINTS_PER_INCH,
     TEXT_PAD,
     add_text,
+    faded,
     has_lines,
     latex_to_html,
     save_html,
@@ -96,6 +97,13 @@ class AddTextTest(TestCase):
         """Adding text to a figure without axes should fail with a clear error."""
         with pytest.raises(ValueError, match="no axes"):
             add_text(Figure(), TEXT)
+
+
+def test_faded() -> None:
+    """The faded color should be mixed with white."""
+    assert faded("black") == "#8c8c8c"
+    assert faded("red", fade=0) == "#ff0000"
+    assert faded("blue", fade=1) == "#ffffff"
 
 
 def test_save_html(tmp_path: Path) -> None:

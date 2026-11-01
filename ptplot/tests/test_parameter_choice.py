@@ -29,35 +29,35 @@ class PowerSpectrumFigureTest(TestCase):
     def test_single_engine() -> None:
         """A single engine should result in a single curve."""
         fig = point().power_spectrum_figure(engine=Engine.CosWG20bpl)
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG20bpl.spectrum.SHORT_NAME})"]
+        assert labels(fig) == [Engine.CosWG20bpl.spectrum.SHORT_NAME]
 
     @staticmethod
     def test_engine_as_str() -> None:
         """The engine should also be accepted as a string, as that's what the forms provide."""
         fig = point().power_spectrum_figure(engine="CosWG20bpl")
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG20bpl.spectrum.SHORT_NAME})"]
+        assert labels(fig) == [Engine.CosWG20bpl.spectrum.SHORT_NAME]
 
     @staticmethod
     def test_default_engines() -> None:
         """All engines except those for strong transitions only should be drawn by default."""
         fig = point().power_spectrum_figure()
         assert labels(fig) == [
-            rf"$\Omega_\mathrm{{sw}}$ ({engine.spectrum.SHORT_NAME})" for engine in Engine.engines(strong=False)
+            engine.spectrum.SHORT_NAME for engine in Engine.engines(strong=False)
         ]
-        assert rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG24bpl.spectrum.SHORT_NAME})" not in labels(fig)
+        assert Engine.CosWG24bpl.spectrum.SHORT_NAME not in labels(fig)
 
     @staticmethod
     def test_strong_engine_given() -> None:
         """An engine for strong transitions only should be drawn when it's given explicitly, e.g. by the forms."""
         fig = point().power_spectrum_figure(engine="CosWG24bpl")
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({Engine.CosWG24bpl.spectrum.SHORT_NAME})"]
+        assert labels(fig) == [Engine.CosWG24bpl.spectrum.SHORT_NAME]
 
     @staticmethod
     def test_strong_false() -> None:
         """strong=False should exclude the engines for strong transitions only also when they are given."""
         fig = point().power_spectrum_figure(engine=ENGINES, strong=False)
         assert labels(fig) == [
-            rf"$\Omega_\mathrm{{sw}}$ ({engine.spectrum.SHORT_NAME})" for engine in ENGINES
+            engine.spectrum.SHORT_NAME for engine in ENGINES
             if engine != Engine.CosWG24bpl
         ]
 
@@ -66,7 +66,7 @@ class PowerSpectrumFigureTest(TestCase):
         """Each engine should result in a curve of its own in the same figure."""
         fig = point().power_spectrum_figure(engine=ENGINES)
         assert labels(fig) == [
-            rf"$\Omega_\mathrm{{sw}}$ ({engine.spectrum.SHORT_NAME})" for engine in ENGINES
+            engine.spectrum.SHORT_NAME for engine in ENGINES
         ]
 
 

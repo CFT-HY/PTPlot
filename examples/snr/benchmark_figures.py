@@ -3,7 +3,7 @@ Benchmark SNR figures
 =====================
 
 This scripts generates the SNR figures for all the benchmark models.
-Running this script can take several hours.
+Running this script takes about 45 min.
 The figures can be generated for only some of the models by giving their slugs as command-line arguments,
 e.g. ``python -m examples.snr.benchmark_figures susy composite``, or to :py:func:`main`.
 The output files of the spectra and the statistics then have the slugs as a suffix in their names,

@@ -12,6 +12,7 @@ import typing as tp
 
 from matplotlib import rcParams
 from matplotlib.axes import Axes
+from matplotlib.colors import to_hex, to_rgb
 from matplotlib.contour import ContourSet
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation
@@ -25,6 +26,8 @@ from ptplot.science.utils import GIT_DESCRIPTION
 POINTS_PER_INCH: float = 72
 #: Default padding around the text of :func:`add_text`, in points.
 TEXT_PAD: float = 3
+#: Default fraction of white in the colors of :func:`faded`
+FADE: float = 0.55
 
 
 @matplotlib_lock
@@ -100,6 +103,17 @@ def add_text(
     pad_y = pad / (fig.get_figheight() * POINTS_PER_INCH)
     fig.tight_layout(rect=(0, 0, 1, 1 - (text_height + 2 * pad_y)))
     return txt
+
+
+def faded(color: str, fade: float = FADE) -> str:
+    """A lighter version of a color, e.g. for distinguishing a variant of a curve from the curve.
+
+    :param color: Matplotlib color
+    :param fade: Fraction of white to be mixed into the color, from 0 for the color itself to 1 for white
+    :return: The faded color as a hex string
+    """
+    red, green, blue = (1 - (1 - channel) * (1 - fade) for channel in to_rgb(color))
+    return to_hex((red, green, blue))
 
 
 @matplotlib_lock

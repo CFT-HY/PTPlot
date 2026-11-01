@@ -62,7 +62,7 @@ class PowerSpectrumFigureTest(TestCase):
         """A single spectrum should be drawn with its engine in the legend."""
         spectrum = spectra()[0]
         fig = power_spectrum_figure(spectrum)
-        assert labels(fig) == [rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})"]
+        assert labels(fig) == [spectrum.SHORT_NAME]
 
     @staticmethod
     def test_multiple() -> None:
@@ -71,7 +71,7 @@ class PowerSpectrumFigureTest(TestCase):
         fig = power_spectrum_figure(spectra_list)
         ax = fig.get_axes()[0]
         assert labels(fig) == [
-            rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})" for spectrum in spectra_list
+            spectrum.SHORT_NAME for spectrum in spectra_list
         ]
         assert [line.get_color() for line in ax.get_lines()] == [
             spectrum.COLOR for spectrum in spectra_list
@@ -100,11 +100,12 @@ class PowerSpectrumFigureTest(TestCase):
         """Each component of each spectrum should be drawn with its engine in the legend."""
         spectra_list = spectra()
         fig = power_spectrum_figure(spectra_list, sw_only=False)
-        for spectrum in spectra_list:
-            assert rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})" in labels(fig)
-        # Only the BPL has turbulence curves.
-        assert rf"$\Omega_\mathrm{{turb}}$ ({CosWG20bpl.SHORT_NAME})" in labels(fig)
-        assert f"Total ({CosWG20bpl.SHORT_NAME})" in labels(fig)
+        # Only the BPL has turbulence curves, and therefore only its components are named.
+        assert labels(fig) == [
+            rf"{CosWG20bpl.SHORT_NAME}, $\Omega_\mathrm{{sw}}$",
+            rf"{CosWG20bpl.SHORT_NAME}, $\Omega_\mathrm{{turb}}$",
+            f"{CosWG20bpl.SHORT_NAME}, total",
+        ] + [spectrum.SHORT_NAME for spectrum in spectra_list[1:]]
 
     @staticmethod
     def test_no_spectra() -> None:
@@ -127,7 +128,7 @@ class PowerSpectrumFigureTest(TestCase):
         ]
         fig = power_spectrum_figure(spectra_list, curves=curves)
         assert labels(fig) == ["Curve 1", "Curve 2"] + [
-            rf"$\Omega_\mathrm{{sw}}$ ({spectrum.SHORT_NAME})" for spectrum in spectra_list
+            spectrum.SHORT_NAME for spectrum in spectra_list
         ]
         lines = fig.get_axes()[0].get_lines()
         np.testing.assert_array_equal(lines[1].get_ydata(), omgw0_h2 / 2)
@@ -135,6 +136,24 @@ class PowerSpectrumFigureTest(TestCase):
         # The SNR of the first curve is that of the spectrum, and the SNR scales linearly with the spectrum.
         snr_labels = [label.split(", SNR=")[1] for label in labels(fig, strip_snr=False)[:2]]
         assert snr_labels == [as_latex(snr, math_mode=True), as_latex(snr / 2, math_mode=True)]
+
+    @staticmethod
+    def test_curves_snr_given() -> None:
+        """The SNR of a curve should not be recomputed if it's given."""
+        noise = resolve_noise(None)
+        fig = power_spectrum_figure([], curves=[SpectrumCurve(f=noise.f, omgw0_h2=noise.noise, label="C", snr=12.)])
+        assert labels(fig, strip_snr=False) == [f"C, SNR={as_latex(12., math_mode=True)}"]
+
+    @staticmethod
+    def test_no_snr() -> None:
+        """The SNR values can be left out of the legend."""
+        spectra_list = spectra()
+        noise = resolve_noise(None)
+        curve = SpectrumCurve(f=noise.f, omgw0_h2=noise.noise, label="Curve")
+        fig = power_spectrum_figure(spectra_list, curves=[curve], snr=False)
+        assert labels(fig, strip_snr=False) == ["Curve"] + [spectrum.SHORT_NAME for spectrum in spectra_list]
+        fig = power_spectrum_figure(spectra_list, sw_only=False, snr=False)
+        assert all("SNR" not in label for label in labels(fig, strip_snr=False))
 
     @staticmethod
     def test_curves_only() -> None:

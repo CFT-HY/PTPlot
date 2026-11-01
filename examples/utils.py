@@ -31,6 +31,33 @@ FIG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def csv_path(path: str | os.PathLike[str], fig_dir: str | os.PathLike[str] = FIG_DIR) -> Path:
+    """Path of a CSV file of a figure as ``FIG_DIR/csv/PATH.csv``, i.e. with the same structure as the figures.
+
+    :param path: Path of the figure within the directory of each format, without the suffix
+    :param fig_dir: Figure directory
+    :return: Path of the CSV file
+    """
+    path = Path(fig_dir) / "csv" / path
+    return path.with_name(f"{path.name}.csv")
+
+
+def model_csv_path(
+        model: "Model",
+        name: str,
+        fig_dir: str | os.PathLike[str] = FIG_DIR,
+        subdir: str | None = None) -> Path:
+    """Path of a CSV file of a figure of a model as ``FIG_DIR/csv/SUBDIR/SLUG_NAME.csv``, see :py:func:`save_model_fig`.
+
+    :param model: Model of the figure
+    :param name: Name of the figure
+    :param fig_dir: Figure directory
+    :param subdir: Subdirectory within the CSV directory, defaults to the slug of the model
+    :return: Path of the CSV file
+    """
+    return csv_path(Path(model.slug if subdir is None else subdir) / f"{model.slug}_{name}", fig_dir=fig_dir)
+
+
 @copy_docstring_dec(plot_utils.save_and_show_fig)
 def save_and_show_fig(
         fig: Figure,

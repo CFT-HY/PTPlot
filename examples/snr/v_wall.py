@@ -3,6 +3,8 @@ Wall velocity comparison
 ========================
 
 Compare the SNR results of a model with two different $v_\text{wall}$ for each spectrum engine.
+
+Running this script takes about 2 min.
 """
 
 import logging

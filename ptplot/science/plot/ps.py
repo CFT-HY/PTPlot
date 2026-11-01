@@ -42,6 +42,8 @@ class SpectrumCurve:
     label: str
     color: str = "black"
     linestyle: str = "-"
+    #: SNR of the curve, e.g. if it has already been computed. If not given, it's computed against the noise curve.
+    snr: float | None = None
 
 
 @matplotlib_lock
@@ -51,21 +53,24 @@ def power_spectrum_figure(
         sw_only: bool = True,
         title: str | None = None,
         curves: tp.Iterable[SpectrumCurve] = (),
-        ylim: tuple[float, float] = YLIM) -> Figure:
+        ylim: tuple[float, float] = YLIM,
+        snr: bool = True) -> Figure:
     r"""Produce the power spectrum plot.
 
     The engine and the SNR of each spectrum are printed in the legend.
     When multiple spectra are drawn, each of them is drawn with the color of its engine,
     and the components of a spectrum are distinguished from each other by their line styles.
     The sound wave curve of each spectrum is drawn with the line style of its engine.
+    When the turbulence curves are drawn, the components are also named in the legend.
 
     :param spectra: power spectrum, or multiple power spectra to be drawn in the same figure
     :param noise: Which noise curve to use
     :param sw_only: Whether to ignore turbulence
     :param title: Title of the figure, which is drawn above the watermark
     :param curves: Precomputed spectra to be drawn before the spectra of the engines, e.g. those of simulations.
-        Their SNRs are computed against the noise curve.
+        Their SNRs are computed against the noise curve, unless given in the curves.
     :param ylim: Limits of the y-axis, e.g. to make room for the legend above the spectra
+    :param snr: Whether to print the SNR values in the legend
     :return: Power spectrum figure
     :raises ValueError: If no spectra or curves were given
     """
@@ -88,35 +93,40 @@ def power_spectrum_figure(
 
         ax.fill_between(noise.f, noise.noise, 1, alpha=0.3, label=r"LISA noise")
 
+        def snr_suffix(snr_value: float) -> str:
+            return f", SNR={as_latex(snr_value, math_mode=True)}" if snr else ""
+
         for curve in curves_list:
-            snr_value = PowerSpectrum.snr(curve.f, curve.omgw0_h2, noise)
+            snr_value = PowerSpectrum.snr(curve.f, curve.omgw0_h2, noise) if curve.snr is None else curve.snr
             ax.plot(
                 curve.f, curve.omgw0_h2, color=curve.color, linestyle=curve.linestyle,
-                label=f"{curve.label}, SNR={as_latex(snr_value, math_mode=True)}"
+                label=curve.label + snr_suffix(snr_value)
             )
 
         for spectrum in spectra_list:
             pow_spec, snr_value = spectrum.power_spectrum(noise.f, noise=noise)
             # The engine is printed in the legend to tell the spectra apart.
-            label_suffix = f" ({spectrum.SHORT_NAME})"
+            label = spectrum.SHORT_NAME
             color = spectrum.COLOR if multiple else ("k" if sw_only else "r")
+            turb = not sw_only and isinstance(spectrum, CosWG20bpl)
 
             ax.plot(
                 noise.f, pow_spec, color=color, linestyle=spectrum.LINESTYLE,
-                label=r"$\Omega_\mathrm{sw}$" + label_suffix + f", SNR={as_latex(snr_value, math_mode=True)}"
+                # The components are named only when there are multiple components.
+                label=(rf"{label}, $\Omega_\mathrm{{sw}}$" if turb else label) + snr_suffix(snr_value)
             )
-            if not sw_only and isinstance(spectrum, CosWG20bpl):
+            if turb:
                 ax.plot(
                     noise.f, spectrum.power_spectrum_turb(noise.f),
                     color=color if multiple else "b",
                     linestyle=TURB_LINESTYLE if multiple else "-",
-                    label=r"$\Omega_\mathrm{turb}$" + label_suffix
+                    label=rf"{label}, $\Omega_\mathrm{{turb}}$"
                 )
                 ax.plot(
                     noise.f, spectrum.power_spectrum_full_conservative(noise.f),
                     color=color if multiple else "k",
                     linestyle=TOTAL_LINESTYLE if multiple else "-",
-                    label="Total" + label_suffix
+                    label=f"{label}, total"
                 )
 
         ax.set_xlabel(r"$f\; \mathrm{(Hz)}$", fontsize=const.DEFAULT_LABEL_FONTSIZE)
