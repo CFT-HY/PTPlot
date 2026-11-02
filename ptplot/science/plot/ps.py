@@ -14,10 +14,11 @@ from pttools.math.formatting import as_latex
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[3]))
 
+from pttools.plot.lock import matplotlib_lock
+
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
-from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, add_text, fig_to_svg, title_pad, watermark
 from ptplot.science.spectrum import CosWG20bpl, PowerSpectrum, power_spectrum
 import ptplot.science.type_hints as th

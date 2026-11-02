@@ -7,8 +7,8 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import LogFormatterSciNotation
 import numpy as np
+from pttools.plot.lock import matplotlib_lock
 
-from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import add_highlights, add_points, log_figure
 from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, add_subplot_titles, subplot_grid
 from ptplot.science.snr.grid_comparison import SNRGridComparison

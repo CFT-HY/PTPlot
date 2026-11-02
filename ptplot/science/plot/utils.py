@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import typing as tp
 
+import matplotlib
 from matplotlib import rcParams
 from matplotlib.axes import Axes
 from matplotlib.colors import to_hex, to_rgb
@@ -18,17 +19,14 @@ from matplotlib.figure import Figure
 from matplotlib.text import Annotation
 from matplotlib.typing import RcKeyType
 import numpy as np
+from pttools.plot.lock import matplotlib_lock
 
-from ptplot.science.plot.lock import matplotlib_lock
 import ptplot.science.type_hints as th
 from ptplot.science.utils import GIT_DESCRIPTION
-from ptplot.utils import is_django_or_testing
+from ptplot.utils import is_django
 
-#: Default Matplotlib context.
-#: In the Django server and in the unit tests the non-interactive Agg backend is used,
-#: and otherwise the backend is not changed, so that e.g. scripts can show the figures interactively.
+#: Default Matplotlib context
 DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
-    **({"backend": "Agg"} if is_django_or_testing() else {}),
     "font.family": "serif",
     "mathtext.fontset": "dejavuserif",
     # "text.usetex": usetex
@@ -39,6 +37,12 @@ FADE: float = 0.55
 POINTS_PER_INCH: float = 72
 #: Default padding around the text of :func:`add_text`, in points.
 TEXT_PAD: float = 3
+
+# The Django server uses the non-interactive Agg backend.
+# In the unit tests this is done by pttools.utils.pytest.configure_testing,
+# and otherwise the backend is not changed, so that e.g. scripts can show the figures interactively.
+if is_django():
+    matplotlib.use("Agg", force=True)
 
 
 @matplotlib_lock

@@ -17,12 +17,12 @@ and with the sign-corrected foreground scaled by $\sqrt{2}$.
 
 import logging
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pttools.utils.time import log_duration
 
 from examples.noise.foreground_utils import S_gal_babak, S_gb_cornish, noise_with_foreground
-from examples.utils import save_fig
+from examples.utils import save_and_show_figs
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -76,7 +76,7 @@ def snr_grid(noise: Noise) -> th.FloatArr2D:
 
 
 @log_duration
-def main() -> None:
+def main() -> dict[str, Figure]:
     """Plot the SNR with the variants of the galactic foreground."""
     noises = noise_variants()
     default = Noise(obs_years=OBS_YEARS, eb=True, gb=True)
@@ -85,7 +85,8 @@ def main() -> None:
     snr_default = grids[DEFAULT_NAME]
     r_star = const.DEFAULT_R_STAR_RANGE
 
-    fig1, ax = plt.subplots(figsize=(7, 4.5))
+    fig1 = Figure(figsize=(7, 4.5))
+    ax = fig1.add_subplot()
     for name, snr in grids.items():
         ratio = (snr / snr_default)[:, 0]
         logger.info(
@@ -99,11 +100,11 @@ def main() -> None:
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=7)
     fig1.tight_layout()
-    save_fig(fig1, "noise_galactic_foreground_ratio")
 
     x = np.log10(const.DEFAULT_UBARF_RANGE)
     y = np.log10(r_star)
-    fig2, ax = plt.subplots(figsize=(6, 5))
+    fig2 = Figure(figsize=(6, 5))
+    ax = fig2.add_subplot()
     ax.contour(x, y, grids["no gb (ins + eb)"], LEVELS, colors=COLOR_TUPLE, linewidths=0.8, linestyles="dotted")
     ax.contour(x, y, snr_default, LEVELS, colors=COLOR_TUPLE, linewidths=1, linestyles="dashed")
     contours = ax.contour(
@@ -118,8 +119,8 @@ def main() -> None:
     ax.set_ylabel(r"$\log_{10} r_*$")
     ax.set_title(rf"BPL2020 SNR contours, $T_*={T_STAR:g}$ GeV, {OBS_YEARS:g} yr", fontsize=9)
     fig2.tight_layout()
-    save_fig(fig2, "noise_galactic_foreground_contours")
+    return {"noise_galactic_foreground_ratio": fig1, "noise_galactic_foreground_contours": fig2}
 
 
 if __name__ == "__main__":
-    main()
+    save_and_show_figs(main())

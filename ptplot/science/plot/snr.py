@@ -18,9 +18,9 @@ from matplotlib.figure import Figure
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from pttools.plot.lock import matplotlib_lock
 
 from ptplot.science import const
-from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import (
     HIGHLIGHT_MARKERS,
     add_highlights,

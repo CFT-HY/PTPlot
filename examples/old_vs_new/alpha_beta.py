@@ -21,11 +21,11 @@ and for $v_{\text{wall}} < c_s$ it does so only with the legacy conversion.
 
 import logging
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pttools.utils.time import log_duration
 
-from examples.utils import save_fig
+from examples.utils import save_and_show_figs
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -64,7 +64,7 @@ def new_grid(v_wall: float, noise: Noise, legacy: bool = False) -> th.FloatArr2D
 
 
 @log_duration
-def main() -> None:
+def main() -> dict[str, Figure]:
     r"""Plot the old and the new SNR contours on the $(\alpha, \beta/H_*)$ plane."""
     (_, snr_old, log10_r_star, log10_ubarf), from_old_code = old_or_reconstructed_grid(
         T_STAR, G_STAR, OLD_UBARF_MAX_ALPHA_BETA
@@ -76,7 +76,8 @@ def main() -> None:
     x = np.log10(const.DEFAULT_ALPHA_N_RANGE)
     y = np.log10(const.DEFAULT_BETA_TILDE_RANGE)
 
-    fig, axs = plt.subplots(2, len(V_WALLS), figsize=(4 * len(V_WALLS), 8), sharex=True, sharey=True)
+    fig = Figure(figsize=(4 * len(V_WALLS), 8))
+    axs = fig.subplots(2, len(V_WALLS), sharex=True, sharey=True)
     for i, v_wall in enumerate(V_WALLS):
         alpha_old, beta_tilde_old = old_alpha_beta_axes(v_wall, log10_ubarf=log10_ubarf, log10_r_star=log10_r_star)
         x_old = np.log10(alpha_old)
@@ -116,8 +117,8 @@ def main() -> None:
         ax.set_ylabel(r"$\log_{10} \beta/H_*$")
     fig.suptitle(rf"BPL2020, $T_*={T_STAR:g}$ GeV, $g_*={G_STAR:g}$, {OLD_OBS_YEARS:g} yr")
     fig.tight_layout()
-    save_fig(fig, "old_vs_new_alpha_beta_contours")
+    return {"old_vs_new_alpha_beta_contours": fig}
 
 
 if __name__ == "__main__":
-    main()
+    save_and_show_figs(main())

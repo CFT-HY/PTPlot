@@ -9,9 +9,9 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import Model
 from pttools.plot.bubbles import plot_bubbles_common, plot_bubbles_v
+from pttools.plot.lock import matplotlib_lock
 
 from ptplot.science import const
-from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, POINTS_PER_INCH, TEXT_PAD, add_text, watermark
 from ptplot.science.spectrum.create import ssm_model
 from ptplot.science.spectrum.ssm import BAG

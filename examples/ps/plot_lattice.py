@@ -38,6 +38,7 @@ import logging
 from pathlib import Path
 import typing as tp
 
+from matplotlib.figure import Figure
 from pttools.lattice import CHRW25_RUNS, LatticeRunParams, data_dir, load_chrw25_run
 from pttools.utils.time import log_duration
 
@@ -101,13 +102,13 @@ def compare_lattice(
 
 
 @log_duration
-def main() -> None:
+def main() -> dict[str, Figure]:
     """Plot the spectra of the simulations of Correia et al. and of the engines."""
     setup_logging()
     path = data_dir()
     if path is None:
         logger.warning("The data of Correia et al. was not found. Skipping the example.")
-        return
+        return {}
     engines = Engine.engines(log=True, strong=False)
     figs = {}
     for name, meta in CHRW25_RUNS.items():
@@ -116,8 +117,8 @@ def main() -> None:
         comparison.save_csv(csv_path(fig_name))
         figs[fig_name] = comparison.figure()
         figs[f"{fig_name}_paper"] = comparison.figure(title=False, snr=False)
-    save_and_show_figs(figs)
+    return figs
 
 
 if __name__ == "__main__":
-    main()
+    save_and_show_figs(main())

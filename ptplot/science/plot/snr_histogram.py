@@ -5,11 +5,11 @@
 from matplotlib.figure import Figure
 import numpy as np
 from pttools.export import Exporter
+from pttools.plot.lock import matplotlib_lock
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum.engine import Engine
@@ -51,7 +51,7 @@ def snr_histogram(
     The SNR values are computed in parallel with :py:func:`ptplot.science.snr.points.snr_points`,
     and the histogram is drawn with :py:func:`snr_histogram_figure`.
     The Matplotlib lock is held only while drawing, so that the computation does not block other figures,
-    see :py:mod:`ptplot.science.plot.lock`.
+    see :py:mod:`pttools.plot.lock`.
 
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html
     https://matplotlib.org/stable/gallery/statistics/histogram_histtypes.html

@@ -16,11 +16,11 @@ The first figure shows this factor for each noise combination.
 
 import logging
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pttools.utils.time import log_duration
 
-from examples.utils import save_fig
+from examples.utils import save_and_show_figs
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -61,10 +61,10 @@ def contour_comparison(
         snr1: th.FloatArr2D,
         snr2: th.FloatArr2D,
         label1: str,
-        label2: str,
-        path: str) -> None:
+        label2: str) -> Figure:
     """Draw the SNR contours of two grids in the same figure."""
-    fig, ax = plt.subplots(figsize=(6, 5))
+    fig = Figure(figsize=(6, 5))
+    ax = fig.add_subplot()
     ax.contour(x, y, snr1, LEVELS, colors=COLOR_TUPLE, linewidths=1, linestyles="dashed")
     contours = ax.contour(x, y, snr2, LEVELS, colors=COLOR_TUPLE, linewidths=1.3)
     ax.clabel(contours, fmt="%.0f", fontsize=7)
@@ -75,11 +75,11 @@ def contour_comparison(
     ax.set_ylabel(r"$\log_{10} r_*$")
     ax.set_title(f"BPL2020 SNR contours, $T_*={T_STAR:g}$ GeV, {OLD_OBS_YEARS:g} yr", fontsize=9)
     fig.tight_layout()
-    save_fig(fig, path)
+    return fig
 
 
 @log_duration
-def main() -> None:
+def main() -> dict[str, Figure]:
     r"""Compare the old and the new SNR grids on the $(\bar{U}_f, r_*)$ plane."""
     (_, snr_old, log10_r_star, log10_ubarf), from_old_code = old_or_reconstructed_grid(T_STAR, G_STAR)
     old_label = "old code, old noise" if from_old_code else "old noise (reconstructed)"
@@ -99,7 +99,8 @@ def main() -> None:
             label, old_label, np.nanmin(ratio), np.nanmax(ratio), variation
         )
 
-    fig, ax = plt.subplots(figsize=(7, 4.5))
+    fig = Figure(figsize=(7, 4.5))
+    ax = fig.add_subplot()
     for label, snr in grids.items():
         ax.plot(r_star, (snr / snr_old)[:, 0], label=f"new code, {label}")
     ax.axhline(snr_factor(G_STAR), color="k", ls="--", lw=0.8, label="constant factors only")
@@ -111,7 +112,7 @@ def main() -> None:
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=7)
     fig.tight_layout()
-    save_fig(fig, "old_vs_new_ubarf_rstar_ratio")
+    figs = {"old_vs_new_ubarf_rstar_ratio": fig}
 
     comparisons = (
         (snr_old, grids["ins + eb + gb"], old_label, "new code, ins + eb + gb", "default"),
@@ -120,11 +121,10 @@ def main() -> None:
         (grids["ins + eb"], grids["ins + eb + gb"], "new code, ins + eb", "new code, ins + eb + gb", "eb_vs_full"),
     )
     for snr1, snr2, label1, label2, name in comparisons:
-        contour_comparison(
-            log10_ubarf, log10_r_star, snr1, snr2, label1=label1, label2=label2,
-            path=f"old_vs_new_ubarf_rstar_contours_{name}"
-        )
+        figs[f"old_vs_new_ubarf_rstar_contours_{name}"] = contour_comparison(
+            log10_ubarf, log10_r_star, snr1, snr2, label1=label1, label2=label2)
+    return figs
 
 
 if __name__ == "__main__":
-    main()
+    save_and_show_figs(main())

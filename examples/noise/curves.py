@@ -16,13 +16,13 @@ and oscillates above the transfer frequency because of the exact LISA response.
 
 import logging
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from pttools.omgw0.noise import omega_eb_h2, omega_h2, omega_ins_h2
 from pttools.utils.time import log_duration
 
 from examples.noise.foreground_utils import S_gal_babak, S_gb_cornish
-from examples.utils import save_fig
+from examples.utils import save_and_show_figs
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -41,13 +41,14 @@ R_STARS: tuple[float, ...] = (1e-3, 1e-2, 3e-2, 1e-1, 1.)
 
 
 @log_duration
-def main() -> None:
+def main() -> dict[str, Figure]:
     """Plot the noise curves and their ratios to the old sensitivity curve."""
     f_old, om_old = load_sensitivity(OLD_SENSITIVITY_FILE)
     noise = Noise(obs_years=OLD_OBS_YEARS, eb=True, gb=True)
     f = noise.f
 
-    fig1, ax = plt.subplots(figsize=(7, 4.5))
+    fig1 = Figure(figsize=(7, 4.5))
+    ax = fig1.add_subplot()
     ax.loglog(f_old, om_old, "k--", label=f"old {OLD_SENSITIVITY_FILE}.txt")
     ax.loglog(f, omega_ins_h2(f), label="PTtools instrument (ins)")
     ax.loglog(f, omega_eb_h2(f), label="PTtools extragalactic binaries (eb)")
@@ -69,10 +70,10 @@ def main() -> None:
     ax.set_title(rf"Noise curves; vertical lines: BPL2020 peak for $T_*={T_STAR:g}$ GeV", fontsize=9)
     ax.legend(fontsize=7)
     fig1.tight_layout()
-    save_fig(fig1, "noise_curves")
 
     om_old_interp = 10**np.interp(np.log10(f), np.log10(f_old), np.log10(om_old))
-    fig2, ax = plt.subplots(figsize=(7, 4))
+    fig2 = Figure(figsize=(7, 4))
+    ax = fig2.add_subplot()
     ax.semilogx(f, omega_ins_h2(f) / om_old_interp, label="PTtools ins / old")
     ax.semilogx(f, noise.noise / om_old_interp, label="PTtools ins + eb + gb / old")
     ax.axhline(SENSITIVITY_FILE_FACTOR, color="grey", ls="--", lw=0.8, label="SENSITIVITY_FILE_FACTOR")
@@ -82,7 +83,6 @@ def main() -> None:
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8)
     fig2.tight_layout()
-    save_fig(fig2, "noise_ratio")
 
     ratio = noise.noise / om_old_interp
     i_max = np.argmax(ratio)
@@ -91,7 +91,8 @@ def main() -> None:
         "The instrument noise alone is %.4g times the old curve at 0.1 mHz.",
         ratio[i_max], f[i_max], np.interp(1e-4, f, omega_ins_h2(f) / om_old_interp)
     )
+    return {"noise_curves": fig1, "noise_ratio": fig2}
 
 
 if __name__ == "__main__":
-    main()
+    save_and_show_figs(main())
