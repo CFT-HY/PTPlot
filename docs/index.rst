@@ -21,7 +21,6 @@ documentation for details.
   gen_modules/ptplot/ptplot
   gen_modules/ptplot_site/ptplot_site
   gen_modules/examples/examples
-  gen_modules/docs/docs
   history
   acknowledgements
   dev
