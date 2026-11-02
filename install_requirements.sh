@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Install the dependencies of PTPlot with uv.
 # This creates the virtualenv ./.venv, installs the locked dependencies to it,
-# and installs PTPlot itself there in editable mode.
+# installs PTPlot itself there in editable mode,
+# and generates the reference data of the fluid solver of PTtools.
 #
 # Usage: ./install_requirements.sh [--update-pttools] [UV_SYNC_ARGS...]
 #   --update-pttools  Update the PTtools commit in pyproject.toml to the latest commit
@@ -135,3 +136,12 @@ if [ "${COMMIT_BEFORE}" != "${COMMIT_AFTER}" ]; then
   fi
   clear_numba_cache pttools
 fi
+
+# The reference data of the fluid solver of PTtools is not included in the package, but generated on first use.
+# Generating it here prevents the unit tests from having to generate it.
+# If the data already exists, it's only loaded.
+echo "Generating the reference data of the fluid solver of PTtools, if it does not exist yet."
+# This is not run with "python -m pttools.bubble.fluid_reference",
+# as pttools.bubble imports the module before it would be run as __main__, which results in a RuntimeWarning.
+uv run --project "${SCRIPT_DIR}" --no-sync python -c \
+  "from pttools.bubble.fluid_reference import ref; from pttools.logging import setup_logging; setup_logging(); ref()"

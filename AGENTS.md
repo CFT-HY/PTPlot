@@ -3,7 +3,8 @@
 ## Commands
 The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Install dependencies: `./install_requirements.sh`
-  - This wraps `uv sync` and clears the Numba cache of PTtools when PTtools is updated.
+  - This wraps `uv sync`, clears the Numba cache of PTtools when PTtools is updated,
+    and generates the reference data of the fluid solver of PTtools, if it does not exist yet.
 - Run tests: `uv run pytest`
 - Lint: `uv run ruff check`
 - Type checking: `uv run pyrefly check`
