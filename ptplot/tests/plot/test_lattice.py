@@ -23,6 +23,7 @@ from ptplot.science.plot.lattice import (
     LINESTYLE,
     YLIM,
     lattice_comparison,
+    lattice_comparison_at_point,
     lattice_curves,
     lattice_figure,
     lattice_figures,
@@ -34,6 +35,12 @@ from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
 ENGINES: tuple[Engine, ...] = (Engine.CosWG20bpl, Engine.GH21dbpl)
+#: Engines of the comparisons at the points, which require the SSM for the $r_*$ of the lattice spectra
+POINT_ENGINES: tuple[Engine, ...] = (*ENGINES, Engine.SSM)
+#: Low accuracy settings of the SSM spectra, as only their structure and $r_*$ are tested
+SSM_SETTINGS: SSMSettings = SSMSettings(n_z_lookup=500, n_t=100)
+#: Labels of the curves of :py:data:`POINT_ENGINES`
+POINT_ENGINE_LABELS: list[str] = [engine.spectrum.SHORT_NAME for engine in ENGINES] + ["SSM, exp.", "SSM, simult."]
 
 
 @functools.cache
@@ -60,7 +67,7 @@ class LatticeFigureTest(TestCase):
         """Each simulation should be compared at the point whose alpha is closest to that of the simulation."""
         if not runs():
             pytest.skip("The data of the lattice simulations is not available.")
-        figs = lattice_figures(self.model, runs(), engines=ENGINES)
+        figs = lattice_figures(self.model, runs(), engines=POINT_ENGINES, ssm_settings=SSM_SETTINGS)
         assert list(figs) == list(runs())
         for name, fig in figs.items():
             run = runs()[name]
@@ -72,21 +79,27 @@ class LatticeFigureTest(TestCase):
             fig_labels = labels(fig)
             assert fig_labels[0].startswith(rf"{CHRW25_NAME}, $\mathcal{{P}}_\mathrm{{gw}}$, $t=")
             assert fig_labels[1] == rf"{CHRW25_NAME}, $\mathcal{{P}}_\mathrm{{gw}}$, $t \to \infty$"
-            assert fig_labels[2:] == [engine.spectrum.SHORT_NAME for engine in ENGINES]
+            assert fig_labels[2:] == POINT_ENGINE_LABELS
             lines = ax.get_lines()
             assert [(line.get_color(), line.get_linestyle()) for line in lines[:2]] == \
                 [(ACCUMULATED_COLOR, LINESTYLE), (COLOR, LINESTYLE)]
-            assert [line.get_linestyle() for line in lines[2:]] == ["-"] * len(ENGINES)
+            assert [line.get_linestyle() for line in lines[2:]] == ["-"] * len(ENGINES) + ["--"] * 2
 
     def test_lattice_figures_paper(self) -> None:
         """The title and the SNRs can be left out, and the title can be overridden."""
         if not runs():
             pytest.skip("The data of the lattice simulations is not available.")
-        for fig in lattice_figures(self.model, runs(), engines=ENGINES, title=False, snr=False).values():
+        figs = lattice_figures(
+            self.model, runs(), engines=POINT_ENGINES, title=False, snr=False, ssm_settings=SSM_SETTINGS
+        )
+        for fig in figs.values():
             assert fig.get_axes()[0].get_title() == ""
             assert all("SNR" not in label for label in labels(fig, strip_snr=False))
         run = runs()["detonation"]
-        fig = lattice_figure(self.model.closest_point(run.alpha_n), run, engines=ENGINES, title="Test title")
+        fig = lattice_figure(
+            self.model.closest_point(run.alpha_n), run, engines=POINT_ENGINES, title="Test title",
+            ssm_settings=SSM_SETTINGS
+        )
         assert fig.get_axes()[0].get_title() == "Test title"
         assert all("SNR=" in label for label in labels(fig, strip_snr=False))
 
@@ -100,9 +113,50 @@ class LatticeFigureTest(TestCase):
             model=Model(name="Test", slug="test", T_star=100, g_star=100, v_wall=0.95),
             number=1, alpha=0.5, beta_tilde=100
         )
-        assert isinstance(lattice_figure(point, run, engines=ENGINES[:1]), Figure)
+        assert isinstance(
+            lattice_figure(point, run, engines=(ENGINES[0], Engine.SSM), ssm_settings=SSM_SETTINGS), Figure
+        )
         r_star = point.power_spectrum(v_wall=run.v_wall).r_star
         assert r_star != pytest.approx(point.power_spectrum().r_star)
+
+    @staticmethod
+    def test_lattice_comparison_r_star() -> None:
+        r"""The lattice spectra should have the $r_*$ of the SSM spectrum.
+
+        For the deflagration, the $r_*$ of the SSM includes the thermal suppression of nucleation,
+        and is therefore larger than the $r_*(0)$ of the other engines.
+        For the detonation, there is no suppression, and all the spectra have the same $r_*$.
+        """
+        if not runs():
+            pytest.skip("The data of the lattice simulations is not available.")
+        model = Model(name="Test", slug="test", T_star=100, g_star=100, v_wall=0.95)
+        for name, suppressed in (("deflagration", True), ("detonation", False)):
+            run = runs()[name]
+            point = ParameterChoice(model=model, number=1, alpha=run.alpha_n, beta_tilde=100)
+            comparison = lattice_comparison_at_point(point, run, engines=POINT_ENGINES, ssm_settings=SSM_SETTINGS)
+            ssm = point.power_spectrum(engine=Engine.SSM, v_wall=run.v_wall, ssm_settings=SSM_SETTINGS)
+            assert isinstance(ssm, PowerSpectrumSSM)
+            r_star = ssm.r_star
+            r_star0 = point.power_spectrum(v_wall=run.v_wall).r_star
+            assert (r_star > 1.01 * r_star0) if suppressed else (r_star == pytest.approx(r_star0, rel=1e-12))
+            lattice = PowerSpectrumLattice(run, r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value)
+            curve = comparison.curves[f"{CHRW25_NAME}_asymptote"]
+            np.testing.assert_allclose(curve.f, lattice.f[lattice.valid], rtol=1e-12)
+            np.testing.assert_allclose(curve.omgw0_h2, lattice.omgw0_h2_asymptote[lattice.valid], rtol=1e-12)
+            for key, ssm_curve in ssm_curves(ssm).items():
+                np.testing.assert_allclose(comparison.curves[key].omgw0_h2, ssm_curve.omgw0_h2, rtol=1e-12)
+            assert rf"$r_* = {as_latex(r_star)}$" in tp.cast(str, comparison.title)
+
+    @staticmethod
+    def test_lattice_comparison_ssm_required() -> None:
+        """The comparison at a point should require the SSM, whose r_* is used for the lattice spectra."""
+        point = ParameterChoice(
+            model=Model(name="Test", slug="test", T_star=100, g_star=100, v_wall=0.95),
+            number=1, alpha=0.5, beta_tilde=100
+        )
+        run = tp.cast(LatticeRun, SimpleNamespace(alpha_n=0.5, v_wall=0.44))
+        with pytest.raises(ValueError, match="must include the SSM"):
+            lattice_comparison_at_point(point, run, engines=ENGINES)
 
     def test_lattice_figures_error(self) -> None:
         """A figure that cannot be created should be logged and skipped."""
@@ -163,7 +217,7 @@ def test_lattice_comparison(tmp_path: Path) -> None:
 
 
 def test_ssm_curves() -> None:
-    """The exponential nucleation should be that of the SSM engine, and faded."""
+    """The exponential nucleation should be that of the SSM engine, and faded, and both should have its r_*."""
     noise = resolve_noise(None)
     settings = SSMSettings(n_z_lookup=500, n_t=100)
     ssm = PowerSpectrumSSM(v_wall=0.92, alpha=0.67, r_star=0.1, settings=settings)
@@ -173,9 +227,12 @@ def test_ssm_curves() -> None:
     assert (exp.label, sim.label) == ("SSM, exp.", "SSM, simult.")
     assert (exp.color, sim.color) == (faded(PowerSpectrumSSM.COLOR), PowerSpectrumSSM.COLOR)
     assert exp.linestyle == sim.linestyle == PowerSpectrumSSM.LINESTYLE
-    omgw0_h2, snr = ssm.power_spectrum(noise.f, noise)
-    np.testing.assert_allclose(exp.omgw0_h2, omgw0_h2)
-    assert exp.snr == pytest.approx(snr)
+    for curve, nuc_type in ((exp, NucType.EXPONENTIAL), (sim, NucType.SIMULTANEOUS)):
+        omgw0_h2, snr = ssm.power_spectrum(noise.f, noise, nuc_type=nuc_type)
+        np.testing.assert_allclose(curve.omgw0_h2, omgw0_h2)
+        assert curve.snr == pytest.approx(snr)
+        assert ssm.spectrum is not None
+        assert ssm.spectrum.r_star == pytest.approx(ssm.r_star)
     # Simultaneous nucleation gives a narrower distribution of bubble sizes, and therefore a peak at higher f.
     assert noise.f[np.argmax(sim.omgw0_h2)] > noise.f[np.argmax(exp.omgw0_h2)]
     assert list(ssm_curves(ssm, noise, nuc_types=(NucType.SIMULTANEOUS,))) == ["SSM_simultaneous"]

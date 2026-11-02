@@ -6,6 +6,7 @@ import unittest
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.ssm.nucleation import NucType
 import pytest
 
 from ptplot.science.noise import noise_curve
@@ -71,6 +72,14 @@ class SSMPrecomputedTest(unittest.TestCase):
         assert ssm.spectrum is not None
         assert ssm.spectrum.a2 is not ssm.precomputed.a2
         ps_ref, _ = computed.power_spectrum(f, noise=noise, suppression_method=SuppressionMethod.NONE)
+        np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
+
+        # The nucleation type differs from that of the precomputed spectrum.
+        ps, _ = ssm.power_spectrum(f, noise=noise, nuc_type=NucType.SIMULTANEOUS)
+        assert ssm.spectrum is not None
+        assert ssm.spectrum.a2 is not ssm.precomputed.a2
+        assert ssm.spectrum.nuc_type == NucType.SIMULTANEOUS
+        ps_ref, _ = computed.power_spectrum(f, noise=noise, nuc_type=NucType.SIMULTANEOUS)
         np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
 
     def test_with_params(self) -> None:

@@ -12,6 +12,7 @@ from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
 from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod, freq, signal_to_noise_ratio
 from pttools.ssm.const import DEFAULT_N_T, DEFAULT_N_Z_LOOKUP
+from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
@@ -159,7 +160,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             suppression: Suppression,
             suppression_method: SuppressionMethod,
             f: FloatArr1D | None = None,
-            z: FloatArr1D | None = None) -> Spectrum:
+            z: FloatArr1D | None = None,
+            nuc_type: NucType = DEFAULT_NUC_TYPE) -> Spectrum:
         """Compute the PTtools spectrum for either the frequencies ``f`` or the $z$ array."""
         return Spectrum(
             bubble=self.bubble,
@@ -169,6 +171,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             g_star=self.g_star,
             r_star=self.r_star_given,
             T_star=self.T_star,
+            nuc_type=nuc_type,
             suppression=suppression,
             suppression_method=suppression_method,
             parallel=self.parallel,
@@ -227,9 +230,15 @@ class PowerSpectrumSSM(PowerSpectrum):
             gs0: float = GS0,
             om_gamma0_h2: float = OMEGA_PHOTON_H2,
             suppression: Suppression = DEFAULT_SUPPRESSION,
-            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT) \
+            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT,
+            nuc_type: NucType = DEFAULT_NUC_TYPE) \
             -> tuple[FloatArr1D, float]:
         r"""Power spectrum $\mathcal{P}_\text{gw} h^2$ from the Sound Shell Model, and its SNR.
+
+        The bubble lifetime distribution is that of the nucleation type ``nuc_type``,
+        see :py:class:`pttools.ssm.nucleation.NucType`.
+        It does not currently affect $r_*$, which is computed from $\tilde{\beta}$
+        in the same way for all nucleation types.
 
         The SNR is computed by :py:meth:`PowerSpectrum.snr` on the frequencies ``f``,
         in the same way as :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`.
@@ -247,8 +256,8 @@ class PowerSpectrumSSM(PowerSpectrum):
            conversion. The frequencies of the returned spectrum are therefore those given in ``f``,
            whereas the SNR is integrated over the frequencies that PTtools assigns to the same $z$ values.
 
-        If the spectrum has been precomputed with the same suppression settings (see :py:attr:`precomputed`),
-        and ``f`` is within its $z$ range (see :py:meth:`covers`),
+        If the spectrum has been precomputed with the same suppression settings and nucleation type
+        (see :py:attr:`precomputed`), and ``f`` is within its $z$ range (see :py:meth:`covers`),
         the precomputed spectrum is used instead of computing a new one.
         Then the returned power spectrum is that of :py:meth:`interpolated_spectrum`,
         i.e. the precomputed spectrum is interpolated to ``f`` by PTtools,
@@ -263,10 +272,12 @@ class PowerSpectrumSSM(PowerSpectrum):
             if self.precomputed is not None \
                     and suppression is self.suppression \
                     and suppression_method == self.suppression_method \
+                    and nuc_type == self.precomputed.nuc_type \
                     and self.covers(f):
                 return self._power_spectrum_precomputed(
                     f=f, noise=noise, ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
-            spectrum = self._spectrum(f=f, suppression=suppression, suppression_method=suppression_method)
+            spectrum = self._spectrum(
+                f=f, suppression=suppression, suppression_method=suppression_method, nuc_type=nuc_type)
             omgw0_h2 = spectrum.omgw0_h2(ge0_photon=ge0_photon, gs0=gs0, om_gamma0_h2=om_gamma0_h2)
             snr = self.snr(f=f, power_spectrum=omgw0_h2, noise=noise)
             self.spectrum = spectrum

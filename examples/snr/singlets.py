@@ -20,6 +20,8 @@ For each of these points, the GW power spectra of the simulation are compared to
 see :py:func:`ptplot.science.plot.lattice.lattice_comparison_at_point`.
 The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
+The lattice spectra are evaluated at the $r_*$ of the SSM spectrum, which includes the thermal suppression
+of nucleation for deflagrations.
 These figures are drawn in the same style as those of ``examples.ps.plot_lattice``,
 and CosWG24bpl is left out of them by default.
 The lattice figures with the suffix ``_paper`` have no title and no SNRs in the legend,
@@ -160,7 +162,8 @@ def main(
     max_workers = n_workers()
     logger.info("Creating the singlet figures with %d parallel workers.", max_workers)
     runs = load_chrw25_runs(missing_ok=True)
-    lattice_engines = Engine.engines(fast=True, strong=lattice_coswg24bpl)
+    # The SSM is always included, as its r_star is used for the lattice spectra.
+    lattice_engines = Engine.engines(strong=lattice_coswg24bpl)
     for model in Model.objects.filter(slug__in=SLUGS).prefetch_related("points"):
         logger.info("##### Processing model: %s", model.name)
         create_figures(

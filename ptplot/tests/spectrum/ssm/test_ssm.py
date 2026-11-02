@@ -5,8 +5,12 @@ import unittest
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel
+from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
+from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 import pytest
 
+from ptplot.science.const import OMEGA_PHOTON_H2
 from ptplot.science.noise import noise_curve
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 from ptplot.tests.const import TEST_SSM_SETTINGS
@@ -65,6 +69,41 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 ps_computed, snr_computed = computed.power_spectrum(noise.f, noise=noise)
                 np.testing.assert_allclose(ps_given, ps_computed, rtol=1e-6)
                 np.testing.assert_allclose(snr_given, snr_computed, rtol=1e-6)
+
+    def test_nuc_type(self) -> None:
+        r"""The nucleation type should change the bubble lifetime distribution but not $r_*$.
+
+        The reference is the PTtools spectrum with the $r_*$ of the SSM spectrum,
+        which was used for the simultaneous nucleation by :py:func:`ptplot.science.plot.lattice.ssm_curves`
+        before :py:meth:`PowerSpectrumSSM.power_spectrum` had the argument ``nuc_type``.
+        As the spectra are given $\beta/H_*$, PTtools computes $r_*$ from it,
+        including the thermal suppression of nucleation for the deflagration.
+        """
+        noise = noise_curve()
+        assert DEFAULT_NUC_TYPE == NucType.EXPONENTIAL
+        for v_wall in V_WALLS:
+            ssm = spectrum(v_wall, settings=TEST_SSM_SETTINGS)
+            ps_default, snr_default = ssm.power_spectrum(noise.f, noise=noise)
+            for nuc_type in NucType:
+                with self.subTest(v_wall=v_wall, nuc_type=nuc_type):
+                    ps, snr = ssm.power_spectrum(noise.f, noise=noise, nuc_type=nuc_type)
+                    assert ssm.spectrum is not None
+                    assert ssm.spectrum.nuc_type == nuc_type
+                    np.testing.assert_allclose(ssm.spectrum.r_star, ssm.r_star, rtol=1e-12)
+                    ref = Spectrum(
+                        bubble=ssm.bubble, f=noise.f, r_star=ssm.r_star, T_star=ssm.T_star, g_star=ssm.g_star,
+                        nuc_type=nuc_type,
+                        suppression=DEFAULT_SUPPRESSION, suppression_method=SuppressionMethod.EXT_CONSTANT,
+                        **ssm.settings.spectrum_kwargs()
+                    )
+                    ps_ref = ref.omgw0_h2(om_gamma0_h2=OMEGA_PHOTON_H2)
+                    np.testing.assert_allclose(ps, ps_ref, rtol=1e-12)
+                    np.testing.assert_allclose(snr, ssm.snr(noise.f, ps_ref, noise), rtol=1e-12)
+                    if nuc_type == DEFAULT_NUC_TYPE:
+                        np.testing.assert_allclose(ps, ps_default, rtol=1e-12)
+                        np.testing.assert_allclose(snr, snr_default, rtol=1e-12)
+                    else:
+                        assert not np.allclose(ps, ps_default, rtol=1e-2, atol=0)
 
     @staticmethod
     def test_bubble_mismatch() -> None:
