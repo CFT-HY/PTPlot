@@ -24,7 +24,7 @@ from ptplot.science.noise import Noise
 from ptplot.science.plot.snr import SNRFigure, snr_figure_grid
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison, snr_comparison_grid
-from ptplot.science.plot.snr_histogram import snr_histogram
+from ptplot.science.plot.snr_histogram import snr_histogram_figure
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
@@ -531,6 +531,9 @@ class Model(models.Model):
             max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this model.
 
+        The SNR values are computed with :py:meth:`snr_points`,
+        and the histogram is drawn with :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`.
+
         :param noise: Which noise curve to use
         :param engines: Which power spectrum engines to use, defaults to all engines
         :param common_only: Plot only the points for which all the engines produced a valid SNR,
@@ -542,18 +545,17 @@ class Model(models.Model):
         :param max_workers: Maximum number of worker processes or threads
         :return: SNR histogram figure
         """
-        v_wall, alpha, beta_tilde, T_star, g_star, labels, titles = self.point_data_by_field()
-        return snr_histogram(
-            v_wall=v_wall, alpha_n=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
-            labels=labels, titles=titles,
+        if engines is None:
+            engines = list(Engine)
+        snr = self.snr_points(
             noise=noise,
             engines=engines,
-            common_only=common_only,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            ssm_settings=ssm_settings,
             exporter=exporter,
+            ssm_settings=ssm_settings,
             max_workers=max_workers
         )
+        return snr_histogram_figure(snr, engines, common_only=common_only)
 
     def snr_points(
             self,

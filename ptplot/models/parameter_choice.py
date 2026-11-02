@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from matplotlib.figure import Figure
+import numpy as np
+from pttools.export import Exporter
 from pttools.math import as_latex
 from pttools.speedup import MAX_WORKERS_DEFAULT
 
@@ -25,8 +27,10 @@ from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum import Engine, PowerSpectrum, power_spectrum
 from ptplot.science.spectrum.ssm import SSMSettings
+import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
     from django.db.models.expressions import BaseExpression
@@ -278,18 +282,39 @@ class ParameterChoice(models.Model):
             title=self.title
         )
 
-    # def snr(
-    #         self,
-    #         adiabatic_index: float = const.DEFAULT_ADIABATIC_INDEX,
-    #         noise: Noise | None = None,
-    #         engine: Engine = Engine.DEFAULT) -> tuple[float, float]:
-    #     snr, shock_time = snr_point(
-    #         x=self.alpha, y=self.beta_tilde,
-    #         T_star=self.T_star_value, g_star=self.g_star_value, v_wall=self.v_wall_value,
-    #         adiabatic_index=adiabatic_index,
-    #         noise=noise, engine=engine
-    #     )
-    #     return snr, shock_time
+    def snr(
+            self,
+            noise: Noise | None = None,
+            engines: list[Engine] | None = None,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None,
+            ssm_settings: SSMSettings | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> th.FloatArr1D:
+        r"""Compute the SNR values of this point with each engine.
+
+        :param noise: Which noise curve to use
+        :param engines: Which power spectrum engines to use, defaults to all engines
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param max_workers: Maximum number of worker processes or threads
+        :return: SNR values [engine], NaN where the computation failed,
+            see :py:func:`ptplot.science.snr.points.snr_points`
+        """
+        return snr_points(
+            v_wall=np.array([self.v_wall_value]),
+            alpha_n=np.array([self.alpha]),
+            beta_tilde=np.array([self.beta_tilde]),
+            T_star=np.array([self.T_star_value]),
+            g_star=np.array([self.g_star_value]),
+            engines=list(Engine) if engines is None else engines,
+            noise=noise,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
+            exporter=exporter,
+            max_workers=max_workers
+        )[0]
 
     def snr_comparison(
             self,

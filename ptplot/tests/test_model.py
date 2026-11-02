@@ -5,10 +5,12 @@ import numpy as np
 import pytest
 
 from ptplot.models import Model, ParameterChoice, Scenario
+from ptplot.science import const
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_comparison import engine_comparisons
+from ptplot.science.snr.point import snr_point
 from ptplot.science.spectrum import Engine
 from ptplot.tests.const import TEST_GRID_SIZE
 
@@ -22,6 +24,8 @@ POINTS: tuple[tuple[int, float, float, float | None, int], ...] = (
 )
 #: $T_*$ of the model, which is used for the points that don't have their own
 MODEL_T_STAR: float = 100
+#: Engines of the SNR tests. The SSM is excluded, as it's slow.
+SNR_ENGINES: list[Engine] = [Engine.CosWG20bpl, Engine.GH21dbpl, Engine.CosWG24dbpl]
 
 
 class ModelTest(TestCase):
@@ -133,3 +137,28 @@ class ModelTest(TestCase):
             f"{engine} vs. {Engine.DEFAULT}" for engine in comparisons
         ]
         self.model.snr_comparison(grids_ab[Engine.DEFAULT], grids_ab[Engine.GH21dbpl], highlights=highlights)
+
+    def test_snr_points(self) -> None:
+        """The SNR values of the model, the scenarios and the points should be those computed one by one."""
+        snr_model = self.model.snr_points(engines=SNR_ENGINES)
+        assert snr_model.shape == (len(POINTS), len(SNR_ENGINES))
+        assert np.all(np.isfinite(snr_model))
+        for point in self.model.points.all():
+            snr = point.snr(engines=SNR_ENGINES)
+            assert snr.shape == (len(SNR_ENGINES),)
+            np.testing.assert_array_equal(snr, snr_model[self.model.point_index(point)])
+            for i_engine, engine in enumerate(SNR_ENGINES):
+                reference, _, _ = snr_point(
+                    x=point.alpha, y=point.beta_tilde, T_star=point.T_star_value, g_star=point.g_star_value,
+                    v_wall=point.v_wall_value, noise=None, engine=engine, parallel=False,
+                    legacy_nucleation_cs_max=const.DEFAULT_LEGACY_NUCLEATION_CS_MAX
+                )
+                np.testing.assert_allclose(snr[i_engine], reference, rtol=1e-12, atol=0)
+
+        for scenario in self.model.scenarios.all():
+            snr_scenario = scenario.snr_points(engines=SNR_ENGINES)
+            points = list(scenario.points.all())
+            assert snr_scenario.shape == (len(points), len(SNR_ENGINES))
+            np.testing.assert_array_equal(
+                snr_scenario, snr_model[[self.model.point_index(point) for point in points]]
+            )

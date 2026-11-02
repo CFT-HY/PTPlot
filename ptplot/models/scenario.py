@@ -20,14 +20,16 @@ from ptplot.science import const
 from ptplot.science.noise import Noise
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison
-from ptplot.science.plot.snr_histogram import snr_histogram
+from ptplot.science.plot.snr_histogram import snr_histogram_figure
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.ssm import SSMSettings
+import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:
     from django.db.models.expressions import BaseExpression
@@ -269,13 +271,21 @@ class Scenario(models.Model):
     def snr_histogram(
             self,
             noise: Noise | None = None,
+            engines: list[Engine] | None = None,
+            common_only: bool = False,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             exporter: Exporter | None = None,
             ssm_settings: SSMSettings | None = None,
             max_workers: int = MAX_WORKERS_DEFAULT) -> Figure:
         r"""Plot a histogram of the SNR values of the points of this scenario.
 
+        The SNR values are computed with :py:meth:`snr_points`,
+        and the histogram is drawn with :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`.
+
         :param noise: Which noise curve to use
+        :param engines: Which power spectrum engines to use, defaults to all engines
+        :param common_only: Plot only the points for which all the engines produced a valid SNR,
+            see :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
@@ -283,17 +293,49 @@ class Scenario(models.Model):
         :param max_workers: Maximum number of worker processes or threads
         :return: SNR histogram figure
         """
+        if engines is None:
+            engines = list(Engine)
+        snr = self.snr_points(
+            noise=noise,
+            engines=engines,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            exporter=exporter,
+            ssm_settings=ssm_settings,
+            max_workers=max_workers
+        )
+        return snr_histogram_figure(snr, engines, common_only=common_only)
+
+    def snr_points(
+            self,
+            noise: Noise | None = None,
+            engines: list[Engine] | None = None,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None,
+            ssm_settings: SSMSettings | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> th.FloatArr2D:
+        r"""Compute the SNR values of the points of this scenario.
+
+        These can be plotted with :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`,
+        e.g. to plot the same values multiple times, or the values of multiple scenarios in a single histogram.
+
+        :param noise: Which noise curve to use
+        :param engines: Which power spectrum engines to use, defaults to all engines
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param max_workers: Maximum number of worker processes or threads
+        :return: SNR values [point, engine], see :py:func:`ptplot.science.snr.points.snr_points`
+        """
         data = self.point_data()
-        return snr_histogram(
+        return snr_points(
             v_wall=data["v_wall"].to_numpy(dtype=np.float64),
             alpha_n=data["alpha_n"].to_numpy(dtype=np.float64),
             beta_tilde=data["beta_tilde"].to_numpy(dtype=np.float64),
             T_star=data["T_star"].to_numpy(dtype=np.float64),
             g_star=data["g_star"].to_numpy(dtype=np.float64),
-            labels=data["label"].to_list(),
-            titles=self.name,
+            engines=list(Engine) if engines is None else engines,
             noise=noise,
-            # engines=[form.cleaned_data["engine"]]
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             ssm_settings=ssm_settings,
             exporter=exporter,
