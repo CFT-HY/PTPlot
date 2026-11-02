@@ -13,6 +13,9 @@ see :py:meth:`ptplot.models.model.Model.point_T_star`.
 The range of $\alpha_n$ of the $(\alpha_n, \beta/H_*)$ figures is limited to $\alpha_n \leq 1$ by default.
 The SNR grids of the non-default engines are compared to that of the default engine in a single figure.
 The histograms of the SNR values of the points include all the engines.
+They are drawn for each model and for the points of both models (``singlets_snr_histogram``),
+both with all the valid points of each engine, and with only the points for which all the engines
+produced a valid SNR (suffix ``_common``).
 
 The points whose $\alpha_n$ is closest to those of the lattice simulations of :correia_2025:`\ `
 (see :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`) are highlighted in the SNR figures.
@@ -36,12 +39,14 @@ or with the arguments of :py:func:`main`.
 
 import argparse
 import logging
+from pathlib import Path
 
 from matplotlib.figure import Figure
+import numpy as np
 from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
 from pttools.utils.time import log_duration
 
-from examples.utils import model_csv_path, save_model_fig, save_snr_figures
+from examples.utils import model_csv_path, save_fig, save_model_fig, save_snr_figures, snr_histograms
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -72,8 +77,8 @@ def create_figures(
         alpha_n_max: float | None = ALPHA_N_MAX,
         T_star_statistic: Statistic = Statistic.MEAN,  # noqa: N803
         histogram_coswg24bpl: bool = True,
-        max_workers: int = 1) -> None:
-    r"""Create the SNR figures and the histogram of a model.
+        max_workers: int = 1) -> np.ndarray | None:
+    r"""Create the SNR figures and the histograms of a model.
 
     :param model: Model whose figures are created
     :param alpha_n_max: Maximum $\alpha_n$ of the $(\alpha_n, \beta/H_*)$ figures,
@@ -81,6 +86,8 @@ def create_figures(
     :param T_star_statistic: Which statistic of the $T_*$ of the points to use for the SNR grids
     :param histogram_coswg24bpl: Whether to include CosWG24bpl in the histogram
     :param max_workers: Maximum number of worker processes
+    :return: SNR values of the points of the model [point, engine] for the histograms,
+        or ``None`` if computing them failed
     """
     T_star = model.point_T_star(T_star_statistic)
     logger.info("Using the %s T_star=%.3f GeV of the points of %s.", T_star_statistic, T_star, model.name)
@@ -117,12 +124,21 @@ def create_figures(
             model, "snr_comparison"
         )
 
-    with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
-        engines = [
-            engine for engine in Engine.engines(fast=True)
-            if histogram_coswg24bpl or engine != Engine.CosWG24bpl
-        ]
-        save(model.snr_histogram(engines=engines, max_workers=max_workers), model, "snr_histogram")
+    snr = None
+    with log_exceptions(logger, "Failed to compute the SNRs of the points of %s", model.name):
+        snr = model.snr_points(engines=histogram_engines(histogram_coswg24bpl), max_workers=max_workers)
+    if snr is not None:
+        with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
+            save_histograms(snr, histogram_coswg24bpl, model)
+    return snr
+
+
+def histogram_engines(coswg24bpl: bool = True) -> list[Engine]:
+    """Engines of the histograms.
+
+    :param coswg24bpl: Whether to include CosWG24bpl
+    """
+    return [engine for engine in Engine.engines(fast=True) if coswg24bpl or engine != Engine.CosWG24bpl]
 
 
 def lattice_highlights(model: Model) -> dict[str, int]:
@@ -140,6 +156,20 @@ def lattice_highlights(model: Model) -> dict[str, int]:
 def save(fig: Figure, model: Model, name: str) -> None:
     """Save a figure of a model in the subdirectory :py:data:`SUBDIR` of the directory of each file format."""
     save_model_fig(fig, model, name, subdir=SUBDIR)
+
+
+def save_histograms(snr: np.ndarray, coswg24bpl: bool, model: Model | None = None) -> None:
+    """Save the SNR histograms of a model, or of all the singlet models if ``model`` is ``None``.
+
+    :param snr: SNR values [point, engine]
+    :param coswg24bpl: Whether CosWG24bpl is included in the SNR values, see :py:func:`histogram_engines`
+    :param model: Model of the histograms
+    """
+    for name, fig in snr_histograms(snr, histogram_engines(coswg24bpl)).items():
+        if model is None:
+            save_fig(fig, Path(SUBDIR) / f"singlets_{name}")
+        else:
+            save(fig, model, name)
 
 
 @log_duration
@@ -164,21 +194,29 @@ def main(
     runs = load_chrw25_runs(missing_ok=True)
     # The SSM is always included, as its r_star is used for the lattice spectra.
     lattice_engines = Engine.engines(strong=lattice_coswg24bpl)
+    # SNR values of the points of each model for the histogram of all the models
+    snr_hists: list[np.ndarray] = []
     for model in Model.objects.filter(slug__in=SLUGS).prefetch_related("points"):
         logger.info("##### Processing model: %s", model.name)
-        create_figures(
+        snr_hist = create_figures(
             model,
             alpha_n_max=alpha_n_max,
             T_star_statistic=T_star_statistic,
             histogram_coswg24bpl=histogram_coswg24bpl,
             max_workers=max_workers
         )
+        if snr_hist is not None:
+            snr_hists.append(snr_hist)
         for name, comparison in lattice_comparisons(model, runs, engines=lattice_engines).items():
             fig_name = f"lattice_{name}"
             with log_exceptions(logger, "Failed to save %s for %s", fig_name, model.name):
                 comparison.save_csv(model_csv_path(model, fig_name, subdir=SUBDIR))
                 save(comparison.figure(), model, fig_name)
                 save(comparison.figure(title=False, snr=False), model, f"{fig_name}_paper")
+
+    if snr_hists:
+        with log_exceptions(logger, "Failed to plot the snr_histogram of all the singlet models"):
+            save_histograms(np.concatenate(snr_hists), histogram_coswg24bpl)
 
 
 if __name__ == "__main__":

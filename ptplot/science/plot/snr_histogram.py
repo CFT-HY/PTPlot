@@ -13,7 +13,7 @@ from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.engines import ENGINE_NAMES
+from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
 from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
@@ -41,6 +41,7 @@ def snr_histogram(
         engines: list[Engine] | None = None,
         n_bins_min: int = N_BINS_MIN,
         points_per_bin: int = POINTS_PER_BIN,
+        common_only: bool = False,
         legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
         exporter: Exporter | None = None,
         ssm_settings: SSMSettings | None = None,
@@ -58,6 +59,8 @@ def snr_histogram(
 
     :param n_bins_min: Minimum number of bins, see :py:func:`snr_histogram_figure`
     :param points_per_bin: Number of points per bin, see :py:func:`snr_histogram_figure`
+    :param common_only: Plot only the points for which all the engines produced a valid SNR,
+        see :py:func:`snr_histogram_figure`
     :param legacy_nucleation_cs_max:
         Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
     :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file.
@@ -75,7 +78,9 @@ def snr_histogram(
         legacy_nucleation_cs_max=legacy_nucleation_cs_max, exporter=exporter, ssm_settings=ssm_settings,
         max_workers=max_workers
     )
-    return snr_histogram_figure(snr, engines, n_bins_min=n_bins_min, points_per_bin=points_per_bin)
+    return snr_histogram_figure(
+        snr, engines, n_bins_min=n_bins_min, points_per_bin=points_per_bin, common_only=common_only
+    )
 
 
 @matplotlib_lock
@@ -83,19 +88,25 @@ def snr_histogram_figure(
         snr: th.FloatArr2D,
         engines: list[Engine],
         n_bins_min: int = N_BINS_MIN,
-        points_per_bin: int = POINTS_PER_BIN) -> Figure:
+        points_per_bin: int = POINTS_PER_BIN,
+        common_only: bool = False) -> Figure:
     """Draw the histogram of precomputed signal-to-noise ratios (SNR).
 
     The bins are logarithmic.
     If the SNR values span more than ``n_bins_min`` decades, there is a bin for each decade.
     Otherwise, the number of bins is the number of points divided by ``points_per_bin``,
     but at least ``n_bins_min``.
+    If not all the engines have the same number of valid SNR values,
+    the numbers are shown in the legend.
 
     :param snr: SNR values [point, engine], e.g. from :py:func:`ptplot.science.snr.points.snr_points`.
         The non-finite values are ignored.
     :param engines: Engines of the SNR values
     :param n_bins_min: Minimum number of bins
     :param points_per_bin: Number of points per bin, when there is not a bin for each decade
+    :param common_only: Plot only the points for which all the engines produced a valid SNR,
+        so that all the engines have the same number of points.
+        Otherwise, each engine has all the points for which it produced a valid SNR.
     :return: SNR histogram figure
     """
     fig = Figure()
@@ -104,6 +115,10 @@ def snr_histogram_figure(
     snr = snr.copy()
     snr_finite = np.isfinite(snr)
     snr[~snr_finite] = np.nan
+    if common_only:
+        snr_finite_all = snr_finite.all(axis=1)
+        snr = snr[snr_finite_all]
+        snr_finite = snr_finite[snr_finite_all]
     snr_finite_count = snr_finite.sum(axis=0)
 
     log10_snr_min = np.log10(np.nanmin(snr))
@@ -125,9 +140,9 @@ def snr_histogram_figure(
         bins=bins,  # type: ignore[arg-type]  # Matplotlib does accept an array of bin edges.
         label=
             # Add number of points to the labels if all points were not solved by all engines.
-            [f"{ENGINE_NAMES[engine]}" for i, engine in enumerate(engines)]
+            [f"{ENGINE_SHORT_NAMES[engine]}" for i, engine in enumerate(engines)]
             if np.all(snr_finite_count == snr_finite_count[0]) else
-            [f"{ENGINE_NAMES[engine]}, n={snr_finite_count[i]}" for i, engine in enumerate(engines)],
+            [f"{ENGINE_SHORT_NAMES[engine]}, n={snr_finite_count[i]}" for i, engine in enumerate(engines)],
         # log=True,  # This only affects the y-axis
         # histtype="bar",
         # histtype="stepfilled",

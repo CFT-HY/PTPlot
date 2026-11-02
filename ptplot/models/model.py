@@ -30,6 +30,7 @@ from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
+from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
@@ -523,6 +524,7 @@ class Model(models.Model):
             self,
             noise: Noise | None = None,
             engines: list[Engine] | None = None,
+            common_only: bool = False,
             legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
             exporter: Exporter | None = None,
             ssm_settings: SSMSettings | None = None,
@@ -531,6 +533,8 @@ class Model(models.Model):
 
         :param noise: Which noise curve to use
         :param engines: Which power spectrum engines to use, defaults to all engines
+        :param common_only: Plot only the points for which all the engines produced a valid SNR,
+            see :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`
         :param legacy_nucleation_cs_max:
             Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
         :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
@@ -544,6 +548,40 @@ class Model(models.Model):
             labels=labels, titles=titles,
             noise=noise,
             engines=engines,
+            common_only=common_only,
+            legacy_nucleation_cs_max=legacy_nucleation_cs_max,
+            ssm_settings=ssm_settings,
+            exporter=exporter,
+            max_workers=max_workers
+        )
+
+    def snr_points(
+            self,
+            noise: Noise | None = None,
+            engines: list[Engine] | None = None,
+            legacy_nucleation_cs_max: bool = const.DEFAULT_LEGACY_NUCLEATION_CS_MAX,
+            exporter: Exporter | None = None,
+            ssm_settings: SSMSettings | None = None,
+            max_workers: int = MAX_WORKERS_DEFAULT) -> th.FloatArr2D:
+        r"""Compute the SNR values of the points of this model.
+
+        These can be plotted with :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`,
+        e.g. to plot the same values multiple times, or the values of multiple models in a single histogram.
+
+        :param noise: Which noise curve to use
+        :param engines: Which power spectrum engines to use, defaults to all engines
+        :param legacy_nucleation_cs_max:
+            Use legacy $\max(v_{\text{wall}}, c_s)$ in $\tilde{\beta} \leftrightarrow r_*$ conversion
+        :param exporter: Exporter to which the computed spectra are added, e.g. for saving them to an HDF5 file
+        :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+        :param max_workers: Maximum number of worker processes or threads
+        :return: SNR values [point, engine], see :py:func:`ptplot.science.snr.points.snr_points`
+        """
+        v_wall, alpha, beta_tilde, T_star, g_star, _, _ = self.point_data_by_field()
+        return snr_points(
+            v_wall=v_wall, alpha_n=alpha, beta_tilde=beta_tilde, T_star=T_star, g_star=g_star,
+            engines=list(Engine) if engines is None else engines,
+            noise=noise,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
             ssm_settings=ssm_settings,
             exporter=exporter,

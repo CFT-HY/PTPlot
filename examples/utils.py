@@ -12,12 +12,16 @@ import pttools.plot.utils as plot_utils
 from pttools.plot.utils import FIG_FORMATS
 from pttools.utils.docstrings import copy_docstring_dec
 
+from ptplot.science.plot.snr_histogram import snr_histogram_figure
 from ptplot.science.plot.utils import save_html
 from ptplot.science.utils import log_exceptions
 
 if tp.TYPE_CHECKING:
+    import numpy as np
+
     from ptplot.models import Model
     from ptplot.science.snr.grid import SNRGrid
+    from ptplot.science.spectrum import Engine
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -185,3 +189,18 @@ def save_svg_response(response: HttpResponse, path: str | os.PathLike[str]) -> N
     if path.suffix != ".svg":
         path = path.with_name(f"{path.name}.svg")
     path.write_bytes(response.content)
+
+
+def snr_histograms(snr: "np.ndarray", engines: list["Engine"]) -> dict[str, Figure]:
+    """Draw the SNR histograms of precomputed SNR values with all the valid points of each engine,
+    and with only the points for which all the engines produced a valid SNR,
+    see :py:func:`ptplot.science.plot.snr_histogram.snr_histogram_figure`.
+
+    :param snr: SNR values [point, engine], e.g. from :py:meth:`ptplot.models.model.Model.snr_points`
+    :param engines: Engines of the SNR values
+    :return: Histograms by name: ``snr_histogram`` and ``snr_histogram_common``
+    """
+    return {
+        "snr_histogram": snr_histogram_figure(snr, engines),
+        "snr_histogram_common": snr_histogram_figure(snr, engines, common_only=True),
+    }

@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 from ptplot.science import const
-from ptplot.science.plot.snr_histogram import N_BINS_MIN, snr_histogram, snr_histogram_figure
+from ptplot.science.plot.snr_histogram import N_BINS_MIN, POINTS_PER_BIN, snr_histogram, snr_histogram_figure
 from ptplot.science.snr import snr_point, snr_points
 from ptplot.science.spectrum import Engine
-from ptplot.science.spectrum.engines import ENGINE_NAMES
+from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
 from ptplot.science.spectrum.ssm import SSMSettings
 from ptplot.tests.const import TEST_SSM_SETTINGS
 
@@ -71,8 +71,29 @@ def test_histogram_figure() -> None:
     assert legend is not None
     # Matplotlib lists the datasets of a histogram in the reverse order in the legend.
     assert sorted(text.get_text() for text in legend.get_texts()) == sorted([
-        f"{ENGINE_NAMES[Engine.CosWG20bpl]}, n=3", f"{ENGINE_NAMES[Engine.GH21dbpl]}, n=1"
+        f"{ENGINE_SHORT_NAMES[Engine.CosWG20bpl]}, n=3", f"{ENGINE_SHORT_NAMES[Engine.GH21dbpl]}, n=1"
     ])
+    # The input is not modified.
+    assert np.isinf(snr[1, 1])
+
+
+def test_histogram_figure_common_only() -> None:
+    """Only the points that were solved by all the engines should be drawn with ``common_only``."""
+    snr = np.array([[1., 2.], [10., np.inf], [100., np.nan], [1000., 3000.]])
+    engines = [Engine.CosWG20bpl, Engine.GH21dbpl]
+    ax = snr_histogram_figure(snr, engines, common_only=True).get_axes()[0]
+    legend = ax.get_legend()
+    assert legend is not None
+    # All the engines have the same number of points, so the numbers are not in the legend.
+    assert sorted(text.get_text() for text in legend.get_texts()) == sorted(
+        ENGINE_SHORT_NAMES[engine] for engine in engines
+    )
+    # Only the first and the last point are drawn for both engines.
+    for patch in ax.patches:
+        assert isinstance(patch, Polygon)
+        # The heights of the bins are at every other vertex of the step patch.
+        counts = patch.get_xy()[1:-1:2, 1]
+        np.testing.assert_array_equal(counts, [1, 0, 0, 0, 1])
     # The input is not modified.
     assert np.isinf(snr[1, 1])
 
@@ -86,7 +107,7 @@ def test_histogram() -> None:
     legend = fig.get_axes()[0].get_legend()
     assert legend is not None
     labels = sorted(text.get_text() for text in legend.get_texts())
-    assert labels == sorted(ENGINE_NAMES[engine] for engine in ENGINES[:2])
+    assert labels == sorted(ENGINE_SHORT_NAMES[engine] for engine in ENGINES[:2])
 
 
 def test_histogram_bins() -> None:
@@ -94,9 +115,11 @@ def test_histogram_bins() -> None:
     snr = np.linspace(1, 10, 200)[:, np.newaxis]
     engines = [Engine.CosWG20bpl]
 
-    def n_bins(**kwargs: int) -> int:
+    def n_bins(n_bins_min: int = N_BINS_MIN, points_per_bin: int = POINTS_PER_BIN) -> int:
         # The edges of the bins of the step histogram are the vertices of its patch.
-        patch = snr_histogram_figure(snr, engines, **kwargs).get_axes()[0].patches[0]
+        patch = snr_histogram_figure(
+            snr, engines, n_bins_min=n_bins_min, points_per_bin=points_per_bin
+        ).get_axes()[0].patches[0]
         assert isinstance(patch, Polygon)
         return np.unique(patch.get_xy()[:, 0]).size - 1
 

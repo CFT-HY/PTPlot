@@ -14,6 +14,11 @@ in the ``html`` subdirectory of the figure directory, see :py:meth:`ptplot.scien
 Clicking on the SNR plot of an interactive figure shows the power spectrum at that point.
 The spectra are those that were computed for the SNR grids, and they are embedded in the HTML files.
 
+The histograms of the SNR values of the points are drawn for each model and for the points of all the models,
+both with all the valid points of each engine, and with only the points for which all the engines
+produced a valid SNR (suffix ``_common``).
+The histograms of all the models are saved as ``benchmark_snr_histogram`` in the directory of each file format.
+
 The computed spectra are exported to the HDF5 file ``benchmark_spectra.h5`` in the figure directory
 with :py:class:`pttools.export.exporter.Exporter`.
 The spectra of the SNR grids are exported only for the engines of :py:data:`EXPORT_ENGINES`,
@@ -39,7 +44,7 @@ from pandas import DataFrame
 from pttools.export import Exporter, Preset
 from pttools.utils.time import format_duration, log_duration
 
-from examples.utils import FIG_DIR, save_model_fig, save_snr_figures
+from examples.utils import FIG_DIR, save_fig, save_model_fig, save_snr_figures, snr_histograms
 from ptplot.methods import setup_django
 
 if __name__ == "__main__":
@@ -121,6 +126,8 @@ def create_figures(  # noqa: PLR0915
     n_spectra_other = np.zeros_like(n_spectra_engine)
     times = np.zeros(n_models)
     times_engine = np.zeros((n_models, len(engines)))
+    # SNR values of the points of each model for the histogram of all the models
+    snr_hists: list[np.ndarray] = []
 
     model: Model
     for i_model, model in enumerate(models):
@@ -158,11 +165,16 @@ def create_figures(  # noqa: PLR0915
             with log_exceptions(logger, "Failed to plot snr_comparison_%s for %s", engine.name, model.name):
                 save_model_fig(snr_comparison(comparison), model, f"snr_comparison_{engine}")
 
-        with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
+        snr_hist = None
+        with log_exceptions(logger, "Failed to compute the SNRs of the points of %s", model.name):
             with spectra_rows(spectra_index, exporter, model=model.name, figure="snr_histogram"):
-                snr_hist = model.snr_histogram(engines=engines, exporter=exporter, max_workers=max_workers)
+                snr_hist = model.snr_points(engines=engines, exporter=exporter, max_workers=max_workers)
             n_spectra_other[i_model, :] += model.n_points
-            save_model_fig(snr_hist, model, "snr_histogram")
+            snr_hists.append(snr_hist)
+        if snr_hist is not None:
+            with log_exceptions(logger, "Failed to plot snr_histogram for %s", model.name):
+                for name, fig in snr_histograms(snr_hist, engines).items():
+                    save_model_fig(fig, model, name)
 
         model_time = time.perf_counter() - model_start_time
         times[i_model] = model_time
@@ -170,6 +182,11 @@ def create_figures(  # noqa: PLR0915
             "Processed model %d/%d: %s, took %s",
             i_model+1, n_models, model.name, format_duration(model_time)
         )
+
+    if snr_hists:
+        with log_exceptions(logger, "Failed to plot the snr_histogram of all the models"):
+            for name, fig in snr_histograms(np.concatenate(snr_hists), engines).items():
+                save_fig(fig, f"benchmark_{name}{suffix}")
 
     total_time = time.perf_counter() - start_time
     logger.info(
