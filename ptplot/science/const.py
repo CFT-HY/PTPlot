@@ -3,7 +3,6 @@
 import math
 import typing as tp
 
-from matplotlib.typing import RcKeyType
 import numpy as np
 import pttools.bubble.const as bubble_const
 import pttools.omgw0.const as omgw0_const
@@ -86,13 +85,6 @@ MIN_NX_P_TILDE_GW: int = 50
 # -----
 #: Default font size of figure labels
 DEFAULT_LABEL_FONTSIZE: int = 14
-#: Default Matplotlib context
-DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
-    "backend": "Agg",
-    "font.family": "serif",
-    "mathtext.fontset": "dejavuserif",
-    # "text.usetex": usetex
-}
 
 # -----
 # Numerical constants

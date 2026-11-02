@@ -198,7 +198,9 @@ addopts = [
     "--cov-report=term",
     "--cov-report=term-missing",
     "--cov-report=xml",
-    "--dist=loadscope",  # This ensures that tests from the same class are run on the same worker.
+    # The tests that have to be run on the same worker are grouped with the "xdist_group" marker.
+    # See the "pytest_collection_modifyitems" hook in pttools/utils/pytest.py of PTtools for details.
+    "--dist=loadgroup",
     "--durations=50",
     "--durations-min=1.0",
     "--html=test-results/html/test-report.html",
@@ -374,4 +376,4 @@ wheel-exclude = [
 # To update to a different commit hash, update the "rev" below and run "./install_requirements.sh".
 # To update to the latest commit of the PTtools dev branch, run "./install_requirements.sh --update-pttools".
 # Remove this section to install the release from PyPI instead.
-pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "0411b2dac111b1d174442073a7f02e80ddf344fc" }
+pttools-gw = { git = "https://github.com/CFT-HY/pttools.git", rev = "e2b27c6b0b6421cc63836fc5229f36f134829a97" }

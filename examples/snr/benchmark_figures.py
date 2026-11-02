@@ -42,6 +42,7 @@ from django.db.models import Count
 import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter, Preset
+from pttools.utils.exceptions import log_exceptions
 from pttools.utils.time import format_duration, log_duration
 
 from examples.utils import FIG_DIR, save_fig, save_model_fig, save_snr_figures, snr_histograms
@@ -57,7 +58,6 @@ from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import SNRGridComparison, engine_comparisons
 from ptplot.science.spectrum import Engine
-from ptplot.science.utils import log_exceptions
 
 logger: logging.Logger = logging.getLogger(__name__)
 

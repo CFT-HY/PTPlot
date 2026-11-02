@@ -12,7 +12,7 @@ from pttools.plot.bubbles import plot_bubbles_common, plot_bubbles_v
 
 from ptplot.science import const
 from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.utils import POINTS_PER_INCH, TEXT_PAD, add_text, watermark
+from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, POINTS_PER_INCH, TEXT_PAD, add_text, watermark
 from ptplot.science.spectrum.create import ssm_model
 from ptplot.science.spectrum.ssm import BAG
 
@@ -42,7 +42,7 @@ def bubble_figure(
     :param title: Title of the figure, which is drawn above the watermark
     :return: Bubble profile figure
     """
-    with rc_context(const.DEFAULT_RC_CONTEXT):
+    with rc_context(DEFAULT_RC_CONTEXT):
         fig = Figure()
         ax = fig.add_subplot()
 

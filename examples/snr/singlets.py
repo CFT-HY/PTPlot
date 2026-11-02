@@ -44,6 +44,7 @@ from pathlib import Path
 from matplotlib.figure import Figure
 import numpy as np
 from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
+from pttools.utils.exceptions import log_exceptions
 from pttools.utils.time import log_duration
 
 from examples.utils import model_csv_path, save_fig, save_model_fig, save_snr_figures, snr_histograms
@@ -58,7 +59,6 @@ from ptplot.science.plot.lattice import lattice_comparisons
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_comparison import engine_comparisons
 from ptplot.science.spectrum import Engine
-from ptplot.science.utils import log_exceptions
 
 logger: logging.Logger = logging.getLogger(__name__)
 

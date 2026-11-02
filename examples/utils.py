@@ -11,10 +11,10 @@ from matplotlib.figure import Figure
 import pttools.plot.utils as plot_utils
 from pttools.plot.utils import FIG_FORMATS
 from pttools.utils.docstrings import copy_docstring_dec
+from pttools.utils.exceptions import log_exceptions
 
 from ptplot.science.plot.snr_histogram import snr_histogram_figure
 from ptplot.science.plot.utils import save_html
-from ptplot.science.utils import log_exceptions
 
 if tp.TYPE_CHECKING:
     import numpy as np
@@ -159,7 +159,7 @@ def save_snr_figures(
         see :py:class:`~ptplot.science.plot.snr.SNRFigure`
     :param log_errors: Whether to log the exceptions of each figure instead of raising them,
         so that a failure in one figure does not prevent saving the others,
-        see :py:func:`ptplot.science.utils.log_exceptions`
+        see :py:func:`pttools.utils.exceptions.log_exceptions`
     """
     def handler(fig_name: str) -> contextlib.AbstractContextManager[None]:
         if log_errors:

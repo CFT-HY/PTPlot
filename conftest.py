@@ -1,24 +1,30 @@
-"""Configuration for the pytest test suite."""
+"""Configuration for the pytest test suite.
 
-import logging
+Most of the hooks and fixtures are defined in :mod:`pttools.utils.pytest`, so that they are shared with PTtools.
+Pytest finds them, as they are imported here.
+"""
+
 from pathlib import Path
 
-from pttools.logging import setup_logging
+from pttools.utils.pytest import (
+    configure_testing,
+    log_test_name_at_start,
+    pytest_collection_modifyitems,
+    pytest_sessionfinish,
+    pytest_xdist_auto_num_workers,
+)
 import pytest
 
-logger: logging.Logger = logging.getLogger(__name__)
+# The imports are used by pytest.
+__all__ = [
+    "log_test_name_at_start",
+    "pytest_collection_modifyitems",
+    "pytest_configure",
+    "pytest_sessionfinish",
+    "pytest_xdist_auto_num_workers",
+]
 
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
-    """Set up logging for the test suite."""
-    setup_logging(name="ptplot", log_dir=Path(__file__).resolve().parent / "logs")
-
-
-@pytest.fixture(autouse=True)
-def log_test_name_at_start(request: pytest.FixtureRequest) -> None:
-    """
-    Before starting a test, log its name.
-
-    This makes it easier to retrieve the logs for a specific test.
-    """
-    logger.info("=" * 20 + request.node.nodeid + "=" * 20)
+    """Configure the test suite of PTPlot with :func:`pttools.utils.pytest.configure_testing`."""
+    configure_testing(name="ptplot", log_dir=Path(__file__).resolve().parent / "logs")

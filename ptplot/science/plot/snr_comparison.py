@@ -8,10 +8,9 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import LogFormatterSciNotation
 import numpy as np
 
-from ptplot.science import const
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.logarithmic import add_highlights, add_points, log_figure
-from ptplot.science.plot.utils import add_subplot_titles, subplot_grid
+from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, add_subplot_titles, subplot_grid
 from ptplot.science.snr.grid_comparison import SNRGridComparison
 import ptplot.science.type_hints as th
 
@@ -85,7 +84,7 @@ def snr_comparison_grid(
     """
     if subplot_titles is None:
         subplot_titles = [f"{comparison.grid2.name} vs. {comparison.grid1.name}" for comparison in comparisons]
-    with rc_context(const.DEFAULT_RC_CONTEXT):
+    with rc_context(DEFAULT_RC_CONTEXT):
         fig, axs = subplot_grid(len(comparisons), ncols=ncols)
         for comparison, ax in zip(comparisons, axs, strict=True):
             snr_comparison(comparison, highlights=highlights, fig=fig, ax=ax)

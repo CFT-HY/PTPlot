@@ -30,6 +30,7 @@ from ptplot.science.plot.logarithmic import (
     nested_labels,
 )
 from ptplot.science.plot.utils import (
+    DEFAULT_RC_CONTEXT,
     add_subplot_titles,
     add_text,
     find_label_place,
@@ -213,7 +214,7 @@ class SNRFigure:
         x_log10 = self.x_log10
         y_log10 = self.y_log10
         standalone = ax is None
-        with rc_context(const.DEFAULT_RC_CONTEXT):
+        with rc_context(DEFAULT_RC_CONTEXT):
             fig, ax, extent = log_figure(
                 x=x_log10, y=y_log10,
                 xlabel=grid.X_LABEL_LATEX, ylabel=grid.Y_LABEL_LATEX,
@@ -593,7 +594,7 @@ def snr_figure_grid(
     """
     if titles is None:
         titles = [figure.grid.name for figure in figures]
-    with rc_context(const.DEFAULT_RC_CONTEXT):
+    with rc_context(DEFAULT_RC_CONTEXT):
         fig, axs = subplot_grid(len(figures), ncols=ncols)
         for figure, ax in zip(figures, axs, strict=True):
             # The titles of the subplots show the engines.

@@ -1,14 +1,12 @@
-"""Tests for the utilities of the science module."""
-
-import logging
+"""Tests for the utilities of PTPlot and its science module."""
 
 import numpy as np
+from pttools.utils.system import testing
 import pytest
 
 from ptplot.science import const
-from ptplot.science.utils import log_exceptions, log_range
-
-logger: logging.Logger = logging.getLogger(__name__)
+from ptplot.science.utils import log_range
+from ptplot.utils import is_django, is_django_or_testing
 
 DEFAULT: np.ndarray = const.DEFAULT_BETA_TILDE_RANGE
 
@@ -52,25 +50,11 @@ def test_log_range_invalid(kwargs: dict) -> None:
         log_range(DEFAULT[1], DEFAULT, **kwargs)
 
 
-def test_log_exceptions(caplog: pytest.LogCaptureFixture) -> None:
-    """The exceptions should be logged with their tracebacks instead of being raised."""
-    with caplog.at_level(logging.ERROR, logger=__name__), log_exceptions(logger, "Failed to do %s", "something"):
-        raise ValueError("Test error")
-    assert len(caplog.records) == 1
-    record = caplog.records[0]
-    assert record.getMessage() == "Failed to do something"
-    assert record.exc_info is not None
-    assert isinstance(record.exc_info[1], ValueError)
+def test_is_django() -> None:
+    """The unit tests are not run in the Django server."""
+    assert not is_django()
 
 
-def test_log_exceptions_no_exception(caplog: pytest.LogCaptureFixture) -> None:
-    """Nothing should be logged if there is no exception."""
-    with caplog.at_level(logging.ERROR, logger=__name__), log_exceptions(logger, "Failed"):
-        pass
-    assert not caplog.records
-
-
-def test_log_exceptions_keyboard_interrupt() -> None:
-    """Exceptions that are not subclasses of Exception should be raised, so that the script can be stopped."""
-    with pytest.raises(KeyboardInterrupt), log_exceptions(logger, "Failed"):
-        raise KeyboardInterrupt
+def test_is_django_or_testing() -> None:
+    """Outside the Django server this should follow the testing flag of PTtools."""
+    assert is_django_or_testing() == testing()

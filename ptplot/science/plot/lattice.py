@@ -30,17 +30,16 @@ from matplotlib.figure import Figure
 from pttools.lattice import LatticeRun
 from pttools.math import as_latex
 from pttools.ssm.nucleation import NucType
+from pttools.utils.exceptions import log_exceptions
 
-from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.plot.lock import matplotlib_lock
 from ptplot.science.plot.ps import SpectrumCurve, power_spectrum_figure
-from ptplot.science.plot.utils import faded
+from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, faded
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.lattice import CHRW25_NAME, LatticeConversion, PowerSpectrumLattice
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM, SSMSettings
-from ptplot.science.utils import log_exceptions
 
 if tp.TYPE_CHECKING:
     from ptplot.models import Model, ParameterChoice
@@ -95,7 +94,7 @@ class LatticeComparison:
             snr=snr,
             title=self.title if title is True else (title or None)
         )
-        with rc_context(const.DEFAULT_RC_CONTEXT):
+        with rc_context(DEFAULT_RC_CONTEXT):
             # The legend has many entries, so a smaller font is used.
             fig.axes[0].legend(loc="upper right", fontsize="small")
         return fig

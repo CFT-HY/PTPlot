@@ -3,6 +3,8 @@
 import os
 import sys
 
+import ptplot.utils
+
 
 def main() -> None:
     """Run administrative tasks."""
@@ -15,6 +17,11 @@ def main() -> None:
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    if sys.argv[1:2] == ["runserver"]:
+        # This has to be set before setting up Django, which imports the rest of PTPlot,
+        # as some of its constants, e.g. ptplot.science.plot.utils.DEFAULT_RC_CONTEXT, depend on it.
+        # The development server loads ptplot_site.wsgi only after setting up Django.
+        ptplot.utils._DJANGO = True  # noqa: SLF001
     execute_from_command_line(sys.argv)
 
 

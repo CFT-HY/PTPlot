@@ -16,18 +16,29 @@ from matplotlib.colors import to_hex, to_rgb
 from matplotlib.contour import ContourSet
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation
+from matplotlib.typing import RcKeyType
 import numpy as np
 
 from ptplot.science.plot.lock import matplotlib_lock
 import ptplot.science.type_hints as th
 from ptplot.science.utils import GIT_DESCRIPTION
+from ptplot.utils import is_django_or_testing
 
+#: Default Matplotlib context.
+#: In the Django server and in the unit tests the non-interactive Agg backend is used,
+#: and otherwise the backend is not changed, so that e.g. scripts can show the figures interactively.
+DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
+    **({"backend": "Agg"} if is_django_or_testing() else {}),
+    "font.family": "serif",
+    "mathtext.fontset": "dejavuserif",
+    # "text.usetex": usetex
+}
+#: Default fraction of white in the colors of :func:`faded`
+FADE: float = 0.55
 #: Points per inch, as used by Matplotlib font sizes.
 POINTS_PER_INCH: float = 72
 #: Default padding around the text of :func:`add_text`, in points.
 TEXT_PAD: float = 3
-#: Default fraction of white in the colors of :func:`faded`
-FADE: float = 0.55
 
 
 @matplotlib_lock

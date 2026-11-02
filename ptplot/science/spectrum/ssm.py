@@ -172,6 +172,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             r_star=self.r_star_given,
             T_star=self.T_star,
             nuc_type=nuc_type,
+            # r_* is computed from beta_tilde in the same way for all nucleation types, see power_spectrum().
+            allow_beta_tilde_for_simultaneous=True,
             suppression=suppression,
             suppression_method=suppression_method,
             parallel=self.parallel,
@@ -421,10 +423,13 @@ class PowerSpectrumSSM(PowerSpectrum):
             if not (np.isfinite(value) and value > 0):
                 continue
             try:
+                # r_* does not depend on the nucleation type, see power_spectrum().
                 r_stars.append(
-                    Spectrum.validate_nucleation(bubble=bubble, r_star=float(value), beta_tilde=None)
+                    Spectrum.validate_nucleation(
+                        bubble=bubble, nuc_type=DEFAULT_NUC_TYPE, r_star=float(value), beta_tilde=None)
                     if beta_tilde is None
-                    else Spectrum.validate_nucleation(bubble=bubble, r_star=None, beta_tilde=float(value))
+                    else Spectrum.validate_nucleation(
+                        bubble=bubble, nuc_type=DEFAULT_NUC_TYPE, r_star=None, beta_tilde=float(value))
                 )
             except ValueError:
                 continue

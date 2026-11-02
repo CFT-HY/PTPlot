@@ -18,7 +18,7 @@ from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.plot.lock import matplotlib_lock
-from ptplot.science.plot.utils import add_text, fig_to_svg, title_pad, watermark
+from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, add_text, fig_to_svg, title_pad, watermark
 from ptplot.science.spectrum import CosWG20bpl, PowerSpectrum, power_spectrum
 import ptplot.science.type_hints as th
 
@@ -83,7 +83,7 @@ def power_spectrum_figure(
 
     noise = resolve_noise(noise)
 
-    with rc_context(const.DEFAULT_RC_CONTEXT):
+    with rc_context(DEFAULT_RC_CONTEXT):
         # You can increase the font size by also setting these in rc_params:
         # "font.size": 16
         # "legend.fontsize": 14
