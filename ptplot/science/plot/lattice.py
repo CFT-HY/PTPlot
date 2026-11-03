@@ -108,7 +108,7 @@ class LatticeComparison:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file, lineterminator="\n")
             writer.writerow(("name", "label", "snr"))
             for name, curve in self.curves.items():
                 writer.writerow((name, curve.label, curve.snr))
