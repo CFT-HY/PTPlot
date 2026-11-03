@@ -89,10 +89,13 @@ update the version numbers in:
 
 Nightly runs
 ------------
-The nightly run of PTPlot is run by the script ``pttools/docs/nightly.py`` of PTtools,
+The nightly run of PTPlot is run by the module ``pttools.docs.nightly`` of PTtools,
 which runs the nightly runs of PTtools and PTPlot in sequence.
+It is run with ``uv run`` in the virtualenv of PTtools,
+e.g. from the PTPlot directory with ``uv run --project ../pttools python -m pttools.docs.nightly --status``,
+and it runs the steps of PTPlot in the virtualenv of PTPlot.
 It runs the unit tests, builds the documentation (which also runs the examples) and the wheel,
-and archives the results with 7-Zip to ``./docs/nightly/nightly_YYYY-MM-DD.7z``.
+and archives the results to ``./docs/nightly/ptplot_nightly_YYYY-MM-DD.tar.xz``.
 The examples save their figures to ``./docs/nightly/fig/fig_YYYY-MM-DD`` instead of the default ``./examples/fig``.
 The figure directory is set with the ``PTPLOT_FIG_DIR`` environment variable,
 which can also be used to change the figure directory when running the examples or building the documentation manually.
