@@ -148,7 +148,7 @@ class PowerSpectrumLattice(PowerSpectrum):
         r"""$\Omega_{\text{gw},0} h^2(f)$, GW power spectrum today from the accumulated GW power at the time step.
 
         $$\Omega_{\text{gw},0} h^2(f) = F_{\text{gw},0} h^2 \, \mathcal{P}_\text{gw}(z, t),$$
-        see :py:meth:`pttools.omgw0.base.Omgw0Base.omgw0_h2`,
+        see :py:meth:`pttools.omgw0.base.BaseOmgw0.omgw0_h2`,
         where $\mathcal{P}_\text{gw}$ includes the reduction by the expansion of the universe,
         see :py:attr:`pttools.lattice.spectrum.LatticeSpectrum.pow_gw`.
         """
