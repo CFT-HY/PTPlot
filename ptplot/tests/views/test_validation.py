@@ -2,11 +2,11 @@
 
 from django.http import HttpResponseBadRequest
 from django.test import RequestFactory, TestCase
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.forms import BenchmarkForm
 from ptplot.science import const
 from ptplot.science.snr.grid import GridAxes
-from ptplot.science.spectrum.ssm import SSMSettings
 from ptplot.tests.const import FAST_DATA, TEST_GRID_SIZE, TEST_SSM_SETTINGS
 from ptplot.views.validation import ValidatedForms, validate_forms
 

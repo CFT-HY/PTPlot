@@ -4,10 +4,10 @@ from dataclasses import dataclass
 
 from django.forms import Form
 from django.http import HttpRequest, HttpResponseBadRequest
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.forms import GridAxesForm, SSMSettingsForm
 from ptplot.science.snr.grid import GridAxes
-from ptplot.science.spectrum.ssm import SSMSettings
 
 
 @dataclass(frozen=True, slots=True)

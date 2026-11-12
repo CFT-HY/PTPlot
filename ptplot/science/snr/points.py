@@ -7,12 +7,12 @@ from pttools.bubble import precompile
 from pttools.bubble.fluid_reference import ref
 from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT, run_parallel
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import export_records, snr_point
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
 __all__ = ["snr_points"]

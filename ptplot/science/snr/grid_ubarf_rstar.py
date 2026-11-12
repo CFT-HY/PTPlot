@@ -9,6 +9,7 @@ import numpy as np
 from pttools.export import Exporter
 from pttools.models import Model
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.ssm.settings import SSMSettings
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -25,7 +26,7 @@ from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG, SSMSettings
+from ptplot.science.spectrum.ssm import BAG
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 

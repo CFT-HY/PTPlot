@@ -7,6 +7,7 @@ import numpy as np
 from pttools.export import Exporter
 from pttools.plot.lock import matplotlib_lock
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
@@ -14,7 +15,6 @@ from ptplot.science.plot.utils import add_text, watermark
 from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
-from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
 # if tp.TYPE_CHECKING:

@@ -13,6 +13,7 @@ import numpy as np
 from pttools.lattice import LatticeRun, load_chrw25_runs
 from pttools.math import as_latex
 from pttools.ssm.nucleation import NucType
+from pttools.ssm.settings import SSMSettings
 import pytest
 
 from ptplot.models import Model, ParameterChoice
@@ -30,7 +31,7 @@ from ptplot.science.plot.lattice import (
     ssm_curves,
 )
 from ptplot.science.plot.utils import faded
-from ptplot.science.spectrum import CHRW25_NAME, Engine, PowerSpectrumLattice, PowerSpectrumSSM, SSMSettings
+from ptplot.science.spectrum import CHRW25_NAME, Engine, PowerSpectrumLattice, PowerSpectrumSSM
 from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
@@ -38,7 +39,7 @@ ENGINES: tuple[Engine, ...] = (Engine.CosWG20bpl, Engine.GH21dbpl)
 #: Engines of the comparisons at the points, which require the SSM for the $r_*$ of the lattice spectra
 POINT_ENGINES: tuple[Engine, ...] = (*ENGINES, Engine.SSM)
 #: Low accuracy settings of the SSM spectra, as only their structure and $r_*$ are tested
-SSM_SETTINGS: SSMSettings = SSMSettings(n_z_lookup=500, n_t=100)
+SSM_SETTINGS: SSMSettings = SSMSettings(n_z_lookup=500, nT=100)
 #: Labels of the curves of :py:data:`POINT_ENGINES`
 POINT_ENGINE_LABELS: list[str] = [engine.spectrum.SHORT_NAME for engine in ENGINES] + ["SSM, exp.", "SSM, simult."]
 
@@ -219,7 +220,7 @@ def test_lattice_comparison(tmp_path: Path) -> None:
 def test_ssm_curves() -> None:
     """The exponential nucleation should be that of the SSM engine, and faded, and both should have its r_*."""
     noise = resolve_noise(None)
-    settings = SSMSettings(n_z_lookup=500, n_t=100)
+    settings = SSMSettings(n_z_lookup=500, nT=100)
     ssm = PowerSpectrumSSM(v_wall=0.92, alpha=0.67, r_star=0.1, settings=settings)
     curves = ssm_curves(ssm, noise)
     assert list(curves) == ["SSM_exponential", "SSM_simultaneous"]

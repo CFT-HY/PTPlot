@@ -3,12 +3,13 @@ r"""SNR grid for the $(\alpha_n, \beta/H)$ plane."""
 from pttools.export import Exporter
 from pttools.models import Model
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG, SSMSettings
+from ptplot.science.spectrum.ssm import BAG
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range
 

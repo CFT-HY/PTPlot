@@ -9,6 +9,7 @@ from django.forms import CharField, FloatField, Form, IntegerField, Textarea
 import numpy as np
 from pttools.models import Model as EoSModel
 from pttools.ssm.const import DEFAULT_N_T, DEFAULT_N_Z_LOOKUP
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.forms.fields import (
     AlphaField,
@@ -32,7 +33,7 @@ from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.spectrum.create import ssm_model
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG, SSMSettings
+from ptplot.science.spectrum.ssm import BAG
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -257,12 +258,13 @@ class SSMSettingsForm(Form):
     This is separate from the other forms so that these fields are not shown on the pages of the forms.
     The settings cannot exceed their defaults so that the query parameters cannot be used to request
     heavier computations than the default ones.
-    See :py:class:`ptplot.science.spectrum.ssm.SSMSettings`.
+    See :py:class:`pttools.ssm.settings.SSMSettings`.
     """
 
     n_z_lookup = IntegerField(required=False, min_value=MIN_N_Z_LOOKUP, max_value=DEFAULT_N_Z_LOOKUP)
-    n_t = IntegerField(required=False, min_value=MIN_N_T, max_value=DEFAULT_N_T)
-    nx_p_tilde_gw = IntegerField(required=False, min_value=MIN_NX_P_TILDE_GW, max_value=DEFAULT_N_Z_LOOKUP)
+    nT = IntegerField(required=False, min_value=MIN_N_T, max_value=DEFAULT_N_T)  # noqa: N815
+    nx_P_tilde_gw = IntegerField(  # noqa: N815
+        required=False, min_value=MIN_NX_P_TILDE_GW, max_value=DEFAULT_N_Z_LOOKUP)
 
     @property
     def settings(self) -> SSMSettings:

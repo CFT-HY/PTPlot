@@ -31,6 +31,7 @@ from pttools.lattice import LatticeRun
 from pttools.math import as_latex
 from pttools.plot.lock import matplotlib_lock
 from pttools.ssm.nucleation import NucType
+from pttools.ssm.settings import SSMSettings
 from pttools.utils.exceptions import log_exceptions
 
 from ptplot.science.noise import Noise, resolve_noise
@@ -39,7 +40,7 @@ from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, faded
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.lattice import CHRW25_NAME, LatticeConversion, PowerSpectrumLattice
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM, SSMSettings
+from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
 if tp.TYPE_CHECKING:
     from ptplot.models import Model, ParameterChoice

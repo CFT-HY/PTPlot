@@ -12,7 +12,7 @@ from pttools.ssm.const import DEFAULT_N_Z_LOOKUP
 
 from ptplot.science.noise import noise_curve
 from ptplot.science.snr.ssm import snr_column_ssm
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+from ptplot.science.spectrum.ssm import BAG
 from ptplot.tests.spectrum.ssm.common import (
     ALPHA,
     BETA_TILDE,
@@ -39,7 +39,8 @@ class SSMReferenceTest(unittest.TestCase):
         r"""A precomputed spectrum should give the same results as computing the spectrum for the frequencies.
 
         The SNR is computed on different points, and the power spectrum is interpolated.
-        The lookup arrays are as dense as for the frequencies, see :py:meth:`PowerSpectrumSSM.n_z_lookup_covering`.
+        The lookup arrays are as dense as for the frequencies,
+        see :py:meth:`pttools.omgw0.spectrum.Spectrum.n_z_lookup_covering`.
         Even then, the power spectrum of PTtools depends on the range of the $z$ array,
         as the lookup array of $qT$ for ${\lvert A \rvert}^2$ begins from the smallest $z$
         and has the same spacing as the $z$ array.
@@ -53,9 +54,9 @@ class SSMReferenceTest(unittest.TestCase):
         beta_tildes = np.array(BETA_TILDES)
         for v_wall in V_WALLS:
             bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
-            z = PowerSpectrumSSM.z_covering(
+            z = Spectrum.z_covering(
                 f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=beta_tildes)
-            settings = PowerSpectrumSSM.settings_covering(z=z, f=noise.f)
+            settings = Spectrum.settings_covering(z=z, f=noise.f)
             assert settings.n_z_lookup > DEFAULT_N_Z_LOOKUP
             # The spectra of the other beta_tilde values are created from the first one with with_params(),
             # which reuses its precomputed spectrum, as in snr_column_ssm().
@@ -146,9 +147,9 @@ class SSMReferenceTest(unittest.TestCase):
             loaded.omgw0_h2()[significant], omgw0_h2[0][significant], rtol=PS_RTOL_PRECOMPUTED)
 
         bubble = Bubble.cached(model=BAG, v_wall=v_wall, alpha_n=ALPHA)
-        z = PowerSpectrumSSM.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=y)
+        z = Spectrum.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=y)
         shared = spectrum(
-            v_wall, bubble=bubble, beta_tilde=y[0], z=z, settings=PowerSpectrumSSM.settings_covering(z=z, f=noise.f))
+            v_wall, bubble=bubble, beta_tilde=y[0], z=z, settings=Spectrum.settings_covering(z=z, f=noise.f))
         for i, beta_tilde in enumerate(y):
             ps_shared, _ = shared.with_params(beta_tilde=beta_tilde).power_spectrum(noise.f, noise=noise)
             np.testing.assert_allclose(omgw0_h2[i], ps_shared, rtol=1e-12)

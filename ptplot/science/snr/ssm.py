@@ -7,13 +7,15 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Extractor, Record
 from pttools.models import Model
+from pttools.omgw0 import Spectrum
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science import type_hints as th
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import extract_record, param_names, spectrum_params
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM, SSMSettings
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -60,9 +62,9 @@ def snr_column_ssm(
     The fluid shell is computed only once for the column, as $x$ is the same for all its points.
     The PTtools spectrum is also computed only once,
     for a $z$ array that covers the frequencies of the noise curve for all the $y$ values of the column
-    (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.z_covering`),
+    (see :py:meth:`pttools.omgw0.spectrum.Spectrum.z_covering`),
     with as dense lookup arrays as for the frequencies
-    (see :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.n_z_lookup_covering`),
+    (see :py:meth:`pttools.omgw0.spectrum.Spectrum.n_z_lookup_covering`),
     and the spectra of the points are created from it with
     :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.with_params`.
     The SNR values are then computed on the points of the $z$ array, see
@@ -97,9 +99,9 @@ def snr_column_ssm(
         The extraction is done here, so that only the extracted fields have to be sent between the processes
         when the columns are computed in parallel.
     :param ssm_settings: Accuracy settings of the PTtools spectra, defaults to
-        :py:class:`~ptplot.science.spectrum.ssm.SSMSettings`.
+        :py:class:`~pttools.ssm.settings.SSMSettings`.
         The ``n_z_lookup`` of the shared spectrum is scaled from it, see
-        :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.settings_covering`.
+        :py:meth:`pttools.omgw0.spectrum.Spectrum.settings_covering`.
     :return: SNR values, $\mathcal{H}_* \eta_\text{sh}$ values,
         power spectra at the frequencies of the noise curve, their parameters, and the records of the spectra
     :raises ValueError: If $x$ is not a scalar
@@ -171,7 +173,7 @@ def snr_column_ssm(
 
     shared_spectrum: PowerSpectrumSSM | None = None
     try:
-        z = PowerSpectrumSSM.z_covering(
+        z = Spectrum.z_covering(
             f=noise.f,
             bubble=bubble,
             T_star=T_star,
@@ -183,7 +185,7 @@ def snr_column_ssm(
         # Any valid y value can be used for the shared spectrum, as with_params() changes it.
         y_valid = y[np.isfinite(y) & (y > 0)]
         shared_spectrum = create_spectrum(
-            y_i=y_valid[0], z=z, settings=PowerSpectrumSSM.settings_covering(z=z, f=noise.f, settings=ssm_settings))
+            y_i=y_valid[0], z=z, settings=Spectrum.settings_covering(z=z, f=noise.f, settings=ssm_settings))
     except Exception as exc:
         logger.exception(
             "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "

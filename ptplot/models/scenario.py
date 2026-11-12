@@ -10,6 +10,7 @@ import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter
 from pttools.speedup import MAX_WORKERS_DEFAULT
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.methods.models import point_data
 from ptplot.methods.stats import related_stats_annotations, window_stats_annotations
@@ -28,7 +29,6 @@ from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparis
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 from ptplot.science.snr.points import snr_points
 from ptplot.science.spectrum import Engine
-from ptplot.science.spectrum.ssm import SSMSettings
 import ptplot.science.type_hints as th
 
 if tp.TYPE_CHECKING:

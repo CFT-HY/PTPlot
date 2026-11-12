@@ -10,7 +10,7 @@ from pttools.ssm.nucleation import NucType
 import pytest
 
 from ptplot.science.noise import noise_curve
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+from ptplot.science.spectrum.ssm import BAG
 from ptplot.tests.const import TEST_SSM_SETTINGS
 from ptplot.tests.spectrum.ssm.common import (
     ALPHA,
@@ -31,25 +31,11 @@ class SSMPrecomputedTest(unittest.TestCase):
     """
 
     @staticmethod
-    def test_settings_covering() -> None:
-        """Only n_z_lookup should be scaled for a z array that spans more decades than the frequencies."""
-        noise = noise_curve()
-        bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
-        z = PowerSpectrumSSM.z_covering(
-            f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array(BETA_TILDES))
-        settings = PowerSpectrumSSM.settings_covering(z=z, f=noise.f, settings=TEST_SSM_SETTINGS)
-        assert settings.n_z_lookup == PowerSpectrumSSM.n_z_lookup_covering(
-            z=z, f=noise.f, n_z_lookup=TEST_SSM_SETTINGS.n_z_lookup)
-        assert settings.n_z_lookup > TEST_SSM_SETTINGS.n_z_lookup
-        assert settings.n_t == TEST_SSM_SETTINGS.n_t
-        assert settings.nx_p_tilde_gw == TEST_SSM_SETTINGS.nx_p_tilde_gw
-
-    @staticmethod
     def test_precomputed_fallback() -> None:
         """The spectrum should be computed for the frequencies if the precomputed spectrum cannot be used."""
         noise = noise_curve()
         bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
-        z = PowerSpectrumSSM.z_covering(
+        z = Spectrum.z_covering(
             f=noise.f[:noise.f.size // 2], bubble=bubble, T_star=T_STAR, g_star=G_STAR,
             beta_tilde=np.array([BETA_TILDE]))
         ssm = spectrum(V_WALLS[0], bubble=bubble, z=z, settings=TEST_SSM_SETTINGS)
@@ -86,7 +72,7 @@ class SSMPrecomputedTest(unittest.TestCase):
         """A spectrum created with with_params() should match one created with the same parameters."""
         noise = noise_curve()
         bubble = Bubble.cached(model=BAG, v_wall=V_WALLS[0], alpha_n=ALPHA)
-        z = PowerSpectrumSSM.z_covering(
+        z = Spectrum.z_covering(
             f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array(BETA_TILDES))
         cases: list[tuple[dict[str, tp.Any], dict[str, tp.Any]]] = [
             ({"beta_tilde": 1000.}, {"beta_tilde": 1000.}),
@@ -131,7 +117,7 @@ class SSMPrecomputedTest(unittest.TestCase):
         for name, values in (("beta_tilde", BETA_TILDES), ("r_star", (1e-3, 0.01, 0.1))):
             # The invalid values should be ignored.
             arr = np.array([*values, np.nan, -1.])
-            z = PowerSpectrumSSM.z_covering(
+            z = Spectrum.z_covering(
                 f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, f_star0_factor=1.1,
                 beta_tilde=arr if name == "beta_tilde" else None,
                 r_star=arr if name == "r_star" else None
@@ -156,7 +142,7 @@ class SSMPrecomputedTest(unittest.TestCase):
             assert not spectra[0].covers(noise.f / 1.01)
             assert not spectra[-1].covers(noise.f * 1.01)
         with pytest.raises(ValueError, match="Exactly one"):
-            PowerSpectrumSSM.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR)
+            Spectrum.z_covering(f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR)
         with pytest.raises(ValueError, match="None of"):
-            PowerSpectrumSSM.z_covering(
+            Spectrum.z_covering(
                 f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, beta_tilde=np.array([np.nan]))

@@ -3,6 +3,7 @@
 from django.test import TestCase
 from matplotlib.patches import Polygon
 import numpy as np
+from pttools.ssm.settings import SSMSettings
 import pytest
 
 from ptplot.science import const
@@ -10,7 +11,6 @@ from ptplot.science.plot.snr_histogram import N_BINS_MIN, POINTS_PER_BIN, snr_hi
 from ptplot.science.snr import snr_point, snr_points
 from ptplot.science.spectrum import Engine
 from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
-from ptplot.science.spectrum.ssm import SSMSettings
 from ptplot.tests.const import TEST_SSM_SETTINGS
 
 #: Parameters of the test points. The last point has an invalid wall velocity, and therefore its SNR is NaN.

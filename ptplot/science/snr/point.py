@@ -8,13 +8,14 @@ import typing as tp
 
 import numpy as np
 from pttools.export import Exporter, Extractor, Record
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.create import power_spectrum
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import PowerSpectrumSSM, SSMSettings
+from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 from ptplot.science.type_hints import FloatArr1D
 
 logger: logging.Logger = logging.getLogger(__name__)

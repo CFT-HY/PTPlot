@@ -2,11 +2,12 @@
 
 import numpy as np
 from pttools.models import ConstCSModel, Model
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science.const import CS0_2, DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES, Engine
-from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM, SSMSettings
+from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
 
 def power_spectrum(

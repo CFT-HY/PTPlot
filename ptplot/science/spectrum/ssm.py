@@ -1,7 +1,5 @@
 """Sound Shell Model (SSM) power spectrum."""
 
-from dataclasses import dataclass, replace
-
 # from functools import lru_cache
 import logging
 import typing as tp
@@ -10,9 +8,9 @@ import numpy as np
 from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
-from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod, freq, signal_to_noise_ratio
-from pttools.ssm.const import DEFAULT_N_T, DEFAULT_N_Z_LOOKUP
+from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod, signal_to_noise_ratio
 from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
+from pttools.ssm.settings import SSMSettings
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
@@ -24,26 +22,6 @@ from ptplot.science.type_hints import FloatArr1D
 BAG: BagModel = BagModel(alpha_n_min=0.0001)
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True, slots=True)
-class SSMSettings:
-    """Accuracy settings of the PTtools spectra, i.e. the sizes of their internal arrays.
-
-    See :py:class:`pttools.omgw0.spectrum.Spectrum` and the example ``examples/props/n_points.py`` of PTtools,
-    according to which the accuracy and the computation time are determined mostly by ``n_z_lookup``.
-    """
-
-    #: Number of points in the lookup arrays
-    n_z_lookup: int = DEFAULT_N_Z_LOOKUP
-    #: Number of points in the integration of the bubble lifetime distribution
-    n_t: int = DEFAULT_N_T
-    #: Number of points in the integration of $\tilde{P}_\text{gw}$, or None for the same as ``n_z_lookup``
-    nx_p_tilde_gw: int | None = None
-
-    def spectrum_kwargs(self) -> dict[str, tp.Any]:
-        """The settings as the arguments of :py:class:`pttools.omgw0.spectrum.Spectrum`."""
-        return {"n_z_lookup": self.n_z_lookup, "nT": self.n_t, "nx_P_tilde_gw": self.nx_p_tilde_gw}
 
 
 class PowerSpectrumSSM(PowerSpectrum):
@@ -94,11 +72,14 @@ class PowerSpectrumSSM(PowerSpectrum):
         :param z: $z = k R_*$ array. If given, the PTtools spectrum is computed for it immediately,
             and stored as :py:attr:`precomputed`. :py:meth:`power_spectrum` then interpolates it
             for the frequencies that are within its range, and :py:meth:`with_params` reuses it.
-            See :py:meth:`z_covering` for creating a $z$ array that covers the given frequencies.
-        :param settings: Accuracy settings of the PTtools spectra, defaults to :py:class:`SSMSettings`.
+            See :py:meth:`pttools.omgw0.spectrum.Spectrum.z_covering`
+            for creating a $z$ array that covers the given frequencies.
+        :param settings: Accuracy settings of the PTtools spectra,
+            defaults to :py:class:`pttools.ssm.settings.SSMSettings`.
             The lookup arrays span the range of the $z$ array.
             Therefore, for a $z$ array that spans a wider range than the frequencies,
-            ``n_z_lookup`` should be increased with :py:meth:`n_z_lookup_covering` to retain the accuracy.
+            ``n_z_lookup`` should be increased with
+            :py:meth:`pttools.omgw0.spectrum.Spectrum.n_z_lookup_covering` to retain the accuracy.
         :param suppression: Suppression data of the precomputed spectrum
         :param suppression_method: Suppression method of the precomputed spectrum
         :raises ValueError: If the fluid shell does not match the parameters of this spectrum
@@ -381,101 +362,6 @@ class PowerSpectrumSSM(PowerSpectrum):
                 g_star=spectrum.g_star
             )
         return spectrum
-
-    @staticmethod
-    def z_covering(
-            f: FloatArr1D,
-            bubble: Bubble,
-            T_star: float,
-            g_star: float,
-            beta_tilde: FloatArr1D | None = None,
-            r_star: FloatArr1D | None = None,
-            f_star0_factor: float = 1.,
-            points_per_decade: float | None = None) -> FloatArr1D:
-        r"""$z$ array that covers the frequencies ``f`` for all the given values of $\tilde{\beta}$ or $r_*$.
-
-        The $z$ values corresponding to the frequencies are
-        $$z = \frac{f}{f_{\ast,0}} r_*,$$
-        inverted from :gowling_2021:`\ ` eq. 2.12,
-        where $f_{\ast,0}$ is that of :py:func:`pttools.omgw0.freq.f_star0` multiplied by ``f_star0_factor``,
-        and $r_*$ is computed from $\tilde{\beta}$ in the same way as by PTtools,
-        with :py:meth:`pttools.ssm.spectrum.SSMSpectrum.validate_nucleation`.
-        The returned array is logarithmically spaced from the smallest to the largest $z$.
-        The values that are not finite and positive are ignored, as are those for which $r_*$ cannot be computed.
-
-        :param f: Frequencies $f$ to be covered
-        :param bubble: Fluid shell of the spectra
-        :param T_star: $T_*$, temperature at which the GWs were produced
-        :param g_star: $g_*$, degrees of freedom
-        :param beta_tilde: $\tilde{\beta}$ values of the spectra
-        :param r_star: $r_*$ values of the spectra
-        :param f_star0_factor: Correction factor for $f_{\ast,0}$
-        :param points_per_decade: Number of $z$ points per decade.
-            Defaults to the average number of points per decade of ``f``.
-        :return: $z$ array
-        :raises ValueError: If not exactly one of $\tilde{\beta}$ and $r_*$ is given,
-            or if none of their values are valid
-        """
-        if (beta_tilde is None) == (r_star is None):
-            raise ValueError("Exactly one of beta_tilde and r_star must be given.")
-        r_stars: list[float] = []
-        for value in tp.cast(FloatArr1D, r_star if beta_tilde is None else beta_tilde):
-            if not (np.isfinite(value) and value > 0):
-                continue
-            try:
-                # r_* does not depend on the nucleation type, see power_spectrum().
-                r_stars.append(
-                    Spectrum.validate_nucleation(
-                        bubble=bubble, nuc_type=DEFAULT_NUC_TYPE, r_star=float(value), beta_tilde=None)
-                    if beta_tilde is None
-                    else Spectrum.validate_nucleation(
-                        bubble=bubble, nuc_type=DEFAULT_NUC_TYPE, r_star=None, beta_tilde=float(value))
-                )
-            except ValueError:
-                continue
-        if not r_stars:
-            raise ValueError("None of the beta_tilde or r_star values are valid.")
-
-        f_star0 = freq.f_star0(T_star=T_star, ge_star=g_star, gs_star=g_star) * f_star0_factor
-        z_min = freq.z(f=float(f.min()), r_star=min(r_stars), f_star0=f_star0)
-        z_max = freq.z(f=float(f.max()), r_star=max(r_stars), f_star0=f_star0)
-        if points_per_decade is None:
-            points_per_decade = (f.size - 1) / np.log10(f.max() / f.min())
-        n = max(int(np.ceil(points_per_decade * np.log10(z_max / z_min))) + 1, 2)
-        z = np.logspace(np.log10(z_min), np.log10(z_max), n)
-        # Ensure that the endpoints are exact despite the rounding errors of logspace.
-        z[0] = z_min
-        z[-1] = z_max
-        return z
-
-    @staticmethod
-    def n_z_lookup_covering(z: FloatArr1D, f: FloatArr1D, n_z_lookup: int = DEFAULT_N_Z_LOOKUP) -> int:
-        """Number of points in the lookup arrays for a $z$ array, giving the same density as for the frequencies.
-
-        The lookup arrays of PTtools are logarithmically spaced over the range of the $z$ array.
-        This scales ``n_z_lookup`` by the ratio of the numbers of decades spanned by ``z`` and ``f``,
-        so that a precomputed spectrum is as accurate as one computed for the frequencies.
-
-        :param z: $z$ array, e.g. from :py:meth:`z_covering`
-        :param f: Frequencies $f$ for which the spectra would otherwise be computed
-        :param n_z_lookup: Number of points in the lookup arrays for the frequencies
-        :return: Number of points in the lookup arrays for ``z``, at least ``n_z_lookup``
-        """
-        ratio = np.log10(z.max() / z.min()) / np.log10(f.max() / f.min())
-        return max(n_z_lookup, int(np.ceil(n_z_lookup * ratio)))
-
-    @classmethod
-    def settings_covering(cls, z: FloatArr1D, f: FloatArr1D, settings: SSMSettings | None = None) -> SSMSettings:
-        """Accuracy settings for a $z$ array, with ``n_z_lookup`` scaled by :py:meth:`n_z_lookup_covering`.
-
-        :param z: $z$ array, e.g. from :py:meth:`z_covering`
-        :param f: Frequencies $f$ for which the spectra would otherwise be computed
-        :param settings: Accuracy settings for the frequencies, defaults to :py:class:`SSMSettings`
-        :return: Accuracy settings for ``z``
-        """
-        if settings is None:
-            settings = SSMSettings()
-        return replace(settings, n_z_lookup=cls.n_z_lookup_covering(z=z, f=f, n_z_lookup=settings.n_z_lookup))
 
     def record(self, extractor: Extractor) -> Record | None:
         """Record of the PTtools spectrum computed by the last call of :py:meth:`power_spectrum`.

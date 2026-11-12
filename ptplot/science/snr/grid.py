@@ -19,13 +19,14 @@ from pttools.bubble.fluid_reference import ref
 from pttools.export import Exporter, Record
 from pttools.models import Model
 from pttools.speedup import DEFAULT_FORKSERVER_PRELOAD, MAX_WORKERS_DEFAULT, run_parallel
+from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import export_records, param_names, snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.ssm import BAG, SSMSettings
+from ptplot.science.spectrum.ssm import BAG
 from ptplot.science.type_hints import (
     FloatArr1D,
     FloatArr2D,
