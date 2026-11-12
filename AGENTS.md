@@ -53,6 +53,9 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
   with constants first, then classes, and then functions.
   However, the exceptions are that `logger` should be right after the imports, and that `main` should be the last function in a module.
   You may deviate from these if required for e.g. type hints.
+- Use `frozen=True, slots=True` for dataclasses where feasible.
+- Avoid code duplication. When implementing new functionality, check whether relevant code already exists in this repository.
+  If yes, generalize the existing code as needed. You may move it in the most suitable location.
 
 ## Docstring conventions
 - Use the Sphinx docstring format.
@@ -90,10 +93,24 @@ by Caprini et al. (2020), arXiv:1910.13125.
 Links to other relevant articles are in `docs.conf.extlinks`.
 
 Modules:
-- `ptplot` is the Django app
-- `ptplot.science` contains the scientific code, which doesn't require Django
-- `ptplot_site` is the Django site
-- `tools` contains external utilities
+- `ptplot`: Django app
+- `ptplot.admin`: Django admin
+- `ptplot.forms`: Django forms
+- `ptplot.management`: Django manage.py commands, in particular `ptplot.management.commands.populate`, which contains the particle physics models
+- `ptplot.methods`: Django methods
+- `ptplot.migrations`: Django migrations
+- `ptplot.models`: Django database models, e.g. `Model` (particle physics model), `Scenario` and `ParameterChoice` (aka. point)
+- `ptplot.science`: scientific code, which doesn't require Django
+- `ptplot.science.plot`: plotting
+- `ptplot.science.sensitivity`: legacy code for LISA noise spectrum
+- `ptplot.science.snr`: signal-to-noise ratio (SNR) calculations
+- `ptplot.science.spectrum`: power spectrum models, aka. engines: broken power laws (BPL), double broken power laws (DBPL), Sound Shell Model (SSM) and imported lattice spectra
+- `ptplot.static`: static assets
+- `ptplot.templates`: Django HTML templates
+- `ptplot.tests`: unit tests
+- `ptplot.views`: Django views
+- `ptplot_site`: Django site
+- `tools`: external utilities
 
 PTPlot supports five modeling engines:
 - Broken power law (BPL) of Hindmarsh et al. (2017) and Caprini et al. (2020), `CosWG20bpl` (default)
