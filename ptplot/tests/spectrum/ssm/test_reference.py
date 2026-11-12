@@ -89,7 +89,8 @@ class SSMReferenceTest(unittest.TestCase):
                 column = snr_column_ssm(
                     x=ALPHA, y=np.array([BETA_TILDE]), v_wall=v_wall, T_star=T_STAR, g_star=G_STAR, noise=noise
                 )
-                np.testing.assert_allclose(column.snr[0], snr, rtol=1e-6)
+                # The SNR is computed on the points of the shared spectrum, see test_precomputed().
+                np.testing.assert_allclose(column.snr[0], snr, rtol=SNR_RTOL_PRECOMPUTED)
                 np.testing.assert_allclose(column.shock_times[0], ssm.H_star_eta_sh, rtol=1e-12)
                 assert not column.records
 

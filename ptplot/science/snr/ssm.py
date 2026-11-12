@@ -7,7 +7,7 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Extractor, Record
 from pttools.models import Model
-from pttools.omgw0 import Spectrum
+from pttools.omgw0 import Spectrum, SuppressionMethod
 from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
@@ -60,13 +60,14 @@ def snr_column_ssm(
     r"""Compute a column of an SNR grid with the Sound Shell Model.
 
     The fluid shell is computed only once for the column, as $x$ is the same for all its points.
-    The PTtools spectrum is also computed only once,
+    The PTtools spectrum is also computed only once with :py:meth:`pttools.omgw0.spectrum.Spectrum.covering`,
     for a $z$ array that covers the frequencies of the noise curve for all the $y$ values of the column
     (see :py:meth:`pttools.omgw0.spectrum.Spectrum.z_covering`),
     with as dense lookup arrays as for the frequencies
     (see :py:meth:`pttools.omgw0.spectrum.Spectrum.n_z_lookup_covering`),
-    and the spectra of the points are created from it with
-    :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.with_params`.
+    and the spectra of the points are created from it, see the ``precomputed`` argument of
+    :py:class:`~ptplot.science.spectrum.ssm.PowerSpectrumSSM`.
+    The same is done for the datasets of PTtools, see :py:func:`pttools.analysis.dataset.compute_spectra`.
     The SNR values are then computed on the points of the $z$ array, see
     :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.power_spectrum`.
     When exporting, the extracted spectra are interpolated to the frequencies of the noise curve
@@ -149,10 +150,7 @@ def snr_column_ssm(
         )
         return column
 
-    def create_spectrum(
-            y_i: float,
-            z: th.FloatArr1D | None = None,
-            settings: SSMSettings | None = ssm_settings) -> PowerSpectrumSSM:
+    def create_spectrum(y_i: float, precomputed: Spectrum | None) -> PowerSpectrumSSM:
         return PowerSpectrumSSM(
             alpha=None if ubarf_rstar else x_value,
             ubarf=x_value if ubarf_rstar else None,
@@ -167,25 +165,26 @@ def snr_column_ssm(
             f_star0_factor=f_star0_factor,
             parallel=parallel,
             legacy_nucleation_cs_max=legacy_nucleation_cs_max,
-            z=z,
-            settings=settings
+            precomputed=precomputed,
+            settings=ssm_settings
         )
 
-    shared_spectrum: PowerSpectrumSSM | None = None
+    shared_spectrum: Spectrum | None = None
     try:
-        z = Spectrum.z_covering(
-            f=noise.f,
-            bubble=bubble,
+        shared_spectrum = Spectrum.covering(
+            bubble,
+            noise.f,
             T_star=T_star,
             g_star=g_star,
             beta_tilde=None if ubarf_rstar else y,
             r_star=y if ubarf_rstar else None,
-            f_star0_factor=f_star0_factor
+            settings=ssm_settings,
+            f_star0_factor=f_star0_factor,
+            # These are the same as for the spectra computed by PowerSpectrumSSM.
+            allow_beta_tilde_for_simultaneous=True,
+            suppression_method=SuppressionMethod.EXT_CONSTANT,
+            parallel=parallel
         )
-        # Any valid y value can be used for the shared spectrum, as with_params() changes it.
-        y_valid = y[np.isfinite(y) & (y > 0)]
-        shared_spectrum = create_spectrum(
-            y_i=y_valid[0], z=z, settings=Spectrum.settings_covering(z=z, f=noise.f, settings=ssm_settings))
     except Exception as exc:
         logger.exception(
             "Failed to compute the shared spectrum for the SNR column with %s=%s, v_wall=%s. "
@@ -196,10 +195,7 @@ def snr_column_ssm(
 
     for i, y_i in enumerate(y):
         try:
-            spectrum = create_spectrum(y_i) if shared_spectrum is None else shared_spectrum.with_params(
-                beta_tilde=None if ubarf_rstar else y_i,
-                r_star=y_i if ubarf_rstar else None
-            )
+            spectrum = create_spectrum(y_i, precomputed=shared_spectrum)
             # Error logging is handled in this function
             omgw0_h2, snr = spectrum.power_spectrum(noise.f, noise=noise, log_errors=False)
             shock_time = spectrum.H_star_eta_sh

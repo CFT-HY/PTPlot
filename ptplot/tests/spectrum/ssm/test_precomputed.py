@@ -6,6 +6,7 @@ import unittest
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.omgw0.spectrum import Z_COVERING_DENSITY
 from pttools.ssm.nucleation import NucType
 import pytest
 
@@ -120,13 +121,16 @@ class SSMPrecomputedTest(unittest.TestCase):
             z = Spectrum.z_covering(
                 f=noise.f, bubble=bubble, T_star=T_STAR, g_star=G_STAR, f_star0_factor=1.1,
                 beta_tilde=arr if name == "beta_tilde" else None,
-                r_star=arr if name == "r_star" else None
+                r_star=arr if name == "r_star" else None,
+                # Without the margin, the endpoints of the z array are those of the frequencies.
+                margin=0
             )
             assert np.all(np.diff(z) > 0)
-            # The default density is that of the frequencies.
+            # The default density is relative to that of the frequencies.
             points_per_decade = (z.size - 1) / np.log10(z[-1] / z[0])
             np.testing.assert_allclose(
-                points_per_decade, (noise.f.size - 1) / np.log10(noise.f[-1] / noise.f[0]), rtol=1e-3)
+                points_per_decade,
+                Z_COVERING_DENSITY * (noise.f.size - 1) / np.log10(noise.f[-1] / noise.f[0]), rtol=1e-3)
             spectra = [
                 spectrum(
                     V_WALLS[0], bubble=bubble, z=z, f_star0_factor=1.1, settings=TEST_SSM_SETTINGS,

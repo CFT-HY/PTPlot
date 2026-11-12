@@ -59,6 +59,7 @@ class PowerSpectrumSSM(PowerSpectrum):
             bubble: Bubble | None = None,
             # Precomputation
             z: FloatArr1D | None = None,
+            precomputed: Spectrum | None = None,
             settings: SSMSettings | None = None,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT):
@@ -74,6 +75,13 @@ class PowerSpectrumSSM(PowerSpectrum):
             for the frequencies that are within its range, and :py:meth:`with_params` reuses it.
             See :py:meth:`pttools.omgw0.spectrum.Spectrum.z_covering`
             for creating a $z$ array that covers the given frequencies.
+        :param precomputed: PTtools spectrum from which :py:attr:`precomputed` is created
+            with :py:meth:`pttools.omgw0.spectrum.Spectrum.with_params` for the parameters of this spectrum,
+            which reuses its computationally heavy part.
+            See :py:meth:`pttools.omgw0.spectrum.Spectrum.covering` for creating a spectrum
+            that covers the given frequencies for multiple parameter values.
+            It must have the same fluid shell as this spectrum, and its suppression settings are used
+            instead of ``suppression`` and ``suppression_method``. Cannot be given together with ``z``.
         :param settings: Accuracy settings of the PTtools spectra,
             defaults to :py:class:`pttools.ssm.settings.SSMSettings`.
             The lookup arrays span the range of the $z$ array.
@@ -82,8 +90,16 @@ class PowerSpectrumSSM(PowerSpectrum):
             :py:meth:`pttools.omgw0.spectrum.Spectrum.n_z_lookup_covering` to retain the accuracy.
         :param suppression: Suppression data of the precomputed spectrum
         :param suppression_method: Suppression method of the precomputed spectrum
-        :raises ValueError: If the fluid shell does not match the parameters of this spectrum
+        :raises ValueError: If the fluid shell does not match the parameters of this spectrum,
+            or if both ``z`` and ``precomputed`` are given
         """
+        if z is not None and precomputed is not None:
+            raise ValueError("Either z or precomputed can be given, but not both.")
+        if precomputed is not None:
+            if bubble is None:
+                bubble = precomputed.bubble
+            elif precomputed.bubble is not bubble:
+                raise ValueError("The precomputed spectrum must have the same fluid shell as the power spectrum.")
         # These are stored so that with_params() can give the same parameters to the new spectrum.
         self._alpha_given: float | None = alpha
         self._ubarf_given: float | None = ubarf
@@ -129,12 +145,17 @@ class PowerSpectrumSSM(PowerSpectrum):
         #: Accuracy settings of the PTtools spectra
         self.settings: SSMSettings = SSMSettings() if settings is None else settings
         #: Suppression data of :py:attr:`precomputed`
-        self.suppression: Suppression = suppression
+        self.suppression: Suppression = suppression if precomputed is None else precomputed.suppression
         #: Suppression method of :py:attr:`precomputed`
-        self.suppression_method: SuppressionMethod = suppression_method
-        #: The PTtools spectrum precomputed for the $z$ array given to the constructor
-        self.precomputed: Spectrum | None = None if z is None else self._spectrum(
-            z=z, suppression=suppression, suppression_method=suppression_method)
+        self.suppression_method: SuppressionMethod = suppression_method if precomputed is None \
+            else precomputed.suppression_method
+        #: The PTtools spectrum precomputed for the $z$ array given to the constructor,
+        #: or created from the precomputed spectrum given to the constructor
+        self.precomputed: Spectrum | None = \
+            self._spectrum(z=z, suppression=suppression, suppression_method=suppression_method) if z is not None \
+            else None if precomputed is None \
+            else precomputed.with_params(
+                beta_tilde=self.beta_tilde_given, r_star=self.r_star_given, T_star=self.T_star, g_star=self.g_star)
 
     def _spectrum(
             self,
@@ -335,8 +356,7 @@ class PowerSpectrumSSM(PowerSpectrum):
         if beta_tilde is None and r_star is None:
             beta_tilde = self.beta_tilde_given
             r_star = self.r_star_given
-        # z is not given, and therefore creating the object does not precompute its Spectrum.
-        spectrum = type(self)(
+        return type(self)(
             v_wall=self.v_wall,
             alpha=self._alpha_given,
             beta_tilde=beta_tilde,
@@ -350,18 +370,11 @@ class PowerSpectrumSSM(PowerSpectrum):
             parallel=self.parallel if parallel is None else parallel,
             model=self.model,
             bubble=self.bubble,
+            precomputed=self.precomputed,
             settings=self.settings,
             suppression=self.suppression,
             suppression_method=self.suppression_method
         )
-        if self.precomputed is not None:
-            spectrum.precomputed = self.precomputed.with_params(
-                beta_tilde=spectrum.beta_tilde_given,
-                r_star=spectrum.r_star_given,
-                T_star=spectrum.T_star,
-                g_star=spectrum.g_star
-            )
-        return spectrum
 
     def record(self, extractor: Extractor) -> Record | None:
         """Record of the PTtools spectrum computed by the last call of :py:meth:`power_spectrum`.
