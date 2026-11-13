@@ -127,6 +127,9 @@ You may `git clone` these with SSH in the same parent directory as PTPlot.
   - PTPlot uses PTtools as a back-end for the Sound Shell Model and various utilities.
   - PTtools is maintained by the same authors as PTPlot. Therefore, if you need a feature or a change in PTtools,
     you may implement it in the local copy, if there are no uncommitted changes in the relevant files or other active sessions editing the code.
+- [PTPlot with PTtools](https://version.helsinki.fi/hakkijen/ptplot-with-pttools): `../ptplot-with-pttools` (private)
+  - Initial version of PTPlot with PTtools by Jenni Häkkinen for her master's thesis.
+    This is the precursor of the current integration of PTPlot with PTtools.
 - Correia et al. (2025), "Gravitational waves from strong first-order phase transitions" (Correia:2025qif, 2505.17824)
   - [Hydro_plot](https://github.com/jrcccc/Hydro_plot): `../Hydro_plot`, another version of the plotting code (private)
   - [UETC_paper_Hydro](https://github.com/jrcccc/UETC_paper_Hydro): `../UETC_paper_Hydro`, the code and data used in the article (private)
