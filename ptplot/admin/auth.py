@@ -10,6 +10,8 @@ from django_github_sso.admin import GitHubSSOInlineAdmin, get_current_user_and_a
 from ptplot import models
 from ptplot.admin.base import CustomModelAdmin, admin_site
 
+__all__ = ["CurrentUserModel", "LastUserAdmin", "UserAdmin", "last_admin"]
+
 last_admin: DjangoUserAdmin | None
 LastUserAdmin: type[DjangoUserAdmin]
 _current_user_model, last_admin, LastUserAdmin = get_current_user_and_admin()

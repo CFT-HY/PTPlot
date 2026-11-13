@@ -25,6 +25,8 @@ import numpy as np
 
 from ptplot.science.type_hints import FloatOrArr
 
+__all__ = ["H100_OLD", "SI", "SII", "OmSens", "R", "Sh"]
+
 H100_OLD: float = 100.0 / 3.0e19
 r"""
 Difference 3: $1 \ \text{Mpc} = 3.0 \cdot 10^{19} \ \text{km}$ is outdated, which makes this H0 2.9 % too large

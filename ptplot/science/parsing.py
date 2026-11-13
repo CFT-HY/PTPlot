@@ -4,9 +4,11 @@ import argparse
 import typing as tp
 
 from ptplot.science import const
-from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB, DEFAULT_OBS_YEARS
+from ptplot.science.noise import DEFAULT_NOISE_EB, DEFAULT_NOISE_GB
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
+
+__all__ = ["PTPlotParser", "engine_arg"]
 
 
 def engine_arg(value: str) -> Engine:
@@ -70,7 +72,7 @@ class PTPlotParser(argparse.ArgumentParser):
             self.add_argument(
                 "-obs_years", "--obs_years",
                 type=float,
-                default=DEFAULT_OBS_YEARS,
+                default=const.DEFAULT_OBS_YEARS,
                 help="mission duration in years"
             )
             self.add_argument(

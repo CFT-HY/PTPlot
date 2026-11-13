@@ -44,6 +44,8 @@ if tp.TYPE_CHECKING:
     from ptplot.models.parameter_choice import ParameterChoice
     from ptplot.models.scenario import Scenario
 
+__all__ = ["Model"]
+
 
 class Model(models.Model):
     """A particle physics model."""

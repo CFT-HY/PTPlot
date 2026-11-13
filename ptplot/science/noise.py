@@ -25,6 +25,8 @@ from ptplot.science.const import (
 )
 import ptplot.science.type_hints as th
 
+__all__ = ["DEFAULT_NOISE_EB", "DEFAULT_NOISE_GB", "NOISE_CACHE_SIZE", "Noise", "noise_curve", "resolve_noise"]
+
 #: Whether the extragalactic compact binary noise $\Omega_\text{eb}$ is included by default
 DEFAULT_NOISE_EB: bool = False
 #: Whether the galactic compact binary noise $\Omega_\text{gb}$ is included by default

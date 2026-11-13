@@ -18,6 +18,17 @@ from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 from ptplot.science.type_hints import FloatArr1D
 
+__all__ = [
+    "SPECTRUM_PARAMS",
+    "SPECTRUM_PARAMS_SSM",
+    "SNRPointSpectrum",
+    "export_records",
+    "extract_record",
+    "param_names",
+    "snr_point",
+    "spectrum_params",
+]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 #: Parameters of the power spectra that are stored for each point of an SNR grid, see :py:func:`spectrum_params`

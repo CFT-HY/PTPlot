@@ -30,6 +30,8 @@ from ptplot.science.spectrum.ssm import BAG
 import ptplot.science.type_hints as th
 from ptplot.science.utils import log_range, ubarf_rstar_from_alpha_beta
 
+__all__ = ["SNRGridUbarfRStar"]
+
 
 class SNRGridUbarfRStar(SNRGrid):
     r"""SNR values on a grid of $(\bar{U}_f, r_*)$ points."""

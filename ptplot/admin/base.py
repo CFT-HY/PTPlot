@@ -2,6 +2,8 @@
 
 from django.contrib import admin
 
+__all__ = ["CustomModelAdmin", "PTPlotAdminSite", "admin_site"]
+
 
 class PTPlotAdminSite(admin.AdminSite):
     """PTPlot admin site."""

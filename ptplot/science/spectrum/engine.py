@@ -12,6 +12,8 @@ import ptplot.science.type_hints as th
 if th.TYPE_CHECKING_OR_DOCS:
     from ptplot.science.spectrum.base import PowerSpectrum
 
+__all__ = ["ENGINE_SPECTRUM_CLASSES", "STRONG_ENGINES", "Engine"]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 

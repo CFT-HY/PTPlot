@@ -35,6 +35,8 @@ import ptplot.science.type_hints as th
 if tp.TYPE_CHECKING:
     from django.db.models.expressions import BaseExpression
 
+__all__ = ["ParameterChoice"]
+
 
 class ParameterChoice(models.Model):
     """A parameter choice, aka. a point, for a particle physics model."""

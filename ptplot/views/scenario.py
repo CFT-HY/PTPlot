@@ -11,6 +11,14 @@ from ptplot.science.spectrum import Engine
 from ptplot.views.model import model_stats_context
 from ptplot.views.validation import validate_forms
 
+__all__ = [
+    "model_scenario_plot",
+    "model_scenario_snr_alpha_beta",
+    "model_scenario_snr_comparison",
+    "model_scenario_snr_histogram",
+    "model_scenario_snr_ubarf_rstar",
+]
+
 
 def model_scenario_plot(request: HttpRequest, model_id: int, scenario_id: int) -> HttpResponse:
     """Display a group of scenario points on the SNR plots."""

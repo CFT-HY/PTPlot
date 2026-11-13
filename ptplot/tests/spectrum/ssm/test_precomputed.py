@@ -5,9 +5,10 @@ import unittest
 
 import numpy as np
 from pttools.bubble import Bubble
-from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.omgw0 import Spectrum
 from pttools.omgw0.spectrum import Z_COVERING_DENSITY
 from pttools.ssm.nucleation import NucType
+from pttools.ssm.suppression import SuppressionMethod
 import pytest
 
 from ptplot.science.noise import noise_curve

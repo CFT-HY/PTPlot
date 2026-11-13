@@ -17,6 +17,17 @@ from ptplot.models import Model
 from ptplot.science.spectrum import Engine
 from ptplot.views.validation import validate_forms
 
+__all__ = [
+    "model_detail",
+    "model_detail_plot",
+    "model_snr_alpha_beta",
+    "model_snr_comparison",
+    "model_snr_histogram",
+    "model_snr_ubarf_rstar",
+    "model_stats_context",
+    "models",
+]
+
 
 def model_stats_context(model: Model) -> dict[str, tp.Any]:
     """Get the template context for the statistics of the points and scenarios of a model.

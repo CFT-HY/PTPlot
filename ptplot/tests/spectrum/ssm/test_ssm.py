@@ -5,9 +5,9 @@ import unittest
 import numpy as np
 from pttools.bubble import Bubble
 from pttools.models import BagModel
-from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.omgw0 import Spectrum
 from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
-from pttools.ssm.suppression import DEFAULT_SUPPRESSION
+from pttools.ssm.suppression import DEFAULT_SUPPRESSION, SuppressionMethod
 import pytest
 
 from ptplot.science.const import OMEGA_PHOTON_H2

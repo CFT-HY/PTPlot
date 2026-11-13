@@ -39,6 +39,8 @@ if tp.TYPE_CHECKING:
 
     from ptplot.models.parameter_choice import ParameterChoice
 
+__all__ = ["Scenario"]
+
 
 class Scenario(models.Model):
     """A scenario with a particular $T_*$ for a particle physics model."""

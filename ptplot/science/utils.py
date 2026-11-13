@@ -15,6 +15,15 @@ from pttools.ssm.nucleation import r_star as r_star_func
 from ptplot.science import const
 import ptplot.science.type_hints as th
 
+__all__ = [
+    "GIT_DESCRIPTION",
+    "HAVE_GITVER",
+    "atleast_2d",
+    "atleast_2d_single",
+    "log_range",
+    "ubarf_rstar_from_alpha_beta",
+]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 GIT_DESCRIPTION: str = "unknown"

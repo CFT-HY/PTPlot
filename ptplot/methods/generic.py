@@ -15,6 +15,15 @@ from pttools.logging import setup_logging as pttools_logging
 from ptplot import PTPLOT_DIR
 from ptplot.science.plot.utils import fig_to_svg
 
+__all__ = [
+    "DJANGO_SETUP_LOCK",
+    "fig_to_response",
+    "get_object_or_404_related",
+    "setup_django",
+    "setup_example_logging",
+    "setup_logging",
+]
+
 #: Lock for setting up Django only once.
 DJANGO_SETUP_LOCK: Lock = Lock()
 

@@ -12,6 +12,8 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.export import ANALYTIC_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatOrArr
 
+__all__ = ["DEFAULT_ZP", "CosWG20"]
+
 DEFAULT_ZP: int = 10
 r"""
 This default value is determine from simulations,

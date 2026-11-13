@@ -4,6 +4,8 @@ import typing as tp
 
 from django.db import models
 
+__all__ = ["LatexFloatField"]
+
 
 class LatexFloatField(models.FloatField):
     """A float field that also has a human-readable name with LaTeX symbols for the web pages."""

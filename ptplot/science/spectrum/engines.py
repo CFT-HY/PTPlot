@@ -7,6 +7,8 @@ from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES, Engine
 from ptplot.science.spectrum.gh21dbpl import GH21dbpl
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
+__all__ = ["ENGINE_CHOICES", "ENGINE_NAMES", "ENGINE_SHORT_NAMES"]
+
 # -----
 # Update this when adding new engines
 # -----

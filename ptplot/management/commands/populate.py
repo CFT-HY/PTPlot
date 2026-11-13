@@ -12,6 +12,8 @@ from pandas import DataFrame, read_csv
 
 from ptplot.models import Model, ParameterChoice, Scenario
 
+__all__ = ["FILEDIR", "Command"]
+
 FILEDIR: Path = Path(__file__).resolve().parent
 
 

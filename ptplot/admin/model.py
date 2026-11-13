@@ -5,6 +5,8 @@ from django.contrib import admin
 from ptplot import models
 from ptplot.admin.base import CustomModelAdmin, admin_site
 
+__all__ = ["ModelAdmin"]
+
 
 @admin.register(models.Model, site=admin_site)
 class ModelAdmin(CustomModelAdmin):

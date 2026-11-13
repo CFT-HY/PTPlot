@@ -7,6 +7,8 @@ import numpy as np
 
 import ptplot.science.type_hints as th
 
+__all__ = ["add_ticks", "make_minor_ticks", "tick_labels_log"]
+
 
 def add_ticks(
         ax: Axes,

@@ -8,6 +8,25 @@ if TYPE_CHECKING_OR_DOCS:
     import numpy as np
     from numpy.typing import NDArray
 
+__all__ = [
+    "ArrOrListOfArrs",
+    "FloatArr",
+    "FloatArr1D",
+    "FloatArr1DOrListOfArr1D",
+    "FloatArr2D",
+    "FloatArr2DOrListOfArr1D",
+    "FloatArr3D",
+    "FloatOrArr",
+    "FloatOrArr1D",
+    "FloatOrArr1D2D",
+    "FloatOrArrOrList1D2D",
+    "FloatOrArrOrListOfArr1D",
+    "IntArr1D",
+    "StrList2D",
+    "StrOrList",
+    "StrOrListOrNestedList",
+]
+
 type ArrOrListOfArrs = NDArray | list[NDArray]
 type FloatArr = NDArray[np.float64]
 type FloatArr1D = np.ndarray[tuple[int], np.dtype[np.float64]]

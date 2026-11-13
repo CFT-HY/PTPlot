@@ -11,6 +11,8 @@ from ptplot.science.spectrum.coswg20 import CosWG20
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
+__all__ = ["DEFAULT_K_TURB", "CosWG20bpl"]
+
 #: Default $k_\text{turb}$, the fraction of latent heat that is transformed to magnetohydrodynamic turbulence.
 DEFAULT_K_TURB: float = 1.97 / 65.0
 

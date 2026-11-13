@@ -5,6 +5,8 @@ import typing as tp
 from ptplot.science.spectrum.coswg24 import CosWG24
 from ptplot.science.spectrum.engine import Engine
 
+__all__ = ["CosWG24bpl"]
+
 
 class CosWG24bpl(CosWG24):
     r"""Broken power law (BPL) power spectrum of Caprini et al. (2024).

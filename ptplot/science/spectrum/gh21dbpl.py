@@ -9,6 +9,8 @@ from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 from ptplot.science.type_hints import FloatOrArr
 
+__all__ = ["GH21dbpl"]
+
 
 class GH21dbpl(CosWG20):
     r"""

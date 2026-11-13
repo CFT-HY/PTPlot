@@ -40,6 +40,8 @@ from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 if tp.TYPE_CHECKING:
     from ptplot.science.spectrum.engine import Engine
 
+__all__ = ["PowerSpectrum"]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 

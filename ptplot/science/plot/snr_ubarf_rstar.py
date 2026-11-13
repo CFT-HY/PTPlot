@@ -20,6 +20,8 @@ from ptplot.science.plot.snr import SNRFigure
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
 
+__all__ = ["SNRFigureUbarfRStar"]
+
 
 class SNRFigureUbarfRStar(SNRFigure):
     r"""SNR figure of $(\bar{U}_f, r_*)$."""

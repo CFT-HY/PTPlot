@@ -4,7 +4,8 @@ from django.test import TestCase
 from pttools.ssm.const import DEFAULT_N_T, DEFAULT_N_Z_LOOKUP
 from pttools.ssm.settings import SSMSettings
 
-from ptplot.forms import MIN_N_Z_LOOKUP, SSMSettingsForm
+from ptplot.forms import SSMSettingsForm
+from ptplot.science.const import MIN_N_Z_LOOKUP
 
 
 class SSMSettingsFormTest(TestCase):

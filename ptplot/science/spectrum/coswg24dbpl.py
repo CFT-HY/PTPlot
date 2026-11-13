@@ -7,6 +7,8 @@ import numpy as np
 from ptplot.science.spectrum.coswg24 import CosWG24
 from ptplot.science.spectrum.engine import Engine
 
+__all__ = ["CosWG24dbpl"]
+
 
 class CosWG24dbpl(CosWG24):
     r"""Double broken power law (DBPL) power spectrum of Caprini et al. (2024).

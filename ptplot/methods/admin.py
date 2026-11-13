@@ -7,6 +7,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 
+__all__ = ["admin_change_url", "generate_link", "link"]
+
 
 def admin_change_url(obj: models.Model) -> str:
     """Get the admin change URL of an object.

@@ -6,6 +6,8 @@ from ptplot import models
 from ptplot.admin.base import CustomModelAdmin, admin_site
 import ptplot.methods.admin as admin_methods
 
+__all__ = ["ScenarioAdmin"]
+
 
 @admin.register(models.Scenario, site=admin_site)
 class ScenarioAdmin(CustomModelAdmin):

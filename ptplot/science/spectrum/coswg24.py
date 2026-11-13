@@ -12,6 +12,8 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.export import ANALYTIC_SPECTRUM_FIELDS
 from ptplot.science.type_hints import FloatArr1D, FloatOrArr
 
+__all__ = ["CosWG24"]
+
 
 class CosWG24(PowerSpectrum, abc.ABC):
     r"""Base class for the broken power law templates of :caprini_2024:`\ `.

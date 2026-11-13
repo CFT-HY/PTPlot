@@ -25,6 +25,24 @@ import ptplot.science.type_hints as th
 from ptplot.science.utils import GIT_DESCRIPTION
 from ptplot.utils import is_django
 
+__all__ = [
+    "DEFAULT_RC_CONTEXT",
+    "FADE",
+    "POINTS_PER_INCH",
+    "TEXT_PAD",
+    "add_subplot_titles",
+    "add_text",
+    "faded",
+    "fig_to_svg",
+    "find_label_place",
+    "has_lines",
+    "latex_to_html",
+    "save_html",
+    "subplot_grid",
+    "title_pad",
+    "watermark",
+]
+
 #: Default Matplotlib context
 DEFAULT_RC_CONTEXT: dict[RcKeyType, tp.Any] = {
     "font.family": "serif",

@@ -23,6 +23,8 @@ from django.views.generic import RedirectView
 
 from ptplot.admin import admin_site
 
+__all__ = ["urlpatterns"]
+
 urlpatterns: list[URLPattern | URLResolver] = [
     path("", RedirectView.as_view(url='/ptplot', permanent=True), name="index_redirect"),
     path("admin/", admin_site.urls),

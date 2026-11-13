@@ -17,6 +17,8 @@ from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_SHORT_NAMES
 import ptplot.science.type_hints as th
 
+__all__ = ["N_BINS_MIN", "POINTS_PER_BIN", "snr_histogram", "snr_histogram_figure"]
+
 # if tp.TYPE_CHECKING:
 #     from ptplot.models.parameter_choice import ParameterChoice
 

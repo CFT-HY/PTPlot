@@ -8,16 +8,18 @@ import numpy as np
 from pttools.bubble import DEFAULT_NU_GDH2024, Bubble, SolutionType
 from pttools.export import Extractor, Record
 from pttools.models import BagModel, Model
-from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, Suppression, SuppressionMethod, signal_to_noise_ratio
+from pttools.omgw0 import GE0_PHOTON, GS0, Spectrum, signal_to_noise_ratio
 from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
 from pttools.ssm.settings import SSMSettings
-from pttools.ssm.suppression import DEFAULT_SUPPRESSION
+from pttools.ssm.suppression import DEFAULT_SUPPRESSION, Suppression, SuppressionMethod
 
 from ptplot.science.const import DEFAULT_ADIABATIC_INDEX, DEFAULT_G_STAR, DEFAULT_T_STAR, OMEGA_PHOTON_H2
 from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.type_hints import FloatArr1D
+
+__all__ = ["BAG", "PowerSpectrumSSM"]
 
 BAG: BagModel = BagModel(alpha_n_min=0.0001)
 

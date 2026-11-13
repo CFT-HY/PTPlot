@@ -14,6 +14,8 @@ from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, add_subplot_titles, su
 from ptplot.science.snr.grid_comparison import SNRGridComparison
 import ptplot.science.type_hints as th
 
+__all__ = ["snr_comparison", "snr_comparison_grid"]
+
 
 @matplotlib_lock
 def snr_comparison(

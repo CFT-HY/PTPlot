@@ -36,6 +36,8 @@ from ptplot.science.type_hints import (
     StrOrListOrNestedList,
 )
 
+__all__ = ["GridAxes", "SNRGrid"]
+
 set_forkserver_preload([*DEFAULT_FORKSERVER_PRELOAD, "ptplot", "ptplot.science"])
 
 

@@ -2097,7 +2097,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandas", specifier = ">=3.0.3" },
     { name = "plotly", specifier = ">=7.1.0" },
-    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=39eea8c6ce4a1b9bf0141648e2129b326b5e3800" },
+    { name = "pttools-gw", extras = ["numbalsoda", "performance"], git = "https://github.com/CFT-HY/pttools.git?rev=9dc74a1461d76cbe22629fa79582d362a5b1f7a6" },
     { name = "scipy", specifier = ">=1.17.1" },
 ]
 
@@ -2142,7 +2142,7 @@ docs = [
 [[package]]
 name = "pttools-gw"
 version = "0.10.0"
-source = { git = "https://github.com/CFT-HY/pttools.git?rev=39eea8c6ce4a1b9bf0141648e2129b326b5e3800#39eea8c6ce4a1b9bf0141648e2129b326b5e3800" }
+source = { git = "https://github.com/CFT-HY/pttools.git?rev=9dc74a1461d76cbe22629fa79582d362a5b1f7a6#9dc74a1461d76cbe22629fa79582d362a5b1f7a6" }
 dependencies = [
     { name = "h5py" },
     { name = "kaleido" },

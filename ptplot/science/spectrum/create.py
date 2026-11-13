@@ -9,6 +9,8 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import ENGINE_SPECTRUM_CLASSES, Engine
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
 
+__all__ = ["power_spectrum", "ssm_model"]
+
 
 def power_spectrum(
         v_wall: float | None = None,

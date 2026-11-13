@@ -9,6 +9,17 @@ from ptplot.models import ParameterChoice
 from ptplot.science.spectrum import Engine
 from ptplot.views.validation import validate_forms
 
+__all__ = [
+    "model_point_bubble_v",
+    "model_point_bubble_w",
+    "model_point_csv",
+    "model_point_plot",
+    "model_point_ps",
+    "model_point_snr_alpha_beta",
+    "model_point_snr_comparison",
+    "model_point_snr_ubarf_rstar",
+]
+
 
 def model_point_plot(request: HttpRequest, model_id: int, point_id: int) -> HttpResponse:
     """Display an individual model point on the SNR and PS plots."""

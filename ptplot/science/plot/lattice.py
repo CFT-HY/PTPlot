@@ -45,6 +45,24 @@ from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 if tp.TYPE_CHECKING:
     from ptplot.models import Model, ParameterChoice
 
+__all__ = [
+    "ACCUMULATED_COLOR",
+    "COLOR",
+    "LINESTYLE",
+    "NUC_TYPE_LABELS",
+    "RATE_COLOR",
+    "SSM_NUC_TYPES",
+    "YLIM",
+    "LatticeComparison",
+    "lattice_comparison",
+    "lattice_comparison_at_point",
+    "lattice_comparisons",
+    "lattice_curves",
+    "lattice_figure",
+    "lattice_figures",
+    "ssm_curves",
+]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 #: Color of the simulated spectra

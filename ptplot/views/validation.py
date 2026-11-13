@@ -9,6 +9,8 @@ from pttools.ssm.settings import SSMSettings
 from ptplot.forms import GridAxesForm, SSMSettingsForm
 from ptplot.science.snr.grid import GridAxes
 
+__all__ = ["ValidatedForms", "validate_forms"]
+
 
 @dataclass(frozen=True, slots=True)
 class ValidatedForms[F: Form]:

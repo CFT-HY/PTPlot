@@ -95,8 +95,8 @@ from pttools.omgw0.const import H0_100_HZ
 from pttools.omgw0.noise import S_AE_approx, omega_h2, omega_noise_h2
 import pytest
 
-from ptplot.science.const import YEAR_IN_SECONDS
-from ptplot.science.noise import DEFAULT_OBS_YEARS, Noise, noise_curve
+from ptplot.science.const import DEFAULT_OBS_YEARS, YEAR_IN_SECONDS
+from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.sensitivity import sciencerequirements as req
 import ptplot.science.type_hints as th
 

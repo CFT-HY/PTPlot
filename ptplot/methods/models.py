@@ -9,6 +9,8 @@ if tp.TYPE_CHECKING:
 
     from ptplot.models.parameter_choice import ParameterChoice
 
+__all__ = ["point_data"]
+
 
 def point_data(points: "QuerySet[ParameterChoice]") -> DataFrame:
     """Get the data of the points as a DataFrame."""

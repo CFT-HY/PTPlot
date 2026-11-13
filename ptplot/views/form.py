@@ -13,6 +13,8 @@ from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.engines import ENGINE_NAMES
 
+__all__ = ["multiple", "parameter_choice_form", "single"]
+
 
 def multiple(request: HttpRequest) -> HttpResponse:
     """Plot many points - manual input."""

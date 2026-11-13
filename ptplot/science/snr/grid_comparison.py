@@ -11,6 +11,8 @@ from ptplot.science.snr.grid import SNRGrid
 from ptplot.science.spectrum.engine import Engine
 import ptplot.science.type_hints as th
 
+__all__ = ["DEFAULT_N_DECADES", "ComparisonMethod", "SNRGridComparison", "engine_comparisons", "symlog_levels"]
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 #: Number of decades to include in a logarithmic color scale

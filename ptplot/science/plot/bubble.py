@@ -16,6 +16,8 @@ from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, POINTS_PER_INCH, TEXT_
 from ptplot.science.spectrum.create import ssm_model
 from ptplot.science.spectrum.ssm import BAG
 
+__all__ = ["bubble_figure", "bubble_v_figure", "bubble_w_figure"]
+
 
 @matplotlib_lock
 def bubble_figure(

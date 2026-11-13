@@ -7,8 +7,9 @@ import numpy as np
 from pttools.bubble import Bubble
 from pttools.export import Extractor, Record
 from pttools.models import Model
-from pttools.omgw0 import Spectrum, SuppressionMethod
+from pttools.omgw0 import Spectrum
 from pttools.ssm.settings import SSMSettings
+from pttools.ssm.suppression import SuppressionMethod
 
 from ptplot.science import const
 from ptplot.science import type_hints as th
@@ -16,6 +17,8 @@ from ptplot.science.noise import Noise, resolve_noise
 from ptplot.science.snr.point import extract_record, param_names, spectrum_params
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG, PowerSpectrumSSM
+
+__all__ = ["SNRColumn", "snr_column_ssm"]
 
 logger: logging.Logger = logging.getLogger(__name__)
 

@@ -18,6 +18,8 @@ from ptplot.science.plot.snr import SNRFigure
 from ptplot.science.plot.utils import fig_to_svg
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 
+__all__ = ["SNRFigureAlphaBeta"]
+
 
 class SNRFigureAlphaBeta(SNRFigure):
     r"""SNR figure of $(\alpha_n, \beta/H)$."""

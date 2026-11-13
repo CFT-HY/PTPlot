@@ -14,6 +14,8 @@ from django.core.wsgi import get_wsgi_application
 
 import ptplot.utils
 
+__all__ = ["application"]
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ptplot_site.settings")
 # This has to be set before setting up Django, which imports the rest of PTPlot,
 # as some of its constants, e.g. ptplot.science.plot.utils.DEFAULT_RC_CONTEXT, depend on it.
