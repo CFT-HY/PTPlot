@@ -1,5 +1,6 @@
 """Utilities for PTPlot science module."""
 
+import importlib.metadata
 import logging
 from pathlib import Path
 import typing as tp
@@ -11,16 +12,20 @@ import numpy as np
 from pttools.bubble.energy_budget import ubarf_approx
 from pttools.models import Model
 from pttools.ssm.nucleation import r_star as r_star_func
+from pttools.utils.system import pyproject_version
 
+from ptplot import PTPLOT_DIR
 from ptplot.science import const
 import ptplot.science.type_hints as th
 
 __all__ = [
     "GIT_DESCRIPTION",
     "HAVE_GITVER",
+    "PTPLOT_REPO_DIR",
     "atleast_2d",
     "atleast_2d_single",
     "log_range",
+    "ptplot_version",
     "ubarf_rstar_from_alpha_beta",
 ]
 
@@ -28,9 +33,11 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 GIT_DESCRIPTION: str = "unknown"
 HAVE_GITVER: bool = False
+#: PTPlot repository directory
+PTPLOT_REPO_DIR: Path | None = PTPLOT_DIR.parent if (PTPLOT_DIR.parent / "pyproject.toml").is_file() else None
 
 try:
-    GIT_DESCRIPTION = describe(Repo.discover(Path(__file__).resolve().parent))
+    GIT_DESCRIPTION = describe(Repo.discover(PTPLOT_DIR))
     HAVE_GITVER = True
 except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)
@@ -120,6 +127,14 @@ def log_range(
     if start == default[0] and stop == default[-1] and size == default.size:
         return default
     return np.logspace(np.log10(start), np.log10(stop), size)
+
+
+def ptplot_version() -> str:
+    """Get version of the installed PTPlot package or repository, or "unknown" if the version is not found."""
+    try:
+        return importlib.metadata.version("ptplot-gw")
+    except importlib.metadata.PackageNotFoundError:
+        return pyproject_version(PTPLOT_REPO_DIR)
 
 
 def ubarf_rstar_from_alpha_beta(

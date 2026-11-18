@@ -1,6 +1,7 @@
 """Plotting tools for PTPlot."""
 
 from .bubble import *
+from .grid import *
 from .lattice import *
 from .logarithmic import *
 from .ps import *

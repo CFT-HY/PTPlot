@@ -24,6 +24,8 @@ priority = 2
 
 [[repos.hooks]]
 id = "check-added-large-files"
+# The SSM spectra of Gowling & Hindmarsh (2021) are needed for the fit of GH21dbpl.
+exclude = "^ptplot/science/spectrum/pgw16_11_20_params50_51_log_alpha_vw\\.npz$"
 priority = 10
 
 [[repos.hooks]]

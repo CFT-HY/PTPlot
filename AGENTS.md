@@ -4,7 +4,8 @@
 The dependencies are managed with [uv](https://docs.astral.sh/uv/).
 - Install dependencies: `./install_requirements.sh`
   - This wraps `uv sync`, clears the Numba cache of PTtools when PTtools is updated,
-    and generates the reference data of the fluid solver of PTtools, if it does not exist yet.
+    generates the reference data of the fluid solver of PTtools, if it does not exist yet,
+    and regenerates the cached DBPL fit of `GH21dbpl` (`ptplot/science/spectrum/gh21dbpl_fit.npz`).
 - Run tests: `uv run pytest`
 - Lint: `uv run ruff check`
 - Type checking: `uv run pyrefly check`

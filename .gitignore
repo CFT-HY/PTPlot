@@ -3,6 +3,7 @@
 __pycache__
 *.egg-info
 *.npz
+!ptplot/science/spectrum/pgw16_11_20_params50_51_log_alpha_vw.npz
 *.pyc
 *.sqlite3
 .coverage*

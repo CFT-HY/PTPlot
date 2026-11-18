@@ -9,7 +9,6 @@ from datetime import date
 import os
 from pathlib import Path
 import sys
-import tomllib
 
 from pttools.docs.intersphinx import INTERSPHINX_MAPPING, IntersphinxMapping
 from pttools.docs.links import EXTLINKS_DYNAMIC, EXTLINKS_STATIC, ExtLinks, arxiv_link, convert_extlinks
@@ -26,6 +25,7 @@ sys.path.insert(0, str(REPO_DIR))
 
 from ptplot import PTPLOT_DIR  # noqa: E402
 from ptplot.methods import setup_django  # noqa: E402
+from ptplot.science.utils import ptplot_version  # noqa: E402
 
 setup_django()
 setup_sphinx_logging()
@@ -45,7 +45,7 @@ project = "PTPlot"
 _authors = (REPO_DIR / "AUTHORS").read_text().splitlines()
 author = f"{', '.join(_authors[:-1])} & {_authors[-1]}"
 copyright = f"2018-{date.today().year}, {author}"
-version = tomllib.loads((REPO_DIR / "pyproject.toml").read_text())["project"]["version"]
+version: str = ptplot_version()
 release = version
 
 
@@ -244,6 +244,7 @@ sphinx_gallery_conf = {
         "../examples/ps",
         "../examples/snr",
         "../examples/noise",
+        "../examples/gh21dbpl",
         "../examples/models",
         "../examples/old_vs_new",
         "../examples/docs",

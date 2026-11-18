@@ -7,6 +7,7 @@ from pttools.bubble import Bubble
 from pttools.models import BagModel
 from pttools.omgw0 import Spectrum
 from pttools.ssm.nucleation import DEFAULT_NUC_TYPE, NucType
+from pttools.ssm.nucleation import r_star as r_star_func
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION, SuppressionMethod
 import pytest
 
@@ -71,13 +72,15 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                 np.testing.assert_allclose(snr_given, snr_computed, rtol=1e-6)
 
     def test_nuc_type(self) -> None:
-        r"""The nucleation type should change the bubble lifetime distribution but not $r_*$.
+        r"""The nucleation type should change the bubble lifetime distribution and $r_*$ as in PTtools.
 
-        The reference is the PTtools spectrum with the $r_*$ of the SSM spectrum,
-        which was used for the simultaneous nucleation by :py:func:`ptplot.science.plot.lattice.ssm_curves`
-        before :py:meth:`PowerSpectrumSSM.power_spectrum` had the argument ``nuc_type``.
+        The reference is the PTtools spectrum with the $r_*$ of :py:func:`pttools.ssm.nucleation.r_star`
+        for the nucleation type.
         As the spectra are given $\beta/H_*$, PTtools computes $r_*$ from it,
         including the thermal suppression of nucleation for the deflagration.
+        Since PTtools 45540e1, there is no bubble spacing enlargement for simultaneous nucleation,
+        and therefore $r_*$ of the simultaneous nucleation differs from that of the default nucleation type
+        for the deflagration.
         """
         noise = noise_curve()
         assert DEFAULT_NUC_TYPE == NucType.EXPONENTIAL
@@ -89,9 +92,15 @@ class SSMTest(PowerSpectrumBaseCase[PowerSpectrumSSM], unittest.TestCase):
                     ps, snr = ssm.power_spectrum(noise.f, noise=noise, nuc_type=nuc_type)
                     assert ssm.spectrum is not None
                     assert ssm.spectrum.nuc_type == nuc_type
-                    np.testing.assert_allclose(ssm.spectrum.r_star, ssm.r_star, rtol=1e-12)
+                    r_star = r_star_func(
+                        beta_tilde=ssm.beta_tilde, v_wall=v_wall,
+                        xi=ssm.bubble.xi, T=ssm.bubble.T, sol_type=ssm.bubble.sol_type, nuc_type=nuc_type
+                    )
+                    np.testing.assert_allclose(ssm.spectrum.r_star, r_star, rtol=1e-12)
+                    if nuc_type == DEFAULT_NUC_TYPE:
+                        np.testing.assert_allclose(r_star, ssm.r_star, rtol=1e-12)
                     ref = Spectrum(
-                        bubble=ssm.bubble, f=noise.f, r_star=ssm.r_star, T_star=ssm.T_star, g_star=ssm.g_star,
+                        bubble=ssm.bubble, f=noise.f, r_star=r_star, T_star=ssm.T_star, g_star=ssm.g_star,
                         nuc_type=nuc_type,
                         suppression=DEFAULT_SUPPRESSION, suppression_method=SuppressionMethod.EXT_CONSTANT,
                         **ssm.settings.spectrum_kwargs()

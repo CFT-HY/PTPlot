@@ -38,14 +38,16 @@ V_WALLS: tuple[float, ...] = (0.3, 0.9)
 #: - ad51a01: lambda uses the average enthalpy density w_bar within the shock instead of w_n,
 #:   and the suppression datasets are recomputed
 #:   (v_wall = 0.3: 0.06346 -> 0.06684, v_wall = 0.9: 0.11961 -> 0.11844)
+#: - 6e75f5d: the SSM spectra of the suppression datasets are computed with simultaneous nucleation
+#:   (v_wall = 0.3: 0.06684 -> 0.10378, v_wall = 0.9: 0.11844 -> 0.18652)
 #:
 #: and for the following change in PTPlot:
 #:
 #: - The default frequency range of the noise curves is 1e-5 - 0.1 Hz instead of 1e-6 - 1 Hz
 #:   (v_wall = 0.3: 0.0668390 -> 0.0668388, v_wall = 0.9: 0.1184352 -> 0.1184429)
 REFERENCE: dict[float, tuple[float, float, float]] = {
-    0.3: (0.018124666532740186, 0.06683883137604203, 0.19839872059716177),
-    0.9: (0.026362653976107417, 0.11844285564507881, 0.2568295035856295),
+    0.3: (0.018124666532740186, 0.103777801277903, 0.19839872059716177),
+    0.9: (0.026362653976107417, 0.18652191996446257, 0.2568295035856295),
 }
 
 #: $\tilde{\beta}$ values of the columns for testing the precomputed spectra, covering 3 orders of magnitude.

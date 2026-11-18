@@ -2,7 +2,8 @@
 # Install the dependencies of PTPlot with uv.
 # This creates the virtualenv ./.venv, installs the locked dependencies to it,
 # installs PTPlot itself there in editable mode,
-# and generates the reference data of the fluid solver of PTtools.
+# generates the reference data of the fluid solver of PTtools,
+# and regenerates the cached DBPL fit of GH21dbpl.
 #
 # Usage: ./install_requirements.sh [--update-pttools] [UV_SYNC_ARGS...]
 #   --update-pttools  Update the PTtools commit in pyproject.toml to the latest commit
@@ -145,3 +146,14 @@ echo "Generating the reference data of the fluid solver of PTtools, if it does n
 # as pttools.bubble imports the module before it would be run as __main__, which results in a RuntimeWarning.
 uv run --project "${SCRIPT_DIR}" --no-sync python -c \
   "from pttools.bubble.fluid_reference import ref; from pttools.logging import setup_logging; setup_logging(); ref()"
+
+# The cached DBPL fit of GH21dbpl is removed, as it may have been computed with a different version of PTPlot or PTtools.
+# It's then generated here, as otherwise each process of the unit tests would have to generate it.
+GH21DBPL_FIT="${SCRIPT_DIR}/ptplot/science/spectrum/gh21dbpl_fit.npz"
+if [ -f "${GH21DBPL_FIT}" ]; then
+  echo "Removing the cached GH21dbpl fit ${GH21DBPL_FIT}."
+  rm "${GH21DBPL_FIT}"
+fi
+echo "Fitting the GH21dbpl parameters to the SSM spectra."
+uv run --project "${SCRIPT_DIR}" --no-sync python -c \
+  "from ptplot.science.spectrum.gh21dbpl import ssm_fit; from pttools.logging import setup_logging; setup_logging(); ssm_fit()"
