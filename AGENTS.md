@@ -14,6 +14,9 @@ The dependencies are managed with [uv](https://docs.astral.sh/uv/).
     All checks are run even if some of them fail. The exit code is 0 if all checks pass,
     the exit code of the failed check if exactly one check fails, and 100 if multiple checks fail.
   - Fast lint: `./lint.sh --fast` skips the significantly slower `python -m pttools.docs.lint`.
+  - Nitpicky lint: `./lint.sh --nitpicky` runs the documentation lint with the `--nitpicky` option of Sphinx,
+    which warns about all the references whose target is not found. Without it, such references are silently rendered without a link.
+    It's not enabled by default, as there are many such references, e.g. due to the outdated PTtools inventory on Read the Docs.
   - After changes that create or modify any reST or math markup in docstrings or `.rst` files, or files in `./docs/`, run the full lint `./lint.sh` (~2 min).
     After other changes, run the fast lint `./lint.sh --fast`.
 - Build documentation with examples: `uv run make -C docs all`
