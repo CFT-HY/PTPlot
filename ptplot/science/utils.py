@@ -24,6 +24,7 @@ __all__ = [
     "PTPLOT_REPO_DIR",
     "atleast_2d",
     "atleast_2d_single",
+    "axis_stats",
     "log_range",
     "ptplot_version",
     "ubarf_rstar_from_alpha_beta",
@@ -88,6 +89,24 @@ def atleast_2d_single(values: th.FloatOrArrOrList1D2D) -> th.ArrOrListOfArrs:  #
     if np.all([len(sub_values) == len(nested[0]) for sub_values in nested]):
         return np.array(nested)
     return [np.array(sub_values) for sub_values in nested]
+
+
+def axis_stats(name: str, values: th.FloatArr1D) -> str:
+    """Statistics of a grid axis: number of points, range and spacing.
+
+    The spacing is detected as linear, logarithmic or irregular.
+
+    :param name: Name of the axis
+    :param values: Values of the axis, in increasing order, at least two
+    :return: The statistics as text
+    """
+    if np.allclose(np.diff(values), values[1] - values[0]):
+        spacing = f"linear, step {values[1] - values[0]:.4g}"
+    elif np.allclose(values[1:] / values[:-1], values[1] / values[0]):
+        spacing = f"logarithmic, ratio {values[1] / values[0]:.4g}"
+    else:
+        spacing = "irregular"
+    return f"{name}: {values.size} points in [{values[0]:.4g}, {values[-1]:.4g}], {spacing}"
 
 
 def log_range(

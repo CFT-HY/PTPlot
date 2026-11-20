@@ -5,10 +5,26 @@ from pttools.utils.system import testing
 import pytest
 
 from ptplot.science import const
-from ptplot.science.utils import log_range
+from ptplot.science.utils import axis_stats, log_range
 from ptplot.utils import is_django, is_django_or_testing
 
 DEFAULT: np.ndarray = const.DEFAULT_BETA_TILDE_RANGE
+
+
+def test_axis_stats_linear() -> None:
+    """A linearly spaced axis should be detected with its step."""
+    assert axis_stats("v_wall", np.linspace(0.4, 0.9, 51)) == \
+        "v_wall: 51 points in [0.4, 0.9], linear, step 0.01"
+
+
+def test_axis_stats_logarithmic() -> None:
+    """A logarithmically spaced axis should be detected with its ratio."""
+    assert axis_stats("z", np.logspace(0, 3, 4)) == "z: 4 points in [1, 1000], logarithmic, ratio 10"
+
+
+def test_axis_stats_irregular() -> None:
+    """An axis that is neither linearly nor logarithmically spaced should be irregular."""
+    assert axis_stats("x", np.array([1., 2., 5., 6.])) == "x: 4 points in [1, 6], irregular"
 
 
 def test_log_range_default() -> None:

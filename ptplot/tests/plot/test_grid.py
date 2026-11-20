@@ -29,3 +29,19 @@ def test_v_wall_alpha_n_contours() -> None:
     assert ax.get_xlim() == (V_WALLS[0], V_WALLS[-1])
     assert ax.get_ylim() == (ALPHA_NS[0], ALPHA_NS[-1])
     assert len(ax.get_lines()) == 1
+
+
+def test_v_wall_alpha_n_contours_points() -> None:
+    """The given points should be plotted in addition to the Chapman-Jouguet line."""
+    fig = Figure()
+    ax = fig.subplots()
+    v_walls, alpha_ns = (arr.ravel() for arr in np.meshgrid(V_WALLS, ALPHA_NS))
+    v_wall_alpha_n_contours(
+        fig, ax, V_WALLS, ALPHA_NS, np.outer(ALPHA_NS, V_WALLS), levels=[0.01, 0.1, 0.4], label="x",
+        points=(v_walls, alpha_ns)
+    )
+    FigureCanvasAgg(fig).draw()
+    lines = ax.get_lines()
+    assert len(lines) == 2  # noqa: PLR2004
+    np.testing.assert_array_equal(lines[1].get_xdata(), v_walls)
+    np.testing.assert_array_equal(lines[1].get_ydata(), alpha_ns)

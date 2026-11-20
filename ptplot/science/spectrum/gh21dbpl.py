@@ -18,6 +18,7 @@ import typing as tp
 import warnings
 
 import numpy as np
+from numpy.lib.npyio import NpzFile
 from pttools.omgw0.const import H
 from pttools.speedup import njit
 from pttools.ssm import J_old
@@ -42,6 +43,8 @@ __all__ = [
     "GH21dbplParams",
     "M",
     "cached_dbpl_fit",
+    "data_key",
+    "data_points",
     "delta2",
     "fit_dbpl_to_ssm",
     "m",
@@ -409,7 +412,8 @@ def _cached_dbpl_fit(data_path: Path, fit_path: Path) -> GH21dbplFit:
         except (OSError, KeyError, ValueError):
             logger.exception("Could not load the GH21dbpl fit from %s. Fitting again.", fit_path)
     logger.info("Fitting the GH21dbpl parameters to the SSM spectra. This takes a few seconds.")
-    fit = fit_dbpl_to_ssm(data_path=data_path)
+    with np.load(data_path) as data:
+        fit = fit_dbpl_to_ssm(data)
     # The file is written atomically, as multiple processes may be fitting simultaneously.
     tmp_path: Path | None = None
     try:
@@ -439,6 +443,32 @@ def cached_dbpl_fit(
     return _cached_dbpl_fit(data_path=Path(data_path).resolve(), fit_path=Path(fit_path).resolve())
 
 
+def data_key(v_wall: float, alpha_n: float) -> str:
+    r"""Key of the SSM spectrum of $v_{\text{wall}}$ and $\alpha_n$ in the format of :py:data:`SSM_DATA_PATH`.
+
+    The values are written with :py:func:`str`, and the dots are replaced with underscores,
+    e.g. ``vw0_4al0_01`` for $v_{\text{wall}} = 0.4$ and $\alpha_n = 0.01$.
+    The values have to be exactly those of the grid of the data file, i.e. ``vw_list`` and ``alpha_list``.
+    """
+    return f"vw{v_wall}al{alpha_n}".replace(".", "_")
+
+
+def data_points(data: NpzFile) -> tuple[th.FloatArr1D, th.FloatArr1D]:
+    r"""$(v_{\text{wall}}, \alpha_n)$ points for which the data file has a spectrum.
+
+    :param data: SSM spectra in the format of :py:data:`SSM_DATA_PATH`, opened with :py:func:`numpy.load`
+    :return: $v_{\text{wall}}$ and $\alpha_n$ of the points
+    """
+    keys = set(data.files)
+    points = [
+        (v_wall, alpha_n)
+        for v_wall in data["vw_list"] for alpha_n in data["alpha_list"]
+        if data_key(v_wall, alpha_n) in keys
+    ]
+    v_walls, alpha_ns = np.array(points).T
+    return v_walls, alpha_ns
+
+
 def delta2(z: th.FloatArr1D, p_fit: th.FloatArr1D, p_ssm: th.FloatArr1D) -> np.float64:
     r"""$\delta_\mathcal{P}^2$, mean squared relative deviation of a fit from the SSM spectrum.
 
@@ -455,7 +485,11 @@ def delta2(z: th.FloatArr1D, p_fit: th.FloatArr1D, p_ssm: th.FloatArr1D) -> np.f
     return np.trapezoid(((p_fit - p_ssm) / p_ssm)**2, np.log(z))
 
 
-def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21dbplFit:
+def fit_dbpl_to_ssm(
+        data: NpzFile,
+        zb0: float = 1.,
+        zp0: float = 10.,
+        b0: float = 1.) -> GH21dbplFit:
     r"""Fit the DBPL to the SSM spectra $\hat{\mathcal{P}}_\text{gw}(z)$.
 
     $$\hat{\mathcal{P}}_\text{gw}^\text{fit}(z) = \hat{\Omega}_p M(z / z_p, z_b / z_p, b)$$
@@ -468,10 +502,13 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
     Based on ``general_fit_function`` in ``parameter_dependence/fit_power_gw_scaled_to_obs_ssm.py``
     of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
 
-    :param data_path: Path to the SSM spectra in the format of :py:data:`SSM_DATA_PATH`
+    :param data: SSM spectra in the format of :py:data:`SSM_DATA_PATH`, opened with :py:func:`numpy.load`.
+        The file has to stay open during the fit, as the spectra are read from it one at a time.
+    :param zb0: $z_{b,0}$, initial guess for $z_b$
+    :param zp0: $z_{p,0}$, initial guess for $z_p$
+    :param b0: $b_0$, initial guess for $b$
     :return: The best-fit parameters
     """
-    data = np.load(data_path)
     v_walls = data["vw_list"]
     alpha_ns = data["alpha_list"]
     z = data["zs"]
@@ -483,7 +520,7 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
 
     for i, alpha_n in enumerate(alpha_ns):
         for j, v_wall in enumerate(v_walls):
-            p_gw = data[f"vw{v_wall}al{alpha_n}".replace(".", "_")]
+            p_gw = data[data_key(v_wall, alpha_n)]
             peak = p_gw.max()
             fit_points = np.logical_or(p_gw > peak / 10, z < 3)  # noqa: PLR2004
             z_fit = z[fit_points]
@@ -492,9 +529,9 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
             with np.errstate(invalid="ignore"):
                 params[i, j], _ = curve_fit(
                     model, z_fit, p_points,
-                    p0=[peak, 1, 10, 1],
+                    p0=[peak, zb0, zp0, b0],
                     sigma=p_points,
-                    bounds=([0, 0, 0, 0 if v_wall < CS0 else -1], np.inf),
+                    bounds=([0, 0, 0, 0 if v_wall < CS0 else -1], np.inf),  # As in general_fit_function
                     maxfev=5000
                 )
             delta2_grid[i, j] = delta2(z=z_fit, p_fit=model(z_fit, *params[i, j]), p_ssm=p_points)

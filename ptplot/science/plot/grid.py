@@ -16,13 +16,17 @@ __all__ = ["gh21dbpl_params_figure", "v_wall_alpha_n_contours"]
 
 
 @matplotlib_lock
-def gh21dbpl_params_figure(params: GH21dbplParams) -> Figure:
+def gh21dbpl_params_figure(
+        params: GH21dbplParams,
+        points: tuple[th.FloatArr1D, th.FloatArr1D] | None = None) -> Figure:
     r"""Plot the spectral parameters of :py:class:`ptplot.science.spectrum.gh21dbpl.GH21dbpl`.
 
     The panels are $\Omega_{p,0}$, $f_{p,0}$, $r_b$ and $b$
     with the contour levels of :gowling_2021:`\ ` fig. 3.
 
     :param params: The spectral parameters on the $(v_{\text{wall}}, \alpha_n)$ grid
+    :param points: $(v_{\text{wall}}, \alpha_n)$ points to mark in each panel, e.g. those of the data,
+        see :py:func:`v_wall_alpha_n_contours`
     :return: The 2x2 figure
     """
     panels: tuple[tuple[th.FloatArr2D, Sequence[float] | th.FloatArr1D, str, str], ...] = (
@@ -36,7 +40,7 @@ def gh21dbpl_params_figure(params: GH21dbplParams) -> Figure:
     for ax, (values, levels, label, cmap) in zip(axs.flat, panels, strict=True):
         v_wall_alpha_n_contours(
             fig, ax, v_walls=params.v_walls, alpha_ns=params.alpha_ns,
-            values=values, levels=levels, label=label, cmap=cmap
+            values=values, levels=levels, label=label, cmap=cmap, points=points
         )
     for ax in axs[0, :]:
         ax.set_xlabel("")
@@ -59,7 +63,8 @@ def v_wall_alpha_n_contours(
         levels: Sequence[float] | th.FloatArr1D,
         label: str,
         cmap: str = "plasma",
-        v_cj: bool = True) -> None:
+        v_cj: bool = True,
+        points: tuple[th.FloatArr1D, th.FloatArr1D] | None = None) -> None:
     r"""Plot filled contours of a quantity on the $(v_{\text{wall}}, \alpha_n)$ plane with a colorbar.
 
     :param fig: Figure of the axes, for the colorbar
@@ -72,6 +77,8 @@ def v_wall_alpha_n_contours(
     :param cmap: Name of the colormap, of which the range from 0.1 to 0.8 is used
     :param v_cj: Plot the Chapman-Jouguet speed $v_{\text{CJ}}(\alpha_n)$ of the bag model as a dashed line,
         :gowling_2021:`\ ` eq. 2.4
+    :param points: $(v_{\text{wall}}, \alpha_n)$ points to mark with small dots, e.g. those of the data,
+        as two 1D arrays of the same size
     """
     colors = colormaps[cmap](np.linspace(0.1, 0.8, len(levels)))
     contours = ax.contourf(v_walls, alpha_ns, values, levels=levels, colors=colors, extend="both")
@@ -80,6 +87,8 @@ def v_wall_alpha_n_contours(
     cbar.set_label(label)
     if v_cj:
         ax.plot(v_chapman_jouguet_bag(alpha_plus=alpha_ns), alpha_ns, "--", color="darkturquoise")
+    if points is not None:
+        ax.plot(*points, ".", color="black", markersize=1, alpha=0.5)
     ax.set_xlim(v_walls[0], v_walls[-1])
     ax.set_ylim(alpha_ns[0], alpha_ns[-1])
     ax.set_xlabel(r"$v_{\text{wall}}$")

@@ -8,7 +8,16 @@ import numpy as np
 from pttools.omgw0.const import H
 import pytest
 
-from ptplot.science.spectrum.gh21dbpl import SSM_DATA_PATH, GH21dbpl, GH21dbplParams, M, cached_dbpl_fit, delta2
+from ptplot.science.spectrum.gh21dbpl import (
+    SSM_DATA_PATH,
+    GH21dbpl,
+    GH21dbplParams,
+    M,
+    cached_dbpl_fit,
+    data_key,
+    data_points,
+    delta2,
+)
 from ptplot.tests.spectrum.coswg20 import PowerSpectrumBaseCase2020
 
 #: Best-fit $\hat{\Omega}_p$, $z_b$, $z_p$, $b$ and $\delta_\mathcal{P}^2$ of :gowling_2021:`\ ` at the grid indices
@@ -36,6 +45,23 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
     SPECTRUM_CLASS = GH21dbpl
     # Within the range of the SSM fit
     V_WALL = 0.6
+
+    @staticmethod
+    def test_data_key() -> None:
+        """The keys should be those of the data file."""
+        with np.load(SSM_DATA_PATH) as data:
+            assert data_key(data["vw_list"][0], data["alpha_list"][0]) == "vw0_4al0_01"
+            assert data_key(data["vw_list"][1], data["alpha_list"][0]) == "vw0_41000000000000003al0_01"
+            assert data_key(data["vw_list"][1], data["alpha_list"][0]) in data.files
+
+    @staticmethod
+    def test_data_points() -> None:
+        """The data file should have a spectrum for each point of the grid, and the points should be in it."""
+        with np.load(SSM_DATA_PATH) as data:
+            v_walls, alpha_ns = data_points(data)
+            assert v_walls.size == alpha_ns.size == data["vw_list"].size * data["alpha_list"].size
+            assert set(v_walls) == set(data["vw_list"])
+            assert set(alpha_ns) == set(data["alpha_list"])
 
     @staticmethod
     def test_delta2() -> None:
@@ -128,10 +154,8 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir, np.load(SSM_DATA_PATH) as data:
             v_walls = data["vw_list"][j_v_walls]
             alpha_ns = data["alpha_list"][i_alphas]
-            spectra = {
-                key: data[key] for v_wall in v_walls for alpha_n in alpha_ns
-                if (key := f"vw{v_wall}al{alpha_n}".replace(".", "_"))
-            }
+            keys = [data_key(v_wall, alpha_n) for v_wall in v_walls for alpha_n in alpha_ns]
+            spectra = {key: data[key] for key in keys}
             data_path = Path(tmp_dir) / "ssm.npz"
             fit_path = Path(tmp_dir) / "fit.npz"
             np.savez(data_path, vw_list=v_walls, alpha_list=alpha_ns, zs=data["zs"], **spectra)
