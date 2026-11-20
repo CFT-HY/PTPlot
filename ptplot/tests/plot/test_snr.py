@@ -14,6 +14,7 @@ from ptplot.science import const
 from ptplot.science.plot.logarithmic import flat_points
 from ptplot.science.plot.snr import (
     PARAM_LABELS_HTML,
+    PLOTLY_HIGHLIGHT_LEGENDRANK,
     PLOTLY_N_F,
     PLOTLY_SCRIPT,
     SNRFigure,
@@ -185,6 +186,10 @@ class SNRFigureHighlightTest(TestCase):
                 for line, index in zip(highlighted, HIGHLIGHTS.values(), strict=True):
                     np.testing.assert_allclose(np.asarray(line.get_xdata(), dtype=np.float64), np.log10(x_flat[index]))
                     np.testing.assert_allclose(np.asarray(line.get_ydata(), dtype=np.float64), np.log10(y_flat[index]))
+                # The points should be drawn above the markers of the highlighted points.
+                points = ax.get_lines()[:-len(HIGHLIGHTS)]
+                assert points
+                assert min(line.get_zorder() for line in points) > max(line.get_zorder() for line in highlighted)
 
     @staticmethod
     def test_plotly() -> None:
@@ -197,6 +202,13 @@ class SNRFigureHighlightTest(TestCase):
                 trace = next(fig.select_traces(selector={"name": label}))
                 np.testing.assert_allclose(trace.x, [np.log10(x_flat[index])])
                 np.testing.assert_allclose(trace.y, [np.log10(y_flat[index])])
+            # The points should be drawn above the highlighted points, but listed before them in the legend.
+            traces = list(fig.select_traces())
+            highlight_indices = [i for i, trace in enumerate(traces) if trace.name in HIGHLIGHTS]
+            point_indices = [i for i, trace in enumerate(traces) if trace.name in TITLES]
+            assert point_indices
+            assert max(highlight_indices) < min(point_indices)
+            assert all(traces[i].legendrank == PLOTLY_HIGHLIGHT_LEGENDRANK for i in highlight_indices)
 
     @staticmethod
     def test_no_highlights() -> None:

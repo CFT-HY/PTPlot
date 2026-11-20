@@ -49,6 +49,7 @@ __all__ = [
     "LEVELS_TSH",
     "LEVELS_TSH_HUGE_ALPHA",
     "PARAM_LABELS_HTML",
+    "PLOTLY_HIGHLIGHT_LEGENDRANK",
     "PLOTLY_HIGHLIGHT_SYMBOLS",
     "PLOTLY_N_F",
     "PLOTLY_SCRIPT",
@@ -80,6 +81,9 @@ PLOTLY_N_F: int = 100
 #: ``{plot_id}`` is replaced by Plotly with the id of the figure, and ``__DATA__`` with the data of the grid,
 #: see :py:meth:`SNRFigure.plotly_data`.
 PLOTLY_SCRIPT: str = (Path(__file__).parent / "snr_plotly.js").read_text(encoding="utf-8")
+#: Legend rank of the highlighted points in the Plotly figures, which is larger than the default of 1000,
+#: so that they are listed after the points, see :py:meth:`SNRFigure._plotly_highlights`
+PLOTLY_HIGHLIGHT_LEGENDRANK: int = 1001
 #: Plotly symbols of the markers of the highlighted points,
 #: see :py:data:`ptplot.science.plot.logarithmic.HIGHLIGHT_MARKERS`
 PLOTLY_HIGHLIGHT_SYMBOLS: dict[str, str] = {
@@ -412,8 +416,10 @@ class SNRFigure:
             ), row=1, col=1)
 
         if grid.has_points:
-            self._plotly_points(fig)
+            # The traces are drawn in their order, and the points are therefore added after the highlights,
+            # so that they remain visible within the markers, as in the Matplotlib figure.
             self._plotly_highlights(fig)
+            self._plotly_points(fig)
 
         f_indices = self.f_indices(n_f)
         f = grid.f[f_indices]
@@ -545,7 +551,11 @@ class SNRFigure:
             ), row=1, col=1)
 
     def _plotly_highlights(self, fig: go.Figure) -> None:
-        """Add the highlighted points of the grid to the SNR plot of a Plotly figure."""
+        """Add the highlighted points of the grid to the SNR plot of a Plotly figure.
+
+        The highlights are given a larger legend rank than the default,
+        so that they are listed after the points in the legend, although they are added before them.
+        """
         x_flat, y_flat = flat_points(*self.grid.points())
         for i, (label, index) in enumerate(self.highlights.items()):
             # The Plotly marker symbols corresponding to those of Matplotlib
@@ -555,6 +565,7 @@ class SNRFigure:
                 mode="markers",
                 marker={"symbol": symbol, "size": 14, "color": "red", "line": {"width": 1, "color": "black"}},
                 name=latex_to_html(label),
+                legendrank=PLOTLY_HIGHLIGHT_LEGENDRANK,
                 hoverinfo="skip"
             ), row=1, col=1)
 

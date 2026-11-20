@@ -11,11 +11,26 @@ from ptplot.science.plot.ticks import add_ticks
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d
 
-__all__ = ["HIGHLIGHT_MARKERS", "add_highlights", "add_points", "flat_points", "log_figure", "nested_labels"]
+__all__ = [
+    "HIGHLIGHT_MARKERS",
+    "HIGHLIGHT_ZORDER",
+    "POINTS_ZORDER",
+    "add_highlights",
+    "add_points",
+    "flat_points",
+    "log_figure",
+    "nested_labels",
+]
 
 #: Markers of the highlighted points, see :py:func:`add_highlights`.
 #: These have the same shape and therefore the same visual size.
 HIGHLIGHT_MARKERS: tuple[str, ...] = ("^", "v", "<", ">")
+#: Z-order of the highlighted points, see :py:func:`add_highlights`.
+#: This is above the contours, but below the points, so that the highlighted points remain visible.
+HIGHLIGHT_ZORDER: float = 2.5
+#: Z-order of the points, see :py:func:`add_points`.
+#: This is above the highlighted points, but below the legend.
+POINTS_ZORDER: float = 3
 
 
 def add_points(
@@ -24,7 +39,10 @@ def add_points(
         y: th.FloatOrArrOrList1D2D,
         labels: th.StrOrListOrNestedList | None = None,
         titles: th.StrOrList | None = None) -> tuple[th.ArrOrListOfArrs, th.ArrOrListOfArrs]:
-    r"""Add points to a $(\alpha, \beta/H)$ plot."""
+    r"""Add points to a $(\alpha, \beta/H)$ plot.
+
+    The points are drawn above the highlighted points of :py:func:`add_highlights`, see :py:data:`POINTS_ZORDER`.
+    """
     x2, y2 = atleast_2d(x, y)
     labels = nested_labels(labels)
 
@@ -34,7 +52,7 @@ def add_points(
         y_log_set = np.log10(y_set)
 
         # Plot points
-        ax.plot(x_log_set, y_log_set, ".")
+        ax.plot(x_log_set, y_log_set, ".", zorder=POINTS_ZORDER)
         # Add labels to points
         if labels:
             label_set = labels[i]
@@ -58,6 +76,8 @@ def add_highlights(
     r"""Highlight some of the points of a plot with logarithmic values on linear axes, e.g. an SNR figure.
 
     Each highlighted point is drawn with a marker of its own, which is added to the legend with its label.
+    The markers are drawn below the points of :py:func:`add_points`, see :py:data:`HIGHLIGHT_ZORDER`,
+    so that the points remain visible within the markers.
     The existing entries of the legend, e.g. those of :py:func:`add_points`, are kept.
 
     :param ax: Axes to draw on
@@ -74,7 +94,7 @@ def add_highlights(
         handles += ax.plot(
             np.log10(x_flat[index]), np.log10(y_flat[index]),
             marker=HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)], markersize=10,
-            color="red", markeredgecolor="black", linestyle="none", zorder=10
+            color="red", markeredgecolor="black", linestyle="none", zorder=HIGHLIGHT_ZORDER
         )
         labels.append(label)
     ax.legend(handles, labels, loc="lower left", framealpha=0.9)
