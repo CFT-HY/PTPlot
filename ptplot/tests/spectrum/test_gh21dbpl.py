@@ -8,7 +8,7 @@ import numpy as np
 from pttools.omgw0.const import H
 import pytest
 
-from ptplot.science.spectrum.gh21dbpl import SSM_DATA_PATH, GH21dbpl, GH21dbplParams, M, cached_dbpl_fit
+from ptplot.science.spectrum.gh21dbpl import SSM_DATA_PATH, GH21dbpl, GH21dbplParams, M, cached_dbpl_fit, delta2
 from ptplot.tests.spectrum.coswg20 import PowerSpectrumBaseCase2020
 
 #: Best-fit $\hat{\Omega}_p$, $z_b$, $z_p$, $b$ and $\delta_\mathcal{P}^2$ of :gowling_2021:`\ ` at the grid indices
@@ -37,15 +37,23 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
     # Within the range of the SSM fit
     V_WALL = 0.6
 
+    @staticmethod
+    def test_delta2() -> None:
+        r"""A constant relative deviation $\epsilon$ should give $\epsilon^2 \ln(z_{\text{max}} / z_{\text{min}})$."""
+        z = np.logspace(0, 2, 51)
+        p_ssm = z**3 / (1 + z**7)
+        assert delta2(z=z, p_fit=p_ssm, p_ssm=p_ssm) == 0
+        assert delta2(z=z, p_fit=1.1 * p_ssm, p_ssm=p_ssm) == pytest.approx(0.1**2 * np.log(100), rel=1e-12)
+
     def test_fit_gowling(self) -> None:
         r"""The SSM fit should reproduce the fit of :gowling_2021:`\ `."""
         fit = cached_dbpl_fit()
-        for (i, j), (omp, zb, zp, b, delta2) in GOWLING_FIT.items():
+        for (i, j), (omp, zb, zp, b, delta2_ref) in GOWLING_FIT.items():
             assert fit.omega_p_hat[i, j] == pytest.approx(omp, rel=1e-3)
             assert fit.zb[i, j] == pytest.approx(zb, rel=1e-3)
             assert fit.zp[i, j] == pytest.approx(zp, rel=1e-3)
             assert fit.b[i, j] == pytest.approx(b, rel=1e-3)
-            assert fit.delta2[i, j] == pytest.approx(delta2, rel=1e-3)
+            assert fit.delta2[i, j] == pytest.approx(delta2_ref, rel=1e-3)
 
     def test_fit_quality(self) -> None:
         r"""The DBPL should fit the SSM well, :gowling_2021:`\ ` fig. 11."""

@@ -42,6 +42,7 @@ __all__ = [
     "GH21dbplParams",
     "M",
     "cached_dbpl_fit",
+    "delta2",
     "fit_dbpl_to_ssm",
     "m",
 ]
@@ -438,6 +439,22 @@ def cached_dbpl_fit(
     return _cached_dbpl_fit(data_path=Path(data_path).resolve(), fit_path=Path(fit_path).resolve())
 
 
+def delta2(z: th.FloatArr1D, p_fit: th.FloatArr1D, p_ssm: th.FloatArr1D) -> np.float64:
+    r"""$\delta_\mathcal{P}^2$, mean squared relative deviation of a fit from the SSM spectrum.
+
+    $$\delta_\mathcal{P}^2 = \int \frac{dz}{z}
+    \left( \frac{\hat{\mathcal{P}}_\text{gw}^\text{fit}(z) - \hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)}
+    {\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)} \right)^2$$
+    :gowling_2021:`\ ` eq. B.1, evaluated for the best-fit parameters with the trapezoidal rule in $\ln z$.
+
+    :param z: $z = kR_*$, in increasing order
+    :param p_fit: $\hat{\mathcal{P}}_\text{gw}^\text{fit}(z)$, fitted spectrum
+    :param p_ssm: $\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)$, SSM spectrum
+    :return: $\delta_\mathcal{P}^2$
+    """
+    return np.trapezoid(((p_fit - p_ssm) / p_ssm)**2, np.log(z))
+
+
 def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21dbplFit:
     r"""Fit the DBPL to the SSM spectra $\hat{\mathcal{P}}_\text{gw}(z)$.
 
@@ -448,6 +465,9 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
     with $b \geq 0$ for $v_{\text{wall}} < c_s$ and $b \geq -1$ otherwise.
     These are the settings of ``fit_power_gw_scaled_to_obs_ssm.py`` of :gowling_2021:`\ `.
 
+    Based on ``general_fit_function`` in ``parameter_dependence/fit_power_gw_scaled_to_obs_ssm.py``
+    of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
+
     :param data_path: Path to the SSM spectra in the format of :py:data:`SSM_DATA_PATH`
     :return: The best-fit parameters
     """
@@ -456,7 +476,7 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
     alpha_ns = data["alpha_list"]
     z = data["zs"]
     params = np.empty((alpha_ns.size, v_walls.size, 4))
-    delta2 = np.empty((alpha_ns.size, v_walls.size))
+    delta2_grid = np.empty((alpha_ns.size, v_walls.size))
 
     def model(z_: th.FloatArr1D, omp: float, zb: float, zp: float, b: float) -> th.FloatArr1D:
         return omp * M(s=z_ / zp, rb=zb / zp, b=b)
@@ -467,22 +487,22 @@ def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21db
             peak = p_gw.max()
             fit_points = np.logical_or(p_gw > peak / 10, z < 3)  # noqa: PLR2004
             z_fit = z[fit_points]
-            p_fit = p_gw[fit_points]
+            p_points = p_gw[fit_points]
             # The intermediate steps of the fit may go to parameters for which the model is invalid.
             with np.errstate(invalid="ignore"):
                 params[i, j], _ = curve_fit(
-                    model, z_fit, p_fit,
+                    model, z_fit, p_points,
                     p0=[peak, 1, 10, 1],
-                    sigma=p_fit,
+                    sigma=p_points,
                     bounds=([0, 0, 0, 0 if v_wall < CS0 else -1], np.inf),
                     maxfev=5000
                 )
-            delta2[i, j] = np.trapezoid(((model(z_fit, *params[i, j]) - p_fit) / p_fit)**2, np.log(z_fit))
+            delta2_grid[i, j] = delta2(z=z_fit, p_fit=model(z_fit, *params[i, j]), p_ssm=p_points)
 
     return GH21dbplFit(
         v_walls=v_walls, alpha_ns=alpha_ns,
         omega_p_hat=params[..., 0], zb=params[..., 1], zp=params[..., 2], b=params[..., 3],
-        delta2=delta2
+        delta2=delta2_grid
     )
 
 
