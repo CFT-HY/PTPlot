@@ -37,7 +37,11 @@ HAVE_GITVER: bool = False
 PTPLOT_REPO_DIR: Path | None = PTPLOT_DIR.parent if (PTPLOT_DIR.parent / "pyproject.toml").is_file() else None
 
 try:
-    GIT_DESCRIPTION = describe(Repo.discover(PTPLOT_DIR))
+    # The repository is closed explicitly, as describe() does not close a repository that it is given,
+    # and the unclosed pack files would give ResourceWarnings.
+    repo: Repo
+    with Repo.discover(PTPLOT_DIR) as repo:
+        GIT_DESCRIPTION = describe(repo)
     HAVE_GITVER = True
 except NotGitRepository as err:
     logger.exception("Could not load git repository info.", exc_info=err)
