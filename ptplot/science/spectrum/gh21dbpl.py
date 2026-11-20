@@ -225,7 +225,13 @@ class GH21dbpl(CosWG20):
         self.suppression_factor: float = np.nan
         fit_b: float = 1.
         fit_zb: float = 1.
-        if not legacy:
+        if not legacy and np.isnan(self.alpha):
+            # alpha is NaN if it cannot be computed from ubarf, e.g. if ubarf is beyond the maximum for v_wall,
+            # see validate_alpha. The spectrum is then NaN, as for the other engines.
+            fit_b = fit_zb = np.nan
+            if zp is None:
+                self.zp = np.nan
+        elif not legacy:
             fit = cached_dbpl_fit(data_path=data_path, fit_path=fit_path)
             self.omega_p_hat, fit_zb, fit_zp, fit_b = fit.interpolate(
                 v_wall=tp.cast(float, self.v_wall), alpha_n=self.alpha

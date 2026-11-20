@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+import warnings
 
 import numpy as np
 from numpy.lib.npyio import NpzFile
@@ -226,6 +227,20 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         assert spectrum_pttools.omega_peak_h2() / spectrum.omega_peak_h2() == pytest.approx(
             spectrum_pttools.suppression_factor / spectrum.suppression_factor, rel=1e-14
         )
+
+    def test_ubarf_without_alpha(self) -> None:
+        r"""A $\bar{U}_f$ that no $\alpha_n$ gives should result in a NaN spectrum without errors or warnings.
+
+        For $v_\text{wall} = 0.95$, $\bar{U}_f < 0.87$ for all $\alpha_n$.
+        """
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UserWarning)
+            spectrum = GH21dbpl(v_wall=0.95, ubarf=0.9, r_star=0.1)
+        assert np.isnan(spectrum.alpha)
+        assert all(np.isnan((spectrum.omega_p_hat, spectrum.suppression_factor, spectrum.zp, spectrum.zb, spectrum.b)))
+        omgw0_h2, snr = spectrum.power_spectrum(np.logspace(-5, -1, 10))
+        assert np.all(np.isnan(omgw0_h2))
+        assert np.isnan(snr)
 
     def test_requires_v_wall(self) -> None:
         r"""The SSM fit requires $v_{\text{wall}}$."""
