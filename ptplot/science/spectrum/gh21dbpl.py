@@ -35,7 +35,15 @@ from ptplot.science.type_hints import FloatOrArr
 from ptplot.science.utils import ptplot_version
 
 __all__ = [
-    "SSM_DATA_PATH", "SSM_FIT_PATH", "GH21dbpl", "GH21dbplFit", "GH21dbplParams", "M", "fit_ssm", "m", "ssm_fit"
+    "SSM_DATA_PATH",
+    "SSM_FIT_PATH",
+    "GH21dbpl",
+    "GH21dbplFit",
+    "GH21dbplParams",
+    "M",
+    "cached_dbpl_fit",
+    "fit_dbpl_to_ssm",
+    "m",
 ]
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -45,7 +53,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 #: and 100 logarithmically spaced $z \in [1, 1000]$.
 #: The spectra are stored with the keys ``vw{v_wall}al{alpha_n}``, where the dots are replaced with underscores.
 SSM_DATA_PATH: Path = Path(__file__).resolve().parent / "pgw16_11_20_params50_51_log_alpha_vw.npz"
-#: Cache file of :py:func:`ssm_fit`, which is created on the first use, as fitting the whole grid takes some time.
+#: Cache file of :py:func:`cached_dbpl_fit`, which is created on the first use,
+#: as fitting the whole grid takes some time.
 #: It is recreated when the version of PTPlot or PTtools changes, and removed by ``install_requirements.sh``.
 SSM_FIT_PATH: Path = SSM_DATA_PATH.with_name("gh21dbpl_fit.npz")
 
@@ -118,7 +127,7 @@ class GH21dbpl(CosWG20):
     \Sigma(v_{\text{wall}}, \alpha_n) M(s, r_b, b)$$
     :gowling_2021:`\ ` eq. 2.15, 2.18,
     where the spectral parameters $\hat{\Omega}_p$, $z_p$, $r_b = z_b / z_p$ and $b$
-    are interpolated from the fit of the DBPL to the SSM spectra (:py:func:`ssm_fit`),
+    are interpolated from the fit of the DBPL to the SSM spectra (:py:func:`cached_dbpl_fit`),
     and $\Sigma$ is the kinetic energy suppression factor of :py:mod:`pttools.ssm.suppression`.
     The SSM fit covers $0.4 \leq v_{\text{wall}} \leq 0.9$ and $0.01 \leq \alpha_n \leq 0.5$.
     Outside this range the parameters at the closest edge of the grid are used.
@@ -159,6 +168,8 @@ class GH21dbpl(CosWG20):
             b: float | None = None,
             suppression: Suppression = DEFAULT_SUPPRESSION,
             suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT,
+            data_path: str | os.PathLike[str] = SSM_DATA_PATH,
+            fit_path: str | os.PathLike[str] = SSM_FIT_PATH,
         ):
         r"""Create a DBPL power spectrum.
 
@@ -170,6 +181,9 @@ class GH21dbpl(CosWG20):
         :param b: $b$, spectral slope between the breaks. Defaults to the SSM fit, or to 1 with ``legacy``.
         :param suppression: Kinetic energy suppression data. Not used with ``legacy``.
         :param suppression_method: Kinetic energy suppression method. Not used with ``legacy``.
+        :param data_path: Path to the SSM spectra, see :py:func:`cached_dbpl_fit`. Not used with ``legacy``.
+        :param fit_path: Path to the cache file of the fit, see :py:func:`cached_dbpl_fit`.
+            Not used with ``legacy``.
         """
         #: Whether this is the earlier DBPL of PTPlot instead of the SSM fit of :gowling_2021:`\ `
         self.legacy: bool = legacy
@@ -190,7 +204,8 @@ class GH21dbpl(CosWG20):
         fit_b: float = 1.
         fit_zb: float = 1.
         if not legacy:
-            self.omega_p_hat, fit_zb, fit_zp, fit_b = ssm_fit().interpolate(
+            fit = cached_dbpl_fit(data_path=data_path, fit_path=fit_path)
+            self.omega_p_hat, fit_zb, fit_zp, fit_b = fit.interpolate(
                 v_wall=tp.cast(float, self.v_wall), alpha_n=self.alpha
             )
             if zp is None:
@@ -330,7 +345,9 @@ class GH21dbplParams:
             alpha_ns: th.FloatArr1D | None = None,
             r_star: float = 0.1,
             T_star: float = 100.,
-            g_star: float = DEFAULT_G_STAR) -> "GH21dbplParams":
+            g_star: float = DEFAULT_G_STAR,
+            data_path: str | os.PathLike[str] = SSM_DATA_PATH,
+            fit_path: str | os.PathLike[str] = SSM_FIT_PATH) -> "GH21dbplParams":
         r"""Compute the spectral parameters on a grid.
 
         :param v_walls: $v_{\text{wall}}$, wall speeds. Defaults to the grid of the SSM fit.
@@ -338,9 +355,11 @@ class GH21dbplParams:
         :param r_star: $r_*$, Hubble-scaled mean bubble spacing
         :param T_star: $T_*$, transition temperature
         :param g_star: $g_*$, degrees of freedom
+        :param data_path: Path to the SSM spectra, see :py:func:`cached_dbpl_fit`
+        :param fit_path: Path to the cache file of the fit, see :py:func:`cached_dbpl_fit`
         :return: The spectral parameters
         """
-        fit = ssm_fit()
+        fit = cached_dbpl_fit(data_path=data_path, fit_path=fit_path)
         v_walls = fit.v_walls if v_walls is None else v_walls
         alpha_ns = fit.alpha_ns if alpha_ns is None else alpha_ns
         shape = (alpha_ns.size, v_walls.size)
@@ -350,7 +369,10 @@ class GH21dbplParams:
         b = np.empty(shape)
         for i, alpha_n in enumerate(alpha_ns):
             for j, v_wall in enumerate(v_walls):
-                spectrum = GH21dbpl(v_wall=v_wall, alpha=alpha_n, r_star=r_star, T_star=T_star, g_star=g_star)
+                spectrum = GH21dbpl(
+                    v_wall=v_wall, alpha=alpha_n, r_star=r_star, T_star=T_star, g_star=g_star,
+                    data_path=data_path, fit_path=fit_path
+                )
                 omega_p0_h2[i, j] = spectrum.omega_peak_h2()
                 f_p0[i, j] = spectrum.f_peak()
                 rb[i, j] = spectrum.rb
@@ -366,7 +388,57 @@ class GH21dbplParams:
         return self.omega_p0_h2 / H**2
 
 
-def fit_ssm(path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21dbplFit:
+@functools.cache
+def _cached_dbpl_fit(data_path: Path, fit_path: Path) -> GH21dbplFit:
+    """Implementation of :py:func:`cached_dbpl_fit`, which takes the paths as resolved :py:class:`pathlib.Path` objects.
+
+    The paths are resolved in :py:func:`cached_dbpl_fit` so that the in-memory cache does not depend on their type.
+    """
+    fields = [field.name for field in dataclasses.fields(GH21dbplFit)]
+    version = f"{ptplot_version()}-{pttools_version()}"
+    if fit_path.exists():
+        try:
+            with np.load(fit_path) as data:
+                if str(data["version"]) == version:
+                    return GH21dbplFit(**{field: data[field] for field in fields})
+                logger.info(
+                    "The GH21dbpl fit in %s is for the versions %s, but the current versions are %s. Fitting again.",
+                    fit_path, data["version"], version
+                )
+        except (OSError, KeyError, ValueError):
+            logger.exception("Could not load the GH21dbpl fit from %s. Fitting again.", fit_path)
+    logger.info("Fitting the GH21dbpl parameters to the SSM spectra. This takes a few seconds.")
+    fit = fit_dbpl_to_ssm(data_path=data_path)
+    # The file is written atomically, as multiple processes may be fitting simultaneously.
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=fit_path.parent, suffix=".npz", delete=False) as file:
+            tmp_path = Path(file.name)
+            np.savez(file, version=version, **{field: getattr(fit, field) for field in fields})
+        tmp_path.replace(fit_path)
+    except OSError:
+        logger.exception("Could not save the GH21dbpl fit to %s.", fit_path)
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+    return fit
+
+
+def cached_dbpl_fit(
+        data_path: str | os.PathLike[str] = SSM_DATA_PATH,
+        fit_path: str | os.PathLike[str] = SSM_FIT_PATH) -> GH21dbplFit:
+    r"""DBPL fit to the SSM spectra, see :py:func:`fit_dbpl_to_ssm`.
+
+    The result is cached in memory and in ``fit_path``.
+    The cache file is recreated when the version of PTPlot or PTtools changes.
+
+    :param data_path: Path to the SSM spectra in the format of :py:data:`SSM_DATA_PATH`
+    :param fit_path: Path to the cache file of the fit
+    :return: The best-fit parameters
+    """
+    return _cached_dbpl_fit(data_path=Path(data_path).resolve(), fit_path=Path(fit_path).resolve())
+
+
+def fit_dbpl_to_ssm(data_path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21dbplFit:
     r"""Fit the DBPL to the SSM spectra $\hat{\mathcal{P}}_\text{gw}(z)$.
 
     $$\hat{\mathcal{P}}_\text{gw}^\text{fit}(z) = \hat{\Omega}_p M(z / z_p, z_b / z_p, b)$$
@@ -376,10 +448,10 @@ def fit_ssm(path: str | os.PathLike[str] = SSM_DATA_PATH) -> GH21dbplFit:
     with $b \geq 0$ for $v_{\text{wall}} < c_s$ and $b \geq -1$ otherwise.
     These are the settings of ``fit_power_gw_scaled_to_obs_ssm.py`` of :gowling_2021:`\ `.
 
-    :param path: Path to the SSM spectra in the format of :py:data:`SSM_DATA_PATH`
+    :param data_path: Path to the SSM spectra in the format of :py:data:`SSM_DATA_PATH`
     :return: The best-fit parameters
     """
-    data = np.load(path)
+    data = np.load(data_path)
     v_walls = data["vw_list"]
     alpha_ns = data["alpha_list"]
     z = data["zs"]
@@ -453,39 +525,3 @@ def M[T: FloatOrArr](s: T, rb: FloatOrArr, b: FloatOrArr = 1.) -> T:
         * ((1 + rb**4) / (rb**4 + s**4)) ** ((9 - b) / 4)
         * ((b + 4) / (b + 4 - m_ + m_ * s**2)) ** ((b + 4) / 2)
     )
-
-
-@functools.cache
-def ssm_fit() -> GH21dbplFit:
-    r"""DBPL fit to the SSM spectra of :py:data:`SSM_DATA_PATH`, see :py:func:`fit_ssm`.
-
-    The result is cached in memory and in :py:data:`SSM_FIT_PATH`.
-    The cache file is recreated when the version of PTPlot or PTtools changes.
-    """
-    fields = [field.name for field in dataclasses.fields(GH21dbplFit)]
-    version = f"{ptplot_version()}-{pttools_version()}"
-    if SSM_FIT_PATH.exists():
-        try:
-            with np.load(SSM_FIT_PATH) as data:
-                if str(data["version"]) == version:
-                    return GH21dbplFit(**{field: data[field] for field in fields})
-                logger.info(
-                    "The GH21dbpl fit in %s is for the versions %s, but the current versions are %s. Fitting again.",
-                    SSM_FIT_PATH, data["version"], version
-                )
-        except (OSError, KeyError, ValueError):
-            logger.exception("Could not load the GH21dbpl fit from %s. Fitting again.", SSM_FIT_PATH)
-    logger.info("Fitting the GH21dbpl parameters to the SSM spectra. This takes a few seconds.")
-    fit = fit_ssm()
-    # The file is written atomically, as multiple processes may be fitting simultaneously.
-    tmp_path: Path | None = None
-    try:
-        with tempfile.NamedTemporaryFile(dir=SSM_FIT_PATH.parent, suffix=".npz", delete=False) as file:
-            tmp_path = Path(file.name)
-            np.savez(file, version=version, **{field: getattr(fit, field) for field in fields})
-        tmp_path.replace(SSM_FIT_PATH)
-    except OSError:
-        logger.exception("Could not save the GH21dbpl fit to %s.", SSM_FIT_PATH)
-        if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
-    return fit

@@ -1,12 +1,14 @@
 """Double broken power law (DBPL) tests (2021 version)."""
 
+from pathlib import Path
+import tempfile
 import unittest
 
 import numpy as np
 from pttools.omgw0.const import H
 import pytest
 
-from ptplot.science.spectrum.gh21dbpl import GH21dbpl, GH21dbplParams, M, ssm_fit
+from ptplot.science.spectrum.gh21dbpl import SSM_DATA_PATH, GH21dbpl, GH21dbplParams, M, cached_dbpl_fit
 from ptplot.tests.spectrum.coswg20 import PowerSpectrumBaseCase2020
 
 #: Best-fit $\hat{\Omega}_p$, $z_b$, $z_p$, $b$ and $\delta_\mathcal{P}^2$ of :gowling_2021:`\ ` at the grid indices
@@ -37,7 +39,7 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
 
     def test_fit_gowling(self) -> None:
         r"""The SSM fit should reproduce the fit of :gowling_2021:`\ `."""
-        fit = ssm_fit()
+        fit = cached_dbpl_fit()
         for (i, j), (omp, zb, zp, b, delta2) in GOWLING_FIT.items():
             assert fit.omega_p_hat[i, j] == pytest.approx(omp, rel=1e-3)
             assert fit.zb[i, j] == pytest.approx(zb, rel=1e-3)
@@ -47,11 +49,11 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
 
     def test_fit_quality(self) -> None:
         r"""The DBPL should fit the SSM well, :gowling_2021:`\ ` fig. 11."""
-        assert np.median(ssm_fit().delta2) < 0.05  # noqa: PLR2004
+        assert np.median(cached_dbpl_fit().delta2) < 0.05  # noqa: PLR2004
 
     def test_interpolate_grid_point(self) -> None:
         """The interpolation should reproduce the fit at the grid points."""
-        fit = ssm_fit()
+        fit = cached_dbpl_fit()
         i, j = 20, 25
         assert fit.interpolate(v_wall=fit.v_walls[j], alpha_n=fit.alpha_ns[i]) == pytest.approx(
             (fit.omega_p_hat[i, j], fit.zb[i, j], fit.zp[i, j], fit.b[i, j]), rel=1e-12
@@ -59,7 +61,7 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
 
     def test_interpolate_outside(self) -> None:
         """Points outside the grid should give a warning and use the closest edge."""
-        fit = ssm_fit()
+        fit = cached_dbpl_fit()
         with pytest.warns(UserWarning, match="outside the grid"):
             outside = fit.interpolate(v_wall=0.3, alpha_n=1.)
         assert outside == pytest.approx(fit.interpolate(v_wall=fit.v_walls[0], alpha_n=fit.alpha_ns[-1]))
@@ -110,6 +112,31 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         assert params.f_p0[1, 1] == pytest.approx(spectrum.f_peak(), rel=1e-14)
         assert params.rb[1, 1] == pytest.approx(spectrum.rb, rel=1e-14)
         assert params.b[1, 1] == pytest.approx(spectrum.b, rel=1e-14)
+
+    def test_params_paths(self) -> None:
+        """The parameters should be computable with the SSM spectra and the fit cache in the given paths."""
+        i_alphas, j_v_walls = [10, 30], [5, 40]
+        default = cached_dbpl_fit()
+        with tempfile.TemporaryDirectory() as tmp_dir, np.load(SSM_DATA_PATH) as data:
+            v_walls = data["vw_list"][j_v_walls]
+            alpha_ns = data["alpha_list"][i_alphas]
+            spectra = {
+                key: data[key] for v_wall in v_walls for alpha_n in alpha_ns
+                if (key := f"vw{v_wall}al{alpha_n}".replace(".", "_"))
+            }
+            data_path = Path(tmp_dir) / "ssm.npz"
+            fit_path = Path(tmp_dir) / "fit.npz"
+            np.savez(data_path, vw_list=v_walls, alpha_list=alpha_ns, zs=data["zs"], **spectra)
+            params = GH21dbplParams.compute(r_star=0.1, data_path=str(data_path), fit_path=fit_path)
+            assert fit_path.is_file()
+            fit = cached_dbpl_fit(data_path=data_path, fit_path=fit_path)
+        np.testing.assert_array_equal(params.v_walls, v_walls)
+        np.testing.assert_array_equal(params.alpha_ns, alpha_ns)
+        # The fits agree only to the convergence tolerance of the fit.
+        ix = np.ix_(i_alphas, j_v_walls)
+        np.testing.assert_allclose(fit.omega_p_hat, default.omega_p_hat[ix], rtol=1e-6)
+        np.testing.assert_allclose(fit.b, default.b[ix], rtol=1e-6)
+        np.testing.assert_allclose(params.rb, default.rb[ix], rtol=1e-6)
 
     def test_requires_v_wall(self) -> None:
         r"""The SSM fit requires $v_{\text{wall}}$."""

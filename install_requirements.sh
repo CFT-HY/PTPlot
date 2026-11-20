@@ -156,4 +156,4 @@ if [ -f "${GH21DBPL_FIT}" ]; then
 fi
 echo "Fitting the GH21dbpl parameters to the SSM spectra."
 uv run --project "${SCRIPT_DIR}" --no-sync python -c \
-  "from ptplot.science.spectrum.gh21dbpl import ssm_fit; from pttools.logging import setup_logging; setup_logging(); ssm_fit()"
+  "from ptplot.science.spectrum.gh21dbpl import cached_dbpl_fit; from pttools.logging import setup_logging; setup_logging(); cached_dbpl_fit()"
