@@ -1,14 +1,17 @@
 """Double broken power law (DBPL) tests (2021 version)."""
 
+import os
 from pathlib import Path
 import tempfile
 import unittest
 
 import numpy as np
+from numpy.lib.npyio import NpzFile
 from pttools.omgw0.const import H
 from pttools.ssm.suppression import DEFAULT_SUPPRESSION, SuppressionMethod
 import pytest
 
+from ptplot import PTPLOT_DIR
 from ptplot.science.spectrum.gh21dbpl import (
     SSM_DATA_PATH,
     GH21dbpl,
@@ -19,11 +22,33 @@ from ptplot.science.spectrum.gh21dbpl import (
     data_points,
     delta2,
 )
+import ptplot.science.type_hints as th
 from ptplot.tests.spectrum.coswg20 import PowerSpectrumBaseCase2020
+
+#: Environment variable that overrides the location of the ``fisher_analysis`` repository of :gowling_2021:`\ `
+FISHER_ANALYSIS_ENV: str = "PTPLOT_FISHER_ANALYSIS_DIR"
+#: Location of the ``fisher_analysis`` repository, by default ``../fisher_analysis`` relative to this repository
+FISHER_ANALYSIS_DIR: Path = Path(os.environ.get(FISHER_ANALYSIS_ENV, PTPLOT_DIR.parents[1] / "fisher_analysis"))
+#: DBPL fit of the JCAP version (v2) of :gowling_2021:`\ `, which has $\delta_\mathcal{P}^2$ of eq. B.1
+FISHER_FIT_V2_PATH: Path = \
+    FISHER_ANALYSIS_DIR / "original_data" / "fit_comparision" \
+    / "fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw_correction.npz"
+#: DBPL fit of the arXiv version (v1) of :gowling_2021:`\ `.
+#: This is identical to ``original_data/fit_comparision/fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw.npz``.
+FISHER_FIT_V1_PATH: Path = \
+    FISHER_ANALYSIS_DIR / "parameter_dependence" / "fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw.npz"
+#: Whether the DBPL fits of the ``fisher_analysis`` repository were found
+HAVE_FISHER_FITS: bool = FISHER_FIT_V1_PATH.is_file() and FISHER_FIT_V2_PATH.is_file()
+FISHER_NOT_FOUND_MESSAGE: str = \
+    f"The fisher_analysis repository was not found in {FISHER_ANALYSIS_DIR}. Set {FISHER_ANALYSIS_ENV} to its location."
+#: Relative tolerance for comparing the fits of the ``fisher_analysis`` repository and of PTPlot.
+#: The fits differ by up to about $2 \cdot 10^{-4}$ (in $b$)
+#: due to the convergence of :py:func:`scipy.optimize.curve_fit`.
+FISHER_FIT_RTOL: float = 1e-3
 
 #: Best-fit $\hat{\Omega}_p$, $z_b$, $z_p$, $b$ and $\delta_\mathcal{P}^2$ of :gowling_2021:`\ ` at the grid indices
 #: ``[alpha_n, v_wall]``, from ``fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw_correction.npz``
-#: of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
+#: of the ``fisher_analysis`` repository of :gowling_2021:`\ `, i.e. the fit of the JCAP version (v2) of the article.
 GOWLING_FIT: dict[tuple[int, int], tuple[float, ...]] = {
     (0, 0): (
         5.2828694423021445e-09, 1.1656667399929075, 3.1763165163571916, 0.7626226299312603, 0.0032512257168008252
@@ -206,3 +231,61 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         r"""The SSM fit requires $v_{\text{wall}}$."""
         with pytest.raises(ValueError, match="requires v_wall"):
             GH21dbpl(alpha=0.1, r_star=0.1)
+
+
+@unittest.skipUnless(HAVE_FISHER_FITS, FISHER_NOT_FOUND_MESSAGE)
+class FisherAnalysisFitTest(unittest.TestCase):
+    r"""Comparison of the DBPL fit of PTPlot to that of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
+
+    The fit of PTPlot is :py:func:`ptplot.science.spectrum.gh21dbpl.cached_dbpl_fit`.
+    The fits are of the same SSM spectra :py:data:`ptplot.science.spectrum.gh21dbpl.SSM_DATA_PATH`
+    with the same model and settings, but the arXiv version (v1) and the JCAP version (v2)
+    of the article have a different measure of the fit quality,
+    see :py:func:`ptplot.science.spectrum.gh21dbpl.delta2`.
+    """
+
+    @staticmethod
+    def params(data: NpzFile) -> th.FloatArr3D:
+        r"""$\hat{\Omega}_p$, $z_b$, $z_p$ and $b$ of a fit file, indexed as ``[alpha_n, v_wall, parameter]``."""
+        return data["fit_params"]
+
+    def test_fit_v2(self) -> None:
+        r"""The parameters and $\delta_\mathcal{P}^2$ should be those of the JCAP version (v2) of the article."""
+        fit = cached_dbpl_fit()
+        with np.load(FISHER_FIT_V2_PATH) as data:
+            params, rcs = self.params(data), data["rcs"]
+        assert params.shape == (fit.alpha_ns.size, fit.v_walls.size, 4)
+        for k, name in enumerate(("omega_p_hat", "zb", "zp", "b")):
+            with self.subTest(name=name):
+                np.testing.assert_allclose(getattr(fit, name), params[..., k], rtol=FISHER_FIT_RTOL)
+        np.testing.assert_allclose(fit.delta2, rcs, rtol=FISHER_FIT_RTOL)
+
+    def test_fit_v1(self) -> None:
+        r"""The parameters should be those of the arXiv version (v1) of the article.
+
+        The measure of the fit quality of v1 is not $\delta_\mathcal{P}^2$ of eq. B.1.
+        The fit quality of v1 is $\frac{1}{N} \int dz \left( \frac{\hat{\mathcal{P}}_\text{gw}^\text{fit}(z)
+        - \hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)}{\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)} \right)^2$
+        over the $N$ fitted points, which is reproduced here from the fit parameters of v1.
+        """
+        fit = cached_dbpl_fit()
+        with np.load(FISHER_FIT_V1_PATH) as data:
+            params, rcs = self.params(data), data["rcs"]
+        for k, name in enumerate(("omega_p_hat", "zb", "zp", "b")):
+            with self.subTest(name=name):
+                np.testing.assert_allclose(getattr(fit, name), params[..., k], rtol=FISHER_FIT_RTOL)
+
+        rcs_v1 = np.empty_like(rcs)
+        with np.load(SSM_DATA_PATH) as data:
+            z = data["zs"]
+            for i, alpha_n in enumerate(data["alpha_list"]):
+                for j, v_wall in enumerate(data["vw_list"]):
+                    p_ssm = data[data_key(v_wall, alpha_n)]
+                    points = np.logical_or(p_ssm > p_ssm.max() / 10, z < 3)  # noqa: PLR2004
+                    omp, zb, zp, b = params[i, j]
+                    p_fit = omp * M(s=z[points] / zp, rb=zb / zp, b=b)
+                    rcs_v1[i, j] = np.trapezoid(((p_fit - p_ssm[points]) / p_ssm[points])**2, z[points]) \
+                        / np.count_nonzero(points)
+        np.testing.assert_allclose(rcs, rcs_v1, rtol=1e-9)
+        # The measures differ by an order of magnitude.
+        assert np.median(rcs / fit.delta2) < 0.2  # noqa: PLR2004

@@ -6,6 +6,16 @@ $\hat{\mathcal{P}}_\text{gw}(z)$ of :gowling_2021:`\ ` eq. 2.14 in :py:data:`SSM
 These spectra were computed by Chloe Gowling with an early version of PTtools for :gowling_2021:`\ ` fig. 3.
 The fit follows the script ``parameter_dependence/fit_power_gw_scaled_to_obs_ssm.py``
 of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
+
+The arXiv version (v1) and the JCAP version (v2) of :gowling_2021:`\ ` have the same fit parameters
+(within $3 \cdot 10^{-5}$), but a different measure of the fit quality, see :py:func:`delta2`.
+In the ``fisher_analysis`` repository, the fit of v1 is
+``parameter_dependence/fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw.npz``
+(identical to the file of the same name in ``original_data/fit_comparision``),
+and that of v2 is ``original_data/fit_comparision/fit_dbl_brkn_4_pgw16_11_20_params50_51_log_alpha_vw_correction.npz``,
+created by ``original_data/fit_comparision/fit_power_gw_scaled_to_obs_ssm.py``.
+The figures of the article (fig. 3 and fig. 11) of v2 were plotted from the latter.
+:py:func:`cached_dbpl_fit` reproduces the fit of v2, including $\delta_\mathcal{P}^2$.
 """
 
 import dataclasses
@@ -82,7 +92,8 @@ class GH21dbplFit:
     zp: th.FloatArr2D
     #: $b$, spectral slope between the breaks
     b: th.FloatArr2D
-    #: $\delta_\mathcal{P}^2$, mean squared relative deviation of the fit, :gowling_2021:`\ ` eq. B.1
+    #: $\delta_\mathcal{P}^2$, mean squared relative deviation of the fit, :gowling_2021:`\ ` eq. B.1,
+    #: as in fig. 11 of the JCAP version (v2) of the article, see :py:func:`delta2`
     delta2: th.FloatArr2D
 
     @property
@@ -484,6 +495,15 @@ def delta2(z: th.FloatArr1D, p_fit: th.FloatArr1D, p_ssm: th.FloatArr1D) -> np.f
     {\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)} \right)^2$$
     :gowling_2021:`\ ` eq. B.1, evaluated for the best-fit parameters with the trapezoidal rule in $\ln z$.
 
+    This is the $\delta_\mathcal{P}^2$ of fig. 11 of the JCAP version (v2) of :gowling_2021:`\ `.
+    Fig. 11 of the arXiv version (v1) shows instead
+    $$\frac{1}{N} \int dz
+    \left( \frac{\hat{\mathcal{P}}_\text{gw}^\text{fit}(z) - \hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)}
+    {\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)} \right)^2$$
+    over the $N$ fitted points, even though eq. B.1 of v1 is the same as that of v2.
+    It is typically an order of magnitude smaller than $\delta_\mathcal{P}^2$.
+    The fit parameters of the two versions are the same.
+
     :param z: $z = kR_*$, in increasing order
     :param p_fit: $\hat{\mathcal{P}}_\text{gw}^\text{fit}(z)$, fitted spectrum
     :param p_ssm: $\hat{\mathcal{P}}_\text{gw}^\text{ssm}(z)$, SSM spectrum
@@ -505,6 +525,8 @@ def fit_dbpl_to_ssm(
     or $z < 3$ are fitted with the relative errors $\sigma = \hat{\mathcal{P}}_\text{gw}$,
     with $b \geq 0$ for $v_{\text{wall}} < c_s$ and $b \geq -1$ otherwise.
     These are the settings of ``fit_power_gw_scaled_to_obs_ssm.py`` of :gowling_2021:`\ `.
+    The result agrees with the fits of both the arXiv version (v1) and the JCAP version (v2) of the article
+    within about $2 \cdot 10^{-4}$, and its $\delta_\mathcal{P}^2$ is that of v2, see :py:func:`delta2`.
 
     Based on ``general_fit_function`` in ``parameter_dependence/fit_power_gw_scaled_to_obs_ssm.py``
     of the ``fisher_analysis`` repository of :gowling_2021:`\ `.
