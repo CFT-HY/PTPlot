@@ -9,7 +9,7 @@ for $r_* = 0.1$ and $T_* = 100$ GeV.
 The dashed line is the Chapman-Jouguet speed $v_{\text{CJ}}(\alpha_n)$ of the bag model,
 :gowling_2021:`\ ` eq. 2.4, and the black dots are the $(v_{\text{wall}}, \alpha_n)$ points of the SSM spectra.
 
-The suppression factor $\Sigma$ is that of the article, :py:data:`pttools.ssm.suppression.GH21`,
+The suppression factor $\Sigma$ is that of the article, :py:data:`pttools.ssm.suppression.suppression.GH21`,
 and the small differences to the original figure are due to
 the $F_{\text{gw},0}$, $f_{\ast,0}$ and $h$ of :py:mod:`pttools.omgw0`.
 """
@@ -30,8 +30,11 @@ from ptplot.science.utils import axis_stats
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+#: $g_*$, :gowling_2021:`\ ` p. 7
 G_STAR: float = 100.
+#: $r_*$, :gowling_2021:`\ ` p. 11
 R_STAR: float = 0.1
+#: $T_*$, :gowling_2021:`\ ` p. 11
 T_STAR: float = 100.
 
 

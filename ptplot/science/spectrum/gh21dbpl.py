@@ -133,9 +133,9 @@ class GH21dbpl(CosWG20):
     where the spectral parameters $\hat{\Omega}_p$, $z_p$, $r_b = z_b / z_p$ and $b$
     are interpolated from the fit of the DBPL to the SSM spectra (:py:func:`cached_dbpl_fit`),
     and $\Sigma$ is the kinetic energy suppression factor of :py:mod:`pttools.ssm.suppression`.
-    By default, $\Sigma$ is that of :gowling_2021:`\ ` app. A, :py:data:`pttools.ssm.suppression.GH21`,
+    By default, $\Sigma$ is that of :gowling_2021:`\ ` app. A, :py:data:`pttools.ssm.suppression.suppression.GH21`,
     with its fill value outside the convex hull of the data points
-    (:py:attr:`pttools.ssm.suppression.SuppressionMethod.EXT_FILL`), as in the original code of the article.
+    (:py:attr:`pttools.ssm.suppression.suppression.SuppressionMethod.EXT_FILL`), as in the original code of the article.
     The earlier default of this class is
     ``suppression=pttools.ssm.suppression.DEFAULT_SUPPRESSION, suppression_method=SuppressionMethod.EXT_CONSTANT``.
     The SSM fit covers $0.4 \leq v_{\text{wall}} \leq 0.9$ and $0.01 \leq \alpha_n \leq 0.5$.

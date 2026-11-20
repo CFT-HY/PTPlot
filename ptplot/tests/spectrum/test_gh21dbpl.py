@@ -176,7 +176,7 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         r"""The default $\Sigma$ should be that of the original code of :gowling_2021:`\ `.
 
         The reference values are from ``get_high_alpha_suppression_factor`` of ``gwtools.py``
-        of the original code of the article, as in the tests of :py:data:`pttools.ssm.suppression.GH21`.
+        of the original code of the article, as in the tests of :py:data:`pttools.ssm.suppression.suppression.GH21`.
         The point $v_{\text{wall}} = 0.4, \alpha_n = 0.01$ is outside the convex hull of the data points,
         and gets the fill value.
         """
