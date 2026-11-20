@@ -25,6 +25,11 @@ The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
 The lattice spectra are evaluated at the $r_*$ of the SSM spectrum, which includes the thermal suppression
 of nucleation for deflagrations.
+The spectra of the $960^3$ simulations of :cutting_2019:`\ ` with the same $v_\text{wall}$ and $\alpha_n$
+(see :py:data:`ptplot.science.plot.lattice.CHW19_RUNS`) are drawn as well if their data is available,
+see :py:func:`ptplot.science.plot.lattice.load_chw19_references`.
+As in ``examples.ps.plot_lattice``, only their spectra of the GW power that has accumulated by the last time step
+of the data are drawn.
 These figures are drawn in the same style as those of ``examples.ps.plot_lattice``,
 and CosWG24bpl is left out of them by default.
 The lattice figures with the suffix ``_paper`` have no title and no SNRs in the legend,
@@ -55,7 +60,7 @@ if __name__ == "__main__":
 
 from ptplot.methods import Statistic, n_workers
 from ptplot.models import Model
-from ptplot.science.plot.lattice import lattice_comparisons
+from ptplot.science.plot.lattice import lattice_comparisons, load_chw19_references
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_comparison import engine_comparisons
 from ptplot.science.spectrum import Engine
@@ -192,6 +197,7 @@ def main(
     max_workers = n_workers()
     logger.info("Creating the singlet figures with %d parallel workers.", max_workers)
     runs = load_chrw25_runs(missing_ok=True)
+    references = load_chw19_references() if runs else {}
     # The SSM is always included, as its r_star is used for the lattice spectra.
     lattice_engines = Engine.engines(strong=lattice_coswg24bpl)
     # SNR values of the points of each model for the histogram of all the models
@@ -207,7 +213,8 @@ def main(
         )
         if snr_hist is not None:
             snr_hists.append(snr_hist)
-        for name, comparison in lattice_comparisons(model, runs, engines=lattice_engines).items():
+        for name, comparison in lattice_comparisons(
+                model, runs, engines=lattice_engines, references=references).items():
             fig_name = f"lattice_{name}"
             with log_exceptions(logger, "Failed to save %s for %s", fig_name, model.name):
                 comparison.save_csv(model_csv_path(model, fig_name, subdir=SUBDIR))

@@ -29,6 +29,16 @@ which shifts the peak of the SSM spectrum to lower frequencies.
 Therefore, the SSM spectrum with simultaneous nucleation is also drawn when the SSM engine is enabled.
 
 The simulated spectrum is drawn only below the lattice artifact at high $k$.
+
+The $960^3$ simulations of :cutting_2019:`\ ` with the same $v_\text{wall}$ and $\alpha_n$ as those of
+:correia_2025:`\ ` are drawn as well, see :py:data:`ptplot.science.plot.lattice.CHW19_RUNS`, if their data is available,
+see :py:func:`pttools.lattice.chw19.data_dir`.
+These simulations are smaller and shorter, and their data ends before the GW power could be extrapolated
+to late times reliably. Therefore, only their spectra of the GW power that has accumulated by the last time step
+of the data are drawn, with the color :py:data:`ptplot.science.plot.lattice.REFERENCE_COLOR`.
+These runs were made with an older version of the simulation code,
+whose power spectra are 10-30 % larger than the global quantities of the same runs,
+see :py:mod:`pttools.lattice.chw19`.
 The figures are drawn with :py:mod:`ptplot.science.plot.lattice`, in the same style as those of
 ``examples.snr.singlets``. The figures with the suffix ``_paper`` have no title and no SNRs in the legend.
 The SNRs are saved as CSV files in the directory ``csv``, with the same names as the figures.
@@ -39,15 +49,15 @@ from pathlib import Path
 import typing as tp
 
 from matplotlib.figure import Figure
-from pttools.lattice import CHRW25_RUNS, LatticeRunParams, data_dir, load_chrw25_run
+from pttools.lattice import CHRW25_RUNS, LatticeRun, LatticeRunParams, data_dir, load_chrw25_run
 from pttools.utils.time import log_duration
 
 from examples.utils import csv_path, save_and_show_figs
 from ptplot.methods.generic import setup_logging
 from ptplot.science import const
 from ptplot.science.noise import Noise
-from ptplot.science.plot.lattice import LatticeComparison, lattice_comparison
-from ptplot.science.spectrum import CHRW25_NAME, Engine, PowerSpectrumLattice, power_spectrum
+from ptplot.science.plot.lattice import LatticeComparison, lattice_comparison, load_chw19_references
+from ptplot.science.spectrum import CHRW25_NAME, CHW19_NAME, Engine, PowerSpectrumLattice, power_spectrum
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -62,7 +72,8 @@ def compare_lattice(
         r_star: float = R_STAR,
         T_star: float = const.DEFAULT_T_STAR,
         g_star: float = const.DEFAULT_G_STAR,
-        noise: Noise | None = None) -> LatticeComparison:
+        noise: Noise | None = None,
+        chw19_run: LatticeRun | None = None) -> LatticeComparison:
     r"""Compare the simulated GW power spectrum to the spectra of the engines.
 
     The engines are given $v_\text{wall}$ and $\alpha_n$ of the simulation, and $r_*$.
@@ -75,6 +86,8 @@ def compare_lattice(
     It is drawn both as it is, and scaled by $\Omega_\text{gw}^\infty / \Omega_\text{gw}(t)$,
     see :py:attr:`ptplot.science.spectrum.lattice.PowerSpectrumLattice.asymptote_ratio`.
     The latter assumes that the shape of the spectrum no longer changes after the time step.
+    The spectrum of the corresponding run of :cutting_2019:`\ ` is drawn only as it is,
+    see the description of this example.
 
     :param meta: metadata of the simulation run
     :param path: root directory of the data
@@ -84,6 +97,8 @@ def compare_lattice(
     :param T_star: $T_*$, temperature at the time of GW production
     :param g_star: $g_*$, degrees of freedom
     :param noise: which noise curve to use
+    :param chw19_run: the run of :cutting_2019:`\ ` with the same parameters,
+        see :py:data:`ptplot.science.plot.lattice.CHW19_RUNS`
     :return: the comparison, from which the figures can be drawn
     """
     run = load_chrw25_run(meta.name, path=path)
@@ -98,22 +113,28 @@ def compare_lattice(
         )
         for spectrum_engine in Engine.engines(engine, strong=bool(engine))
     ]
-    return lattice_comparison(spectrum, spectra, noise=noise, title=rf"{meta.label_latex}, $r_*={r_star}$")
+    references = [] if chw19_run is None else [
+        PowerSpectrumLattice(chw19_run, r_star=r_star, T_star=T_star, g_star=g_star, name=CHW19_NAME)
+    ]
+    return lattice_comparison(
+        spectrum, spectra, noise=noise, title=rf"{meta.label_latex}, $r_*={r_star}$", references=references
+    )
 
 
 @log_duration
 def main() -> dict[str, Figure]:
-    """Plot the spectra of the simulations of Correia et al. and of the engines."""
+    """Plot the spectra of the simulations of Correia et al. and Cutting et al., and of the engines."""
     setup_logging()
     path = data_dir()
     if path is None:
         logger.warning("The data of Correia et al. was not found. Skipping the example.")
         return {}
+    chw19_runs = load_chw19_references()
     engines = Engine.engines(log=True, strong=False)
     figs = {}
     for name, meta in CHRW25_RUNS.items():
         fig_name = f"lattice_{name}_ps"
-        comparison = compare_lattice(meta, path=path, engine=engines)
+        comparison = compare_lattice(meta, path=path, engine=engines, chw19_run=chw19_runs.get(name))
         comparison.save_csv(csv_path(fig_name))
         figs[fig_name] = comparison.figure()
         figs[f"{fig_name}_paper"] = comparison.figure(title=False, snr=False)

@@ -15,6 +15,9 @@ The comparisons are created with :py:func:`lattice_comparison`, which is used by
   see :py:attr:`pttools.lattice.run_base.LatticeRunBase.nuc_type`,
   whereas the SSM engine assumes exponential nucleation,
   which is therefore drawn with a faded color.
+- The spectra of reference simulations, e.g. those of :cutting_2019:`\ ` with the same parameters
+  (:py:data:`CHW19_RUNS`), can be drawn in addition, with the color :py:data:`REFERENCE_COLOR`,
+  see :py:func:`lattice_comparison`.
 """
 
 from collections.abc import Iterable
@@ -27,7 +30,8 @@ import typing as tp
 
 from matplotlib import rc_context
 from matplotlib.figure import Figure
-from pttools.lattice import LatticeRun
+from pttools.lattice import LatticeRun, load_chw19_run
+from pttools.lattice.chw19 import data_dir as chw19_data_dir
 from pttools.math import as_latex
 from pttools.plot.lock import matplotlib_lock
 from pttools.ssm.nucleation import NucType
@@ -39,7 +43,7 @@ from ptplot.science.plot.ps import SpectrumCurve, power_spectrum_figure
 from ptplot.science.plot.utils import DEFAULT_RC_CONTEXT, faded
 from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
-from ptplot.science.spectrum.lattice import CHRW25_NAME, LatticeConversion, PowerSpectrumLattice
+from ptplot.science.spectrum.lattice import CHRW25_NAME, CHW19_NAME, LatticeConversion, PowerSpectrumLattice
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
 
 if tp.TYPE_CHECKING:
@@ -47,10 +51,12 @@ if tp.TYPE_CHECKING:
 
 __all__ = [
     "ACCUMULATED_COLOR",
+    "CHW19_RUNS",
     "COLOR",
     "LINESTYLE",
     "NUC_TYPE_LABELS",
     "RATE_COLOR",
+    "REFERENCE_COLOR",
     "SSM_NUC_TYPES",
     "YLIM",
     "LatticeComparison",
@@ -60,17 +66,28 @@ __all__ = [
     "lattice_curves",
     "lattice_figure",
     "lattice_figures",
+    "load_chw19_references",
     "ssm_curves",
 ]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+#: Runs of :cutting_2019:`\ ` with the same $v_\text{wall}$ and $\alpha_n$ as the runs of :correia_2025:`\ `
+#: with the same keys in :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`, see :py:func:`load_chw19_references`.
+#: These are the runs with the lattice spacing $\delta x = 1$ and the original random seed,
+#: as in :cutting_2019:`\ ` table I.
+CHW19_RUNS: dict[str, str] = {
+    "detonation": "alph-0.67-vw-0.92-Nb-8-L-960-dx-1.0",
+    "deflagration": "alph-0.5-vw-0.44-Nb-8-L-960-dx-1.0",
+}
 #: Color of the simulated spectra
 COLOR: str = PowerSpectrumLattice.COLOR
 #: Color of the simulated spectra from the accumulated GW power at the time step
 ACCUMULATED_COLOR: str = faded(COLOR)
 #: Color of the simulated spectra converted from the GW power growth rate
 RATE_COLOR: str = "brown"
+#: Color of the spectra of the reference simulations, see :py:func:`lattice_comparison`
+REFERENCE_COLOR: str = "darkcyan"
 #: Line style of the simulated spectra
 LINESTYLE: str = ":"
 #: Abbreviations of the nucleation types in the labels
@@ -147,10 +164,15 @@ def lattice_comparison(
         accumulated: bool = True,
         asymptote: bool = True,
         rate: bool = False,
-        nuc_types: Iterable[NucType] = SSM_NUC_TYPES) -> LatticeComparison:
+        nuc_types: Iterable[NucType] = SSM_NUC_TYPES,
+        references: Iterable[PowerSpectrumLattice] = ()) -> LatticeComparison:
     r"""Compare the GW power spectra of a lattice simulation to those of the engines.
 
-    The curves are the simulated spectra of :py:func:`lattice_curves`, followed by the spectra of the engines.
+    The curves are the simulated spectra of :py:func:`lattice_curves`,
+    followed by those of the reference simulations, and then the spectra of the engines.
+    The reference simulations, e.g. smaller simulations with the same parameters,
+    are drawn only from the accumulated GW power at their time steps with the color :py:data:`REFERENCE_COLOR`,
+    as they may be too short for the extrapolation of the GW power to late times.
     The SSM spectra are drawn with each of the nucleation types, see :py:func:`ssm_curves`.
     The SNRs of all the curves are computed against the noise curve.
 
@@ -162,13 +184,18 @@ def lattice_comparison(
     :param asymptote: whether to draw the simulated spectrum scaled to the asymptotic GW power
     :param rate: whether to draw the simulated spectrum converted from the GW power growth rate
     :param nuc_types: nucleation types of the SSM spectra
+    :param references: spectra of the reference simulations, which must have different names from each other
+        and from the simulation
     :return: the comparison
     """
     noise = resolve_noise(noise)
     nuc_types = tuple(nuc_types)
+    lattice_curve_dict = lattice_curves(lattice, accumulated=accumulated, asymptote=asymptote, rate=rate)
+    for reference in references:
+        lattice_curve_dict |= lattice_curves(reference, asymptote=False, accumulated_color=REFERENCE_COLOR)
     curves = {
         name: replace(curve, snr=PowerSpectrum.snr(curve.f, curve.omgw0_h2, noise))
-        for name, curve in lattice_curves(lattice, accumulated=accumulated, asymptote=asymptote, rate=rate).items()
+        for name, curve in lattice_curve_dict.items()
     }
     for spectrum in spectra:
         if isinstance(spectrum, PowerSpectrumSSM):
@@ -188,7 +215,9 @@ def lattice_comparison_at_point(
         engines: Iterable[Engine] | None = None,
         name: str = CHRW25_NAME,
         noise: Noise | None = None,
-        ssm_settings: SSMSettings | None = None) -> LatticeComparison:
+        ssm_settings: SSMSettings | None = None,
+        reference: LatticeRun | None = None,
+        reference_name: str = CHW19_NAME) -> LatticeComparison:
     r"""Compare the GW power spectra of a lattice simulation to those of the engines at a point.
 
     All the spectra have the $v_\text{wall}$ of the simulation, and the engines are given the $\beta/H_*$ of the point,
@@ -204,6 +233,7 @@ def lattice_comparison_at_point(
     The other engines use $r_*(0)$, and their spectra are therefore not evaluated at the same $r_*$
     as the lattice spectra for deflagrations and hybrids.
     For detonations, $\Lambda = 1$, and all the spectra have the same $r_*$.
+    The spectrum of the reference simulation is evaluated at the same $r_*$ as that of the simulation.
     See :py:func:`lattice_comparison`.
 
     :param point: Point whose parameters are used
@@ -213,6 +243,8 @@ def lattice_comparison_at_point(
     :param name: Name of the simulation in the labels
     :param noise: Noise curve, defaults to the default noise curve
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+    :param reference: Reference simulation with the same parameters, e.g. from :py:func:`load_chw19_references`
+    :param reference_name: Name of the reference simulation in the labels
     :return: The comparison, whose default title contains the parameters of the point and the simulation
     :raises ValueError: If the engines do not include the SSM
     """
@@ -226,9 +258,14 @@ def lattice_comparison_at_point(
         for engine in engines
     ]
     r_star = next(spectrum for spectrum in spectra if isinstance(spectrum, PowerSpectrumSSM)).r_star
-    lattice = PowerSpectrumLattice(run, r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value, name=name)
+    T_star = point.T_star_value
+    g_star = point.g_star_value
+    lattice = PowerSpectrumLattice(run, r_star=r_star, T_star=T_star, g_star=g_star, name=name)
+    references = [] if reference is None else [
+        PowerSpectrumLattice(reference, r_star=r_star, T_star=T_star, g_star=g_star, name=reference_name)
+    ]
     return lattice_comparison(
-        lattice, spectra, noise=noise,
+        lattice, spectra, noise=noise, references=references,
         title=f"{point.model.name}, point {point.number}\n{point.figure_title(v_wall=False)}\n"
               rf"{run.label_latex}, $r_* = {as_latex(r_star)}$"
     )
@@ -239,7 +276,9 @@ def lattice_comparisons(
         runs: dict[str, LatticeRun],
         engines: Iterable[Engine] | None = None,
         name: str = CHRW25_NAME,
-        ssm_settings: SSMSettings | None = None) -> dict[str, LatticeComparison]:
+        ssm_settings: SSMSettings | None = None,
+        references: dict[str, LatticeRun] | None = None,
+        reference_name: str = CHW19_NAME) -> dict[str, LatticeComparison]:
     r"""Compare the GW power spectra of lattice simulations to those of the engines at the points of a model.
 
     For each simulation, the point of the model whose $\alpha$ is closest to the $\alpha_n$ of the simulation
@@ -252,14 +291,19 @@ def lattice_comparisons(
         defaults to all the engines except those for strong transitions only, i.e. ``CosWG24bpl``
     :param name: Name of the simulations in the labels
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+    :param references: Reference simulations by the names of the simulations, which need not cover all of them,
+        e.g. from :py:func:`load_chw19_references`
+    :param reference_name: Name of the reference simulations in the labels
     :return: Comparisons by the names of the simulations
     """
     engines = None if engines is None else list(engines)
+    references = {} if references is None else references
     comparisons: dict[str, LatticeComparison] = {}
     for run_name, run in runs.items():
         with log_exceptions(logger, "Failed to plot the lattice spectra of %s for %s", run_name, model.name):
             comparisons[run_name] = lattice_comparison_at_point(
-                model.closest_point(run.alpha_n), run, engines, name=name, ssm_settings=ssm_settings
+                model.closest_point(run.alpha_n), run, engines, name=name, ssm_settings=ssm_settings,
+                reference=references.get(run_name), reference_name=reference_name
             )
     return comparisons
 
@@ -268,7 +312,9 @@ def lattice_curves(
         spectrum: PowerSpectrumLattice,
         accumulated: bool = True,
         asymptote: bool = True,
-        rate: bool = False) -> dict[str, SpectrumCurve]:
+        rate: bool = False,
+        color: str = COLOR,
+        accumulated_color: str | None = None) -> dict[str, SpectrumCurve]:
     r"""Curves of the spectra of a lattice simulation for :py:func:`ptplot.science.plot.ps.power_spectrum_figure`.
 
     The curves are drawn only below the lattice artifact at high $k$,
@@ -282,6 +328,8 @@ def lattice_curves(
         see :py:attr:`ptplot.science.spectrum.lattice.PowerSpectrumLattice.omgw0_h2_asymptote`
     :param rate: whether to draw the spectrum converted from the GW power growth rate,
         see :py:attr:`ptplot.science.spectrum.lattice.PowerSpectrumLattice.omgw0_h2_rate`
+    :param color: color of the spectrum scaled to the asymptotic GW power
+    :param accumulated_color: color of the spectrum from the accumulated GW power, defaults to the faded ``color``
     :return: curves by the names ``NAME_CONVERSION``, where ``CONVERSION`` is that of
         :py:class:`ptplot.science.spectrum.lattice.LatticeConversion`
     """
@@ -291,12 +339,13 @@ def lattice_curves(
     curves: dict[str, SpectrumCurve] = {}
     if accumulated:
         curves[f"{name}_{LatticeConversion.ACCUMULATED}"] = SpectrumCurve(
-            f=f[valid], omgw0_h2=spectrum.omgw0_h2[valid], color=ACCUMULATED_COLOR, linestyle=LINESTYLE,
+            f=f[valid], omgw0_h2=spectrum.omgw0_h2[valid],
+            color=faded(color) if accumulated_color is None else accumulated_color, linestyle=LINESTYLE,
             label=rf"{name}, $\mathcal{{P}}_\mathrm{{gw}}$, ${spectrum.t_label}$"
         )
     if asymptote:
         curves[f"{name}_{LatticeConversion.ASYMPTOTE}"] = SpectrumCurve(
-            f=f[valid], omgw0_h2=spectrum.omgw0_h2_asymptote[valid], color=COLOR, linestyle=LINESTYLE,
+            f=f[valid], omgw0_h2=spectrum.omgw0_h2_asymptote[valid], color=color, linestyle=LINESTYLE,
             label=rf"{name}, $\mathcal{{P}}_\mathrm{{gw}}$, $t \to \infty$"
         )
     if rate:
@@ -363,6 +412,26 @@ def lattice_figures(
             model, runs, engines, name=name, ssm_settings=ssm_settings
         ).items()
     }
+
+
+def load_chw19_references(
+        path: str | os.PathLike[str] | None = None,
+        missing_ok: bool = True) -> dict[str, LatticeRun]:
+    r"""Load the runs of :cutting_2019:`\ ` of :py:data:`CHW19_RUNS` as references for those of :correia_2025:`\ `.
+
+    :param path: directory of the data, defaults to :py:func:`pttools.lattice.chw19.data_dir`
+    :param missing_ok: whether to return an empty dict with a warning instead of raising an error
+        if the data is not found
+    :return: the runs by the keys of :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`
+    :raises FileNotFoundError: if the data is not found and ``missing_ok`` is False
+    """
+    root = chw19_data_dir() if path is None else Path(path)
+    if root is None or not root.is_dir():
+        if missing_ok:
+            logger.warning("The data of Cutting et al. was not found. Leaving it out of the lattice figures.")
+            return {}
+        raise FileNotFoundError(f"The data of Cutting et al. was not found: {root}")
+    return {name: load_chw19_run(run_name, path=root) for name, run_name in CHW19_RUNS.items()}
 
 
 def ssm_curves(

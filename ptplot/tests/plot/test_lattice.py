@@ -10,7 +10,7 @@ import typing as tp
 from django.test import TestCase
 from matplotlib.figure import Figure
 import numpy as np
-from pttools.lattice import LatticeRun, load_chrw25_runs
+from pttools.lattice import LatticeRun, load_chrw25_runs, load_chw19_runs
 from pttools.math import as_latex
 from pttools.ssm.nucleation import NucType
 from pttools.ssm.settings import SSMSettings
@@ -20,18 +20,22 @@ from ptplot.models import Model, ParameterChoice
 from ptplot.science.noise import resolve_noise
 from ptplot.science.plot.lattice import (
     ACCUMULATED_COLOR,
+    CHW19_RUNS,
     COLOR,
     LINESTYLE,
+    REFERENCE_COLOR,
     YLIM,
     lattice_comparison,
     lattice_comparison_at_point,
+    lattice_comparisons,
     lattice_curves,
     lattice_figure,
     lattice_figures,
+    load_chw19_references,
     ssm_curves,
 )
 from ptplot.science.plot.utils import faded
-from ptplot.science.spectrum import CHRW25_NAME, Engine, PowerSpectrumLattice, PowerSpectrumSSM
+from ptplot.science.spectrum import CHRW25_NAME, CHW19_NAME, Engine, PowerSpectrumLattice, PowerSpectrumSSM
 from ptplot.tests.plot.test_ps import labels
 
 #: Engines that are quick enough to be drawn in the tests. The SSM is excluded, as it's slow.
@@ -40,8 +44,19 @@ ENGINES: tuple[Engine, ...] = (Engine.CosWG20bpl, Engine.GH21dbpl)
 POINT_ENGINES: tuple[Engine, ...] = (*ENGINES, Engine.SSM)
 #: Low accuracy settings of the SSM spectra, as only their structure and $r_*$ are tested
 SSM_SETTINGS: SSMSettings = SSMSettings(n_z_lookup=500, nT=100)
+#: Run of Cutting et al. with the same parameters as the detonation of Correia et al.
+CHW19_DETONATION: str = "alph-0.67-vw-0.92-Nb-8-L-960-dx-1.0"
 #: Labels of the curves of :py:data:`POINT_ENGINES`
 POINT_ENGINE_LABELS: list[str] = [engine.spectrum.SHORT_NAME for engine in ENGINES] + ["SSM, exp.", "SSM, simult."]
+
+
+@functools.cache
+def chw19_runs() -> dict[str, LatticeRun]:
+    """The detonation of Cutting et al. of :py:data:`CHW19_DETONATION`, or an empty dict if it's not available."""
+    try:
+        return load_chw19_runs([CHW19_DETONATION])
+    except FileNotFoundError:
+        return {}
 
 
 @functools.cache
@@ -159,6 +174,32 @@ class LatticeFigureTest(TestCase):
         with pytest.raises(ValueError, match="must include the SSM"):
             lattice_comparison_at_point(point, run, engines=ENGINES)
 
+    def test_lattice_comparisons_references(self) -> None:
+        """The reference simulations should be drawn at the same r_* as the simulations they correspond to."""
+        if not runs():
+            pytest.skip("The data of the lattice simulations is not available.")
+        references = load_chw19_references()
+        if not references:
+            pytest.skip("The data of Cutting et al. is not available.")
+        assert list(references) == list(CHW19_RUNS) == list(runs())
+        # Only the detonation has a reference, to test that the references need not cover all the runs.
+        references = {"detonation": references["detonation"]}
+        comparisons = lattice_comparisons(
+            self.model, runs(), engines=POINT_ENGINES, ssm_settings=SSM_SETTINGS, references=references
+        )
+        assert f"{CHW19_NAME}_accumulated" not in comparisons["deflagration"].curves
+        curve = comparisons["detonation"].curves[f"{CHW19_NAME}_accumulated"]
+        assert curve.color == REFERENCE_COLOR
+        run = runs()["detonation"]
+        reference = references["detonation"]
+        assert (reference.v_wall, reference.alpha_n) == (run.v_wall, run.alpha_n)
+        point = self.model.closest_point(run.alpha_n)
+        ssm = point.power_spectrum(engine=Engine.SSM, v_wall=run.v_wall, ssm_settings=SSM_SETTINGS)
+        lattice = PowerSpectrumLattice(
+            reference, r_star=ssm.r_star, T_star=point.T_star_value, g_star=point.g_star_value
+        )
+        np.testing.assert_allclose(curve.omgw0_h2, lattice.omgw0_h2[lattice.valid], rtol=1e-12)
+
     def test_lattice_figures_error(self) -> None:
         """A figure that cannot be created should be logged and skipped."""
         empty = Model.objects.create(
@@ -215,6 +256,40 @@ def test_lattice_comparison(tmp_path: Path) -> None:
         rows = list(csv.DictReader(file))
     assert [row["name"] for row in rows] == names
     assert [float(row["snr"]) for row in rows] == pytest.approx(list(comparison.snrs.values()))
+
+
+def test_lattice_curves_color() -> None:
+    """The colors of the curves can be changed, and the accumulated one is faded by default."""
+    if not runs():
+        pytest.skip("The data of the lattice simulations is not available.")
+    spectrum = PowerSpectrumLattice(runs()["detonation"], r_star=0.1, name="sim")
+    assert [curve.color for curve in lattice_curves(spectrum).values()] == [ACCUMULATED_COLOR, COLOR]
+    assert [curve.color for curve in lattice_curves(spectrum, color="red").values()] == [faded("red"), "red"]
+    assert [
+        curve.color for curve in lattice_curves(spectrum, color="red", accumulated_color="blue").values()
+    ] == ["blue", "red"]
+
+
+def test_lattice_comparison_references() -> None:
+    """The reference simulations should be drawn after the simulation, only from the accumulated GW power."""
+    if not runs() or not chw19_runs():
+        pytest.skip("The data of the lattice simulations is not available.")
+    run = runs()["detonation"]
+    reference_run = chw19_runs()[CHW19_DETONATION]
+    assert (reference_run.v_wall, reference_run.alpha_n) == (run.v_wall, run.alpha_n)
+    lattice = PowerSpectrumLattice(run, r_star=0.1, name="sim")
+    reference = PowerSpectrumLattice(reference_run, r_star=0.1, name=CHW19_NAME)
+    spectra = [engine.spectrum(v_wall=run.v_wall, alpha=run.alpha_n, r_star=0.1) for engine in ENGINES]
+    comparison = lattice_comparison(lattice, spectra, references=[reference])
+    assert list(comparison.curves) == ["sim_accumulated", "sim_asymptote", f"{CHW19_NAME}_accumulated"] + [
+        engine.spectrum.SHORT_NAME for engine in ENGINES
+    ]
+    curve = comparison.curves[f"{CHW19_NAME}_accumulated"]
+    assert curve.color == REFERENCE_COLOR
+    assert curve.label.startswith(rf"{CHW19_NAME}, $\mathcal{{P}}_\mathrm{{gw}}$, $t=")
+    np.testing.assert_allclose(curve.omgw0_h2, reference.omgw0_h2[reference.valid], rtol=1e-12)
+    assert np.isfinite(comparison.snrs[f"{CHW19_NAME}_accumulated"])
+    assert labels(comparison.figure())[2] == curve.label
 
 
 def test_ssm_curves() -> None:

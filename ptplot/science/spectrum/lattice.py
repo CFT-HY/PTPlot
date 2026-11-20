@@ -1,7 +1,8 @@
 r"""GW power spectra of hydrodynamic lattice simulations, converted to the GW power spectrum today.
 
 The simulations are those of :py:mod:`pttools.lattice`, e.g. the runs of :correia_2025:`\ `,
-see :py:func:`pttools.lattice.chrw25.load_chrw25_runs`.
+see :py:func:`pttools.lattice.chrw25.load_chrw25_runs`, and those of :cutting_2019:`\ `,
+see :py:func:`pttools.lattice.chw19.load_chw19_run`.
 The simulated GW power spectra are converted to the GW power spectrum today in two ways:
 
 - From the GW power spectrum $\mathcal{P}_\text{gw}$ that has accumulated by the time step,
@@ -38,10 +39,12 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.ssm import BAG
 from ptplot.science.type_hints import FloatArr1D
 
-__all__ = ["CHRW25_NAME", "LatticeConversion", "PowerSpectrumLattice"]
+__all__ = ["CHRW25_NAME", "CHW19_NAME", "LatticeConversion", "PowerSpectrumLattice"]
 
 #: Name of the simulations of :correia_2025:`\ ` in the labels of the figures
 CHRW25_NAME: str = "CHRW25sim"
+#: Name of the simulations of :cutting_2019:`\ ` in the labels of the figures
+CHW19_NAME: str = "CHW19sim"
 
 
 class LatticeConversion(StrEnum):
