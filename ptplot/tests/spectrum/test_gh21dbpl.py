@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 from pttools.omgw0.const import H
+from pttools.ssm.suppression import DEFAULT_SUPPRESSION, SuppressionMethod
 import pytest
 
 from ptplot.science.spectrum.gh21dbpl import (
@@ -169,6 +170,37 @@ class DBPL2021Test(PowerSpectrumBaseCase2020[GH21dbpl], unittest.TestCase):
         np.testing.assert_allclose(fit.omega_p_hat, default.omega_p_hat[ix], rtol=1e-6)
         np.testing.assert_allclose(fit.b, default.b[ix], rtol=1e-6)
         np.testing.assert_allclose(params.rb, default.rb[ix], rtol=1e-6)
+
+    @staticmethod
+    def test_suppression_gowling() -> None:
+        r"""The default $\Sigma$ should be that of the original code of :gowling_2021:`\ `.
+
+        The reference values are from ``get_high_alpha_suppression_factor`` of ``gwtools.py``
+        of the original code of the article, as in the tests of :py:data:`pttools.ssm.suppression.GH21`.
+        The point $v_{\text{wall}} = 0.4, \alpha_n = 0.01$ is outside the convex hull of the data points,
+        and gets the fill value.
+        """
+        for v_wall, alpha_n, ref in ((0.6, 0.1, 1.1193362973), (0.85, 0.3, 0.7019962364), (0.4, 0.01, 0.497138)):
+            spectrum = GH21dbpl(v_wall=v_wall, alpha=alpha_n, r_star=0.1)
+            assert spectrum.suppression_factor == pytest.approx(ref, rel=1e-9)
+
+    @staticmethod
+    def test_suppression_pttools() -> None:
+        r"""The default suppression of PTtools should be usable instead of that of :gowling_2021:`\ `.
+
+        $\Omega_{p,0}$ should be proportional to $\Sigma$.
+        """
+        spectrum = GH21dbpl(v_wall=0.6, alpha=0.1, r_star=0.1)
+        spectrum_pttools = GH21dbpl(
+            v_wall=0.6, alpha=0.1, r_star=0.1,
+            suppression=DEFAULT_SUPPRESSION, suppression_method=SuppressionMethod.EXT_CONSTANT
+        )
+        assert spectrum_pttools.suppression_factor == pytest.approx(
+            DEFAULT_SUPPRESSION.suppression(v_wall=0.6, alpha_n=0.1, method=SuppressionMethod.EXT_CONSTANT), rel=1e-14
+        )
+        assert spectrum_pttools.omega_peak_h2() / spectrum.omega_peak_h2() == pytest.approx(
+            spectrum_pttools.suppression_factor / spectrum.suppression_factor, rel=1e-14
+        )
 
     def test_requires_v_wall(self) -> None:
         r"""The SSM fit requires $v_{\text{wall}}$."""

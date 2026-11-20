@@ -22,7 +22,7 @@ from numpy.lib.npyio import NpzFile
 from pttools.omgw0.const import H
 from pttools.speedup import njit
 from pttools.ssm import J_old
-from pttools.ssm.suppression import DEFAULT_SUPPRESSION, Suppression, SuppressionMethod
+from pttools.ssm.suppression import GH21, Suppression, SuppressionMethod
 from pttools.utils.system import pttools_version
 from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import curve_fit
@@ -133,6 +133,11 @@ class GH21dbpl(CosWG20):
     where the spectral parameters $\hat{\Omega}_p$, $z_p$, $r_b = z_b / z_p$ and $b$
     are interpolated from the fit of the DBPL to the SSM spectra (:py:func:`cached_dbpl_fit`),
     and $\Sigma$ is the kinetic energy suppression factor of :py:mod:`pttools.ssm.suppression`.
+    By default, $\Sigma$ is that of :gowling_2021:`\ ` app. A, :py:data:`pttools.ssm.suppression.GH21`,
+    with its fill value outside the convex hull of the data points
+    (:py:attr:`pttools.ssm.suppression.SuppressionMethod.EXT_FILL`), as in the original code of the article.
+    The earlier default of this class is
+    ``suppression=pttools.ssm.suppression.DEFAULT_SUPPRESSION, suppression_method=SuppressionMethod.EXT_CONSTANT``.
     The SSM fit covers $0.4 \leq v_{\text{wall}} \leq 0.9$ and $0.01 \leq \alpha_n \leq 0.5$.
     Outside this range the parameters at the closest edge of the grid are used.
 
@@ -170,8 +175,8 @@ class GH21dbpl(CosWG20):
             zb: float | None = None,
             zp: float | None = None,
             b: float | None = None,
-            suppression: Suppression = DEFAULT_SUPPRESSION,
-            suppression_method: SuppressionMethod = SuppressionMethod.EXT_CONSTANT,
+            suppression: Suppression = GH21,
+            suppression_method: SuppressionMethod = SuppressionMethod.EXT_FILL,
             data_path: str | os.PathLike[str] = SSM_DATA_PATH,
             fit_path: str | os.PathLike[str] = SSM_FIT_PATH,
         ):
@@ -183,8 +188,10 @@ class GH21dbpl(CosWG20):
         :param zp: $z_p$, peak angular frequency in units of the mean bubble separation.
             Defaults to the SSM fit, or to :py:data:`ptplot.science.spectrum.coswg20.DEFAULT_ZP` with ``legacy``.
         :param b: $b$, spectral slope between the breaks. Defaults to the SSM fit, or to 1 with ``legacy``.
-        :param suppression: Kinetic energy suppression data. Not used with ``legacy``.
-        :param suppression_method: Kinetic energy suppression method. Not used with ``legacy``.
+        :param suppression: Kinetic energy suppression data. Defaults to that of :gowling_2021:`\ `.
+            Not used with ``legacy``.
+        :param suppression_method: Kinetic energy suppression method. Defaults to the fill value of the dataset
+            outside the convex hull of its data points, as in :gowling_2021:`\ `. Not used with ``legacy``.
         :param data_path: Path to the SSM spectra, see :py:func:`cached_dbpl_fit`. Not used with ``legacy``.
         :param fit_path: Path to the cache file of the fit, see :py:func:`cached_dbpl_fit`.
             Not used with ``legacy``.
