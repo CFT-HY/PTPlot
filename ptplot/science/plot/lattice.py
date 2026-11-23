@@ -224,15 +224,15 @@ def lattice_comparison_at_point(
     from which they compute $r_*$ with this $v_\text{wall}$.
     The other parameters are those of the point.
     The simulations are scale-free, and the lattice spectra are therefore evaluated at the $r_*$ of the SSM spectrum.
-    For deflagrations and hybrids, this includes the bubble spacing enlargement factor $\Lambda(h_x)$
+    For deflagrations and hybrids, this includes the bubble spacing enlargement factor $\Lambda_\text{n}(h_x)$
     due to the thermal suppression of nucleation, :ajmi_2022:`\ ` eq. 77,
 
-    $$r_* = \Lambda(h_x) r_*(0), \quad r_*(0) = (8\pi)^\frac{1}{3} \frac{{v}_\text{wall}}{\tilde{\beta}},$$
+    $$r_* = \Lambda_\text{n}(h_x) r_*(0), \quad r_*(0) = (8\pi)^\frac{1}{3} \frac{{v}_\text{wall}}{\tilde{\beta}},$$
 
     where $\tilde{\beta} \equiv \beta/H_*$, see :py:func:`pttools.ssm.nucleation.R_star`.
     The other engines use $r_*(0)$, and their spectra are therefore not evaluated at the same $r_*$
     as the lattice spectra for deflagrations and hybrids.
-    For detonations, $\Lambda = 1$, and all the spectra have the same $r_*$.
+    For detonations, $\Lambda_\text{n} = 1$, and all the spectra have the same $r_*$.
     The spectrum of the reference simulation is evaluated at the same $r_*$ as that of the simulation.
     See :py:func:`lattice_comparison`.
 
