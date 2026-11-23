@@ -7,7 +7,7 @@ Broken power law by Mark Hindmarsh (Sep 2015), inspired by Antoine Petiteau's
 ExampleUseSNR1.py v0.3 (May 2015)
 """
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from multiprocessing import set_forkserver_preload
 import typing as tp
@@ -23,6 +23,7 @@ from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise, resolve_noise
+from ptplot.science.point import PointBase
 from ptplot.science.snr.point import export_records, param_names, snr_point
 from ptplot.science.snr.ssm import snr_column_ssm
 from ptplot.science.spectrum.engine import Engine
@@ -64,7 +65,7 @@ class GridAxes:
     r_star_max: float | None = None
 
 
-class SNRGrid(ABC):  # noqa: B024
+class SNRGrid(ABC):
     r"""SNR values on a grid of two parameters.
 
     The grid is computed when the object is created,
@@ -168,6 +169,9 @@ class SNRGrid(ABC):  # noqa: B024
         self.T_star: float = T_star
         self.g_star: float = g_star
         self.v_wall: float = v_wall
+        self.adiabatic_index: float = adiabatic_index
+        self.model: Model = model
+        self.legacy_nucleation_cs_max: bool = legacy_nucleation_cs_max
         self.noise: Noise = resolve_noise(noise)
         self.engine: Engine = engine
         self.name: str = engine if name is None else name
@@ -265,6 +269,15 @@ class SNRGrid(ABC):  # noqa: B024
     def has_points(self) -> bool:
         """Whether the grid has points to be drawn on top of it."""
         return self.x_points is not None and self.y_points is not None
+
+    @abstractmethod
+    def point_coords(self, point: PointBase) -> tuple[float, float]:
+        """Get the x and y values of a point in the plane of this grid, e.g. for highlighting it.
+
+        :param point: A point, e.g. a :py:class:`ptplot.science.point.Point`
+            or a :py:class:`ptplot.models.parameter_choice.ParameterChoice`
+        :return: x and y values of the point
+        """
 
     def points(self) -> tuple[FloatOrArrOrList1D2D, FloatOrArrOrList1D2D]:
         """Get the x and y values of the points to be drawn on top of the grid.

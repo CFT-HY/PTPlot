@@ -11,7 +11,6 @@ import plotly.graph_objects as go
 import pytest
 
 from ptplot.science import const
-from ptplot.science.plot.logarithmic import flat_points
 from ptplot.science.plot.snr import (
     PARAM_LABELS_HTML,
     PLOTLY_HIGHLIGHT_LEGENDRANK,
@@ -23,6 +22,7 @@ from ptplot.science.plot.snr import (
 )
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.point import Point
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_ubarf_rstar import SNRGridUbarfRStar
@@ -35,8 +35,12 @@ ALPHA_POINTS: list[FloatArr1D] = [np.array([0.1, 0.2]), np.array([0.5])]
 BETA_TILDE_POINTS: list[FloatArr1D] = [np.array([100., 50.]), np.array([20.])]
 LABELS: list[list[str]] = [["A", "B"], ["C"]]
 TITLES: list[str] = ["Scenario 1", "Scenario 2"]
-#: Highlighted points by their indices in the flattened points, i.e. "B" and "C"
-HIGHLIGHTS: dict[str, int] = {"Highlight 1": 1, "Highlight 2": 2}
+#: Highlighted points: "B", "C", and a point with another $v_\text{wall}$, which is not a point of the grids
+HIGHLIGHTS: dict[str, Point] = {
+    "Highlight 1": Point(alpha=0.2, beta_tilde=50., v_wall=const.DEFAULT_V_WALL),
+    "Highlight 2": Point(alpha=0.5, beta_tilde=20., v_wall=const.DEFAULT_V_WALL),
+    "Highlight 3": Point(alpha=0.3, beta_tilde=30., v_wall=0.5),
+}
 
 
 @functools.cache
@@ -162,14 +166,13 @@ class SNRFigureHighlightTest(TestCase):
     """Tests for the highlighted points and the subplots of the SNR figures."""
 
     @staticmethod
-    def test_flat_points() -> None:
-        """The points of the scenarios should follow each other."""
-        x, y = flat_points(ALPHA_POINTS, BETA_TILDE_POINTS)
-        np.testing.assert_array_equal(x, [0.1, 0.2, 0.5])
-        np.testing.assert_array_equal(y, [100., 50., 20.])
-        x, y = flat_points(0.1, 100.)
-        np.testing.assert_array_equal(x, [0.1])
-        np.testing.assert_array_equal(y, [100.])
+    def test_highlight_coords() -> None:
+        """The points of the grids should be highlighted at their places on the grids."""
+        for figure in highlighted_figures():
+            x_points, y_points = atleast_2d(*figure.grid.points())
+            coords = figure.highlight_coords()
+            np.testing.assert_allclose(coords["Highlight 1"], (x_points[0][1], y_points[0][1]))
+            np.testing.assert_allclose(coords["Highlight 2"], (x_points[1][0], y_points[1][0]))
 
     @staticmethod
     def test_matplotlib() -> None:
@@ -181,11 +184,11 @@ class SNRFigureHighlightTest(TestCase):
                 legend = ax.get_legend()
                 assert legend is not None
                 assert [text.get_text() for text in legend.get_texts()] == TITLES + list(HIGHLIGHTS)
-                x_flat, y_flat = flat_points(*grid.points())
                 highlighted = ax.get_lines()[-len(HIGHLIGHTS):]
-                for line, index in zip(highlighted, HIGHLIGHTS.values(), strict=True):
-                    np.testing.assert_allclose(np.asarray(line.get_xdata(), dtype=np.float64), np.log10(x_flat[index]))
-                    np.testing.assert_allclose(np.asarray(line.get_ydata(), dtype=np.float64), np.log10(y_flat[index]))
+                for line, point in zip(highlighted, HIGHLIGHTS.values(), strict=True):
+                    x, y = grid.point_coords(point)
+                    np.testing.assert_allclose(np.asarray(line.get_xdata(), dtype=np.float64), np.log10(x))
+                    np.testing.assert_allclose(np.asarray(line.get_ydata(), dtype=np.float64), np.log10(y))
                 # The points should be drawn above the markers of the highlighted points.
                 points = ax.get_lines()[:-len(HIGHLIGHTS)]
                 assert points
@@ -197,11 +200,11 @@ class SNRFigureHighlightTest(TestCase):
         for figure in highlighted_figures():
             grid = figure.grid
             fig = figure.plotly()
-            x_flat, y_flat = flat_points(*grid.points())
-            for label, index in HIGHLIGHTS.items():
+            for label, point in HIGHLIGHTS.items():
                 trace = next(fig.select_traces(selector={"name": label}))
-                np.testing.assert_allclose(trace.x, [np.log10(x_flat[index])])
-                np.testing.assert_allclose(trace.y, [np.log10(y_flat[index])])
+                x, y = grid.point_coords(point)
+                np.testing.assert_allclose(trace.x, [np.log10(x)])
+                np.testing.assert_allclose(trace.y, [np.log10(y)])
             # The points should be drawn above the highlighted points, but listed before them in the legend.
             traces = list(fig.select_traces())
             highlight_indices = [i for i, trace in enumerate(traces) if trace.name in HIGHLIGHTS]
@@ -220,13 +223,20 @@ class SNRFigureHighlightTest(TestCase):
 
     @staticmethod
     def test_highlights_without_points() -> None:
-        """Points cannot be highlighted on a grid without points."""
+        """Points can be highlighted also on a grid without points."""
         grid = SNRGridAlphaBeta(
             T_star=const.DEFAULT_T_STAR, g_star=const.DEFAULT_G_STAR, v_wall=const.DEFAULT_V_WALL,
-            alpha_n=np.array([0.1, 1.]), beta_tilde=np.array([100., 1000.])
+            alpha_n=np.array([0.1, 1.]), beta_tilde=np.array([10., 100.])
         )
-        with pytest.raises(ValueError, match="no points"):
-            SNRFigureAlphaBeta(grid, highlights=HIGHLIGHTS)
+        for figure in (SNRFigureAlphaBeta(grid, highlights=HIGHLIGHTS), SNRFigureAlphaBeta(grid, filled=True)):
+            legend = figure.matplotlib().get_axes()[0].get_legend()
+            if figure.highlights:
+                assert legend is not None
+                assert [text.get_text() for text in legend.get_texts()] == list(HIGHLIGHTS)
+            else:
+                assert legend is None
+        traces = SNRFigureAlphaBeta(grid, highlights=HIGHLIGHTS).plotly().select_traces()
+        assert [trace.name for trace in traces if trace.name in HIGHLIGHTS] == list(HIGHLIGHTS)
 
     @staticmethod
     def test_figure_grid() -> None:

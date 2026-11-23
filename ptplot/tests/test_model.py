@@ -2,12 +2,16 @@
 
 from django.test import TestCase
 import numpy as np
+from pttools.lattice.params import LatticeRunParams
+from pttools.ssm.nucleation import NucType
 import pytest
 
+from ptplot.methods.lattice import find_closest_points
 from ptplot.models import Model, ParameterChoice, Scenario
 from ptplot.science import const
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.point import Point
 from ptplot.science.snr.grid import GridAxes
 from ptplot.science.snr.grid_comparison import engine_comparisons
 from ptplot.science.snr.point import snr_point
@@ -21,6 +25,13 @@ POINTS: tuple[tuple[int, float, float, float | None, int], ...] = (
     (2, 0.1, 50, 70, 1),
     (3, 0.5, 200, 80, 2),
     (4, 0.2, 20, 120, 1),
+)
+#: Parameters of lattice runs, whose $\alpha_n$ are closest to those of the points 1 and 4
+LATTICE_RUNS: tuple[LatticeRunParams, ...] = (
+    LatticeRunParams(name="weak", subdir="weak", v_wall=0.5, alpha_n=0.28, nuc_type=NucType.SIMULTANEOUS),
+    LatticeRunParams(
+        name="other", subdir="other", v_wall=0.6, alpha_n=0.19, nuc_type=NucType.EXPONENTIAL, label="Other run"
+    ),
 )
 #: $T_*$ of the model, which is used for the points that don't have their own
 MODEL_T_STAR: float = 100
@@ -68,6 +79,22 @@ class ModelTest(TestCase):
         with pytest.raises(ValueError, match="no points"):
             self.empty_model.closest_point(0.1)
 
+    def test_find_closest_points(self) -> None:
+        """The closest points of the model should be found with the labels of the lattice runs."""
+        points = find_closest_points(self.model, LATTICE_RUNS)
+        assert {label: point.number for label, point in points.items()} == {"Weak": 1, "Other run": 4}
+
+    def test_lattice_points(self) -> None:
+        r"""The points should have the $\alpha_n$ and $v_\text{wall}$ of the runs,
+        and the $\beta/H_*$ of the closest points.
+        """  # noqa: D205
+        assert self.model.lattice_points(LATTICE_RUNS) == {
+            "Weak": Point(alpha=0.28, beta_tilde=100, v_wall=0.5),
+            "Other run": Point(alpha=0.19, beta_tilde=20, v_wall=0.6),
+        }
+        with pytest.raises(ValueError, match="no points"):
+            self.empty_model.lattice_point(LATTICE_RUNS[0])
+
     def test_point_index(self) -> None:
         """The index should be that of the point in the arrays of the points of the model."""
         _, alpha, *_ = self.model.point_data_by_field()
@@ -111,7 +138,10 @@ class ModelTest(TestCase):
     def test_snr_figures(self) -> None:
         """The figures should be created for the grids of both types, with the highlighted points."""
         axes = GridAxes(size=TEST_GRID_SIZE)
-        highlights = {"Highlight": self.model.point_index(self.model.closest_point(0.5))}
+        highlights = {
+            "Highlight": self.model.closest_point(0.5),
+            "Lattice": Point(alpha=0.4, beta_tilde=20, v_wall=0.5),
+        }
         grids_ab = {
             engine: self.model.snr_grid_alpha_beta(engine=engine, axes=axes, by_scenario=False)
             for engine in (Engine.CosWG20bpl, Engine.GH21dbpl, Engine.CosWG24dbpl)

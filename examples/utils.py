@@ -1,5 +1,6 @@
 """Utilities for PTPlot examples"""
 
+from collections.abc import Mapping
 import contextlib
 import logging
 import os
@@ -20,6 +21,7 @@ if tp.TYPE_CHECKING:
     import numpy as np
 
     from ptplot.models import Model
+    from ptplot.science.point import PointBase
     from ptplot.science.snr.grid import SNRGrid
     from ptplot.science.spectrum import Engine
 
@@ -146,7 +148,7 @@ def save_snr_figures(
         name: str,
         fig_dir: str | os.PathLike[str] = FIG_DIR,
         subdir: str | None = None,
-        highlights: dict[str, int] | None = None,
+        highlights: "Mapping[str, PointBase] | None" = None,
         log_errors: bool = False) -> None:
     """Save the SNR figures of a grid of a model, both unfilled and filled, and the interactive HTML figure.
 
@@ -155,7 +157,7 @@ def save_snr_figures(
     :param name: Name of the figures
     :param fig_dir: Figure directory
     :param subdir: Subdirectory within the directory of each format, defaults to the slug of the model
-    :param highlights: Labels of the points to be highlighted, and their indices,
+    :param highlights: Labels of the points to be highlighted, and the points,
         see :py:class:`~ptplot.science.plot.snr.SNRFigure`
     :param log_errors: Whether to log the exceptions of each figure instead of raising them,
         so that a failure in one figure does not prevent saving the others,

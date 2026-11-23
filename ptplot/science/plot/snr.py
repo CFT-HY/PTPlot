@@ -6,7 +6,7 @@ In the interactive figures, clicking on the SNR plot shows the power spectrum at
 """
 
 import base64
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import json
 from pathlib import Path
 import typing as tp
@@ -25,7 +25,6 @@ from ptplot.science.plot.logarithmic import (
     HIGHLIGHT_MARKERS,
     add_highlights,
     add_points,
-    flat_points,
     log_figure,
     nested_labels,
 )
@@ -39,6 +38,7 @@ from ptplot.science.plot.utils import (
     subplot_grid,
     watermark,
 )
+from ptplot.science.point import PointBase
 from ptplot.science.snr.grid import SNRGrid
 import ptplot.science.type_hints as th
 from ptplot.science.utils import atleast_2d
@@ -135,7 +135,7 @@ class SNRFigure:
             yticklabels: list[str] | None = None,
             label_fontsize: int = const.DEFAULT_LABEL_FONTSIZE,
             contour_label_fontsize: int = 8,
-            highlights: dict[str, int] | None = None):
+            highlights: Mapping[str, PointBase] | None = None):
         r"""Set up the SNR figure. The figures are created by :py:meth:`matplotlib` and :py:meth:`plotly`.
 
         :param grid: Precomputed SNR grid
@@ -158,13 +158,10 @@ class SNRFigure:
         :param yticklabels: Labels of the y-axis ticks in the Matplotlib figure
         :param label_fontsize: Font size of the axis labels in the Matplotlib figure
         :param contour_label_fontsize: Font size of the contour labels
-        :param highlights: Labels of the points of the grid to be highlighted,
-            and their indices in the flattened points, in which the scenarios follow each other,
-            see :py:func:`ptplot.science.plot.logarithmic.flat_points`
-        :raises ValueError: If points are highlighted, but the grid has no points
+        :param highlights: Labels of the points to be highlighted, and the points.
+            They don't have to be points of the grid, e.g. they can be the parameters of lattice simulations.
+            Their coordinates are computed by the grid, see :py:meth:`ptplot.science.snr.grid.SNRGrid.point_coords`.
         """
-        if highlights and not grid.has_points:
-            raise ValueError("Cannot highlight points, as the grid has no points.")
         self.grid: SNRGrid = grid
         self.labels: th.StrOrListOrNestedList | None = grid.labels_points if labels is None else labels
         self.titles: th.StrOrList | None = grid.titles if titles is None else titles
@@ -179,7 +176,7 @@ class SNRFigure:
         self.yticklabels: list[str] | None = yticklabels
         self.label_fontsize: int = label_fontsize
         self.contour_label_fontsize: int = contour_label_fontsize
-        self.highlights: dict[str, int] = {} if highlights is None else highlights
+        self.highlights: Mapping[str, PointBase] = {} if highlights is None else highlights
 
         #: Base-10 logarithms of the x values of the grid
         self.x_log10: th.FloatArr1D = np.log10(grid.x)
@@ -301,8 +298,8 @@ class SNRFigure:
             if grid.has_points:
                 x_points, y_points = grid.points()
                 add_points(ax=ax, x=x_points, y=y_points, labels=self.labels, titles=self.titles)
-                if self.highlights:
-                    add_highlights(ax=ax, x=x_points, y=y_points, highlights=self.highlights)
+            if self.highlights:
+                add_highlights(ax=ax, highlights=self.highlight_coords())
 
             if standalone:
                 add_text(ax, watermark())
@@ -319,6 +316,10 @@ class SNRFigure:
         """
         n_f_grid = self.grid.f.size
         return np.unique(np.linspace(0, n_f_grid - 1, min(n_f, n_f_grid)).round().astype(np.int64))
+
+    def highlight_coords(self) -> dict[str, tuple[float, float]]:
+        """Labels of the highlighted points, and their x and y values in the plane of the grid."""
+        return {label: self.grid.point_coords(point) for label, point in self.highlights.items()}
 
     def initial_indices(self) -> tuple[int, int]:
         """Indices [y, x] of the grid point whose spectrum is shown when the Plotly figure is loaded.
@@ -415,10 +416,10 @@ class SNRFigure:
                 **contour_kwargs
             ), row=1, col=1)
 
+        # The traces are drawn in their order, and the points are therefore added after the highlights,
+        # so that they remain visible within the markers, as in the Matplotlib figure.
+        self._plotly_highlights(fig)
         if grid.has_points:
-            # The traces are drawn in their order, and the points are therefore added after the highlights,
-            # so that they remain visible within the markers, as in the Matplotlib figure.
-            self._plotly_highlights(fig)
             self._plotly_points(fig)
 
         f_indices = self.f_indices(n_f)
@@ -556,12 +557,11 @@ class SNRFigure:
         The highlights are given a larger legend rank than the default,
         so that they are listed after the points in the legend, although they are added before them.
         """
-        x_flat, y_flat = flat_points(*self.grid.points())
-        for i, (label, index) in enumerate(self.highlights.items()):
+        for i, (label, (x, y)) in enumerate(self.highlight_coords().items()):
             # The Plotly marker symbols corresponding to those of Matplotlib
             symbol = PLOTLY_HIGHLIGHT_SYMBOLS[HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)]]
             fig.add_trace(go.Scatter(
-                x=[np.log10(x_flat[index])], y=[np.log10(y_flat[index])],
+                x=[np.log10(x)], y=[np.log10(y)],
                 mode="markers",
                 marker={"symbol": symbol, "size": 14, "color": "red", "line": {"width": 1, "color": "black"}},
                 name=latex_to_html(label),

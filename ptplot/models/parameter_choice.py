@@ -24,6 +24,7 @@ from ptplot.science.plot.ps import power_spectrum_figure
 from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.point import PointBase
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
@@ -38,8 +39,11 @@ if tp.TYPE_CHECKING:
 __all__ = ["ParameterChoice"]
 
 
-class ParameterChoice(models.Model):
-    """A parameter choice, aka. a point, for a particle physics model."""
+class ParameterChoice(PointBase, models.Model):
+    """A parameter choice, aka. a point, for a particle physics model.
+
+    See :py:class:`ptplot.science.point.PointBase` for the methods that do not depend on Django.
+    """
 
     #: Fields for which statistics are computed
     STATS_FIELDS: tp.ClassVar[tuple[str, ...]] = ("alpha", "beta_tilde", "v_wall", "T_star", "g_star")
@@ -126,6 +130,16 @@ class ParameterChoice(models.Model):
     # -----
     # Properties
     # -----
+
+    @property
+    def alpha_value(self) -> float:
+        r"""$\alpha$, phase transition strength of this point."""
+        return self.alpha
+
+    @property
+    def beta_tilde_value(self) -> float:
+        r"""$\tilde{\beta} = \beta/H_*$, inverse phase transition duration of this point."""
+        return self.beta_tilde
 
     @property
     def g_star_value(self) -> float:

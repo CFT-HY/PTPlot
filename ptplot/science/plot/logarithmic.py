@@ -17,7 +17,6 @@ __all__ = [
     "POINTS_ZORDER",
     "add_highlights",
     "add_points",
-    "flat_points",
     "log_figure",
     "nested_labels",
 ]
@@ -70,10 +69,8 @@ def add_points(
 
 def add_highlights(
         ax: Axes,
-        x: th.FloatOrArrOrList1D2D,
-        y: th.FloatOrArrOrList1D2D,
-        highlights: dict[str, int]) -> None:
-    r"""Highlight some of the points of a plot with logarithmic values on linear axes, e.g. an SNR figure.
+        highlights: dict[str, tuple[float, float]]) -> None:
+    r"""Highlight some points of a plot with logarithmic values on linear axes, e.g. an SNR figure.
 
     Each highlighted point is drawn with a marker of its own, which is added to the legend with its label.
     The markers are drawn below the points of :py:func:`add_points`, see :py:data:`HIGHLIGHT_ZORDER`,
@@ -81,36 +78,20 @@ def add_highlights(
     The existing entries of the legend, e.g. those of :py:func:`add_points`, are kept.
 
     :param ax: Axes to draw on
-    :param x: x values of all the points [scenario, point]
-    :param y: y values of all the points [scenario, point]
-    :param highlights: Labels of the highlighted points, and their indices in the flattened points,
-        see :py:func:`flat_points`
+    :param highlights: Labels of the highlighted points, and their x and y values,
+        e.g. from :py:meth:`ptplot.science.snr.grid.SNRGrid.point_coords`
     """
-    x_flat, y_flat = flat_points(x, y)
     legend = ax.get_legend()
     handles: list[tp.Any] = [] if legend is None else list(legend.legend_handles)
     labels: list[str] = [] if legend is None else [text.get_text() for text in legend.get_texts()]
-    for i, (label, index) in enumerate(highlights.items()):
+    for i, (label, (x, y)) in enumerate(highlights.items()):
         handles += ax.plot(
-            np.log10(x_flat[index]), np.log10(y_flat[index]),
+            np.log10(x), np.log10(y),
             marker=HIGHLIGHT_MARKERS[i % len(HIGHLIGHT_MARKERS)], markersize=10,
             color="red", markeredgecolor="black", linestyle="none", zorder=HIGHLIGHT_ZORDER
         )
         labels.append(label)
     ax.legend(handles, labels, loc="lower left", framealpha=0.9)
-
-
-def flat_points(
-        x: th.FloatOrArrOrList1D2D,
-        y: th.FloatOrArrOrList1D2D) -> tuple[th.FloatArr1D, th.FloatArr1D]:
-    """Flatten the points [scenario, point] to 1D arrays, in which the scenarios follow each other.
-
-    :param x: x values of the points [scenario, point]
-    :param y: y values of the points [scenario, point]
-    :return: Flattened x and y values
-    """
-    x2, y2 = atleast_2d(x, y)
-    return np.concatenate([np.ravel(x_set) for x_set in x2]), np.concatenate([np.ravel(y_set) for y_set in y2])
 
 
 def nested_labels(labels: th.StrOrListOrNestedList | None) -> list[list[str]] | None:

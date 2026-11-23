@@ -17,9 +17,13 @@ They are drawn for each model and for the points of both models (``singlets_snr_
 both with all the valid points of each engine, and with only the points for which all the engines
 produced a valid SNR (suffix ``_common``).
 
-The points whose $\alpha_n$ is closest to those of the lattice simulations of :correia_2025:`\ `
+The parameters of the lattice simulations of :correia_2025:`\ `
 (see :py:data:`pttools.lattice.chrw25.CHRW25_RUNS`) are highlighted in the SNR figures.
-For each of these points, the GW power spectra of the simulation are compared to those of the engines,
+As the simulations have no $\beta/H_*$, the highlighted points have that of the point of the model
+whose $\alpha_n$ is closest to that of the simulation, see :py:meth:`ptplot.models.model.Model.lattice_point`.
+With ``--highlight-closest-points``, these closest points of the model are highlighted instead,
+see :py:func:`ptplot.methods.lattice.find_closest_points`.
+For each of these closest points, the GW power spectra of the simulation are compared to those of the engines,
 see :py:func:`ptplot.science.plot.lattice.lattice_comparison_at_point`.
 The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
@@ -53,7 +57,7 @@ from pttools.utils.exceptions import log_exceptions
 from pttools.utils.time import log_duration
 
 from examples.utils import model_csv_path, save_fig, save_model_fig, save_snr_figures, snr_histograms
-from ptplot.methods import setup_django
+from ptplot.methods import find_closest_points, setup_django
 
 if __name__ == "__main__":
     setup_django()
@@ -82,6 +86,7 @@ def create_figures(
         alpha_n_max: float | None = ALPHA_N_MAX,
         T_star_statistic: Statistic = Statistic.MEAN,  # noqa: N803
         histogram_coswg24bpl: bool = True,
+        highlight_closest_points: bool = False,
         max_workers: int = 1) -> np.ndarray | None:
     r"""Create the SNR figures and the histograms of a model.
 
@@ -90,13 +95,16 @@ def create_figures(
         or None for the default range, which covers all the points
     :param T_star_statistic: Which statistic of the $T_*$ of the points to use for the SNR grids
     :param histogram_coswg24bpl: Whether to include CosWG24bpl in the histogram
+    :param highlight_closest_points: Whether to highlight the points of the model whose $\alpha_n$ is closest
+        to those of the lattice simulations instead of the parameters of the simulations
     :param max_workers: Maximum number of worker processes
     :return: SNR values of the points of the model [point, engine] for the histograms,
         or ``None`` if computing them failed
     """
     T_star = model.point_T_star(T_star_statistic)
     logger.info("Using the %s T_star=%.3f GeV of the points of %s.", T_star_statistic, T_star, model.name)
-    highlights = lattice_highlights(model)
+    runs = CHRW25_RUNS.values()
+    highlights = find_closest_points(model, runs) if highlight_closest_points else model.lattice_points(runs)
     axes = GridAxes(alpha_n_max=alpha_n_max)
 
     grids: dict[str, dict[Engine, SNRGrid]] = {"snr_alpha_beta": {}, "snr_ubarf_rstar": {}}
@@ -146,18 +154,6 @@ def histogram_engines(coswg24bpl: bool = True) -> list[Engine]:
     return [engine for engine in Engine.engines(fast=True) if coswg24bpl or engine != Engine.CosWG24bpl]
 
 
-def lattice_highlights(model: Model) -> dict[str, int]:
-    r"""Find the points of a model whose $\alpha_n$ is closest to those of the lattice simulations.
-
-    :param model: Model whose points are searched
-    :return: Names of the simulations, and the indices of the closest points in the SNR grids
-    """
-    return {
-        params.name.capitalize(): model.point_index(model.closest_point(params.alpha_n))
-        for params in CHRW25_RUNS.values()
-    }
-
-
 def save(fig: Figure, model: Model, name: str) -> None:
     """Save a figure of a model in the subdirectory :py:data:`SUBDIR` of the directory of each file format."""
     save_model_fig(fig, model, name, subdir=SUBDIR)
@@ -182,7 +178,8 @@ def main(
         alpha_n_max: float | None = ALPHA_N_MAX,
         T_star_statistic: Statistic | str = Statistic.MEAN,  # noqa: N803
         histogram_coswg24bpl: bool = True,
-        lattice_coswg24bpl: bool = False) -> None:
+        lattice_coswg24bpl: bool = False,
+        highlight_closest_points: bool = False) -> None:
     r"""Create the figures of the singlet scalar models.
 
     :param alpha_n_max: Maximum $\alpha_n$ of the $(\alpha_n, \beta/H_*)$ figures,
@@ -191,6 +188,8 @@ def main(
         e.g. ``"mean"`` or ``"median"``
     :param histogram_coswg24bpl: Whether to include CosWG24bpl in the histograms
     :param lattice_coswg24bpl: Whether to include CosWG24bpl in the comparisons with the lattice simulations
+    :param highlight_closest_points: Whether to highlight the points of the models whose $\alpha_n$ is closest
+        to those of the lattice simulations instead of the parameters of the simulations
     """
     T_star_statistic = Statistic(T_star_statistic)  # noqa: N806
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
@@ -209,6 +208,7 @@ def main(
             alpha_n_max=alpha_n_max,
             T_star_statistic=T_star_statistic,
             histogram_coswg24bpl=histogram_coswg24bpl,
+            highlight_closest_points=highlight_closest_points,
             max_workers=max_workers
         )
         if snr_hist is not None:
@@ -244,10 +244,15 @@ if __name__ == "__main__":
         "--lattice-coswg24bpl", action="store_true",
         help="include CosWG24bpl in the comparisons with the lattice simulations"
     )
+    parser.add_argument(
+        "--highlight-closest-points", action="store_true",
+        help="highlight the points of the models closest to the lattice simulations instead of their parameters"
+    )
     args = parser.parse_args()
     main(
         alpha_n_max=args.alpha_n_max,
         T_star_statistic=Statistic.MEDIAN if args.median else Statistic.MEAN,
         histogram_coswg24bpl=not args.no_histogram_coswg24bpl,
-        lattice_coswg24bpl=args.lattice_coswg24bpl
+        lattice_coswg24bpl=args.lattice_coswg24bpl,
+        highlight_closest_points=args.highlight_closest_points
     )

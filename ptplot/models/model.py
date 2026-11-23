@@ -1,6 +1,6 @@
 """Particle physics models."""
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Mapping, Sequence
 import typing as tp
 
 from django.core import validators
@@ -12,10 +12,12 @@ from matplotlib.figure import Figure
 import numpy as np
 from pandas import DataFrame
 from pttools.export import Exporter
+from pttools.lattice.params import LatticeRunParams
 from pttools.math import as_latex
 from pttools.speedup import MAX_WORKERS_DEFAULT
 from pttools.ssm.settings import SSMSettings
 
+from ptplot.methods.lattice import lattice_label
 from ptplot.methods.models import point_data
 from ptplot.methods.stats import Statistic, related_stats_annotations, window_stats_annotations
 from ptplot.models.const import NAME_MAX_LENGTH
@@ -27,6 +29,7 @@ from ptplot.science.plot.snr_alpha_beta import SNRFigureAlphaBeta
 from ptplot.science.plot.snr_comparison import snr_comparison, snr_comparison_grid
 from ptplot.science.plot.snr_histogram import snr_histogram_figure
 from ptplot.science.plot.snr_ubarf_rstar import SNRFigureUbarfRStar
+from ptplot.science.point import Point, PointBase
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.snr.grid_alpha_beta import SNRGridAlphaBeta
 from ptplot.science.snr.grid_comparison import ComparisonMethod, SNRGridComparison
@@ -198,6 +201,31 @@ class Model(models.Model):
             raise ValueError(f"The model {self.name} has no points.")
         return point
 
+    def lattice_point(self, run: LatticeRunParams) -> Point:
+        r"""Create a point with the parameters of a lattice simulation, e.g. for highlighting it in the SNR figures.
+
+        The point has the $\alpha_n$ and $v_\text{wall}$ of the simulation.
+        As the simulations have no $\beta/H_*$, the point has that of the point of this model
+        whose $\alpha$ is closest to the $\alpha_n$ of the simulation, see :py:meth:`closest_point`.
+
+        :param run: Parameters of the lattice run
+        :return: The point
+        :raises ValueError: If the model has no points
+        """
+        return Point(
+            alpha=run.alpha_n,
+            beta_tilde=self.closest_point(run.alpha_n).beta_tilde,
+            v_wall=run.v_wall,
+        )
+
+    def lattice_points(self, runs: Iterable[LatticeRunParams]) -> dict[str, Point]:
+        """Create points with the parameters of lattice simulations, see :py:meth:`lattice_point`.
+
+        :param runs: Parameters of the lattice runs
+        :return: Labels of the lattice runs, see :py:func:`ptplot.methods.lattice.lattice_label`, and the points
+        """
+        return {lattice_label(run): self.lattice_point(run) for run in runs}
+
     def point_data(self) -> DataFrame:
         """Get the data of the points of this model as a DataFrame."""
         return point_data(self.points.all())
@@ -254,8 +282,7 @@ class Model(models.Model):
     def point_index(self, point: "ParameterChoice") -> int:
         """Get the index of a point of this model in the arrays of :py:meth:`point_data_by_field`.
 
-        This is also the index of the point in the points of the SNR grids created with ``by_scenario=False``,
-        e.g. for highlighting it in the SNR figures.
+        This is also the index of the point in the points of the SNR grids created with ``by_scenario=False``.
 
         :param point: A point of this model
         :return: Index of the point
@@ -288,7 +315,7 @@ class Model(models.Model):
             grid2: SNRGrid,
             method: ComparisonMethod = ComparisonMethod.DEFAULT,
             label: str | None = None,
-            highlights: dict[str, int] | None = None) -> Figure:
+            highlights: Mapping[str, PointBase] | None = None) -> Figure:
         """Compare the SNR values of two grids.
 
         :param grid1: SNR grid of the reference
@@ -296,7 +323,7 @@ class Model(models.Model):
         :param method: How to compare the SNR values
         :param label: Label of the comparison, defaults to a label deduced from the method
             and the names of the grids
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: Figure of the compared SNR values
         """
@@ -308,13 +335,13 @@ class Model(models.Model):
     def snr_comparison_grid(
             self,
             comparisons: Sequence[SNRGridComparison],
-            highlights: dict[str, int] | None = None,
+            highlights: Mapping[str, PointBase] | None = None,
             ncols: int = 2) -> Figure:
         """Plot several comparisons of SNR grids of this model as the subplots of a single figure.
 
         :param comparisons: Comparisons of SNR grids,
             e.g. from :py:func:`ptplot.science.snr.grid_comparison.engine_comparisons`
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :param ncols: Maximum number of columns of subplots
         :return: Figure of the compared SNR values
@@ -325,12 +352,12 @@ class Model(models.Model):
             self,
             grid: SNRGrid,
             filled: bool = False,
-            highlights: dict[str, int] | None = None) -> SNRFigure:
+            highlights: Mapping[str, PointBase] | None = None) -> SNRFigure:
         """Set up the SNR figure of a grid of this model.
 
         :param grid: Precomputed SNR grid
         :param filled: Whether to fill the contour plot
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: SNR figure, which can be drawn with Matplotlib or Plotly
         :raises TypeError: If the type of the grid is not supported
@@ -353,12 +380,12 @@ class Model(models.Model):
             self,
             grid: SNRGridAlphaBeta | None = None,
             filled: bool = False,
-            highlights: dict[str, int] | None = None) -> Figure:
+            highlights: Mapping[str, PointBase] | None = None) -> Figure:
         r"""Plot the SNR of this model in the $(\alpha_n, \beta/H)$ plane.
 
         :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_alpha_beta` if not given
         :param filled: Whether to fill the contour plot
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: SNR figure
         """
@@ -372,13 +399,13 @@ class Model(models.Model):
             self,
             grids: Sequence[SNRGrid],
             filled: bool = False,
-            highlights: dict[str, int] | None = None,
+            highlights: Mapping[str, PointBase] | None = None,
             ncols: int = 2) -> Figure:
         """Plot several SNR grids of this model as the subplots of a single figure, e.g. those of different engines.
 
         :param grids: Precomputed SNR grids
         :param filled: Whether to fill the contour plots
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :param ncols: Maximum number of columns of subplots
         :return: SNR figure
@@ -392,12 +419,12 @@ class Model(models.Model):
             self,
             grid: SNRGridUbarfRStar | None = None,
             filled: bool = False,
-            highlights: dict[str, int] | None = None) -> Figure:
+            highlights: Mapping[str, PointBase] | None = None) -> Figure:
         r"""Plot the SNR of this model in the $(\bar{U}_f, r_*)$ plane.
 
         :param grid: Precomputed SNR grid, computed with the defaults of :py:meth:`snr_grid_ubarf_rstar` if not given
         :param filled: Whether to fill the contour plot
-        :param highlights: Labels of the points to be highlighted, and their indices,
+        :param highlights: Labels of the points to be highlighted, and the points,
             see :py:class:`~ptplot.science.plot.snr.SNRFigure`
         :return: SNR figure
         """

@@ -7,6 +7,7 @@ from pttools.ssm.settings import SSMSettings
 
 from ptplot.science import const
 from ptplot.science.noise import Noise
+from ptplot.science.point import PointBase
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG
@@ -134,3 +135,7 @@ class SNRGridAlphaBeta(SNRGrid):
     def beta_tilde_points(self) -> th.FloatOrArrOrList1D2D | None:
         r"""$\beta/H$ values of the points to be drawn on the grid."""
         return self.y_points
+
+    def point_coords(self, point: PointBase) -> tuple[float, float]:
+        r"""Get the $\alpha$ and $\beta/H$ of a point, see :py:meth:`SNRGrid.point_coords`."""
+        return point.alpha_value, point.beta_tilde_value

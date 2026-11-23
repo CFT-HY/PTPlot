@@ -24,6 +24,7 @@ from ptplot.science.const import (
 )
 from ptplot.science.noise import Noise, noise_curve
 from ptplot.science.parsing import PTPlotParser
+from ptplot.science.point import PointBase
 from ptplot.science.snr.grid import GridAxes, SNRGrid
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.ssm import BAG
@@ -109,6 +110,7 @@ class SNRGridUbarfRStar(SNRGrid):
         """
         if axes is None:
             axes = GridAxes()
+        self.cs: float = cs
         self.v_wall_points: th.FloatOrArrOrList1D2D | None
         ubarf_points: th.FloatOrArrOrList1D2D | None
         r_star_points: th.FloatOrArrOrList1D2D | None
@@ -177,6 +179,17 @@ class SNRGridUbarfRStar(SNRGrid):
     def r_star_points(self) -> th.FloatOrArrOrList1D2D | None:
         r"""$r_*$ values of the points to be drawn on the grid."""
         return self.y_points
+
+    def point_coords(self, point: PointBase) -> tuple[float, float]:
+        r"""Get the $\bar{U}_f$ and $r_*$ of a point, see :py:meth:`SNRGrid.point_coords`.
+
+        They are computed in the same way as those of the points of the grid,
+        see :py:func:`ptplot.science.utils.ubarf_rstar_from_alpha_beta`.
+        """
+        return (
+            point.ubarf(model=self.model, cs=self.cs, adiabatic_index=self.adiabatic_index),
+            point.r_star(cs=self.cs, legacy_nucleation_cs_max=self.legacy_nucleation_cs_max)
+        )
 
 
 def main() -> None:

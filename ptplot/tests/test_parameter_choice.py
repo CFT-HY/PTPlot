@@ -4,6 +4,7 @@ from django.test import TestCase
 import pytest
 
 from ptplot.models import Model, ParameterChoice
+from ptplot.science.point import Point
 from ptplot.science.spectrum import Engine, power_spectrum
 from ptplot.tests.plot.test_ps import labels
 
@@ -111,3 +112,22 @@ def test_figure_title() -> None:
     assert r"v_\mathrm{w}" in p.title
     assert p.figure_title(v_wall=False) == p.title.replace(r"$v_\mathrm{w} = 0.9$, ", "")
     assert r"v_\mathrm{w}" not in p.figure_title(v_wall=False)
+
+
+class PointBaseTest(TestCase):
+    """Tests for the methods inherited from :py:class:`ptplot.science.point.PointBase`."""
+
+    @staticmethod
+    def test_same_as_point() -> None:
+        r"""$\bar{U}_f$ and $r_*$ should be the same as those of a :py:class:`~ptplot.science.point.Point`
+        with the same parameters, with the $v_\text{wall}$ of the model as the default.
+        """  # noqa: D205
+        param_choice = point()
+        assert param_choice.v_wall_value == param_choice.model.v_wall
+        ref = Point(alpha=0.1, beta_tilde=100, v_wall=param_choice.model.v_wall)
+        assert param_choice.ubarf() == ref.ubarf()
+        assert param_choice.r_star() == ref.r_star()
+        param_choice.v_wall = 0.5
+        ref = Point(alpha=0.1, beta_tilde=100, v_wall=0.5)
+        assert param_choice.ubarf() == ref.ubarf()
+        assert param_choice.r_star(legacy_nucleation_cs_max=True) == ref.r_star(legacy_nucleation_cs_max=True)
