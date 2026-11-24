@@ -137,10 +137,13 @@ class LatticeFigureTest(TestCase):
 
     @staticmethod
     def test_lattice_comparison_r_star() -> None:
-        r"""The lattice spectra should have the $r_*$ of the SSM spectrum.
+        r"""The lattice spectra should have the $r_*$ of the nucleation type of the simulation, or of the given one.
 
-        For the deflagration, the $r_*$ of the SSM includes the thermal suppression of nucleation,
-        and is therefore larger than the $r_*(0)$ of the other engines.
+        By default, the lattice spectra have the $r_*$ of the simultaneous nucleation of the simulations,
+        i.e. the $r_*(0)$ of the other engines, which is also that of the SSM spectrum with simultaneous nucleation.
+        With ``nuc_type=NucType.EXPONENTIAL``, they have the $r_*$ of the SSM spectrum with exponential nucleation,
+        which for the deflagration includes the thermal suppression of nucleation,
+        and is therefore larger than $r_*(0)$.
         For the detonation, there is no suppression, and all the spectra have the same $r_*$.
         """
         if not runs():
@@ -148,20 +151,31 @@ class LatticeFigureTest(TestCase):
         model = Model(name="Test", slug="test", T_star=100, g_star=100, v_wall=0.95)
         for name, suppressed in (("deflagration", True), ("detonation", False)):
             run = runs()[name]
+            assert run.nuc_type == NucType.SIMULTANEOUS
             point = ParameterChoice(model=model, number=1, alpha=run.alpha_n, beta_tilde=100)
-            comparison = lattice_comparison_at_point(point, run, engines=POINT_ENGINES, ssm_settings=SSM_SETTINGS)
             ssm = point.power_spectrum(engine=Engine.SSM, v_wall=run.v_wall, ssm_settings=SSM_SETTINGS)
             assert isinstance(ssm, PowerSpectrumSSM)
-            r_star = ssm.r_star
             r_star0 = point.power_spectrum(v_wall=run.v_wall).r_star
-            assert (r_star > 1.01 * r_star0) if suppressed else (r_star == pytest.approx(r_star0, rel=1e-12))
-            lattice = PowerSpectrumLattice(run, r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value)
-            curve = comparison.curves[f"{CHRW25_NAME}_asymptote"]
-            np.testing.assert_allclose(curve.f, lattice.f[lattice.valid], rtol=1e-12)
-            np.testing.assert_allclose(curve.omgw0_h2, lattice.omgw0_h2_asymptote[lattice.valid], rtol=1e-12)
-            for key, ssm_curve in ssm_curves(ssm).items():
-                np.testing.assert_allclose(comparison.curves[key].omgw0_h2, ssm_curve.omgw0_h2, rtol=1e-12)
-            assert rf"$r_* = {as_latex(r_star)}$" in tp.cast(str, comparison.title)
+            assert (ssm.r_star > 1.01 * r_star0) if suppressed else (ssm.r_star == pytest.approx(r_star0, rel=1e-12))
+            ssm_curve_dict = ssm_curves(ssm)
+            # After ssm_curves(), the PTtools spectrum is that of simultaneous nucleation.
+            assert ssm.spectrum is not None
+            assert ssm.spectrum.nuc_type == NucType.SIMULTANEOUS
+            np.testing.assert_allclose(ssm.spectrum.r_star, r_star0, rtol=1e-12)
+            for nuc_type, r_star in (
+                    (None, r_star0), (NucType.SIMULTANEOUS, r_star0), (NucType.EXPONENTIAL, ssm.r_star)):
+                comparison = lattice_comparison_at_point(
+                    point, run, engines=POINT_ENGINES, ssm_settings=SSM_SETTINGS, nuc_type=nuc_type
+                )
+                lattice = PowerSpectrumLattice(
+                    run, r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value
+                )
+                curve = comparison.curves[f"{CHRW25_NAME}_asymptote"]
+                np.testing.assert_allclose(curve.f, lattice.f[lattice.valid], rtol=1e-12)
+                np.testing.assert_allclose(curve.omgw0_h2, lattice.omgw0_h2_asymptote[lattice.valid], rtol=1e-12)
+                for key, ssm_curve in ssm_curve_dict.items():
+                    np.testing.assert_allclose(comparison.curves[key].omgw0_h2, ssm_curve.omgw0_h2, rtol=1e-12)
+                assert rf"$r_* = {as_latex(r_star)}$" in tp.cast(str, comparison.title)
 
     @staticmethod
     def test_lattice_comparison_ssm_required() -> None:
@@ -194,9 +208,10 @@ class LatticeFigureTest(TestCase):
         reference = references["detonation"]
         assert (reference.v_wall, reference.alpha_n) == (run.v_wall, run.alpha_n)
         point = self.model.closest_point(run.alpha_n)
-        ssm = point.power_spectrum(engine=Engine.SSM, v_wall=run.v_wall, ssm_settings=SSM_SETTINGS)
+        # By default, the lattice spectra have the r_* of simultaneous nucleation, which is that of the other engines.
+        r_star = point.power_spectrum(v_wall=run.v_wall).r_star
         lattice = PowerSpectrumLattice(
-            reference, r_star=ssm.r_star, T_star=point.T_star_value, g_star=point.g_star_value
+            reference, r_star=r_star, T_star=point.T_star_value, g_star=point.g_star_value
         )
         np.testing.assert_allclose(curve.omgw0_h2, lattice.omgw0_h2[lattice.valid], rtol=1e-12)
 

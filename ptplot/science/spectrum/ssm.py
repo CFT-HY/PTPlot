@@ -176,7 +176,8 @@ class PowerSpectrumSSM(PowerSpectrum):
             r_star=self.r_star_given,
             T_star=self.T_star,
             nuc_type=nuc_type,
-            # r_* is computed from beta_tilde in the same way for all nucleation types, see power_spectrum().
+            # For simultaneous nucleation, PTtools computes r_* from beta_tilde
+            # without the bubble spacing enlargement, see power_spectrum().
             allow_beta_tilde_for_simultaneous=True,
             suppression=suppression,
             suppression_method=suppression_method,
@@ -243,8 +244,16 @@ class PowerSpectrumSSM(PowerSpectrum):
 
         The bubble lifetime distribution is that of the nucleation type ``nuc_type``,
         see :py:class:`pttools.ssm.nucleation.NucType`.
-        It does not currently affect $r_*$, which is computed from $\tilde{\beta}$
-        in the same way for all nucleation types.
+        If the spectrum is given $\tilde{\beta}$ instead of $r_*$, the nucleation type also affects
+        the $r_*$ of the PTtools spectrum, which PTtools computes from $\tilde{\beta}$
+        with :py:func:`pttools.ssm.nucleation.r_star`.
+        For deflagrations and hybrids with exponential nucleation, it includes the bubble spacing enlargement factor
+        $\Lambda_\text{n}(h_x)$ due to the thermal suppression of nucleation, :ajmi_2022:`\ ` eq. 77,
+        whereas for simultaneous nucleation $\Lambda_\text{n} = 1$,
+        as all the bubbles are nucleated at the same time.
+        :py:attr:`~ptplot.science.spectrum.base.PowerSpectrum.r_star` is that of the default nucleation type,
+        i.e. exponential nucleation, and therefore differs from the $r_*$ of the PTtools spectrum
+        with simultaneous nucleation for deflagrations and hybrids.
 
         The SNR is computed by :py:meth:`PowerSpectrum.snr` on the frequencies ``f``,
         in the same way as :py:meth:`pttools.omgw0.spectrum.Spectrum.snr`.

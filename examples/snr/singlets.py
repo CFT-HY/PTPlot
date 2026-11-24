@@ -27,8 +27,12 @@ For each of these closest points, the GW power spectra of the simulation are com
 see :py:func:`ptplot.science.plot.lattice.lattice_comparison_at_point`.
 The lattice spectra are drawn only if the data of the simulations is available,
 see :py:func:`pttools.lattice.chrw25.data_dir`.
-The lattice spectra are evaluated at the $r_*$ of the SSM spectrum, which includes the thermal suppression
-of nucleation for deflagrations.
+The $r_*$ of the lattice spectra is computed with the nucleation type of the simulations,
+which is simultaneous nucleation, and therefore does not include the thermal suppression of nucleation
+for deflagrations.
+This is also the $r_*$ of the SSM spectrum with simultaneous nucleation and of the other engines.
+With ``--nucleation-suppression``, they are instead evaluated at the $r_*$ of the SSM spectrum
+with exponential nucleation, which includes it.
 The spectra of the $960^3$ simulations of :cutting_2019:`\ ` with the same $v_\text{wall}$ and $\alpha_n$
 (see :py:data:`ptplot.science.plot.lattice.CHW19_RUNS`) are drawn as well if their data is available,
 see :py:func:`ptplot.science.plot.lattice.load_chw19_references`.
@@ -53,6 +57,7 @@ from pathlib import Path
 from matplotlib.figure import Figure
 import numpy as np
 from pttools.lattice import CHRW25_RUNS, load_chrw25_runs
+from pttools.ssm.nucleation import NucType
 from pttools.utils.exceptions import log_exceptions
 from pttools.utils.time import log_duration
 
@@ -179,7 +184,8 @@ def main(
         T_star_statistic: Statistic | str = Statistic.MEAN,  # noqa: N803
         histogram_coswg24bpl: bool = True,
         lattice_coswg24bpl: bool = False,
-        highlight_closest_points: bool = False) -> None:
+        highlight_closest_points: bool = False,
+        nucleation_suppression: bool = False) -> None:
     r"""Create the figures of the singlet scalar models.
 
     :param alpha_n_max: Maximum $\alpha_n$ of the $(\alpha_n, \beta/H_*)$ figures,
@@ -190,6 +196,9 @@ def main(
     :param lattice_coswg24bpl: Whether to include CosWG24bpl in the comparisons with the lattice simulations
     :param highlight_closest_points: Whether to highlight the points of the models whose $\alpha_n$ is closest
         to those of the lattice simulations instead of the parameters of the simulations
+    :param nucleation_suppression: Whether to compute the $r_*$ of the lattice spectra with exponential nucleation,
+        which includes the thermal suppression of nucleation, instead of the nucleation type of the simulations,
+        see :py:func:`ptplot.science.plot.lattice.lattice_comparison_at_point`
     """
     T_star_statistic = Statistic(T_star_statistic)  # noqa: N806
     # This is a heavy computation, so you may want to limit the number of workers on a shared system.
@@ -197,7 +206,7 @@ def main(
     logger.info("Creating the singlet figures with %d parallel workers.", max_workers)
     runs = load_chrw25_runs(missing_ok=True)
     references = load_chw19_references() if runs else {}
-    # The SSM is always included, as its r_star is used for the lattice spectra.
+    # The SSM is always included, as the r_star of the lattice spectra is computed from it.
     lattice_engines = Engine.engines(strong=lattice_coswg24bpl)
     # SNR values of the points of each model for the histogram of all the models
     snr_hists: list[np.ndarray] = []
@@ -214,7 +223,8 @@ def main(
         if snr_hist is not None:
             snr_hists.append(snr_hist)
         for name, comparison in lattice_comparisons(
-                model, runs, engines=lattice_engines, references=references).items():
+                model, runs, engines=lattice_engines, references=references,
+                nuc_type=NucType.EXPONENTIAL if nucleation_suppression else None).items():
             fig_name = f"lattice_{name}"
             with log_exceptions(logger, "Failed to save %s for %s", fig_name, model.name):
                 comparison.save_csv(model_csv_path(model, fig_name, subdir=SUBDIR))
@@ -248,11 +258,17 @@ if __name__ == "__main__":
         "--highlight-closest-points", action="store_true",
         help="highlight the points of the models closest to the lattice simulations instead of their parameters"
     )
+    parser.add_argument(
+        "--nucleation-suppression", action="store_true",
+        help="compute the r_star of the lattice spectra with exponential nucleation, "
+             "which includes the thermal suppression of nucleation"
+    )
     args = parser.parse_args()
     main(
         alpha_n_max=args.alpha_n_max,
         T_star_statistic=Statistic.MEDIAN if args.median else Statistic.MEAN,
         histogram_coswg24bpl=not args.no_histogram_coswg24bpl,
         lattice_coswg24bpl=args.lattice_coswg24bpl,
-        highlight_closest_points=args.highlight_closest_points
+        highlight_closest_points=args.highlight_closest_points,
+        nucleation_suppression=args.nucleation_suppression
     )

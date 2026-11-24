@@ -15,6 +15,9 @@ The comparisons are created with :py:func:`lattice_comparison`, which is used by
   see :py:attr:`pttools.lattice.run_base.LatticeRunBase.nuc_type`,
   whereas the SSM engine assumes exponential nucleation,
   which is therefore drawn with a faded color.
+  In the comparisons at the points of a model (:py:func:`lattice_comparison_at_point`),
+  the $r_*$ of the lattice spectra is computed with the nucleation type of the simulation,
+  and therefore has no nucleation suppression for simultaneous nucleation.
 - The spectra of reference simulations, e.g. those of :cutting_2019:`\ ` with the same parameters
   (:py:data:`CHW19_RUNS`), can be drawn in addition, with the color :py:data:`REFERENCE_COLOR`,
   see :py:func:`lattice_comparison`.
@@ -35,6 +38,7 @@ from pttools.lattice.chw19 import data_dir as chw19_data_dir
 from pttools.math import as_latex
 from pttools.plot.lock import matplotlib_lock
 from pttools.ssm.nucleation import NucType
+from pttools.ssm.nucleation import r_star as r_star_func
 from pttools.ssm.settings import SSMSettings
 from pttools.utils.exceptions import log_exceptions
 
@@ -45,6 +49,7 @@ from ptplot.science.spectrum.base import PowerSpectrum
 from ptplot.science.spectrum.engine import Engine
 from ptplot.science.spectrum.lattice import CHRW25_NAME, CHW19_NAME, LatticeConversion, PowerSpectrumLattice
 from ptplot.science.spectrum.ssm import PowerSpectrumSSM
+from ptplot.science.type_hints import FloatArr1D
 
 if tp.TYPE_CHECKING:
     from ptplot.models import Model, ParameterChoice
@@ -217,21 +222,30 @@ def lattice_comparison_at_point(
         noise: Noise | None = None,
         ssm_settings: SSMSettings | None = None,
         reference: LatticeRun | None = None,
-        reference_name: str = CHW19_NAME) -> LatticeComparison:
+        reference_name: str = CHW19_NAME,
+        nuc_type: NucType | None = None) -> LatticeComparison:
     r"""Compare the GW power spectra of a lattice simulation to those of the engines at a point.
 
     All the spectra have the $v_\text{wall}$ of the simulation, and the engines are given the $\beta/H_*$ of the point,
     from which they compute $r_*$ with this $v_\text{wall}$.
     The other parameters are those of the point.
-    The simulations are scale-free, and the lattice spectra are therefore evaluated at the $r_*$ of the SSM spectrum.
-    For deflagrations and hybrids, this includes the bubble spacing enlargement factor $\Lambda_\text{n}(h_x)$
-    due to the thermal suppression of nucleation, :ajmi_2022:`\ ` eq. 77,
+    The simulations are scale-free, and the lattice spectra are therefore evaluated at an $r_*$
+    computed from the $\tilde{\beta} \equiv \beta/H_*$ and the fluid shell of the SSM spectrum
+    with the nucleation type of the simulation (:py:attr:`pttools.lattice.run_base.LatticeRunBase.nuc_type`),
+    see :py:func:`pttools.ssm.nucleation.r_star`.
+    For deflagrations and hybrids with exponential nucleation, $r_*$ includes the bubble spacing enlargement factor
+    $\Lambda_\text{n}(h_x)$ due to the thermal suppression of nucleation, :ajmi_2022:`\ ` eq. 77,
 
     $$r_* = \Lambda_\text{n}(h_x) r_*(0), \quad r_*(0) = (8\pi)^\frac{1}{3} \frac{{v}_\text{wall}}{\tilde{\beta}},$$
 
-    where $\tilde{\beta} \equiv \beta/H_*$, see :py:func:`pttools.ssm.nucleation.R_star`.
-    The other engines use $r_*(0)$, and their spectra are therefore not evaluated at the same $r_*$
-    as the lattice spectra for deflagrations and hybrids.
+    see :py:func:`pttools.ssm.nucleation.R_star`.
+    For simultaneous nucleation, the reheating cannot suppress the nucleation, and $\Lambda_\text{n} = 1$.
+    The bubbles of the simulations of :correia_2025:`\ ` are nucleated simultaneously,
+    and their lattice spectra are therefore evaluated at $r_*(0)$.
+    This is also the $r_*$ of the SSM spectrum with simultaneous nucleation and of the other engines,
+    whereas the SSM spectrum with exponential nucleation has $\Lambda_\text{n}(h_x) r_*(0)$, see :py:func:`ssm_curves`.
+    With ``nuc_type=NucType.EXPONENTIAL``, the lattice spectra are instead evaluated at
+    the $r_*$ of the SSM spectrum with exponential nucleation, as in the earlier versions of PTPlot.
     For detonations, $\Lambda_\text{n} = 1$, and all the spectra have the same $r_*$.
     The spectrum of the reference simulation is evaluated at the same $r_*$ as that of the simulation.
     See :py:func:`lattice_comparison`.
@@ -245,19 +259,29 @@ def lattice_comparison_at_point(
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
     :param reference: Reference simulation with the same parameters, e.g. from :py:func:`load_chw19_references`
     :param reference_name: Name of the reference simulation in the labels
+    :param nuc_type: Nucleation type for the $\tilde{\beta} \rightarrow r_*$ conversion of the lattice spectra,
+        defaults to that of the simulation
     :return: The comparison, whose default title contains the parameters of the point and the simulation
     :raises ValueError: If the engines do not include the SSM
     """
     engines = Engine.engines(engines, strong=engines is not None)
     if Engine.SSM not in engines:
         raise ValueError(
-            f"The engines must include the SSM, whose r_star is used for the lattice spectra. Got: {engines}"
+            "The engines must include the SSM, from which the r_star of the lattice spectra is computed. "
+            f"Got: {engines}"
         )
     spectra = [
         point.power_spectrum(engine=engine, v_wall=run.v_wall, ssm_settings=ssm_settings)
         for engine in engines
     ]
-    r_star = next(spectrum for spectrum in spectra if isinstance(spectrum, PowerSpectrumSSM)).r_star
+    ssm = next(spectrum for spectrum in spectra if isinstance(spectrum, PowerSpectrumSSM))
+    bubble = ssm.bubble
+    if not bubble.solved:
+        bubble.solve()
+    r_star = float(r_star_func(
+        beta_tilde=ssm.beta_tilde, v_wall=bubble.v_wall, xi=bubble.xi, T=tp.cast(FloatArr1D, bubble.T),
+        sol_type=bubble.sol_type, nuc_type=run.nuc_type if nuc_type is None else nuc_type
+    ))
     T_star = point.T_star_value
     g_star = point.g_star_value
     lattice = PowerSpectrumLattice(run, r_star=r_star, T_star=T_star, g_star=g_star, name=name)
@@ -278,7 +302,8 @@ def lattice_comparisons(
         name: str = CHRW25_NAME,
         ssm_settings: SSMSettings | None = None,
         references: dict[str, LatticeRun] | None = None,
-        reference_name: str = CHW19_NAME) -> dict[str, LatticeComparison]:
+        reference_name: str = CHW19_NAME,
+        nuc_type: NucType | None = None) -> dict[str, LatticeComparison]:
     r"""Compare the GW power spectra of lattice simulations to those of the engines at the points of a model.
 
     For each simulation, the point of the model whose $\alpha$ is closest to the $\alpha_n$ of the simulation
@@ -294,6 +319,8 @@ def lattice_comparisons(
     :param references: Reference simulations by the names of the simulations, which need not cover all of them,
         e.g. from :py:func:`load_chw19_references`
     :param reference_name: Name of the reference simulations in the labels
+    :param nuc_type: Nucleation type for the $\tilde{\beta} \rightarrow r_*$ conversion of the lattice spectra,
+        defaults to that of the simulation, see :py:func:`lattice_comparison_at_point`
     :return: Comparisons by the names of the simulations
     """
     engines = None if engines is None else list(engines)
@@ -303,7 +330,8 @@ def lattice_comparisons(
         with log_exceptions(logger, "Failed to plot the lattice spectra of %s for %s", run_name, model.name):
             comparisons[run_name] = lattice_comparison_at_point(
                 model.closest_point(run.alpha_n), run, engines, name=name, ssm_settings=ssm_settings,
-                reference=references.get(run_name), reference_name=reference_name
+                reference=references.get(run_name), reference_name=reference_name,
+                nuc_type=nuc_type
             )
     return comparisons
 
@@ -364,7 +392,8 @@ def lattice_figure(
         name: str = CHRW25_NAME,
         title: bool | str = True,
         snr: bool = True,
-        ssm_settings: SSMSettings | None = None) -> Figure:
+        ssm_settings: SSMSettings | None = None,
+        nuc_type: NucType | None = None) -> Figure:
     r"""Compare the GW power spectra of a lattice simulation to those of the engines at a point.
 
     See :py:func:`lattice_comparison_at_point`.
@@ -377,10 +406,12 @@ def lattice_figure(
     :param title: Title of the figure, True for the default title with the parameters, or False for no title
     :param snr: Whether to print the SNR values in the legend
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+    :param nuc_type: Nucleation type for the $\tilde{\beta} \rightarrow r_*$ conversion of the lattice spectrum,
+        defaults to that of the simulation, see :py:func:`lattice_comparison_at_point`
     :return: Power spectrum figure
     """
     return lattice_comparison_at_point(
-        point, run, engines, name=name, ssm_settings=ssm_settings
+        point, run, engines, name=name, ssm_settings=ssm_settings, nuc_type=nuc_type
     ).figure(title=title, snr=snr)
 
 
@@ -391,7 +422,8 @@ def lattice_figures(
         name: str = CHRW25_NAME,
         title: bool | str = True,
         snr: bool = True,
-        ssm_settings: SSMSettings | None = None) -> dict[str, Figure]:
+        ssm_settings: SSMSettings | None = None,
+        nuc_type: NucType | None = None) -> dict[str, Figure]:
     r"""Compare the GW power spectra of lattice simulations to those of the engines at the points of a model.
 
     See :py:func:`lattice_comparisons`.
@@ -404,12 +436,14 @@ def lattice_figures(
     :param title: Title of the figures, True for the default titles with the parameters, or False for no titles
     :param snr: Whether to print the SNR values in the legends
     :param ssm_settings: Accuracy settings of the PTtools spectra of the SSM engine
+    :param nuc_type: Nucleation type for the $\tilde{\beta} \rightarrow r_*$ conversion of the lattice spectra,
+        defaults to that of the simulation, see :py:func:`lattice_comparison_at_point`
     :return: Figures by the names of the simulations
     """
     return {
         run_name: comparison.figure(title=title, snr=snr)
         for run_name, comparison in lattice_comparisons(
-            model, runs, engines, name=name, ssm_settings=ssm_settings
+            model, runs, engines, name=name, ssm_settings=ssm_settings, nuc_type=nuc_type
         ).items()
     }
 
@@ -441,7 +475,12 @@ def ssm_curves(
     r"""Curves of the SSM spectrum with different nucleation types, with their SNRs.
 
     The spectra are those of :py:meth:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.power_spectrum`
-    with each nucleation type, and therefore have the same $r_*$.
+    with each nucleation type.
+    If the SSM spectrum has been given $r_*$, the spectra have the same $r_*$.
+    If it has been given $\tilde{\beta}$ instead, the $r_*$ of each spectrum depends on the nucleation type:
+    for deflagrations and hybrids, the $r_*$ of exponential nucleation includes the bubble spacing enlargement factor
+    $\Lambda_\text{n}(h_x)$ due to the thermal suppression of nucleation, :ajmi_2022:`\ ` eq. 77,
+    whereas that of simultaneous nucleation is $r_*(0)$, see :py:func:`pttools.ssm.nucleation.r_star`.
     The exponential nucleation is that of the SSM engine,
     and it's drawn with a faded color to distinguish it from the simultaneous nucleation of the simulations.
     After this, :py:attr:`ptplot.science.spectrum.ssm.PowerSpectrumSSM.spectrum` is the spectrum
