@@ -152,6 +152,9 @@ apidoc_separate_modules = True
 autodoc_default_options = {
     # This would result in duplicate class descriptions when using a template.
     # "members": True,
+    # The packages re-export the members of their submodules with __all__.
+    # Document them only in the submodules to avoid duplicate cross-reference targets.
+    "ignore-module-all": True,
     "show-inheritance": True,
     "undoc-members": True,
 }
